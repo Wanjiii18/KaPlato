@@ -1,19 +1,34 @@
-import { Injectable } from '@angular/core';
-import { Auth, createUserWithEmailAndPassword, signInWithEmailAndPasswor  // Check if username already exists
-  private async checkUsernameExists(username: string): Promise<boolean> {
-    try {
-      const usersRef = collection(this.firestore, 'users');
-      const q = query(usersRef, where('username', '==', username.toLowerCase()));
-      const querySnapshot = await getDocs(q);
-      return !querySnapshot.empty;
-    } catch (error) {
-      console.error('Error checking username:', error);
-      return false;
-    }
-  }
+import { Injectable, NgZone } from '@angular/core';
+import { Auth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile, User } from '@angular/fire/auth';
 import { Firestore, doc, setDoc, collection, query, where, getDocs } from '@angular/fire/firestore';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { Router } from '@angular/router';
+
+export interface Allergen {
+  id: string;
+  name: string;
+  severity: 'mild' | 'moderate' | 'severe';
+  notes?: string;
+  addedAt: any; // Allow for Firestore Timestamp
+}
+
+export interface MealPlan {
+  id: string;
+  name: string;
+  description?: string;
+  meals: {
+    breakfast?: string[];
+    lunch?: string[];
+    dinner?: string[];
+    snacks?: string[];
+  };
+  startDate: any; // Allow for Firestore Timestamp
+  endDate: any; // Allow for Firestore Timestamp
+  isActive: boolean;
+  createdAt: any; // Allow for Firestore Timestamp
+  updatedAt: any; // Allow for Firestore Timestamp
+  notes?: string;
+}
 
 export interface UserProfile {
   uid: string;
@@ -21,18 +36,26 @@ export interface UserProfile {
   email: string;
   displayName: string;
   role: 'user' | 'karenderia_owner' | 'admin';
-  createdAt: Date;
+  createdAt: any; // Allow for Firestore Timestamp
   phoneNumber?: string;
   address?: string;
   profileImageUrl?: string;
   isVerified?: boolean;
+  // User profile features
+  allergens?: Allergen[];
+  mealPlans?: MealPlan[];
+  preferences?: {
+    dietaryRestrictions?: string[];
+    cuisinePreferences?: string[];
+    budgetRange?: { min: number; max: number };
+  };
   // For karenderia owners
   businessName?: string;
   businessPermitNumber?: string;
   businessPermitImageUrl?: string;
   applicationStatus?: 'pending' | 'approved' | 'rejected';
-  applicationSubmittedAt?: Date;
-  reviewedAt?: Date;
+  applicationSubmittedAt?: any; // Allow for Firestore Timestamp
+  reviewedAt?: any; // Allow for Firestore Timestamp
   reviewedBy?: string;
   rejectionReason?: string;
 }
@@ -47,11 +70,14 @@ export class AuthService {
   constructor(
     private auth: Auth,
     private firestore: Firestore,
-    private router: Router
+    private router: Router,
+    private zone: NgZone // Inject NgZone
   ) {
     // Listen to auth state changes
     this.auth.onAuthStateChanged((user) => {
-      this.currentUserSubject.next(user);
+      this.zone.run(() => {
+        this.currentUserSubject.next(user);
+      });
     });
   }
 
@@ -64,12 +90,12 @@ export class AuthService {
         throw new Error('Username is already taken. Please choose a different username.');
       }
 
-      const userCredential = await createUserWithEmailAndPassword(this.auth, email, password);
+      const userCredential = await this.zone.run(() => createUserWithEmailAndPassword(this.auth, email, password));
       
       // Update user profile with username
-      await updateProfile(userCredential.user, {
+      await this.zone.run(() => updateProfile(userCredential.user, {
         displayName: username
-      });
+      }));
 
       // Store user profile in Firestore
       const userProfile: UserProfile = {
@@ -83,9 +109,9 @@ export class AuthService {
         applicationStatus: role === 'karenderia_owner' ? 'pending' : undefined
       };
 
-      await setDoc(doc(this.firestore, 'users', userCredential.user.uid), userProfile);
+      await this.zone.run(() => setDoc(doc(this.firestore, 'users', userCredential.user.uid), userProfile));
       
-      this.router.navigate(['/home']);
+      this.zone.run(() => this.router.navigate(['/home']));
     } catch (error: any) {
       throw new Error(this.getErrorMessage(error.code) || error.message);
     }
@@ -99,8 +125,8 @@ export class AuthService {
         throw new Error('Please use your email address to login.');
       }
 
-      await signInWithEmailAndPassword(this.auth, emailOrUsername, password);
-      this.router.navigate(['/home']);
+      await this.zone.run(() => signInWithEmailAndPassword(this.auth, emailOrUsername, password));
+      this.zone.run(() => this.router.navigate(['/home']));
     } catch (error: any) {
       throw new Error(this.getErrorMessage(error.code) || error.message);
     }
@@ -109,8 +135,8 @@ export class AuthService {
   // Logout
   async logout(): Promise<void> {
     try {
-      await signOut(this.auth);
-      this.router.navigate(['/login']);
+      await this.zone.run(() => signOut(this.auth));
+      this.zone.run(() => this.router.navigate(['/login']));
     } catch (error) {
       console.error('Error during logout:', error);
     }
@@ -131,7 +157,7 @@ export class AuthService {
     try {
       const usersRef = collection(this.firestore, 'users');
       const q = query(usersRef, where('username', '==', username.toLowerCase()));
-      const querySnapshot = await getDocs(q);
+      const querySnapshot = await this.zone.run(() => getDocs(q));
       return !querySnapshot.empty;
     } catch (error) {
       console.error('Error checking username:', error);
@@ -144,8 +170,8 @@ export class AuthService {
     try {
       const usersRef = collection(this.firestore, 'users');
       const q = query(usersRef, where('username', '==', username.toLowerCase()));
-      const querySnapshot = await getDocs(q);
-      
+      const querySnapshot = await this.zone.run(() => getDocs(q));
+
       if (!querySnapshot.empty) {
         const userDoc = querySnapshot.docs[0];
         return userDoc.data()['email'];

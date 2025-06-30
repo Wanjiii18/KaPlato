@@ -18,6 +18,7 @@ export class LoginPage implements OnInit {
   showPassword = false;
   isLoading = false;
   errorMessage = '';
+  isLoginDisabled = false; // Added property to fix error
 
   constructor(
     private authService: AuthService,

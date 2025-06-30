@@ -62,6 +62,14 @@
           </ion-card-content>
         </ion-card>
 
+        <ion-card button (click)="goToProfile()" class="menu-card">
+          <ion-card-content>
+            <ion-icon name="person-outline" size="large" color="medium"></ion-icon>
+            <h3>Profile</h3>
+            <p>Manage allergens & meal plans</p>
+          </ion-card-content>
+        </ion-card>
+
         <!-- Karenderia Owner Specific Options -->
         <ion-card 
           *ngIf="userProfile?.role === 'karenderia_owner'" 

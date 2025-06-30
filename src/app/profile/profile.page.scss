@@ -1,0 +1,166 @@
+.profile-container {
+  padding: 16px;
+  max-width: 100%;
+}
+
+.user-info-card {
+  margin-bottom: 20px;
+  
+  .user-avatar {
+    text-align: center;
+    margin-bottom: 10px;
+    
+    ion-icon {
+      font-size: 80px;
+      color: var(--ion-color-primary);
+    }
+  }
+  
+  ion-card-header {
+    text-align: center;
+    
+    ion-card-title {
+      font-size: 1.5em;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    
+    ion-card-subtitle {
+      margin-bottom: 10px;
+    }
+  }
+}
+
+.profile-segment {
+  margin-bottom: 20px;
+  
+  ion-segment-button {
+    --indicator-height: 3px;
+  }
+}
+
+.segment-content {
+  min-height: 400px;
+}
+
+.allergens-list,
+.meal-plans-list {
+  margin-top: 20px;
+}
+
+.allergen-item {
+  --padding-start: 16px;
+  --padding-end: 16px;
+  margin-bottom: 8px;
+  border-radius: 8px;
+  border: 1px solid var(--ion-color-light-shade);
+  
+  ion-label {
+    h3 {
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    
+    p {
+      margin: 2px 0;
+      font-size: 0.9em;
+    }
+    
+    .allergen-date {
+      color: var(--ion-color-medium);
+      font-size: 0.8em;
+    }
+  }
+}
+
+.meal-plan-item {
+  --padding-start: 16px;
+  --padding-end: 16px;
+  margin-bottom: 8px;
+  border-radius: 8px;
+  border: 1px solid var(--ion-color-light-shade);
+  
+  ion-label {
+    h3 {
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    
+    p {
+      margin: 2px 0;
+      font-size: 0.9em;
+    }
+    
+    .meal-plan-dates {
+      color: var(--ion-color-medium);
+      font-size: 0.8em;
+    }
+  }
+}
+
+.meal-plan-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--ion-color-medium);
+  
+  ion-icon {
+    font-size: 64px;
+    margin-bottom: 16px;
+    opacity: 0.5;
+  }
+  
+  p {
+    margin: 8px 0;
+    
+    &.empty-subtitle {
+      font-size: 0.9em;
+      opacity: 0.8;
+    }
+  }
+}
+
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 300px;
+  color: var(--ion-color-medium);
+  
+  ion-spinner {
+    margin-bottom: 16px;
+  }
+}
+
+// Mobile responsiveness
+@media (max-width: 768px) {
+  .profile-container {
+    padding: 12px;
+  }
+  
+  .user-info-card {
+    .user-avatar ion-icon {
+      font-size: 64px;
+    }
+  }
+  
+  .allergen-item,
+  .meal-plan-item {
+    --padding-start: 12px;
+    --padding-end: 12px;
+  }
+}
+
+// Dark mode support
+@media (prefers-color-scheme: dark) {
+  .allergen-item,
+  .meal-plan-item {
+    border-color: var(--ion-color-dark-tint);
+  }
+}

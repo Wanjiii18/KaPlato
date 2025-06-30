@@ -76,4 +76,8 @@ export class HomePage implements OnInit, OnDestroy {
   goToApplicationPage() {
     this.router.navigate(['/karenderia-application']);
   }
+
+  goToProfile() {
+    this.router.navigate(['/profile']);
+  }
 }
