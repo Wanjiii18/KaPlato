@@ -1,0 +1,73 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>Login</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  <div class="login-container">
+    <div class="logo-container">
+      <ion-icon name="log-in-outline" size="large" color="primary"></ion-icon>
+      <h1>Welcome Back</h1>
+      <p>Sign in to your account</p>
+    </div>
+
+    <form #loginForm="ngForm" (ngSubmit)="onLogin(loginForm)">
+      <ion-item class="input-item">
+        <ion-label position="floating">Email or Username</ion-label>
+        <ion-input
+          type="text"
+          name="emailOrUsername"
+          [(ngModel)]="loginData.emailOrUsername"
+          required
+          #emailOrUsername="ngModel">
+        </ion-input>
+      </ion-item>
+      <div class="error-message" *ngIf="emailOrUsername.invalid && emailOrUsername.touched">
+        <span *ngIf="emailOrUsername.errors?.['required']">Email or Username is required</span>
+      </div>
+
+      <ion-item class="input-item">
+        <ion-label position="floating">Password</ion-label>
+        <ion-input
+          [type]="showPassword ? 'text' : 'password'"
+          name="password"
+          [(ngModel)]="loginData.password"
+          required
+          minlength="6"
+          #password="ngModel">
+        </ion-input>
+        <ion-button
+          fill="clear"
+          slot="end"
+          (click)="togglePasswordVisibility()"
+          size="small">
+          <ion-icon [name]="showPassword ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+        </ion-button>
+      </ion-item>
+      <div class="error-message" *ngIf="password.invalid && password.touched">
+        <span *ngIf="password.errors?.['required']">Password is required</span>
+        <span *ngIf="password.errors?.['minlength']">Password must be at least 6 characters</span>
+      </div>
+
+      <ion-button
+        expand="block"
+        type="submit"
+        [disabled]="!loginForm.valid || isLoading"
+        class="login-button">
+        <ion-spinner name="crescent" *ngIf="isLoading"></ion-spinner>
+        <span *ngIf="!isLoading">Login</span>
+      </ion-button>
+    </form>
+
+    <div class="error-message" *ngIf="errorMessage">
+      {{ errorMessage }}
+    </div>
+
+    <div class="register-link">
+      <p>Don't have an account? 
+        <ion-button fill="clear" (click)="goToRegister()">Register here</ion-button>
+      </p>
+    </div>
+  </div>
+</ion-content>

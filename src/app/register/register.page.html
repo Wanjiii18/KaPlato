@@ -1,0 +1,149 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/login"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Register</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  <div class="register-container">
+    <div class="logo-container">
+      <ion-icon name="person-add-outline" size="large" color="primary"></ion-icon>
+      <h1>Create Account</h1>
+      <p>Join us today</p>
+    </div>
+
+    <form #registerForm="ngForm" (ngSubmit)="onRegister(registerForm)">
+      <ion-item class="input-item">
+        <ion-label position="floating">Username</ion-label>
+        <ion-input
+          type="text"
+          name="username"
+          [(ngModel)]="registerData.username"
+          required
+          minlength="3"
+          #username="ngModel">
+        </ion-input>
+      </ion-item>
+      <div class="error-message" *ngIf="username.invalid && username.touched">
+        <span *ngIf="username.errors?.['required']">Username is required</span>
+        <span *ngIf="username.errors?.['minlength']">Username must be at least 3 characters</span>
+      </div>
+
+      <ion-item class="input-item">
+        <ion-label position="floating">Email</ion-label>
+        <ion-input
+          type="email"
+          name="email"
+          [(ngModel)]="registerData.email"
+          required
+          email
+          #email="ngModel">
+        </ion-input>
+      </ion-item>
+      <div class="error-message" *ngIf="email.invalid && email.touched">
+        <span *ngIf="email.errors?.['required']">Email is required</span>
+        <span *ngIf="email.errors?.['email']">Please enter a valid email</span>
+      </div>
+
+      <!-- Role Selection -->
+      <ion-item class="input-item">
+        <ion-label>Account Type</ion-label>
+        <ion-select 
+          name="role"
+          [(ngModel)]="registerData.role" 
+          placeholder="Select your role"
+          interface="popover">
+          <ion-select-option value="user">Customer</ion-select-option>
+          <ion-select-option value="karenderia_owner">Karenderia Owner</ion-select-option>
+        </ion-select>
+      </ion-item>
+
+      <!-- Role Description -->
+      <div class="role-description">
+        <ion-card *ngIf="registerData.role === 'user'" color="light">
+          <ion-card-content>
+            <ion-icon name="person-outline" color="primary"></ion-icon>
+            <p><strong>Customer Account:</strong> Find and discover nearby karenderias, view menus, and plan your meals.</p>
+          </ion-card-content>
+        </ion-card>
+        
+        <ion-card *ngIf="registerData.role === 'karenderia_owner'" color="light">
+          <ion-card-content>
+            <ion-icon name="storefront-outline" color="success"></ion-icon>
+            <p><strong>Karenderia Owner:</strong> Submit your business for approval, manage your karenderia listing, and reach more customers.</p>
+            <p class="note"><strong>Note:</strong> Business permit required for verification.</p>
+          </ion-card-content>
+        </ion-card>
+      </div>
+
+      <ion-item class="input-item">
+        <ion-label position="floating">Password</ion-label>
+        <ion-input
+          [type]="showPassword ? 'text' : 'password'"
+          name="password"
+          [(ngModel)]="registerData.password"
+          required
+          minlength="6"
+          #password="ngModel">
+        </ion-input>
+        <ion-button
+          fill="clear"
+          slot="end"
+          (click)="togglePasswordVisibility()"
+          size="small">
+          <ion-icon [name]="showPassword ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+        </ion-button>
+      </ion-item>
+      <div class="error-message" *ngIf="password.invalid && password.touched">
+        <span *ngIf="password.errors?.['required']">Password is required</span>
+        <span *ngIf="password.errors?.['minlength']">Password must be at least 6 characters</span>
+      </div>
+
+      <ion-item class="input-item">
+        <ion-label position="floating">Confirm Password</ion-label>
+        <ion-input
+          [type]="showConfirmPassword ? 'text' : 'password'"
+          name="confirmPassword"
+          [(ngModel)]="registerData.confirmPassword"
+          required
+          #confirmPassword="ngModel">
+        </ion-input>
+        <ion-button
+          fill="clear"
+          slot="end"
+          (click)="toggleConfirmPasswordVisibility()"
+          size="small">
+          <ion-icon [name]="showConfirmPassword ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+        </ion-button>
+      </ion-item>
+      <div class="error-message" *ngIf="confirmPassword.invalid && confirmPassword.touched">
+        <span *ngIf="confirmPassword.errors?.['required']">Please confirm your password</span>
+      </div>
+      <div class="error-message" *ngIf="registerData.password !== registerData.confirmPassword && confirmPassword.touched">
+        <span>Passwords do not match</span>
+      </div>
+
+      <ion-button
+        expand="block"
+        type="submit"
+        [disabled]="!registerForm.valid || registerData.password !== registerData.confirmPassword || isLoading"
+        class="register-button">
+        <ion-spinner name="crescent" *ngIf="isLoading"></ion-spinner>
+        <span *ngIf="!isLoading">Create Account</span>
+      </ion-button>
+    </form>
+
+    <div class="error-message" *ngIf="errorMessage">
+      {{ errorMessage }}
+    </div>
+
+    <div class="login-link">
+      <p>Already have an account? 
+        <ion-button fill="clear" (click)="goToLogin()">Login here</ion-button>
+      </p>
+    </div>
+  </div>
+</ion-content>

@@ -1,0 +1,181 @@
+.application-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding-bottom: 2rem;
+}
+
+.existing-applications {
+  margin-bottom: 2rem;
+  
+  h2 {
+    color: var(--ion-color-primary);
+    margin-bottom: 1rem;
+  }
+  
+  .application-status {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    
+    ion-badge {
+      ion-icon {
+        margin-right: 0.25rem;
+      }
+    }
+  }
+}
+
+.form-section {
+  .form-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    
+    ion-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+    
+    h1 {
+      color: var(--ion-color-primary);
+      margin-bottom: 0.5rem;
+    }
+    
+    p {
+      color: var(--ion-color-medium);
+    }
+  }
+}
+
+.section-header {
+  margin: 2rem 0 1rem 0;
+  
+  h3 {
+    color: var(--ion-color-primary);
+    display: flex;
+    align-items: center;
+    
+    ion-icon {
+      margin-right: 0.5rem;
+      font-size: 1.2rem;
+    }
+  }
+}
+
+.input-item {
+  margin-bottom: 1rem;
+  --background: var(--ion-color-light);
+  --border-radius: 8px;
+}
+
+.error-message {
+  color: var(--ion-color-danger);
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+  margin-bottom: 1rem;
+  padding-left: 16px;
+}
+
+.file-upload-section {
+  margin: 1rem 0;
+  
+  ion-label {
+    font-weight: 600;
+    color: var(--ion-color-dark);
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+  
+  .file-input-container {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    
+    input[type="file"] {
+      display: none;
+    }
+  }
+  
+  .file-help-text {
+    font-size: 0.8rem;
+    color: var(--ion-color-medium);
+    margin-top: 0.5rem;
+    margin-bottom: 0;
+  }
+}
+
+.cuisine-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.5rem;
+  margin: 1rem 0;
+  
+  .cuisine-item {
+    --background: var(--ion-color-light);
+    --border-radius: 8px;
+    --padding-start: 1rem;
+    --padding-end: 1rem;
+    
+    ion-checkbox {
+      margin-right: 0.5rem;
+    }
+  }
+}
+
+.operating-hours {
+  .day-schedule {
+    margin-bottom: 0.5rem;
+    
+    .day-item {
+      --background: var(--ion-color-light);
+      --border-radius: 8px;
+      --padding-top: 1rem;
+      --padding-bottom: 1rem;
+      
+      .day-label {
+        min-width: 100px;
+        font-weight: 600;
+      }
+      
+      .time-inputs {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        
+        ion-input {
+          --background: white;
+          --border-radius: 4px;
+          --padding-start: 0.5rem;
+          --padding-end: 0.5rem;
+          border: 1px solid var(--ion-color-light-shade);
+        }
+        
+        .time-separator {
+          color: var(--ion-color-medium);
+          font-size: 0.9rem;
+        }
+      }
+    }
+  }
+}
+
+.submit-button {
+  margin-top: 2rem;
+  --border-radius: 8px;
+  height: 48px;
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .cuisine-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .time-inputs {
+    flex-direction: column;
+    gap: 0.25rem !important;
+    
+    .time-separator {
+      display: none;
+    }
+  }
+}

@@ -1,0 +1,97 @@
+.register-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  justify-content: center;
+  max-width: 400px;
+  margin: 0 auto;
+  padding-top: 2rem;
+}
+
+.logo-container {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.logo-container ion-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+.logo-container h1 {
+  color: var(--ion-color-primary);
+  margin-bottom: 0.5rem;
+}
+
+.logo-container p {
+  color: var(--ion-color-medium);
+  margin-bottom: 0;
+}
+
+.input-item {
+  margin-bottom: 1rem;
+  --background: var(--ion-color-light);
+  --border-radius: 8px;
+}
+
+.error-message {
+  color: var(--ion-color-danger);
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+  margin-bottom: 1rem;
+  padding-left: 16px;
+}
+
+.register-button {
+  margin-top: 1.5rem;
+  --border-radius: 8px;
+  height: 48px;
+}
+
+.login-link {
+  text-align: center;
+  margin-top: 2rem;
+}
+
+.login-link p {
+  color: var(--ion-color-medium);
+  margin: 0;
+}
+
+.login-link ion-button {
+  --color: var(--ion-color-primary);
+  margin: 0;
+  padding: 0;
+}
+
+.role-description {
+  margin: 1rem 0;
+}
+
+.role-description ion-card {
+  margin: 0.5rem 0;
+  --background: var(--ion-color-light-tint);
+}
+
+.role-description ion-card ion-card-content {
+  padding: 1rem;
+}
+
+.role-description ion-card ion-card-content ion-icon {
+  font-size: 1.5rem;
+  margin-right: 0.5rem;
+  vertical-align: middle;
+}
+
+.role-description ion-card ion-card-content p {
+  margin: 0.5rem 0;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.role-description ion-card ion-card-content .note {
+  font-size: 0.8rem;
+  color: var(--ion-color-medium);
+  font-style: italic;
+  margin-top: 0.5rem;
+}

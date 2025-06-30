@@ -1,0 +1,53 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>
+      KaPlato
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="logout()" fill="clear">
+        <ion-icon name="log-out-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">KaPlato</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <div id="container" *ngIf="currentUser">
+    <div class="welcome-section">
+      <ion-icon name="person-circle-outline" size="large" color="primary"></ion-icon>
+      <h1>Welcome, {{ userProfile?.displayName || currentUser?.displayName || 'User' }}!</h1>
+      <p class="user-email">{{ currentUser?.email }}</p>
+      <p class="username" *ngIf="userProfile?.username">Username: {{ userProfile.username }}</p>
+    </div>
+
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Dashboard</ion-card-title>
+        <ion-card-subtitle>You're successfully logged in</ion-card-subtitle>
+      </ion-card-header>
+      <ion-card-content>
+        <p>This is your main dashboard. You can now start building your app features!</p>
+      </ion-card-content>
+    </ion-card>
+
+    <div class="actions-section">
+      <ion-button expand="block" fill="outline" (click)="logout()">
+        <ion-icon name="log-out-outline" slot="start"></ion-icon>
+        Logout
+      </ion-button>
+    </div>
+  </div>
+
+  <div id="container" *ngIf="!currentUser">
+    <div class="loading-section">
+      <ion-spinner name="crescent"></ion-spinner>
+      <p>Loading...</p>
+    </div>
+  </div>
+</ion-content>

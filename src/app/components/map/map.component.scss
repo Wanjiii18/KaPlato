@@ -1,0 +1,118 @@
+.map-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+}
+
+.search-controls {
+  background: white;
+  padding: 16px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  z-index: 1000;
+  
+  .range-control {
+    margin-bottom: 12px;
+    
+    ion-item {
+      --padding-start: 0;
+      --padding-end: 0;
+      --inner-padding-end: 0;
+      --inner-padding-start: 0;
+    }
+    
+    ion-label {
+      font-weight: 600;
+      color: var(--ion-color-primary);
+    }
+    
+    ion-range {
+      --bar-height: 4px;
+      --bar-border-radius: 2px;
+      --knob-size: 20px;
+      --knob-border-radius: 50%;
+      --pin-font-size: 12px;
+      padding: 8px 0;
+    }
+  }
+  
+  .action-buttons {
+    display: flex;
+    gap: 8px;
+    
+    ion-button {
+      --border-radius: 8px;
+      flex: 1;
+      
+      &[fill="outline"] {
+        --border-width: 1px;
+        --border-style: solid;
+        --border-color: var(--ion-color-primary);
+      }
+      
+      ion-icon {
+        font-size: 16px;
+      }
+    }
+  }
+}
+
+#map {
+  flex: 1;
+  height: 100%;
+  width: 100%;
+  min-height: 300px;
+}
+
+.results-summary {
+  background: var(--ion-color-light);
+  padding: 8px 16px;
+  text-align: center;
+  font-size: 14px;
+  color: var(--ion-color-dark);
+  border-top: 1px solid var(--ion-color-light-shade);
+  
+  p {
+    margin: 0;
+    font-weight: 500;
+  }
+}
+
+// Custom marker styles
+.current-location-marker {
+  border: none !important;
+  background: transparent !important;
+}
+
+.karenderia-marker {
+  border: none !important;
+  background: transparent !important;
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .search-controls {
+    padding: 12px;
+    
+    .action-buttons {
+      flex-direction: column;
+      
+      ion-button {
+        margin: 2px 0;
+      }
+    }
+  }
+}
+
+// Map loading state
+.map-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  background: var(--ion-color-light);
+  
+  ion-spinner {
+    margin-right: 8px;
+  }
+}

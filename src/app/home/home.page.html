@@ -1,20 +1,125 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-title>
-      Blank
-    </ion-title>
+    <ion-title>KaPlato</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="logout()" fill="clear">
+        <ion-icon name="log-out-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Blank</ion-title>
-    </ion-toolbar>
-  </ion-header>
+  <!-- Loading state -->
+  <div *ngIf="isLoading" class="loading-container">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Loading...</p>
+  </div>
 
-  <div id="container">
-    <strong>Ready to create an app?</strong>
-    <p>Start with Ionic <a target="_blank" rel="noopener noreferrer" href="https://ionicframework.com/docs/components">UI Components</a></p>
+  <!-- Main content when user is authenticated -->
+  <div *ngIf="!isLoading && currentUser" class="main-content">
+    <!-- Welcome Section -->
+    <div class="welcome-section">
+      <ion-icon name="person-circle-outline" size="large" color="primary"></ion-icon>
+      <h1>Welcome, {{ currentUser.displayName || 'User' }}!</h1>
+      <p class="user-email">{{ currentUser.email }}</p>
+    </div>
+
+    <!-- Menu Section -->
+    <div class="menu-section">
+      <h2>Menu</h2>
+      
+      <div class="menu-grid">
+        <ion-card button (click)="toggleMap()" class="menu-card">
+          <ion-card-content>
+            <ion-icon name="map-outline" size="large" color="primary"></ion-icon>
+            <h3>{{ showMap ? 'Hide Map' : 'Show Map' }}</h3>
+            <p>View locations on map</p>
+          </ion-card-content>
+        </ion-card>
+
+        <ion-card button (click)="searchKarenderia()" class="menu-card">
+          <ion-card-content>
+            <ion-icon name="search-outline" size="large" color="secondary"></ion-icon>
+            <h3>Search Karenderia</h3>
+            <p>Find local eateries</p>
+          </ion-card-content>
+        </ion-card>
+
+        <ion-card button class="menu-card">
+          <ion-card-content>
+            <ion-icon name="restaurant-outline" size="large" color="tertiary"></ion-icon>
+            <h3>Menu Planner</h3>
+            <p>Plan your meals</p>
+          </ion-card-content>
+        </ion-card>
+
+        <ion-card button class="menu-card">
+          <ion-card-content>
+            <ion-icon name="heart-outline" size="large" color="danger"></ion-icon>
+            <h3>Favorites</h3>
+            <p>Your favorite places</p>
+          </ion-card-content>
+        </ion-card>
+
+        <!-- Karenderia Owner Specific Options -->
+        <ion-card 
+          *ngIf="userProfile?.role === 'karenderia_owner'" 
+          button 
+          (click)="goToApplicationPage()" 
+          class="menu-card owner-card">
+          <ion-card-content>
+            <ion-icon name="storefront-outline" size="large" color="success"></ion-icon>
+            <h3>My Business</h3>
+            <p>Manage your karenderia</p>
+          </ion-card-content>
+        </ion-card>
+
+        <ion-card 
+          *ngIf="userProfile?.role === 'karenderia_owner' && userProfile?.applicationStatus === 'pending'" 
+          class="menu-card status-card pending">
+          <ion-card-content>
+            <ion-icon name="time-outline" size="large" color="warning"></ion-icon>
+            <h3>Application Pending</h3>
+            <p>Your application is being reviewed</p>
+          </ion-card-content>
+        </ion-card>
+
+        <ion-card 
+          *ngIf="userProfile?.role === 'karenderia_owner' && userProfile?.applicationStatus === 'approved'" 
+          class="menu-card status-card approved">
+          <ion-card-content>
+            <ion-icon name="checkmark-circle-outline" size="large" color="success"></ion-icon>
+            <h3>Verified Business</h3>
+            <p>Your karenderia is approved!</p>
+          </ion-card-content>
+        </ion-card>
+
+        <ion-card 
+          *ngIf="userProfile?.role === 'karenderia_owner' && userProfile?.applicationStatus === 'rejected'" 
+          button
+          (click)="goToApplicationPage()"
+          class="menu-card status-card rejected">
+          <ion-card-content>
+            <ion-icon name="close-circle-outline" size="large" color="danger"></ion-icon>
+            <h3>Application Rejected</h3>
+            <p>Click to reapply</p>
+          </ion-card-content>
+        </ion-card>
+      </div>
+    </div>
+
+    <!-- Map Section -->
+    <div *ngIf="showMap" class="map-section">
+      <h2>Map View</h2>
+      <div class="map-container">
+        <app-map></app-map>
+      </div>
+    </div>
+  </div>
+
+  <!-- Not authenticated -->
+  <div *ngIf="!isLoading && !currentUser" class="loading-container">
+    <p>Not authenticated. Redirecting...</p>
   </div>
 </ion-content>

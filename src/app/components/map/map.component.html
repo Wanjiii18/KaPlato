@@ -1,0 +1,48 @@
+<div class="map-container">
+  <!-- Search Controls -->
+  <div class="search-controls">
+    <div class="range-control">
+      <ion-item lines="none">
+        <ion-label>Search Range: {{ searchRange }}m</ion-label>
+        <ion-range 
+          min="500" 
+          max="5000" 
+          step="250" 
+          [value]="searchRange"
+          (ionInput)="onRangeChange($event)"
+          color="primary">
+          <ion-label slot="start">500m</ion-label>
+          <ion-label slot="end">5km</ion-label>
+        </ion-range>
+      </ion-item>
+    </div>
+    
+    <div class="action-buttons">
+      <ion-button 
+        (click)="searchNearbyKarenderias()" 
+        [disabled]="isSearching || !currentLocation"
+        size="small"
+        fill="solid">
+        <ion-icon name="search" slot="start"></ion-icon>
+        {{ isSearching ? 'Searching...' : 'Search Nearby' }}
+      </ion-button>
+      
+      <ion-button 
+        (click)="centerOnLocation()" 
+        [disabled]="!currentLocation"
+        size="small"
+        fill="outline">
+        <ion-icon name="locate" slot="start"></ion-icon>
+        My Location
+      </ion-button>
+    </div>
+  </div>
+  
+  <!-- Map -->
+  <div id="map"></div>
+  
+  <!-- Results Summary -->
+  <div class="results-summary" *ngIf="karenderias.length > 0">
+    <p>Found {{ karenderias.length }} karenderias within {{ searchRange }}m</p>
+  </div>
+</div>
