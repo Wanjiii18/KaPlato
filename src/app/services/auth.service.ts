@@ -1,5 +1,16 @@
 import { Injectable } from '@angular/core';
-import { Auth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile, User } from '@angular/fire/auth';
+import { Auth, createUserWithEmailAndPassword, signInWithEmailAndPasswor  // Check if username already exists
+  private async checkUsernameExists(username: string): Promise<boolean> {
+    try {
+      const usersRef = collection(this.firestore, 'users');
+      const q = query(usersRef, where('username', '==', username.toLowerCase()));
+      const querySnapshot = await getDocs(q);
+      return !querySnapshot.empty;
+    } catch (error) {
+      console.error('Error checking username:', error);
+      return false;
+    }
+  }
 import { Firestore, doc, setDoc, collection, query, where, getDocs } from '@angular/fire/firestore';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { Router } from '@angular/router';
@@ -44,19 +55,6 @@ export class AuthService {
     });
   }
 
-  // Check if username already exists
-  private async checkUsernameExists(username: string): Promise<boolean> {
-    try {
-      const usersRef = collection(this.firestore, 'users');
-      const q = query(usersRef, where('username', '==', username.toLowerCase()));
-      const querySnapshot = await getDocs(q);
-      return !querySnapshot.empty;
-    } catch (error) {
-      console.error('Error checking username:', error);
-      return false;
-    }
-  }
-
   // Register with email and password
   async register(email: string, password: string, username: string, role: 'user' | 'karenderia_owner' = 'user'): Promise<void> {
     try {
@@ -97,6 +95,10 @@ export class AuthService {
   async login(emailOrUsername: string, password: string): Promise<void> {
     try {
       // For now, only support email login to avoid Firestore permission issues
+      if (!emailOrUsername.includes('@')) {
+        throw new Error('Please use your email address to login.');
+      }
+
       await signInWithEmailAndPassword(this.auth, emailOrUsername, password);
       this.router.navigate(['/home']);
     } catch (error: any) {
@@ -121,14 +123,45 @@ export class AuthService {
 
   // Check if user is authenticated
   isAuthenticated(): boolean {
-    return this.getCurrentUser() !== null;
+    return this.currentUserSubject.value !== null;
+  }
+
+  // Check if username already exists
+  private async checkUsernameExists(username: string): Promise<boolean> {
+    try {
+      const usersRef = collection(this.firestore, 'users');
+      const q = query(usersRef, where('username', '==', username.toLowerCase()));
+      const querySnapshot = await getDocs(q);
+      return !querySnapshot.empty;
+    } catch (error) {
+      console.error('Error checking username:', error);
+      return false;
+    }
+  }
+
+  // Get email by username
+  private async getEmailByUsername(username: string): Promise<string | null> {
+    try {
+      const usersRef = collection(this.firestore, 'users');
+      const q = query(usersRef, where('username', '==', username.toLowerCase()));
+      const querySnapshot = await getDocs(q);
+      
+      if (!querySnapshot.empty) {
+        const userDoc = querySnapshot.docs[0];
+        return userDoc.data()['email'];
+      }
+      return null;
+    } catch (error) {
+      console.error('Error getting email by username:', error);
+      return null;
+    }
   }
 
   // Get user-friendly error messages
   private getErrorMessage(errorCode: string): string {
     switch (errorCode) {
       case 'auth/email-already-in-use':
-        return 'This email address is already registered. Please use a different email or try logging in.';
+        return 'This email is already registered. Please use a different email or try logging in.';
       case 'auth/invalid-email':
         return 'Please enter a valid email address.';
       case 'auth/operation-not-allowed':
@@ -138,17 +171,17 @@ export class AuthService {
       case 'auth/user-disabled':
         return 'This account has been disabled. Please contact support.';
       case 'auth/user-not-found':
-        return 'No account found with this email address. Please check your email or create a new account.';
+        return 'No account found with this email or username. Please check your credentials or register.';
       case 'auth/wrong-password':
         return 'Incorrect password. Please try again.';
       case 'auth/invalid-credential':
-        return 'Invalid email or password. Please check your credentials and try again.';
+        return 'Invalid email/username or password. Please check your credentials.';
       case 'auth/too-many-requests':
-        return 'Too many failed login attempts. Please try again later.';
+        return 'Too many failed attempts. Please try again later.';
       case 'auth/network-request-failed':
-        return 'Network error. Please check your internet connection and try again.';
+        return 'Network error. Please check your internet connection.';
       default:
-        return 'An unexpected error occurred. Please try again.';
+        return 'An error occurred. Please try again.';
     }
   }
 }
