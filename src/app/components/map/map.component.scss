@@ -61,7 +61,7 @@
   flex: 1;
   height: 100%;
   width: 100%;
-  min-height: 300px;
+  min-height: 500px; /* Increased minimum height */
 }
 
 .results-summary {
@@ -89,6 +89,146 @@
   background: transparent !important;
 }
 
+// Custom popup styles
+.leaflet-popup-content-wrapper {
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.leaflet-popup-content {
+  margin: 0 !important;
+  padding: 0 !important;
+  max-height: 400px;
+  overflow: hidden;
+}
+
+.karenderia-popup {
+  .leaflet-popup-content-wrapper {
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+  
+  .leaflet-popup-content {
+    margin: 0 !important;
+    padding: 16px !important;
+    max-height: 400px;
+    overflow: hidden;
+  }
+}
+
+// Leaflet popup scrolling improvements
+:global(.leaflet-popup-content) {
+  margin: 8px 12px !important;
+  line-height: 1.4 !important;
+  
+  // Custom scrollbar styling
+  div[style*="overflow-y: auto"] {
+    scrollbar-width: thin;
+    scrollbar-color: #28a745 #f1f1f1;
+    
+    &::-webkit-scrollbar {
+      width: 6px;
+    }
+    
+    &::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 3px;
+    }
+    
+    &::-webkit-scrollbar-thumb {
+      background: #28a745;
+      border-radius: 3px;
+      
+      &:hover {
+        background: #218838;
+      }
+    }
+  }
+}
+
+:global(.leaflet-popup-content-wrapper) {
+  border-radius: 8px !important;
+  box-shadow: 0 3px 14px rgba(0,0,0,0.2) !important;
+}
+
+:global(.leaflet-popup-tip) {
+  background: white !important;
+  border: none !important;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2) !important;
+}
+
+// Custom scrollbar styles
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #28a745;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #218838;
+}
+
+// Menu item hover effects
+.menu-item:hover {
+  background: #e9ecef !important;
+  transform: translateX(2px);
+  border-left-color: #218838 !important;
+}
+
+// Add some animation to the popup itself
+:global(.karenderia-popup) {
+  .leaflet-popup-content-wrapper {
+    border-radius: 12px !important;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.15) !important;
+    border: 2px solid #28a745 !important;
+  }
+  
+  .leaflet-popup-tip {
+    border-top-color: #28a745 !important;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+// Enhanced menu item styling within the popup
+:global(.leaflet-popup-content) {
+  .menu-item {
+    border-radius: 8px !important;
+    border-left: 4px solid #28a745 !important;
+    margin: 6px 0 !important;
+    padding: 10px !important;
+    cursor: pointer !important;
+    position: relative;
+    
+    &::after {
+      content: "👆 Click to see ingredients";
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 10px;
+      color: #666;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+    
+    &:hover::after {
+      opacity: 1;
+    }
+  }
+}
+
 // Responsive design
 @media (max-width: 768px) {
   .search-controls {
@@ -101,6 +241,26 @@
         margin: 2px 0;
       }
     }
+  }
+  
+  #map {
+    min-height: 400px; /* Ensure map is tall enough on mobile */
+  }
+  
+  .map-container {
+    height: 100% !important; /* Use full available height on mobile */
+  }
+}
+
+@media (max-width: 480px) {
+  #map {
+    min-height: 350px; /* Slightly smaller on very small screens */
+  }
+}
+
+@media (min-width: 1200px) {
+  #map {
+    min-height: 600px; /* Larger on desktop */
   }
 }
 
@@ -115,4 +275,85 @@
   ion-spinner {
     margin-right: 8px;
   }
+}
+
+// Route-related styles
+.route-button {
+  transition: all 0.2s ease;
+  
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.route-info {
+  background: linear-gradient(135deg, #e3f2fd, #f3e5f5);
+  border: 1px solid #90caf9;
+  border-radius: 8px;
+  padding: 12px;
+  margin: 8px 0;
+}
+
+// Route line styles
+.leaflet-interactive {
+  cursor: pointer;
+}
+
+// Route markers
+.route-marker {
+  background: #007bff;
+  border: 2px solid white;
+  border-radius: 50%;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+
+// Popup and scrolling improvements
+:global(.leaflet-popup-content-wrapper) {
+  border-radius: 12px !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.2) !important;
+}
+
+:global(.leaflet-popup-content) {
+  margin: 0 !important;
+  padding: 0 !important;
+  max-height: 500px !important;
+  overflow: visible !important;
+}
+
+:global(.karenderia-popup) {
+  .leaflet-popup-content-wrapper {
+    border-radius: 12px;
+    overflow: hidden;
+  }
+}
+
+// Menu scrolling specific styles
+:global(.menu-scroll-container) {
+  // Custom scrollbar styling for webkit browsers
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: #28a745;
+    border-radius: 4px;
+    
+    &:hover {
+      background: #1e7e34;
+    }
+  }
+  
+  // Enhanced scrolling on mobile
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
 }

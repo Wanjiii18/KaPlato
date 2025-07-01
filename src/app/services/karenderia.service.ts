@@ -3,6 +3,18 @@ import { Firestore, collection, query, where, getDocs, addDoc, doc, updateDoc, d
 import { Observable, from } from 'rxjs';
 import { map } from 'rxjs/operators';
 
+export interface MenuItem {
+  id?: string;
+  name: string;
+  price: number;
+  description?: string;
+  ingredients: string[];
+  allergens: string[];
+  category: 'Main Dish' | 'Appetizer' | 'Dessert' | 'Beverage' | 'Side Dish';
+  isAvailable: boolean;
+  imageUrl?: string;
+}
+
 export interface SimpleKarenderia {
   id?: string;
   name: string;
@@ -14,6 +26,7 @@ export interface SimpleKarenderia {
   cuisine?: string[];
   contactNumber?: string;
   distance?: number;
+  menu?: MenuItem[];
 }
 
 export interface Karenderia {
@@ -483,44 +496,152 @@ export class KarenderiaService {
       // Create 4 simple test karenderias - 2 close, 2 far
       const testKarenderias = [
         {
-          name: "Test Karenderia 1",
+          name: "Lola's Kitchen",
           address: `Near your location (${userLat.toFixed(4)}, ${userLng.toFixed(4)})`,
           location: { latitude: userLat + 0.001, longitude: userLng + 0.001 }, // ~110m away
-          description: "First test karenderia for map search testing",
+          description: "Authentic Filipino home-style cooking",
           rating: 4.2,
           priceRange: 'Budget' as const,
-          cuisine: ['Filipino', 'Test Food'],
-          contactNumber: "+63 32 111 1111"
+          cuisine: ['Filipino', 'Traditional'],
+          contactNumber: "+63 32 111 1111",
+          menu: [
+            {
+              id: '1',
+              name: 'Adobo',
+              price: 120,
+              description: 'Classic Filipino braised pork and chicken in soy sauce and vinegar',
+              ingredients: ['Pork', 'Chicken', 'Soy sauce', 'Vinegar', 'Garlic', 'Bay leaves', 'Black pepper'],
+              allergens: ['Soy'],
+              category: 'Main Dish' as const,
+              isAvailable: true
+            },
+            {
+              id: '2',
+              name: 'Sinigang na Baboy',
+              price: 150,
+              description: 'Pork ribs in tamarind soup with vegetables',
+              ingredients: ['Pork ribs', 'Tamarind', 'Tomatoes', 'Onions', 'Kangkong', 'Radish', 'Eggplant'],
+              allergens: [],
+              category: 'Main Dish' as const,
+              isAvailable: true
+            },
+            {
+              id: '3',
+              name: 'Pancit Canton',
+              price: 80,
+              description: 'Stir-fried wheat noodles with vegetables and meat',
+              ingredients: ['Wheat noodles', 'Pork', 'Shrimp', 'Cabbage', 'Carrots', 'Soy sauce', 'Oyster sauce'],
+              allergens: ['Gluten', 'Shellfish', 'Soy'],
+              category: 'Main Dish' as const,
+              isAvailable: true
+            }
+          ]
         },
         {
-          name: "Test Karenderia 2", 
+          name: "Seafood Haven", 
           address: `Business area near you (${userLat.toFixed(4)}, ${userLng.toFixed(4)})`,
           location: { latitude: userLat - 0.0015, longitude: userLng + 0.0015 }, // ~165m away
-          description: "Second test karenderia for search functionality",
+          description: "Fresh seafood and Filipino specialties",
           rating: 4.5,
           priceRange: 'Moderate' as const,
-          cuisine: ['Filipino', 'Seafood', 'Test Food'],
-          contactNumber: "+63 32 222 2222"
+          cuisine: ['Filipino', 'Seafood'],
+          contactNumber: "+63 32 222 2222",
+          menu: [
+            {
+              id: '4',
+              name: 'Grilled Bangus',
+              price: 180,
+              description: 'Grilled milkfish stuffed with tomatoes and onions',
+              ingredients: ['Bangus (milkfish)', 'Tomatoes', 'Onions', 'Calamansi', 'Salt', 'Pepper'],
+              allergens: ['Fish'],
+              category: 'Main Dish' as const,
+              isAvailable: true
+            },
+            {
+              id: '5',
+              name: 'Kare-Kare',
+              price: 200,
+              description: 'Oxtail and vegetables in peanut sauce',
+              ingredients: ['Oxtail', 'Tripe', 'Green beans', 'Eggplant', 'Peanut butter', 'Ground rice', 'Bagoong'],
+              allergens: ['Peanuts', 'Fish (bagoong)'],
+              category: 'Main Dish' as const,
+              isAvailable: true
+            },
+            {
+              id: '6',
+              name: 'Leche Flan',
+              price: 60,
+              description: 'Traditional Filipino custard dessert',
+              ingredients: ['Egg yolks', 'Condensed milk', 'Evaporated milk', 'Sugar'],
+              allergens: ['Eggs', 'Dairy'],
+              category: 'Dessert' as const,
+              isAvailable: true
+            }
+          ]
         },
         {
-          name: "Test Karenderia 3 (Far Away)",
+          name: "Mountain View Grill",
           address: `Far location (${(userLat + 0.015).toFixed(4)}, ${(userLng + 0.015).toFixed(4)})`,
           location: { latitude: userLat + 0.015, longitude: userLng + 0.015 }, // ~1600m away
-          description: "Third test karenderia - should NOT appear in 500m searches",
+          description: "Grilled specialties with a view",
           rating: 4.0,
           priceRange: 'Expensive' as const,
-          cuisine: ['Filipino', 'Premium Food'],
-          contactNumber: "+63 32 333 3333"
+          cuisine: ['Filipino', 'Grilled'],
+          contactNumber: "+63 32 333 3333",
+          menu: [
+            {
+              id: '7',
+              name: 'Lechon Kawali',
+              price: 250,
+              description: 'Crispy deep-fried pork belly',
+              ingredients: ['Pork belly', 'Salt', 'Pepper', 'Bay leaves', 'Oil'],
+              allergens: [],
+              category: 'Main Dish' as const,
+              isAvailable: true
+            },
+            {
+              id: '8',
+              name: 'Sisig',
+              price: 180,
+              description: 'Sizzling chopped pork with onions and chili',
+              ingredients: ['Pork face', 'Pork liver', 'Onions', 'Chili', 'Calamansi', 'Mayonnaise', 'Egg'],
+              allergens: ['Eggs'],
+              category: 'Appetizer' as const,
+              isAvailable: true
+            }
+          ]
         },
         {
-          name: "Test Karenderia 4 (1700m Away)",
+          name: "Countryside Diner",
           address: `Medium distance (${(userLat - 0.0155).toFixed(4)}, ${(userLng - 0.0155).toFixed(4)})`,
           location: { latitude: userLat - 0.0155, longitude: userLng - 0.0155 }, // ~1700m away
-          description: "Fourth test karenderia at 1700m - perfect for range testing",
+          description: "Comfort food in a cozy setting",
           rating: 4.3,
           priceRange: 'Moderate' as const,
-          cuisine: ['Filipino', 'Grilled Food'],
-          contactNumber: "+63 32 444 4444"
+          cuisine: ['Filipino', 'Comfort Food'],
+          contactNumber: "+63 32 444 4444",
+          menu: [
+            {
+              id: '9',
+              name: 'Chicken Tinola',
+              price: 140,
+              description: 'Chicken soup with ginger, chayote, and malunggay',
+              ingredients: ['Chicken', 'Ginger', 'Onions', 'Chayote', 'Malunggay leaves', 'Fish sauce'],
+              allergens: ['Fish (fish sauce)'],
+              category: 'Main Dish' as const,
+              isAvailable: true
+            },
+            {
+              id: '10',
+              name: 'Beef Caldereta',
+              price: 190,
+              description: 'Beef stew with tomato sauce and vegetables',
+              ingredients: ['Beef', 'Tomato sauce', 'Potatoes', 'Carrots', 'Bell peppers', 'Liver spread', 'Cheese'],
+              allergens: ['Dairy'],
+              category: 'Main Dish' as const,
+              isAvailable: true
+            }
+          ]
         }
       ];
 
@@ -529,11 +650,11 @@ export class KarenderiaService {
         await this.addKarenderia_Local(karenderia).toPromise();
       }
 
-      console.log('✅ Successfully added 4 test karenderias to localStorage');
-      console.log(`📍 Test Karenderia 1: ${testKarenderias[0].location.latitude}, ${testKarenderias[0].location.longitude} (~110m)`);
-      console.log(`📍 Test Karenderia 2: ${testKarenderias[1].location.latitude}, ${testKarenderias[1].location.longitude} (~165m)`);
-      console.log(`📍 Test Karenderia 3: ${testKarenderias[2].location.latitude}, ${testKarenderias[2].location.longitude} (~1600m)`);
-      console.log(`📍 Test Karenderia 4: ${testKarenderias[3].location.latitude}, ${testKarenderias[3].location.longitude} (~1700m)`);
+      console.log('✅ Successfully added 4 Filipino karenderias with menus to localStorage');
+      console.log(`📍 ${testKarenderias[0].name}: ${testKarenderias[0].location.latitude}, ${testKarenderias[0].location.longitude} (~110m) - ${testKarenderias[0].menu?.length || 0} menu items`);
+      console.log(`📍 ${testKarenderias[1].name}: ${testKarenderias[1].location.latitude}, ${testKarenderias[1].location.longitude} (~165m) - ${testKarenderias[1].menu?.length || 0} menu items`);
+      console.log(`📍 ${testKarenderias[2].name}: ${testKarenderias[2].location.latitude}, ${testKarenderias[2].location.longitude} (~1600m) - ${testKarenderias[2].menu?.length || 0} menu items`);
+      console.log(`📍 ${testKarenderias[3].name}: ${testKarenderias[3].location.latitude}, ${testKarenderias[3].location.longitude} (~1700m) - ${testKarenderias[3].menu?.length || 0} menu items`);
       
     } catch (error) {
       console.error('Error adding test karenderias to localStorage:', error);
