@@ -1,6 +1,6 @@
 import { Component, AfterViewInit, Input, OnDestroy } from '@angular/core';
 import * as L from 'leaflet';
-import { KarenderiaService, Karenderia } from '../../services/karenderia.service';
+import { KarenderiaService, Karenderia, SimpleKarenderia } from '../../services/karenderia.service';
 import { LoadingController, ToastController } from '@ionic/angular';
 
 @Component({
@@ -23,7 +23,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   currentLocation: { lat: number, lng: number } | null = null;
   searchRange = 1000; // Default 1km in meters
   isSearching = false;
-  karenderias: (Karenderia & { distance?: number })[] = [];
+  karenderias: SimpleKarenderia[] = [];
 
   constructor(
     private karenderiaService: KarenderiaService,
@@ -151,13 +151,13 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     // Clear existing karenderia markers
     this.clearKarenderiaMarkers();
 
-    // Use real service to get nearby karenderias
-    this.karenderiaService.getNearbyKarenderias(
+    // Use localStorage service to get nearby karenderias
+    this.karenderiaService.getNearbyKarenderias_Local(
       this.currentLocation.lat, 
       this.currentLocation.lng, 
       this.searchRange
     ).subscribe({
-      next: (karenderias) => {
+      next: (karenderias: SimpleKarenderia[]) => {
         this.karenderias = karenderias;
         this.addKarenderiaMarkers();
         this.isSearching = false;
@@ -168,7 +168,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
           this.showToast(`Found ${karenderias.length} karenderias nearby`, 'success');
         }
       },
-      error: (error) => {
+      error: (error: any) => {
         console.error('Error searching karenderias:', error);
         this.isSearching = false;
         this.showToast('Error searching for karenderias. Please try again.', 'danger');
@@ -278,4 +278,38 @@ export class MapComponent implements AfterViewInit, OnDestroy {
 
     return mockData;
   }
+
+  // Method to easily test the search functionality with real data
+  async testSearchWithRealData(): Promise<void> {
+    console.log('🧪 Testing search with real Karenderia data...');
+    
+    if (!this.currentLocation) {
+      console.log('⚠️ Getting current location first...');
+      this.getCurrentLocation();
+      
+      // Wait a bit for location to be set
+      setTimeout(() => {
+        if (this.currentLocation) {
+          this.performTestSearch();
+        } else {
+          console.log('❌ Could not get current location, using default Mandaue coordinates');
+          this.currentLocation = { lat: 10.3231, lng: 123.9319 };
+          this.addCurrentLocationMarker();
+          this.updateSearchRadius();
+          this.performTestSearch();
+        }
+      }, 1000);
+    } else {
+      this.performTestSearch();
+    }
+  }
+
+  private performTestSearch(): void {
+    console.log('🔍 Performing test search...');
+    console.log(`📍 Current location: ${this.currentLocation?.lat}, ${this.currentLocation?.lng}`);
+    console.log(`📏 Search range: ${this.searchRange}m`);
+    
+    this.searchNearbyKarenderias();
+  }
+
 }

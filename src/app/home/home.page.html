@@ -46,6 +46,46 @@
           </ion-card-content>
         </ion-card>
 
+        <ion-card button (click)="addTestData()" class="menu-card">
+          <ion-card-content>
+            <ion-icon name="flask-outline" size="large" color="warning"></ion-icon>
+            <h3>Add Test Data</h3>
+            <p>Add 4 test karenderias at different ranges</p>
+          </ion-card-content>
+        </ion-card>
+
+        <ion-card button (click)="debugKarenderias()" class="menu-card">
+          <ion-card-content>
+            <ion-icon name="bug-outline" size="large" color="danger"></ion-icon>
+            <h3>Debug Search</h3>
+            <p>Check locations & distances</p>
+          </ion-card-content>
+        </ion-card>
+
+        <ion-card button (click)="troubleshootSearch()" class="menu-card">
+          <ion-card-content>
+            <ion-icon name="construct-outline" size="large" color="warning"></ion-icon>
+            <h3>Troubleshoot</h3>
+            <p>Find the problem</p>
+          </ion-card-content>
+        </ion-card>
+
+        <ion-card button (click)="testLocalStorage()" class="menu-card">
+          <ion-card-content>
+            <ion-icon name="checkmark-circle-outline" size="large" color="success"></ion-icon>
+            <h3>Test Storage</h3>
+            <p>Check localStorage</p>
+          </ion-card-content>
+        </ion-card>
+
+        <ion-card button (click)="clearTestData()" class="menu-card">
+          <ion-card-content>
+            <ion-icon name="trash-outline" size="large" color="medium"></ion-icon>
+            <h3>Clear Test Data</h3>
+            <p>Remove all test karenderias</p>
+          </ion-card-content>
+        </ion-card>
+
         <ion-card button class="menu-card">
           <ion-card-content>
             <ion-icon name="restaurant-outline" size="large" color="tertiary"></ion-icon>
