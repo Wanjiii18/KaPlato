@@ -64,7 +64,7 @@ export interface UserProfile {
   providedIn: 'root'
 })
 export class AuthService {
-  private currentUserSubject = new BehaviorSubject<User | null>(null);
+  private currentUserSubject = new BehaviorSubject<User | null | undefined>(undefined);
   public currentUser$ = this.currentUserSubject.asObservable();
 
   constructor(
@@ -76,6 +76,7 @@ export class AuthService {
     // Listen to auth state changes
     this.auth.onAuthStateChanged((user) => {
       this.zone.run(() => {
+        console.log('Auth state changed:', user ? 'User logged in' : 'User logged out');
         this.currentUserSubject.next(user);
       });
     });
@@ -143,13 +144,14 @@ export class AuthService {
   }
 
   // Get current user
-  getCurrentUser(): User | null {
+  getCurrentUser(): User | null | undefined {
     return this.currentUserSubject.value;
   }
 
   // Check if user is authenticated
   isAuthenticated(): boolean {
-    return this.currentUserSubject.value !== null;
+    const user = this.currentUserSubject.value;
+    return user !== null && user !== undefined;
   }
 
   // Check if username already exists

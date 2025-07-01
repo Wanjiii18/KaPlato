@@ -1,8 +1,18 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-title>KaPlato</ion-title>
+    <ion-title>
+      <div class="header-title">
+        <ion-icon name="restaurant" color="primary"></ion-icon>
+        <span>KaPlato</span>
+      </div>
+    </ion-title>
     <ion-buttons slot="end">
-      <ion-button (click)="logout()" fill="clear">
+      <ion-button (click)="goToProfile()" fill="clear">
+        <ion-avatar slot="icon-only" class="profile-avatar">
+          <ion-icon name="person-circle" color="medium"></ion-icon>
+        </ion-avatar>
+      </ion-button>
+      <ion-button (click)="logout()" fill="clear" color="medium">
         <ion-icon name="log-out-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
@@ -99,14 +109,6 @@
             <ion-icon name="heart-outline" size="large" color="danger"></ion-icon>
             <h3>Favorites</h3>
             <p>Your favorite places</p>
-          </ion-card-content>
-        </ion-card>
-
-        <ion-card button (click)="goToProfile()" class="menu-card">
-          <ion-card-content>
-            <ion-icon name="person-outline" size="large" color="medium"></ion-icon>
-            <h3>Profile</h3>
-            <p>Manage allergens & meal plans</p>
           </ion-card-content>
         </ion-card>
 

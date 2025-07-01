@@ -6,6 +6,7 @@ import { User } from '@angular/fire/auth';
 import { GeoPoint } from '@angular/fire/firestore';
 import { Subscription } from 'rxjs';
 import { Router } from '@angular/router';
+import { ToastController } from '@ionic/angular';
 
 @Component({
   selector: 'app-home',
@@ -20,19 +21,27 @@ export class HomePage implements OnInit, OnDestroy {
   private profileSubscription: Subscription | undefined;
   isLoading = true;
   showMap = false;
+  searchQuery = '';
+  featuredKarenderias: any[] = [];
 
   constructor(
     private authService: AuthService,
     private userService: UserService,
     private karenderiaService: KarenderiaService,
-    private router: Router
+    private router: Router,
+    private toastController: ToastController
   ) {}
 
   ngOnInit() {
     // Subscribe to user changes
     this.userSubscription = this.authService.currentUser$.subscribe(user => {
-      this.currentUser = user;
-      this.isLoading = false;
+      // Handle different auth states properly
+      if (user !== undefined) {
+        // User is either logged in (user object) or definitely not logged in (null)
+        this.currentUser = user;
+        this.isLoading = false;
+      }
+      // Don't redirect here - let the auth guard handle routing
     });
 
     // Subscribe to user profile changes
@@ -42,6 +51,9 @@ export class HomePage implements OnInit, OnDestroy {
 
     // Initialize sample karenderia data
     this.initializeKarenderiaData();
+    
+    // Load featured karenderias
+    this.loadFeaturedKarenderias();
   }
 
   ngOnDestroy() {
@@ -305,6 +317,113 @@ export class HomePage implements OnInit, OnDestroy {
     } else {
       console.log('ℹ️ No karenderia data found - need to add test data');
     }
+  }
+
+  // Dashboard Methods
+  onSearchInput(event: any) {
+    this.searchQuery = event.target.value;
+    if (this.searchQuery.length > 2) {
+      this.performSearch();
+    }
+  }
+
+  async performSearch() {
+    const toast = await this.toastController.create({
+      message: `Searching for "${this.searchQuery}"...`,
+      duration: 2000,
+      position: 'bottom'
+    });
+    await toast.present();
+  }
+
+  searchNearby() {
+    console.log('🔍 Searching for nearby karenderias...');
+    this.showMap = true;
+    // The map component will handle the actual search
+  }
+
+  async showFavorites() {
+    const toast = await this.toastController.create({
+      message: 'Favorites feature coming soon! ❤️',
+      duration: 2000,
+      position: 'bottom'
+    });
+    await toast.present();
+  }
+
+  async showRecommended() {
+    const toast = await this.toastController.create({
+      message: 'Popular karenderias feature coming soon! ⭐',
+      duration: 2000,
+      position: 'bottom'
+    });
+    await toast.present();
+  }
+
+  async showCategories() {
+    const toast = await this.toastController.create({
+      message: 'Categories view coming soon! 🍽️',
+      duration: 2000,
+      position: 'bottom'
+    });
+    await toast.present();
+  }
+
+  async viewAllFeatured() {
+    const toast = await this.toastController.create({
+      message: 'View all featured karenderias coming soon!',
+      duration: 2000,
+      position: 'bottom'
+    });
+    await toast.present();
+  }
+
+  async searchByCategory(category: string) {
+    const toast = await this.toastController.create({
+      message: `Searching for ${category} restaurants...`,
+      duration: 2000,
+      position: 'bottom'
+    });
+    await toast.present();
+  }
+
+  private loadFeaturedKarenderias() {
+    // Sample featured karenderias data
+    this.featuredKarenderias = [
+      {
+        name: "Lola Rosa's Kitchen",
+        address: "123 Main St, Quezon City",
+        location: { latitude: 14.6760, longitude: 121.0437 },
+        rating: 4.8,
+        priceRange: 'Budget',
+        cuisine: ['Filipino', 'Traditional']
+      },
+      {
+        name: "Tita Neng's Lutong Bahay",
+        address: "456 Food Ave, Manila",
+        location: { latitude: 14.5995, longitude: 120.9842 },
+        rating: 4.6,
+        priceRange: 'Budget',
+        cuisine: ['Filipino', 'Home-cooked']
+      },
+      {
+        name: "Kuya Jun's BBQ House",
+        address: "789 Grill St, Makati",
+        location: { latitude: 14.5547, longitude: 121.0244 },
+        rating: 4.7,
+        priceRange: 'Moderate',
+        cuisine: ['BBQ', 'Grilled']
+      }
+    ];
+  }
+
+  async showToast(message: string) {
+    const toast = await this.toastController.create({
+      message: message,
+      duration: 2000,
+      position: 'bottom'
+    });
+    await toast.present();
   }
 
   private getCurrentPosition(): Promise<GeolocationPosition> {

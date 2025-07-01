@@ -311,7 +311,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         </div>
         
         <div style="margin-top: 12px; padding-top: 8px; border-top: 1px solid #eee; display: flex; gap: 8px;">
-          <button onclick="window.getDirections(${karenderia.location.latitude}, ${karenderia.location.longitude}, '${karenderia.name.replace(/'/g, "\\'")}', event)" 
+          <button onclick="window.getDirections(${karenderia.id ? `'${karenderia.id}'` : 'null'}, event)" 
+                  data-karenderia='${JSON.stringify(karenderia).replace(/'/g, "&apos;")}'
                   style="background: #007bff; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 12px; flex: 1; display: flex; align-items: center; justify-content: center; gap: 4px;">
             🗺️ Get Directions
           </button>
@@ -486,26 +487,29 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     };
 
     // Setup global function for routing
-    (window as any).getDirections = (lat: number, lng: number, name: string, event: Event) => {
+    (window as any).getDirections = (karenderiaId: string | null, event: Event) => {
       console.log('🗺️ getDirections global function called');
-      console.log('� Destination coordinates:', lat, lng);
-      console.log('🏪 Karenderia name:', name);
       event.stopPropagation();
-      
-      // Create a simple karenderia object with the required structure
-      const karenderia: SimpleKarenderia = {
-        name: name,
-        address: 'Unknown Address', // Placeholder since we only have coordinates
-        location: {
-          latitude: lat,
-          longitude: lng
-        },
-        priceRange: 'Moderate' // Default value
-      };
-      
-      console.log('� Created karenderia object:', karenderia);
-      console.log('🌍 Current user location:', this.currentLocation);
-      this.getDirections(karenderia);
+      try {
+        // Get the karenderia data from the button's data attribute
+        const button = event.target as HTMLButtonElement;
+        const karenderiaJson = button.getAttribute('data-karenderia');
+        
+        if (!karenderiaJson) {
+          console.error('❌ No karenderia data found');
+          this.showToast('Error: Missing location data', 'danger');
+          return;
+        }
+        
+        const karenderia = JSON.parse(karenderiaJson.replace(/&apos;/g, "'"));
+        console.log('📊 Parsed karenderia data:', karenderia);
+        console.log('📍 Karenderia location:', karenderia.location);
+        console.log('🌍 Current user location:', this.currentLocation);
+        this.getDirections(karenderia);
+      } catch (error) {
+        console.error('❌ Error parsing karenderia data:', error);
+        this.showToast('Error parsing location data', 'danger');
+      } 
     };
 
     // Setup global function for clearing routes
@@ -1037,22 +1041,12 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       : '<span style="background: #ff9800; color: white; padding: 2px 6px; border-radius: 10px; font-size: 11px;">⚠️ STRAIGHT LINE</span>';
     
     const routeDescription = isAccurate 
-      ? 'This route follows real roads using OpenStreetMap data, similar to Google Maps.'
-      : 'This is a straight-line estimate. Actual travel distance and time may vary.';
+      ? 'Follow the directions I give! The blue line on the map shows your route to this karenderia.'
+      : 'Follow the directions I give! This shows the approximate direction to the karenderia.';
     
     const alert = await this.alertController.create({
-      header: '🗺️ Route Information',
-      message: `
-        <div style="text-align: left;">
-          <div style="margin-bottom: 10px;">${accuracyBadge}</div>
-          <p><strong>Destination:</strong> ${karenderia.name}</p>
-          <p><strong>Distance:</strong> ${distanceKm} km</p>
-          <p><strong>Estimated Time:</strong> ${durationMin} minutes</p>
-          <p><strong>Address:</strong> ${karenderia.address}</p>
-          <hr style="margin: 10px 0;">
-          <p style="font-size: 12px; color: #666;"><em>${routeDescription}</em></p>
-        </div>
-      `,
+      header: '� Ready to Go!',
+      message: `${karenderia.name} is ${distanceKm} km away (about ${durationMin} minutes). ${routeDescription} Look for the route line on the map to navigate!`,
       buttons: [
         {
           text: 'Clear Route',
