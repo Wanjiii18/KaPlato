@@ -40,6 +40,11 @@ export class HomePage implements OnInit, OnDestroy {
         // User is either logged in (user object) or definitely not logged in (null)
         this.currentUser = user;
         this.isLoading = false;
+        
+        // Check user role and redirect accordingly
+        if (user) {
+          this.checkUserRoleAndRedirect();
+        }
       }
       // Don't redirect here - let the auth guard handle routing
     });
@@ -487,5 +492,17 @@ export class HomePage implements OnInit, OnDestroy {
     this.karenderiaService.clearAllKarenderias_Local();
     console.log('🗑️ Cleared all test data from localStorage');
     console.log('ℹ️ You can now add fresh test data if needed');
+  }
+
+  private checkUserRoleAndRedirect() {
+    this.userService.currentUserProfile$.subscribe(profile => {
+      if (profile) {
+        if (profile.role === 'karenderia_owner') {
+          // Redirect karenderia owners to their dashboard
+          this.router.navigate(['/karenderia-dashboard']);
+        }
+        // Regular users stay on home page
+      }
+    });
   }
 }

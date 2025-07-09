@@ -1,0 +1,164 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-title>Karenderia Dashboard</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="logout()">
+        <ion-icon name="log-out"></ion-icon>
+        Logout
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="dashboard-content">
+  <div class="dashboard-container">
+    
+    <!-- Stats Cards Row -->
+    <div class="stats-row">
+      <ion-card class="stat-card sales-card">
+        <ion-card-content>
+          <div class="stat-icon">
+            <ion-icon name="cash"></ion-icon>
+          </div>
+          <div class="stat-info">
+            <h2>{{ formatPhp(todaysSales?.totalSales || 0) }}</h2>
+            <p>Today's Sales</p>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      <ion-card class="stat-card orders-card">
+        <ion-card-content>
+          <div class="stat-icon">
+            <ion-icon name="receipt"></ion-icon>
+          </div>
+          <div class="stat-info">
+            <h2>{{ todaysSales?.totalOrders || 0 }}</h2>
+            <p>Orders Today</p>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      <ion-card class="stat-card pending-card">
+        <ion-card-content>
+          <div class="stat-icon">
+            <ion-icon name="time"></ion-icon>
+          </div>
+          <div class="stat-info">
+            <h2>{{ pendingOrdersCount }}</h2>
+            <p>Pending Orders</p>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      <ion-card class="stat-card menu-card">
+        <ion-card-content>
+          <div class="stat-icon">
+            <ion-icon name="restaurant"></ion-icon>
+          </div>
+          <div class="stat-info">
+            <h2>{{ menuItemsCount }}</h2>
+            <p>Menu Items</p>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    </div>
+
+    <!-- Main Content Row -->
+    <div class="main-content-row">
+      
+      <!-- Quick Actions -->
+      <ion-card class="quick-actions-card">
+        <ion-card-header>
+          <ion-card-title>Quick Actions</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <div class="action-buttons">
+            <ion-button expand="block" fill="outline" (click)="navigateToMenu()">
+              <ion-icon name="restaurant" slot="start"></ion-icon>
+              Manage Menu
+            </ion-button>
+            <ion-button expand="block" fill="outline" (click)="navigateToIngredients()">
+              <ion-icon name="nutrition" slot="start"></ion-icon>
+              Manage Ingredients
+            </ion-button>
+            <ion-button expand="block" fill="outline" (click)="navigateToOrders()">
+              <ion-icon name="receipt" slot="start"></ion-icon>
+              View Orders
+            </ion-button>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Recent Orders -->
+      <ion-card class="recent-orders-card">
+        <ion-card-header>
+          <ion-card-title>Recent Orders</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <div class="orders-list" *ngIf="recentOrders.length > 0">
+            <div class="order-item" *ngFor="let order of recentOrders">
+              <div class="order-info">
+                <h3>{{ order.customerName }}</h3>
+                <p>{{ formatPhp(order.totalAmount) }} • {{ order.items.length }} items</p>
+                <small>{{ order.createdAt | date:'short' }}</small>
+              </div>
+              <ion-badge [color]="getOrderStatusColor(order.status)">
+                {{ order.status | titlecase }}
+              </ion-badge>
+            </div>
+          </div>
+          <div *ngIf="recentOrders.length === 0" class="no-orders">
+            <ion-icon name="receipt-outline"></ion-icon>
+            <p>No recent orders</p>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Low Stock Alerts -->
+      <ion-card class="low-stock-card">
+        <ion-card-header>
+          <ion-card-title>Low Stock Alerts</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <div class="stock-list" *ngIf="lowStockItems.length > 0">
+            <div class="stock-item" *ngFor="let item of lowStockItems">
+              <div class="stock-info">
+                <h4>{{ item.name }}</h4>
+                <p>{{ item.stock }} {{ item.unit }} remaining</p>
+                <small>Min: {{ item.minimumStock }} {{ item.unit }}</small>
+              </div>
+              <ion-badge color="warning">Low Stock</ion-badge>
+            </div>
+          </div>
+          <div *ngIf="lowStockItems.length === 0" class="no-alerts">
+            <ion-icon name="checkmark-circle-outline"></ion-icon>
+            <p>All items well stocked</p>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+    </div>
+
+    <!-- Popular Items -->
+    <ion-card class="popular-items-card" *ngIf="todaysSales && todaysSales.popularItems && todaysSales.popularItems.length > 0">
+      <ion-card-header>
+        <ion-card-title>Today's Popular Items</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <div class="popular-items-grid">
+          <div class="popular-item" *ngFor="let item of todaysSales.popularItems.slice(0, 6)">
+            <div class="item-info">
+              <h4>{{ item.itemName }}</h4>
+              <p>{{ item.quantity }} orders • {{ formatPhp(item.revenue) }}</p>
+            </div>
+            <div class="item-rank">
+              <ion-icon name="trophy"></ion-icon>
+            </div>
+          </div>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+  </div>
+</ion-content>

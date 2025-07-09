@@ -1,0 +1,242 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/karenderia-dashboard"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Menu Management</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="startAddingItem()" *ngIf="!isAddingItem">
+        <ion-icon name="add"></ion-icon>
+        Add Item
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="menu-content">
+  <div class="menu-container">
+    
+    <!-- Add Menu Item Form -->
+    <ion-card *ngIf="isAddingItem" class="add-item-card">
+      <ion-card-header>
+        <ion-card-title>Add New Menu Item</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <!-- Basic Information -->
+        <div class="form-section">
+          <h3>Basic Information</h3>
+          <ion-item>
+            <ion-label position="stacked">Dish Name *</ion-label>
+            <ion-input [(ngModel)]="newMenuItem.name" placeholder="Enter dish name"></ion-input>
+          </ion-item>
+          
+          <ion-item>
+            <ion-label position="stacked">Description *</ion-label>
+            <ion-textarea [(ngModel)]="newMenuItem.description" placeholder="Enter description" rows="3"></ion-textarea>
+          </ion-item>
+          
+          <div class="form-row">
+            <ion-item>
+              <ion-label position="stacked">Price (PHP) *</ion-label>
+              <ion-input [(ngModel)]="newMenuItem.price" type="number" placeholder="0.00"></ion-input>
+            </ion-item>
+            
+            <ion-item>
+              <ion-label position="stacked">Category</ion-label>
+              <ion-select [(ngModel)]="newMenuItem.category">
+                <ion-select-option value="appetizers">Appetizers</ion-select-option>
+                <ion-select-option value="main">Main Course</ion-select-option>
+                <ion-select-option value="desserts">Desserts</ion-select-option>
+                <ion-select-option value="beverages">Beverages</ion-select-option>
+              </ion-select>
+            </ion-item>
+          </div>
+          
+          <ion-item>
+            <ion-label position="stacked">Preparation Time (minutes)</ion-label>
+            <ion-input [(ngModel)]="newMenuItem.preparationTime" type="number" placeholder="15"></ion-input>
+          </ion-item>
+        </div>
+
+        <!-- Dish Type Selection -->
+        <div class="form-section">
+          <h3>Select Dish Type</h3>
+          <ion-item>
+            <ion-label position="stacked">Choose a dish type for suggested ingredients</ion-label>
+            <ion-select [(ngModel)]="selectedDishType" (ionChange)="onDishTypeChange()" placeholder="Select dish type">
+              <ion-select-option value="">Custom Recipe</ion-select-option>
+              <ion-select-option *ngFor="let dishType of getDishTypes()" [value]="dishType">
+                {{ getDishTypeDisplay(dishType) }}
+              </ion-select-option>
+            </ion-select>
+          </ion-item>
+        </div>
+
+        <!-- Ingredient Selection -->
+        <div class="form-section" *ngIf="showIngredientSelection">
+          <h3>Select Ingredients</h3>
+          <p class="helper-text">Check the ingredients you want to include. You can modify quantities and costs below.</p>
+          
+          <div class="ingredient-checkboxes">
+            <ion-item *ngFor="let ingredient of commonIngredients[selectedDishType]">
+              <ion-checkbox 
+                slot="start" 
+                [checked]="isIngredientSelected(ingredient.name)"
+                (ionChange)="toggleIngredient(ingredient, $event.detail.checked)">
+              </ion-checkbox>
+              <ion-label>
+                <h3>{{ ingredient.name }}</h3>
+                <p>{{ ingredient.quantity }} {{ ingredient.unit }} - {{ formatPhp(ingredient.cost) }}</p>
+              </ion-label>
+            </ion-item>
+          </div>
+        </div>
+
+        <!-- Selected Ingredients -->
+        <div class="form-section" *ngIf="newMenuItem.selectedIngredients.length > 0">
+          <div class="section-header">
+            <h3>Selected Ingredients</h3>
+            <ion-button fill="clear" (click)="addCustomIngredient()">
+              <ion-icon name="add-circle" slot="start"></ion-icon>
+              Add Custom
+            </ion-button>
+          </div>
+          
+          <div class="selected-ingredients">
+            <ion-item *ngFor="let ingredient of newMenuItem.selectedIngredients; let i = index">
+              <div class="ingredient-details">
+                <h4>{{ ingredient.ingredientName }}</h4>
+                <div class="ingredient-inputs">
+                  <ion-input 
+                    type="number" 
+                    [value]="ingredient.quantity"
+                    (ionBlur)="updateIngredientQuantity(i, $event.target.value)"
+                    placeholder="Quantity">
+                  </ion-input>
+                  <span class="unit">{{ ingredient.unit }}</span>
+                  <ion-input 
+                    type="number" 
+                    [value]="ingredient.cost"
+                    (ionBlur)="updateIngredientCost(i, $event.target.value)"
+                    placeholder="Cost">
+                  </ion-input>
+                  <span class="currency">PHP</span>
+                </div>
+              </div>
+              <ion-button 
+                fill="clear" 
+                color="danger" 
+                slot="end" 
+                (click)="removeIngredient(i)">
+                <ion-icon name="trash"></ion-icon>
+              </ion-button>
+            </ion-item>
+            
+            <div class="total-cost">
+              <h3>Total Ingredient Cost: {{ formatPhp(getTotalCost()) }}</h3>
+              <p>Suggested selling price: {{ formatPhp(getTotalCost() * 2.5) }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="form-actions">
+          <ion-button expand="block" fill="clear" (click)="cancelAddingItem()">
+            Cancel
+          </ion-button>
+          <ion-button expand="block" (click)="saveMenuItem()" [disabled]="!newMenuItem.name || !newMenuItem.description || newMenuItem.price <= 0">
+            Save Menu Item
+          </ion-button>
+        </div>
+      </ion-card-content>
+    </ion-card>
+    
+    <!-- Categories Filter -->
+    <div class="categories-filter" *ngIf="!isAddingItem">
+      <ion-segment [(ngModel)]="selectedCategory" (ionChange)="filterByCategory()">
+        <ion-segment-button value="all">
+          <ion-label>All Items</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="appetizers">
+          <ion-label>Appetizers</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="main">
+          <ion-label>Main Course</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="desserts">
+          <ion-label>Desserts</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="beverages">
+          <ion-label>Beverages</ion-label>
+        </ion-segment-button>
+      </ion-segment>
+    </div>
+
+    <!-- Menu Items Grid -->
+    <div class="menu-grid" *ngIf="!isAddingItem">
+      <ion-card class="menu-item-card" *ngFor="let item of filteredMenuItems">
+        <div class="item-image">
+          <img [src]="item.image || 'assets/default-food.png'" [alt]="item.name">
+          <div class="item-status">
+            <ion-badge [color]="item.isAvailable ? 'success' : 'danger'">
+              {{ item.isAvailable ? 'Available' : 'Unavailable' }}
+            </ion-badge>
+          </div>
+        </div>
+        
+        <ion-card-content>
+          <h2>{{ item.name }}</h2>
+          <p class="description">{{ item.description }}</p>
+          <div class="item-details">
+            <p class="price">{{ formatPhp(item.price) }}</p>
+            <p class="category">{{ item.category | titlecase }}</p>
+            <p class="prep-time">{{ item.preparationTime }} min</p>
+          </div>
+          
+          <div class="ingredients-preview" *ngIf="item.ingredients && item.ingredients.length > 0">
+            <h4>Ingredients:</h4>
+            <div class="ingredient-tags">
+              <ion-chip *ngFor="let ing of item.ingredients.slice(0, 3)">
+                <ion-label>{{ ing.ingredientName }}</ion-label>
+              </ion-chip>
+              <ion-chip *ngIf="item.ingredients.length > 3">
+                <ion-label>+{{ item.ingredients.length - 3 }} more</ion-label>
+              </ion-chip>
+            </div>
+          </div>
+          
+          <div class="item-actions">
+            <ion-button 
+              fill="clear" 
+              [color]="item.isAvailable ? 'warning' : 'success'"
+              (click)="toggleAvailability(item)">
+              <ion-icon [name]="item.isAvailable ? 'eye-off' : 'eye'"></ion-icon>
+              {{ item.isAvailable ? 'Disable' : 'Enable' }}
+            </ion-button>
+            
+            <ion-button fill="clear" color="primary" (click)="editMenuItem(item)">
+              <ion-icon name="create"></ion-icon>
+              Edit
+            </ion-button>
+            
+            <ion-button fill="clear" color="danger" (click)="deleteMenuItem(item)">
+              <ion-icon name="trash"></ion-icon>
+              Delete
+            </ion-button>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    </div>
+
+    <!-- No Items State -->
+    <div class="no-items" *ngIf="!isAddingItem && filteredMenuItems.length === 0">
+      <ion-icon name="restaurant-outline" size="large" color="medium"></ion-icon>
+      <h3>No menu items found</h3>
+      <p>{{ selectedCategory === 'all' ? 'Start by adding your first menu item' : 'No items in this category' }}</p>
+      <ion-button (click)="startAddingItem()">
+        <ion-icon name="add" slot="start"></ion-icon>
+        Add Menu Item
+      </ion-button>
+    </div>
+  </div>
+</ion-content>
