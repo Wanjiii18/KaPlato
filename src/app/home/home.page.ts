@@ -67,6 +67,16 @@ export class HomePage implements OnInit, OnDestroy {
 
   toggleMap() {
     this.showMap = !this.showMap;
+    
+    // If showing the map, force it to refresh after a short delay
+    if (this.showMap) {
+      setTimeout(() => {
+        // Use the new refresh function
+        if ((window as any).refreshMapSize) {
+          (window as any).refreshMapSize();
+        }
+      }, 300);
+    }
   }
 
   private async initializeKarenderiaData() {

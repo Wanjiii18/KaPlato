@@ -35,3 +35,28 @@
 /* @import "@ionic/angular/css/palettes/dark.always.css"; */
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
 @import "@ionic/angular/css/palettes/dark.system.css";
+
+/* Import Leaflet CSS directly */
+@import '~leaflet/dist/leaflet.css';
+
+/* Ensure Leaflet images load properly */
+.leaflet-default-icon-path {
+  background-image: url('~leaflet/dist/images/marker-icon.png');
+}
+
+/* Fix for Leaflet marker icons */
+.leaflet-marker-icon {
+  margin-left: -12px !important;
+  margin-top: -41px !important;
+}
+
+.leaflet-popup-content-wrapper {
+  border-radius: 4px;
+}
+
+/* Ensure map container has proper styling */
+.leaflet-container {
+  background: #f0f0f0 !important;
+  height: 100% !important;
+  width: 100% !important;
+}

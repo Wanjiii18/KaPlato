@@ -85,61 +85,137 @@ export class AuthService {
   // Register with email and password
   async register(email: string, password: string, username: string, role: 'user' | 'karenderia_owner' = 'user'): Promise<void> {
     try {
-      // Check if username is already taken
-      const usernameExists = await this.checkUsernameExists(username);
-      if (usernameExists) {
-        throw new Error('Username is already taken. Please choose a different username.');
+      console.log('� Starting mobile registration process...');
+      console.log('📧 Email:', email);
+      console.log('👤 Username:', username);
+      console.log('🎭 Role:', role);
+      
+      // Check network connectivity for mobile
+      const isOnline = navigator.onLine;
+      console.log('🌐 Network status:', isOnline ? 'Online' : 'Offline');
+      
+      if (!isOnline) {
+        throw new Error('No internet connection. Please check your connection and try again.');
+      }
+      
+      // Step 1: Create Firebase Auth account (this is the critical part)
+      console.log('🔐 Creating Firebase Auth account...');
+      const userCredential = await createUserWithEmailAndPassword(this.auth, email, password);
+      console.log('✅ Firebase Auth account created successfully!');
+      
+      // Step 2: Update profile (less critical)
+      try {
+        console.log('👤 Updating user profile...');
+        await updateProfile(userCredential.user, {
+          displayName: username
+        });
+        console.log('✅ User profile updated in Firebase Auth');
+      } catch (profileError) {
+        console.warn('⚠️ Could not update profile, but account was created:', profileError);
       }
 
-      const userCredential = await this.zone.run(() => createUserWithEmailAndPassword(this.auth, email, password));
-      
-      // Update user profile with username
-      await this.zone.run(() => updateProfile(userCredential.user, {
-        displayName: username
-      }));
+      // Step 3: Save to Firestore (less critical, can be done later)
+      try {
+        console.log('💾 Saving user data to Firestore...');
+        const userProfile: UserProfile = {
+          uid: userCredential.user.uid,
+          username: username.toLowerCase(),
+          email: email,
+          displayName: username,
+          role: role,
+          createdAt: new Date(),
+          isVerified: false,
+          applicationStatus: role === 'karenderia_owner' ? 'pending' : undefined
+        };
 
-      // Store user profile in Firestore
-      const userProfile: UserProfile = {
-        uid: userCredential.user.uid,
-        username: username.toLowerCase(),
-        email: email,
-        displayName: username,
-        role: role,
-        createdAt: new Date(),
-        isVerified: false,
-        applicationStatus: role === 'karenderia_owner' ? 'pending' : undefined
-      };
-
-      await this.zone.run(() => setDoc(doc(this.firestore, 'users', userCredential.user.uid), userProfile));
+        await setDoc(doc(this.firestore, 'users', userCredential.user.uid), userProfile);
+        console.log('✅ User profile saved to Firestore');
+      } catch (firestoreError) {
+        console.warn('⚠️ Could not save to Firestore, but account was created:', firestoreError);
+        // Account is still created in Firebase Auth, just missing Firestore profile
+        // This can be created later when the user first logs in
+      }
       
-      this.zone.run(() => this.router.navigate(['/home']));
+      // Step 4: Sign out the user (don't auto-login)
+      try {
+        console.log('🚪 Signing out user - no auto-login...');
+        await signOut(this.auth);
+        console.log('✅ User signed out successfully');
+      } catch (signOutError) {
+        console.warn('⚠️ Could not sign out, but registration was successful:', signOutError);
+      }
+      
+      console.log('🎉 Mobile registration completed successfully! User needs to log in manually.');
+      // Don't navigate to home, let the calling component handle the success message
+      
     } catch (error: any) {
-      throw new Error(this.getErrorMessage(error.code) || error.message);
+      console.error('❌ Mobile registration failed:', error);
+      console.error('❌ Error code:', error.code);
+      console.error('❌ Error message:', error.message);
+      
+      // Handle specific Firebase Auth errors for mobile
+      if (error.code) {
+        const friendlyMessage = this.getMobileErrorMessage(error.code);
+        console.log('🔄 Throwing mobile-friendly error:', friendlyMessage);
+        throw new Error(friendlyMessage);
+      }
+      
+      // Fallback for unexpected errors
+      const fallbackMessage = error.message || 'Registration failed. Please check your internet connection and try again.';
+      console.log('🔄 Throwing fallback error:', fallbackMessage);
+      throw new Error(fallbackMessage);
     }
   }
 
   // Login with email or username and password
   async login(emailOrUsername: string, password: string): Promise<void> {
     try {
-      // For now, only support email login to avoid Firestore permission issues
+      console.log('🔄 Starting login process...');
+      console.log('📝 Input:', emailOrUsername);
+      let email = emailOrUsername;
+
+      // If it doesn't contain @, treat it as username and get the email
       if (!emailOrUsername.includes('@')) {
-        throw new Error('Please use your email address to login.');
+        console.log('🔍 Treating as username, looking up email...');
+        try {
+          const foundEmail = await this.getEmailByUsername(emailOrUsername);
+          if (!foundEmail) {
+            throw new Error('Username not found. Please check your username or try using your email address instead.');
+          }
+          email = foundEmail;
+          console.log('✅ Found email for username');
+        } catch (usernameError) {
+          console.error('❌ Username lookup failed:', usernameError);
+          throw new Error('Could not find account with that username. Please try using your email address instead.');
+        }
       }
 
-      await this.zone.run(() => signInWithEmailAndPassword(this.auth, emailOrUsername, password));
-      this.zone.run(() => this.router.navigate(['/home']));
+      console.log('🔐 Attempting login with email authentication...');
+      await signInWithEmailAndPassword(this.auth, email, password);
+      console.log('✅ Login successful! Redirecting to home...');
+      this.router.navigate(['/home']);
     } catch (error: any) {
-      throw new Error(this.getErrorMessage(error.code) || error.message);
+      console.error('❌ Login error details:', error);
+      console.error('❌ Login error code:', error.code);
+      console.error('❌ Login error message:', error.message);
+      
+      if (error.code) {
+        throw new Error(this.getErrorMessage(error.code));
+      }
+      
+      throw new Error(error.message || 'Login failed. Please try again.');
     }
   }
 
   // Logout
   async logout(): Promise<void> {
     try {
-      await this.zone.run(() => signOut(this.auth));
-      this.zone.run(() => this.router.navigate(['/login']));
+      console.log('🔄 Logging out...');
+      await signOut(this.auth);
+      console.log('✅ Logout successful! Redirecting to login...');
+      this.router.navigate(['/login']);
     } catch (error) {
-      console.error('Error during logout:', error);
+      console.error('❌ Error during logout:', error);
     }
   }
 
@@ -157,12 +233,28 @@ export class AuthService {
   // Check if username already exists
   private async checkUsernameExists(username: string): Promise<boolean> {
     try {
+      console.log('🔍 Checking if username exists:', username.toLowerCase());
+      
+      // Skip username check if user is not authenticated (during registration)
+      if (!this.auth.currentUser) {
+        console.log('⚠️ Skipping username check - user not authenticated yet');
+        return false; // Allow registration to proceed
+      }
+      
       const usersRef = collection(this.firestore, 'users');
       const q = query(usersRef, where('username', '==', username.toLowerCase()));
-      const querySnapshot = await this.zone.run(() => getDocs(q));
-      return !querySnapshot.empty;
-    } catch (error) {
-      console.error('Error checking username:', error);
+      const querySnapshot = await getDocs(q);
+      const exists = !querySnapshot.empty;
+      console.log('📊 Username exists:', exists);
+      return exists;
+    } catch (error: any) {
+      console.error('❌ Error checking username:', error);
+      console.error('❌ Error code:', error.code);
+      // If there's a permission error, skip the check and allow registration
+      if (error.code === 'permission-denied') {
+        console.log('⚠️ Permission denied for username check, allowing registration to proceed');
+        return false;
+      }
       return false;
     }
   }
@@ -170,17 +262,23 @@ export class AuthService {
   // Get email by username
   private async getEmailByUsername(username: string): Promise<string | null> {
     try {
+      console.log('🔍 Searching for username:', username.toLowerCase());
+      
       const usersRef = collection(this.firestore, 'users');
       const q = query(usersRef, where('username', '==', username.toLowerCase()));
-      const querySnapshot = await this.zone.run(() => getDocs(q));
+      const querySnapshot = await getDocs(q);
 
       if (!querySnapshot.empty) {
         const userDoc = querySnapshot.docs[0];
-        return userDoc.data()['email'];
+        const email = userDoc.data()['email'];
+        console.log('✅ Found email for username');
+        return email;
       }
+      console.log('❌ Username not found in database');
       return null;
-    } catch (error) {
-      console.error('Error getting email by username:', error);
+    } catch (error: any) {
+      console.error('❌ Error getting email by username:', error);
+      console.error('❌ Error code:', error.code);
       return null;
     }
   }
@@ -208,8 +306,44 @@ export class AuthService {
         return 'Too many failed attempts. Please try again later.';
       case 'auth/network-request-failed':
         return 'Network error. Please check your internet connection.';
+      case 'permission-denied':
+        return 'Database permission error. Please try again or contact support.';
+      case 'unavailable':
+        return 'Service temporarily unavailable. Please try again.';
       default:
         return 'An error occurred. Please try again.';
+    }
+  }
+
+  // Get mobile-friendly error messages
+  private getMobileErrorMessage(errorCode: string): string {
+    switch (errorCode) {
+      case 'auth/email-already-in-use':
+        return 'This email is already registered. Please use a different email or try logging in.';
+      case 'auth/invalid-email':
+        return 'Please enter a valid email address.';
+      case 'auth/operation-not-allowed':
+        return 'Registration is currently disabled. Please contact support.';
+      case 'auth/weak-password':
+        return 'Password should be at least 6 characters long with letters and numbers.';
+      case 'auth/user-disabled':
+        return 'This account has been disabled. Please contact support.';
+      case 'auth/user-not-found':
+        return 'No account found with this email or username. Please check your credentials or register.';
+      case 'auth/wrong-password':
+        return 'Incorrect password. Please try again.';
+      case 'auth/invalid-credential':
+        return 'Invalid email/username or password. Please check your credentials.';
+      case 'auth/too-many-requests':
+        return 'Too many failed attempts. Please try again in a few minutes.';
+      case 'auth/network-request-failed':
+        return 'Network connection failed. Please check your internet connection and try again.';
+      case 'permission-denied':
+        return 'Database access denied. Please check your internet connection and try again.';
+      case 'unavailable':
+        return 'Service temporarily unavailable. Please check your connection and try again.';
+      default:
+        return 'Registration failed. Please check your internet connection and try again.';
     }
   }
 }

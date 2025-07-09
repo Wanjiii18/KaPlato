@@ -22,6 +22,7 @@ export class RegisterPage implements OnInit {
   showConfirmPassword = false;
   isLoading = false;
   errorMessage = '';
+  successMessage = '';
 
   constructor(
     private authService: AuthService,
@@ -39,6 +40,7 @@ export class RegisterPage implements OnInit {
     if (form.valid && this.registerData.password === this.registerData.confirmPassword) {
       this.isLoading = true;
       this.errorMessage = '';
+      this.successMessage = '';
 
       try {
         await this.authService.register(
@@ -47,7 +49,20 @@ export class RegisterPage implements OnInit {
           this.registerData.username,
           this.registerData.role
         );
-        // Navigation is handled in the service
+        
+        // Show success message
+        this.successMessage = 'Registration successful! Please log in with your credentials.';
+        
+        // Clear form
+        this.registerData = {
+          username: '',
+          email: '',
+          password: '',
+          confirmPassword: '',
+          role: 'user'
+        };
+        form.resetForm();
+        
       } catch (error: any) {
         this.errorMessage = error.message;
       } finally {

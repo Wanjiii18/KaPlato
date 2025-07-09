@@ -140,6 +140,15 @@
       {{ errorMessage }}
     </div>
 
+    <div class="success-message" *ngIf="successMessage">
+      <ion-card color="success">
+        <ion-card-content>
+          <ion-icon name="checkmark-circle-outline" color="success"></ion-icon>
+          {{ successMessage }}
+        </ion-card-content>
+      </ion-card>
+    </div>
+
     <div class="login-link">
       <p>Already have an account? 
         <ion-button fill="clear" (click)="goToLogin()">Login here</ion-button>

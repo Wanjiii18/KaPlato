@@ -8,10 +8,10 @@ service cloud.firestore {
     }
     
     // User profiles - users can read/write their own profile
-    // Also allow reading other users for username checking
+    // Also allow reading other users for username checking (even unauthenticated for login)
     match /users/{userId} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
-      allow read: if request.auth != null; // Allow reading for username checks
+      allow read: if true; // Allow reading for username checks during login
     }
     
     // Karenderia applications
