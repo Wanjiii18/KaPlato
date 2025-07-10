@@ -9,10 +9,10 @@ import { LoadingController, ToastController } from '@ionic/angular';
   standalone: false,
 })
 export class KarenderiaIngredientsPage implements OnInit {
-  searchQuery = '';
-  searchResults: SpoonacularIngredient[] = [];
-  selectedIngredient: SpoonacularIngredient | null = null;
-  isLoading = false;
+  searchQuery: string = '';
+  ingredients: SpoonacularIngredient[] = [];
+  isLoading: boolean = false;
+  hasSearched: boolean = false;
 
   constructor(
     private spoonacularService: SpoonacularService,
@@ -21,90 +21,108 @@ export class KarenderiaIngredientsPage implements OnInit {
   ) { }
 
   ngOnInit() {
+    // Perform a test search on load
+    this.testApiConnection();
+  }
+
+  async testApiConnection() {
+    try {
+      const loading = await this.loadingController.create({
+        message: 'Testing API connection...',
+        duration: 3000
+      });
+      await loading.present();
+
+      this.spoonacularService.testApi().subscribe({
+        next: (result) => {
+          console.log('✅ API Test Successful! Retrieved recipe:', result);
+          loading.dismiss();
+          this.presentToast('API connection successful!', 'success');
+        },
+        error: (error) => {
+          console.error('❌ API Test Failed:', error);
+          loading.dismiss();
+          this.presentToast('API connection failed. Please check your internet connection.', 'danger');
+        }
+      });
+    } catch (error) {
+      console.error('Error testing API:', error);
+    }
   }
 
   async searchIngredients() {
     if (!this.searchQuery.trim()) {
+      this.presentToast('Please enter an ingredient name to search', 'warning');
       return;
     }
 
     this.isLoading = true;
-    const loading = await this.loadingController.create({
-      message: 'Searching ingredients...',
-      spinner: 'crescent'
-    });
-    await loading.present();
+    this.hasSearched = false;
 
     try {
-      this.spoonacularService.searchIngredients(this.searchQuery).subscribe({
+      const loading = await this.loadingController.create({
+        message: 'Searching ingredients...',
+        duration: 10000
+      });
+      await loading.present();
+
+      this.spoonacularService.searchIngredients(this.searchQuery, 20).subscribe({
         next: (results) => {
-          this.searchResults = results;
-          this.selectedIngredient = null;
+          console.log('🔍 Search Results:', results);
+          this.ingredients = results;
+          this.hasSearched = true;
           this.isLoading = false;
           loading.dismiss();
+
+          if (results.length === 0) {
+            this.presentToast('No ingredients found. Try a different search term.', 'warning');
+          } else {
+            this.presentToast(`Found ${results.length} ingredients`, 'success');
+          }
         },
         error: (error) => {
-          console.error('Error searching ingredients:', error);
-          this.showErrorToast('Error searching ingredients. Please try again.');
+          console.error('❌ Search Error:', error);
           this.isLoading = false;
+          this.hasSearched = true;
           loading.dismiss();
+          this.presentToast('Failed to search ingredients. Please try again.', 'danger');
         }
       });
     } catch (error) {
-      console.error('Error searching ingredients:', error);
-      this.showErrorToast('Error searching ingredients. Please try again.');
+      console.error('Error in searchIngredients:', error);
       this.isLoading = false;
-      await loading.dismiss();
+      this.hasSearched = true;
     }
   }
 
-  async getIngredientDetails(ingredientId: number) {
-    this.isLoading = true;
-    const loading = await this.loadingController.create({
-      message: 'Loading ingredient details...',
-      spinner: 'crescent'
-    });
-    await loading.present();
-
-    try {
-      this.spoonacularService.getIngredientInformation(ingredientId).subscribe({
-        next: (ingredient) => {
-          this.selectedIngredient = ingredient;
-          this.isLoading = false;
-          loading.dismiss();
-        },
-        error: (error) => {
-          console.error('Error getting ingredient details:', error);
-          this.showErrorToast('Error loading ingredient details. Please try again.');
-          this.isLoading = false;
-          loading.dismiss();
-        }
-      });
-    } catch (error) {
-      console.error('Error getting ingredient details:', error);
-      this.showErrorToast('Error loading ingredient details. Please try again.');
-      this.isLoading = false;
-      await loading.dismiss();
-    }
-  }
-
-  private async showErrorToast(message: string) {
+  async presentToast(message: string, color: 'success' | 'warning' | 'danger' = 'success') {
     const toast = await this.toastController.create({
-      message,
+      message: message,
       duration: 3000,
-      color: 'danger'
+      color: color,
+      position: 'bottom'
     });
-    await toast.present();
+    toast.present();
   }
 
-  clearResults() {
-    this.searchResults = [];
-    this.selectedIngredient = null;
+  getIngredientImageUrl(ingredient: SpoonacularIngredient): string {
+    if (ingredient.image) {
+      return `https://spoonacular.com/cdn/ingredients_100x100/${ingredient.image}`;
+    }
+    return 'assets/images/placeholder-food.jpg';
+  }
+
+  clearSearch() {
     this.searchQuery = '';
+    this.ingredients = [];
+    this.hasSearched = false;
   }
 
-  backToResults() {
-    this.selectedIngredient = null;
+  trackByIngredientId(index: number, ingredient: SpoonacularIngredient): number {
+    return ingredient.id;
   }
 
+  onImageError(event: any) {
+    event.target.src = 'assets/images/placeholder-food.jpg';
+  }
 }

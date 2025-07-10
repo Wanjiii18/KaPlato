@@ -1,14 +1,10 @@
 <ion-header [translucent]="true">
-  <ion-toolbar color="primary">
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="/home"></ion-back-button>
-    </ion-buttons>
+  <ion-toolbar>
     <ion-title>Ingredient Search</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true" class="ion-padding">
-  <!-- Header for condensed mode -->
+<ion-content [fullscreen]="true">
   <ion-header collapse="condense">
     <ion-toolbar>
       <ion-title size="large">Ingredient Search</ion-title>
@@ -16,168 +12,106 @@
   </ion-header>
 
   <!-- Search Section -->
-  <div class="search-section" *ngIf="!selectedIngredient">
-    <ion-searchbar
+  <div class="search-section">
+    <ion-searchbar 
       [(ngModel)]="searchQuery"
       placeholder="Search for ingredients..."
-      (ionClear)="clearResults()"
-      (keyup.enter)="searchIngredients()"
-      showClearButton="focus"
-      debounce="500">
+      (ionInput)="searchIngredients()"
+      debounce="500"
+      show-clear-button="focus">
     </ion-searchbar>
-    
-    <ion-button
-      expand="block"
-      fill="solid"
-      color="primary"
+
+    <ion-button 
+      expand="block" 
       (click)="searchIngredients()"
-      [disabled]="!searchQuery.trim() || isLoading">
+      [disabled]="!searchQuery.trim() || isLoading"
+      class="search-button">
       <ion-icon name="search" slot="start"></ion-icon>
-      Search Ingredients
+      {{ isLoading ? 'Searching...' : 'Search Ingredients' }}
+    </ion-button>
+
+    <ion-button 
+      fill="clear" 
+      (click)="clearSearch()"
+      [disabled]="!hasSearched"
+      class="clear-button">
+      <ion-icon name="refresh" slot="start"></ion-icon>
+      Clear Results
     </ion-button>
   </div>
 
-  <!-- Loading state -->
-  <div class="loading-section" *ngIf="isLoading">
-    <ion-skeleton-text animated style="width: 100%; height: 60px; margin: 10px 0;"></ion-skeleton-text>
-    <ion-skeleton-text animated style="width: 100%; height: 60px; margin: 10px 0;"></ion-skeleton-text>
-    <ion-skeleton-text animated style="width: 100%; height: 60px; margin: 10px 0;"></ion-skeleton-text>
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-section">
+    <ion-spinner name="circular"></ion-spinner>
+    <p>Searching ingredients...</p>
   </div>
 
-  <!-- Search Results -->
-  <div class="results-section" *ngIf="searchResults.length > 0 && !selectedIngredient && !isLoading">
-    <ion-card>
-      <ion-card-header>
-        <ion-card-title>
-          <ion-icon name="leaf" color="success"></ion-icon>
-          Search Results ({{ searchResults.length }})
-        </ion-card-title>
-      </ion-card-header>
-      <ion-card-content>
-        <ion-list>
-          <ion-item
-            *ngFor="let ingredient of searchResults"
-            button
-            (click)="getIngredientDetails(ingredient.id)">
-            <ion-avatar slot="start">
-              <img
-                [src]="'https://spoonacular.com/cdn/ingredients_100x100/' + ingredient.image"
-                [alt]="ingredient.name"
-                onerror="this.src='assets/placeholder-ingredient.png'">
-            </ion-avatar>
-            <ion-label>
-              <h2>{{ ingredient.name }}</h2>
-              <p>{{ ingredient.aisle }}</p>
-            </ion-label>
-            <ion-icon name="chevron-forward" slot="end" color="medium"></ion-icon>
-          </ion-item>
-        </ion-list>
-      </ion-card-content>
-    </ion-card>
-  </div>
+  <!-- Results Section -->
+  <div *ngIf="hasSearched && !isLoading" class="results-section">
+    <ion-text *ngIf="ingredients.length === 0" class="no-results">
+      <h3>No ingredients found</h3>
+      <p>Try searching for a different ingredient name.</p>
+    </ion-text>
 
-  <!-- No Results -->
-  <div class="no-results" *ngIf="searchResults.length === 0 && searchQuery && !isLoading && !selectedIngredient">
-    <ion-card>
-      <ion-card-content class="ion-text-center">
-        <ion-icon name="search-circle" size="large" color="medium"></ion-icon>
-        <h2>No Results Found</h2>
-        <p>No ingredients found for "{{ searchQuery }}". Try a different search term.</p>
-      </ion-card-content>
-    </ion-card>
-  </div>
-
-  <!-- Ingredient Details -->
-  <div class="ingredient-details" *ngIf="selectedIngredient && !isLoading">
-    <ion-button fill="clear" color="primary" (click)="backToResults()">
-      <ion-icon name="arrow-back" slot="start"></ion-icon>
-      Back to Results
-    </ion-button>
-
-    <ion-card>
-      <img
-        [src]="'https://spoonacular.com/cdn/ingredients_500x500/' + selectedIngredient.image"
-        [alt]="selectedIngredient.name"
-        onerror="this.src='assets/placeholder-ingredient.png'">
+    <ion-grid *ngIf="ingredients.length > 0">
+      <ion-row>
+        <ion-col size="12" class="results-header">
+          <h3>Found {{ ingredients.length }} ingredients</h3>
+        </ion-col>
+      </ion-row>
       
-      <ion-card-header>
-        <ion-card-title>{{ selectedIngredient.name }}</ion-card-title>
-        <ion-card-subtitle>{{ selectedIngredient.aisle }}</ion-card-subtitle>
-      </ion-card-header>
-
-      <ion-card-content>
-        <div class="ingredient-info">
-          <ion-chip *ngIf="selectedIngredient.consistency">
-            <ion-icon name="water" color="primary"></ion-icon>
-            <ion-label>{{ selectedIngredient.consistency }}</ion-label>
-          </ion-chip>
-        </div>
-
-        <!-- Original Information -->
-        <div class="section" *ngIf="selectedIngredient.original">
-          <h3>
-            <ion-icon name="information-circle" color="primary"></ion-icon>
-            Description
-          </h3>
-          <p>{{ selectedIngredient.original }}</p>
-        </div>
-
-        <!-- Meta Information -->
-        <div class="section" *ngIf="selectedIngredient.meta && selectedIngredient.meta.length > 0">
-          <h3>
-            <ion-icon name="list" color="primary"></ion-icon>
-            Additional Info
-          </h3>
-          <ion-chip *ngFor="let meta of selectedIngredient.meta" color="light">
-            <ion-label>{{ meta }}</ion-label>
-          </ion-chip>
-        </div>
-
-        <!-- Measurements -->
-        <div class="section" *ngIf="selectedIngredient.measures">
-          <h3>
-            <ion-icon name="scale" color="primary"></ion-icon>
-            Measurements
-          </h3>
-          <ion-row>
-            <ion-col size="6" *ngIf="selectedIngredient.measures.us">
-              <ion-card color="light">
-                <ion-card-header>
-                  <ion-card-subtitle>US</ion-card-subtitle>
-                </ion-card-header>
-                <ion-card-content>
-                  <p><strong>{{ selectedIngredient.measures.us.amount }}</strong> {{ selectedIngredient.measures.us.unitLong }}</p>
-                </ion-card-content>
-              </ion-card>
-            </ion-col>
-            <ion-col size="6" *ngIf="selectedIngredient.measures.metric">
-              <ion-card color="light">
-                <ion-card-header>
-                  <ion-card-subtitle>Metric</ion-card-subtitle>
-                </ion-card-header>
-                <ion-card-content>
-                  <p><strong>{{ selectedIngredient.measures.metric.amount }}</strong> {{ selectedIngredient.measures.metric.unitLong }}</p>
-                </ion-card-content>
-              </ion-card>
-            </ion-col>
-          </ion-row>
-        </div>
-      </ion-card-content>
-    </ion-card>
+      <ion-row>
+        <ion-col 
+          size="6" 
+          size-md="4" 
+          size-lg="3" 
+          *ngFor="let ingredient of ingredients; trackBy: trackByIngredientId"
+          class="ingredient-col">
+          
+          <ion-card class="ingredient-card">
+            <div class="ingredient-image-container">
+              <img 
+                [src]="getIngredientImageUrl(ingredient)" 
+                [alt]="ingredient.name"
+                class="ingredient-image"
+                (error)="onImageError($event)">
+            </div>
+            
+            <ion-card-content>
+              <ion-card-title class="ingredient-name">
+                {{ ingredient.name }}
+              </ion-card-title>
+              
+              <ion-card-subtitle *ngIf="ingredient.aisle" class="ingredient-aisle">
+                {{ ingredient.aisle }}
+              </ion-card-subtitle>
+              
+              <div class="ingredient-details">
+                <ion-chip *ngIf="ingredient.consistency" color="secondary">
+                  {{ ingredient.consistency }}
+                </ion-chip>
+              </div>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
   </div>
 
-  <!-- Welcome message when no search has been performed -->
-  <div class="welcome-section" *ngIf="!searchQuery && searchResults.length === 0 && !selectedIngredient && !isLoading">
-    <ion-card>
-      <ion-card-content class="ion-text-center">
-        <ion-icon name="nutrition" size="large" color="primary"></ion-icon>
-        <h2>Ingredient Discovery</h2>
-        <p>Search for ingredients to get detailed information, nutritional data, and cooking suggestions powered by Spoonacular API.</p>
-        <ion-button fill="outline" color="primary" (click)="searchIngredients()" [disabled]="!searchQuery.trim()">
-          <ion-icon name="search" slot="start"></ion-icon>
-          Start Searching
-        </ion-button>
-      </ion-card-content>
-    </ion-card>
+  <!-- Welcome Message -->
+  <div *ngIf="!hasSearched && !isLoading" class="welcome-section">
+    <ion-icon name="search" class="welcome-icon"></ion-icon>
+    <h2>Welcome to Ingredient Search</h2>
+    <p>Search for ingredients using the Spoonacular API. Enter an ingredient name above to get started!</p>
+    
+    <div class="suggestion-chips">
+      <h4>Try searching for:</h4>
+      <ion-chip 
+        *ngFor="let suggestion of ['chicken', 'tomato', 'onion', 'garlic', 'rice', 'cheese']"
+        (click)="searchQuery = suggestion; searchIngredients()"
+        class="suggestion-chip">
+        {{ suggestion }}
+      </ion-chip>
+    </div>
   </div>
 </ion-content>

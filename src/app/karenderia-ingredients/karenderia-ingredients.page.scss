@@ -1,225 +1,221 @@
+/* Search Section */
 .search-section {
-  margin-bottom: 20px;
+  padding: 16px;
+  background: var(--ion-color-light);
   
-  ion-searchbar {
-    --border-radius: 12px;
-    --box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  .search-button {
+    margin-top: 8px;
+    --border-radius: 8px;
+  }
+  
+  .clear-button {
+    margin-top: 4px;
+    width: 100%;
+  }
+}
+
+/* Loading Section */
+.loading-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  
+  ion-spinner {
     margin-bottom: 16px;
   }
   
-  ion-button {
-    --border-radius: 12px;
-    height: 48px;
-    font-weight: 600;
+  p {
+    color: var(--ion-color-medium);
+    margin: 0;
   }
 }
 
-.loading-section {
-  margin: 20px 0;
-}
-
+/* Results Section */
 .results-section {
-  ion-card {
-    --border-radius: 16px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-    
-    ion-card-header {
-      padding-bottom: 8px;
-      
-      ion-card-title {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-size: 1.2em;
-        font-weight: 600;
-        color: var(--ion-color-primary);
-      }
-    }
-  }
+  padding: 16px;
   
-  ion-item {
-    --border-radius: 8px;
-    margin-bottom: 8px;
-    
-    &:hover {
-      --background: var(--ion-color-light);
-    }
-    
-    ion-avatar {
-      --border-radius: 8px;
-      border: 2px solid var(--ion-color-light);
-    }
-    
-    ion-label {
-      h2 {
-        font-weight: 600;
-        color: var(--ion-color-dark);
-        text-transform: capitalize;
-      }
-      
-      p {
-        color: var(--ion-color-medium);
-        font-style: italic;
-      }
-    }
-  }
-}
-
-.no-results {
-  margin: 40px 0;
-  
-  ion-card {
-    --border-radius: 16px;
+  .results-header {
     text-align: center;
+    margin-bottom: 16px;
     
-    ion-icon {
-      margin-bottom: 16px;
+    h3 {
+      color: var(--ion-color-primary);
+      margin: 0;
     }
+  }
+  
+  .no-results {
+    text-align: center;
+    padding: 40px 20px;
     
-    h2 {
-      color: var(--ion-color-dark);
-      margin: 16px 0 8px 0;
+    h3 {
+      color: var(--ion-color-medium);
+      margin-bottom: 8px;
     }
     
     p {
-      color: var(--ion-color-medium);
+      color: var(--ion-color-medium-shade);
       margin: 0;
     }
   }
 }
 
-.ingredient-details {
-  ion-button {
+/* Ingredient Cards */
+.ingredient-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.ingredient-card {
+  height: 100%;
+  margin: 8px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  }
+  
+  .ingredient-image-container {
+    position: relative;
+    width: 100%;
+    height: 120px;
+    overflow: hidden;
+    border-radius: 12px 12px 0 0;
+    background: var(--ion-color-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    .ingredient-image {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+  }
+  
+  ion-card-content {
+    padding: 12px;
+    
+    .ingredient-name {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 4px;
+      text-transform: capitalize;
+      line-height: 1.2;
+      color: var(--ion-color-dark);
+    }
+    
+    .ingredient-aisle {
+      font-size: 12px;
+      color: var(--ion-color-medium);
+      margin-bottom: 8px;
+      text-transform: capitalize;
+    }
+    
+    .ingredient-details {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      
+      ion-chip {
+        --background: var(--ion-color-secondary-tint);
+        --color: var(--ion-color-secondary-shade);
+        font-size: 10px;
+        height: 20px;
+        margin: 0;
+      }
+    }
+  }
+}
+
+/* Welcome Section */
+.welcome-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  text-align: center;
+  min-height: 50vh;
+  
+  .welcome-icon {
+    font-size: 64px;
+    color: var(--ion-color-primary);
     margin-bottom: 16px;
   }
   
-  ion-card {
-    --border-radius: 16px;
-    overflow: hidden;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-    
-    img {
-      width: 100%;
-      height: 200px;
-      object-fit: cover;
-    }
-    
-    ion-card-header {
-      ion-card-title {
-        font-size: 1.5em;
-        font-weight: 700;
-        color: var(--ion-color-primary);
-        text-transform: capitalize;
-      }
-      
-      ion-card-subtitle {
-        color: var(--ion-color-medium);
-        font-style: italic;
-        margin-top: 4px;
-      }
-    }
+  h2 {
+    color: var(--ion-color-primary);
+    margin-bottom: 8px;
   }
   
-  .ingredient-info {
-    margin-bottom: 20px;
-    
-    ion-chip {
-      --border-radius: 20px;
-      font-weight: 500;
-    }
+  p {
+    color: var(--ion-color-medium);
+    margin-bottom: 24px;
+    max-width: 300px;
+    line-height: 1.5;
   }
   
-  .section {
-    margin: 24px 0;
-    
-    h3 {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 1.1em;
-      font-weight: 600;
+  .suggestion-chips {
+    h4 {
       color: var(--ion-color-dark);
       margin-bottom: 12px;
+      font-size: 14px;
     }
     
-    p {
-      color: var(--ion-color-medium);
-      line-height: 1.5;
-      margin: 8px 0;
-    }
-    
-    ion-chip {
-      margin: 4px 4px 4px 0;
-      --border-radius: 16px;
-    }
-    
-    ion-card {
-      margin: 8px 0;
-      --border-radius: 12px;
+    .suggestion-chip {
+      margin: 4px;
+      cursor: pointer;
+      transition: transform 0.2s ease;
       
-      ion-card-content {
-        p {
-          margin: 0;
-          font-weight: 600;
-          color: var(--ion-color-dark);
-        }
+      &:hover {
+        transform: scale(1.05);
       }
     }
   }
 }
 
-.welcome-section {
-  margin: 40px 0;
-  
-  ion-card {
-    --border-radius: 16px;
-    text-align: center;
+/* Responsive Design */
+@media (max-width: 768px) {
+  .ingredient-card {
+    margin: 4px;
     
-    ion-icon {
-      margin-bottom: 16px;
+    .ingredient-image-container {
+      height: 100px;
+      
+      .ingredient-image {
+        width: 60px;
+        height: 60px;
+      }
     }
     
-    h2 {
-      color: var(--ion-color-primary);
-      font-weight: 700;
-      margin: 16px 0 8px 0;
-    }
-    
-    p {
-      color: var(--ion-color-medium);
-      line-height: 1.6;
-      margin: 16px 0 24px 0;
-    }
-    
-    ion-button {
-      --border-radius: 12px;
-      font-weight: 600;
+    ion-card-content {
+      padding: 8px;
+      
+      .ingredient-name {
+        font-size: 13px;
+      }
+      
+      .ingredient-aisle {
+        font-size: 11px;
+      }
     }
   }
 }
 
-// Responsive design
-@media (min-width: 768px) {
-  .search-section,
-  .results-section,
-  .ingredient-details,
-  .welcome-section,
-  .no-results {
-    max-width: 800px;
-    margin-left: auto;
-    margin-right: auto;
-  }
-}
-
-// Dark mode support
+/* Dark mode support */
 @media (prefers-color-scheme: dark) {
-  .results-section ion-item {
-    ion-avatar {
-      border-color: var(--ion-color-dark);
+  .ingredient-card {
+    background: var(--ion-color-dark-tint);
+    
+    &:hover {
+      box-shadow: 0 4px 16px rgba(255, 255, 255, 0.1);
     }
-  }
-  
-  .ingredient-details ion-card img {
-    border-bottom: 1px solid var(--ion-color-dark);
   }
 }
