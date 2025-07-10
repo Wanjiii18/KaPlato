@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
-import { Firestore, doc, updateDoc, arrayUnion, arrayRemove } from '@angular/fire/firestore';
+import { Firestore, doc, updateDoc } from '@angular/fire/firestore';
+import { arrayUnion, arrayRemove } from 'firebase/firestore';
 import { Allergen, MealPlan } from './auth.service';
 import { UserService } from './user.service';
 

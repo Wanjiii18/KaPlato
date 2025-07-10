@@ -1,0 +1,223 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/karenderia-dashboard"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Point of Sale</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="showDetailedAnalytics()" fill="clear">
+        <ion-icon name="analytics-outline"></ion-icon>
+        Analytics
+      </ion-button>
+      <ion-button (click)="showOrderHistory()">
+        <ion-icon name="time-outline"></ion-icon>
+        History
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="pos-content">
+  <div class="pos-container">
+    
+    <!-- Quick Analytics Bar -->
+    <div class="analytics-bar" *ngIf="todaysAnalytics">
+      <div class="analytics-card">
+        <div class="metric">
+          <span class="value">{{ formatPhp(todaysAnalytics.totalSales) }}</span>
+          <span class="label">Today's Sales</span>
+        </div>
+        <div class="metric">
+          <span class="value">{{ todaysAnalytics.totalOrders }}</span>
+          <span class="label">Orders</span>
+        </div>
+        <div class="metric">
+          <span class="value">{{ formatPhp(todaysAnalytics.totalProfit) }}</span>
+          <span class="label">Profit</span>
+        </div>
+        <div class="metric seasonal">
+          <span class="value">{{ getCurrentSeason() | titlecase }}</span>
+          <span class="label">Season</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Left Side: Categories and Menu -->
+    <div class="menu-section">
+      
+      <!-- Categories -->
+      <div class="categories-section">
+        <h3>Choose Category</h3>
+        <div class="categories-grid">
+          <div 
+            *ngFor="let category of categories" 
+            class="category-item"
+            [class.active]="selectedCategory === category.id"
+            (click)="selectCategory(category.id)">
+            <ion-icon [name]="category.icon"></ion-icon>
+            <span>{{ category.name }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Menu Items -->
+      <div class="menu-items-section">
+        <div class="section-header">
+          <h3>{{ getSelectedCategoryName() }} Menu</h3>
+          <span class="item-count">{{ getFilteredMenuItems().length }} items</span>
+        </div>
+        
+        <div class="menu-items-grid">
+          <div 
+            *ngFor="let item of getFilteredMenuItems()" 
+            class="menu-item-card"
+            (click)="addToOrder(item)">
+            <div class="item-image">
+              <img [src]="item.image" [alt]="item.name" (error)="handleImageError($event)">
+              <div class="item-badge" *ngIf="item.isPopular">
+                <ion-icon name="star"></ion-icon>
+              </div>
+            </div>
+            <div class="item-info">
+              <h4>{{ item.name }}</h4>
+              <p class="item-price">{{ formatPhp(item.price) }}</p>
+              <div class="item-tags">
+                <span class="spicy-tag" *ngIf="item.name.includes('Thai')">
+                  <ion-icon name="flame"></ion-icon>
+                  Spicy Level
+                </span>
+                <span class="time-tag">{{ item.preparationTime }} min</span>
+              </div>
+              <button class="add-to-billing-btn">Add to Billing</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Side: Current Order (Bills) -->
+    <div class="order-section">
+      <div class="bills-header">
+        <h3>Bills</h3>
+        <ion-button fill="clear" size="small" (click)="clearOrder()" *ngIf="currentOrder.length > 0">
+          <ion-icon name="trash-outline"></ion-icon>
+          Clear
+        </ion-button>
+      </div>
+
+      <!-- Order Items -->
+      <div class="order-items" *ngIf="currentOrder.length > 0">
+        <div *ngFor="let orderItem of currentOrder; let i = index" class="order-item">
+          <div class="item-details">
+            <div class="item-image-small">
+              <img [src]="orderItem.menuItem.image" [alt]="orderItem.menuItem.name" (error)="handleImageError($event)">
+            </div>
+            <div class="item-info-small">
+              <h5>{{ orderItem.menuItem.name }}</h5>
+              <p class="item-price-small">{{ formatPhp(orderItem.menuItem.price) }}</p>
+            </div>
+          </div>
+          <div class="quantity-controls">
+            <ion-button fill="clear" size="small" (click)="updateQuantity(i, orderItem.quantity - 1)">
+              <ion-icon name="remove"></ion-icon>
+            </ion-button>
+            <span class="quantity">{{ orderItem.quantity }}</span>
+            <ion-button fill="clear" size="small" (click)="updateQuantity(i, orderItem.quantity + 1)">
+              <ion-icon name="add"></ion-icon>
+            </ion-button>
+          </div>
+          <button class="remove-item-btn" (click)="removeFromOrder(i)">
+            <ion-icon name="close"></ion-icon>
+          </button>
+        </div>
+      </div>
+
+      <!-- Empty Order State -->
+      <div class="empty-order" *ngIf="currentOrder.length === 0">
+        <ion-icon name="receipt-outline" size="large"></ion-icon>
+        <p>No items in order</p>
+        <span>Select items from the menu to add to your order</span>
+      </div>
+
+      <!-- Order Summary -->
+      <div class="order-summary" *ngIf="currentOrder.length > 0">
+        <div class="summary-row">
+          <span>Subtotal</span>
+          <span>{{ formatPhp(getOrderTotal()) }}</span>
+        </div>
+        <div class="summary-row">
+          <span>Tax</span>
+          <span>{{ formatPhp(0) }}</span>
+        </div>
+        <div class="summary-row total-row">
+          <span>Total</span>
+          <span>{{ formatPhp(getOrderTotal()) }}</span>
+        </div>
+      </div>
+
+      <!-- Customer Info -->
+      <div class="customer-info" *ngIf="currentOrder.length > 0">
+        <h4>Customer Information</h4>
+        <ion-item lines="none">
+          <ion-label position="stacked">Customer Name (Optional)</ion-label>
+          <ion-input [(ngModel)]="customerName" placeholder="Enter customer name"></ion-input>
+        </ion-item>
+        
+        <ion-item lines="none">
+          <ion-label position="stacked">Phone Number (Optional)</ion-label>
+          <ion-input [(ngModel)]="currentDetailedOrder.customerPhone" placeholder="Enter phone number"></ion-input>
+        </ion-item>
+        
+        <ion-item lines="none">
+          <ion-label position="stacked">Order Type</ion-label>
+          <ion-select [(ngModel)]="orderType">
+            <ion-select-option value="dine-in">Dine In</ion-select-option>
+            <ion-select-option value="takeout">Takeout</ion-select-option>
+            <ion-select-option value="delivery">Delivery</ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <ion-item lines="none">
+          <ion-label position="stacked">Special Instructions (Optional)</ion-label>
+          <ion-textarea [(ngModel)]="currentDetailedOrder.notes" placeholder="Any special requests..." rows="2"></ion-textarea>
+        </ion-item>
+      </div>
+
+      <!-- Payment Method -->
+      <div class="payment-method" *ngIf="currentOrder.length > 0">
+        <h4>Payment Method</h4>
+        <div class="payment-options">
+          <button 
+            class="payment-btn"
+            [class.active]="paymentMethod === 'cash'"
+            (click)="setPaymentMethod('cash')">
+            <ion-icon name="cash-outline"></ion-icon>
+            <span>Cash</span>
+          </button>
+          <button 
+            class="payment-btn"
+            [class.active]="paymentMethod === 'card'"
+            (click)="setPaymentMethod('card')">
+            <ion-icon name="card-outline"></ion-icon>
+            <span>Card</span>
+          </button>
+          <button 
+            class="payment-btn"
+            [class.active]="paymentMethod === 'gcash'"
+            (click)="setPaymentMethod('gcash')">
+            <ion-icon name="phone-portrait-outline"></ion-icon>
+            <span>GCash</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Process Order Button -->
+      <div class="process-order-section" *ngIf="currentOrder.length > 0">
+        <button class="process-order-btn" (click)="processOrder()">
+          Add to Billing
+        </button>
+      </div>
+    </div>
+
+  </div>
+</ion-content>

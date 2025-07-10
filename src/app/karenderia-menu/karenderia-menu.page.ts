@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { MenuService } from '../services/menu.service';
+import { OrderService } from '../services/order.service';
+import { SpoonacularService } from '../services/spoonacular.service';
 import { MenuItem, MenuIngredient } from '../models/menu.model';
 import { AlertController, ToastController, ModalController } from '@ionic/angular';
 
@@ -108,6 +110,8 @@ export class KarenderiaMenuPage implements OnInit {
 
   constructor(
     private menuService: MenuService,
+    private orderService: OrderService,
+    private spoonacularService: SpoonacularService,
     private alertController: AlertController,
     private toastController: ToastController,
     private modalController: ModalController
@@ -115,6 +119,36 @@ export class KarenderiaMenuPage implements OnInit {
 
   ngOnInit() {
     this.loadMenuItems();
+  }
+
+  /**
+   * Open the order modal for placing orders
+   */
+  async openOrderModal() {
+    try {
+      const result = await this.orderService.openOrderModal();
+      
+      if (result && result.success) {
+        const toast = await this.toastController.create({
+          message: `Order ${result.orderData.orderNumber || 'placed'} successfully!`,
+          duration: 3000,
+          color: 'success',
+          position: 'top'
+        });
+        await toast.present();
+        
+        // Optionally refresh menu items to update availability
+        this.loadMenuItems();
+      }
+    } catch (error) {
+      console.error('Error opening order modal:', error);
+      const toast = await this.toastController.create({
+        message: 'Failed to open order modal',
+        duration: 2000,
+        color: 'danger'
+      });
+      await toast.present();
+    }
   }
 
   loadMenuItems() {
@@ -255,12 +289,12 @@ export class KarenderiaMenuPage implements OnInit {
     this.newMenuItem.selectedIngredients.splice(index, 1);
   }
 
-  updateIngredientQuantity(index: number, quantity: string | number | null | undefined) {
-    this.newMenuItem.selectedIngredients[index].quantity = parseFloat(quantity?.toString() || '0') || 0;
+  updateIngredientQuantity(index: number, quantity: number) {
+    this.newMenuItem.selectedIngredients[index].quantity = quantity;
   }
 
-  updateIngredientCost(index: number, cost: string | number | null | undefined) {
-    this.newMenuItem.selectedIngredients[index].cost = parseFloat(cost?.toString() || '0') || 0;
+  updateIngredientCost(index: number, cost: number) {
+    this.newMenuItem.selectedIngredients[index].cost = cost;
   }
 
   getTotalCost(): number {
@@ -396,5 +430,35 @@ export class KarenderiaMenuPage implements OnInit {
     return dishType.split('-').map(word => 
       word.charAt(0).toUpperCase() + word.slice(1)
     ).join(' ');
+  }
+
+  /**
+   * Test Spoonacular API connection
+   */
+  async testSpoonacularApi() {
+    try {
+      const result = await this.spoonacularService.testApiConnection();
+      
+      if (result.success) {
+        await this.showToast(result.message, 'success');
+        console.log('✅ API Test Success:', result);
+      } else {
+        await this.showToast(result.message, 'danger');
+        console.error('❌ API Test Failed:', result.message);
+      }
+    } catch (error) {
+      console.error('Error testing API:', error);
+      await this.showToast('Failed to test API connection', 'danger');
+    }
+  }
+
+  private async showToast(message: string, color: 'success' | 'danger') {
+    const toast = await this.toastController.create({
+      message,
+      duration: 3000,
+      color,
+      position: 'top'
+    });
+    await toast.present();
   }
 }

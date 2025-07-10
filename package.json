@@ -9,7 +9,8 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "lint": "ng lint"
+    "lint": "ng lint",
+    "test:firestore": "node --experimental-specifier-resolution=node scripts/test-firestore.js"
   },
   "private": true,
   "dependencies": {
@@ -29,7 +30,7 @@
     "@ionic/angular": "^8.0.0",
     "@types/leaflet": "^1.9.19",
     "@types/leaflet-routing-machine": "^3.2.8",
-    "firebase": "^11.9.1",
+    "firebase": "^11.10.0",
     "ionicons": "^7.0.0",
     "leaflet": "^1.9.4",
     "leaflet-routing-machine": "^3.2.12",

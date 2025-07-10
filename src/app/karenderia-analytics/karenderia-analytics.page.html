@@ -3,23 +3,139 @@
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/karenderia-dashboard"></ion-back-button>
     </ion-buttons>
-    <ion-title>Analytics</ion-title>
+    <ion-title>Business Analytics</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="openOrderModal()" fill="solid" color="success" size="small">
+        <ion-icon name="bag" slot="start"></ion-icon>
+        Order
+      </ion-button>
+      <ion-button routerLink="/order-details" fill="clear">
+        <ion-icon name="list"></ion-icon>
+        Orders
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true" class="analytics-content">
-  <div class="placeholder-container">
-    <div class="placeholder-content">
-      <ion-icon name="analytics-outline" size="large" color="medium"></ion-icon>
-      <h2>Analytics Coming Soon</h2>
-      <p>Sales analytics and reporting will be available in the backend system.</p>
-      <p>This section will show:</p>
-      <ul>
-        <li>Daily and monthly sales reports</li>
-        <li>Best-selling items</li>
-        <li>Profit margins</li>
-        <li>Revenue trends</li>
-      </ul>
+  <div class="analytics-container">
+    
+    <!-- Period Selector -->
+    <div class="period-selector">
+      <ion-segment [(ngModel)]="selectedPeriod" (ionChange)="onPeriodChange()">
+        <ion-segment-button value="daily">
+          <ion-label>Daily</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="weekly">
+          <ion-label>Weekly</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="monthly">
+          <ion-label>Monthly</ion-label>
+        </ion-segment-button>
+      </ion-segment>
     </div>
+
+    <!-- Key Metrics -->
+    <div class="metrics-grid" *ngIf="getSelectedAnalytics()">
+      <div class="metric-card sales">
+        <div class="metric-icon">
+          <ion-icon name="trending-up"></ion-icon>
+        </div>
+        <div class="metric-content">
+          <div class="metric-value">{{ formatPhp(getSelectedAnalytics()!.totalSales) }}</div>
+          <div class="metric-label">Total Sales</div>
+        </div>
+      </div>
+
+      <div class="metric-card orders">
+        <div class="metric-icon">
+          <ion-icon name="receipt"></ion-icon>
+        </div>
+        <div class="metric-content">
+          <div class="metric-value">{{ getSelectedAnalytics()!.totalOrders }}</div>
+          <div class="metric-label">Orders</div>
+        </div>
+      </div>
+
+      <div class="metric-card profit">
+        <div class="metric-icon">
+          <ion-icon name="cash"></ion-icon>
+        </div>
+        <div class="metric-content">
+          <div class="metric-value">{{ formatPhp(getSelectedAnalytics()!.totalProfit) }}</div>
+          <div class="metric-label">Profit ({{ getProfitMarginPercentage().toFixed(1) }}%)</div>
+        </div>
+      </div>
+
+      <div class="metric-card average">
+        <div class="metric-icon">
+          <ion-icon name="calculator"></ion-icon>
+        </div>
+        <div class="metric-content">
+          <div class="metric-value">{{ formatPhp(getSelectedAnalytics()!.averageOrderValue) }}</div>
+          <div class="metric-label">Avg Order</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Seasonal Context -->
+    <div class="seasonal-section">
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>
+            <ion-icon [name]="getSeasonIcon(currentSeason)"></ion-icon>
+            {{ currentSeason | titlecase }} Season Analytics
+          </ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <div class="seasonal-recommendations">
+            <h4>🎯 Business Recommendations:</h4>
+            <ul>
+              <li *ngFor="let recommendation of seasonalRecommendations">
+                {{ recommendation }}
+              </li>
+            </ul>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    </div>
+
+    <!-- Top Selling Items -->
+    <div class="top-items-section" *ngIf="topItemsData.length > 0">
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>🏆 Top Selling Items</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <div class="top-items-list">
+            <div *ngFor="let item of topItemsData; let i = index" class="top-item">
+              <div class="item-rank">{{ i + 1 }}</div>
+              <div class="item-info">
+                <div class="item-name">{{ item.menuItemName }}</div>
+                <div class="item-stats">
+                  <span class="quantity">{{ item.quantitySold }} sold</span>
+                  <span class="revenue">{{ formatPhp(item.revenue) }}</span>
+                  <span class="profit" [style.color]="'green'">+{{ formatPhp(item.profit) }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="actions-section">
+      <ion-button expand="block" routerLink="/order-details" color="primary">
+        <ion-icon name="list" slot="start"></ion-icon>
+        View All Orders
+      </ion-button>
+      
+      <ion-button expand="block" routerLink="/karenderia-orders-pos" color="success">
+        <ion-icon name="add" slot="start"></ion-icon>
+        New Order
+      </ion-button>
+    </div>
+
   </div>
 </ion-content>

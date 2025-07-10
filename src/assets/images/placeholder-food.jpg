@@ -1,0 +1,8 @@
+This is a placeholder for food images. 
+In a real app, you would place food images like:
+- placeholder-food.jpg
+- rice-bowl.jpg
+- adobo.jpg
+- etc.
+
+For now, the error handling in the HTML templates will handle missing images.

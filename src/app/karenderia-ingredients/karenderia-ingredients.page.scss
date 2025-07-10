@@ -1,0 +1,225 @@
+.search-section {
+  margin-bottom: 20px;
+  
+  ion-searchbar {
+    --border-radius: 12px;
+    --box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 16px;
+  }
+  
+  ion-button {
+    --border-radius: 12px;
+    height: 48px;
+    font-weight: 600;
+  }
+}
+
+.loading-section {
+  margin: 20px 0;
+}
+
+.results-section {
+  ion-card {
+    --border-radius: 16px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    
+    ion-card-header {
+      padding-bottom: 8px;
+      
+      ion-card-title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 1.2em;
+        font-weight: 600;
+        color: var(--ion-color-primary);
+      }
+    }
+  }
+  
+  ion-item {
+    --border-radius: 8px;
+    margin-bottom: 8px;
+    
+    &:hover {
+      --background: var(--ion-color-light);
+    }
+    
+    ion-avatar {
+      --border-radius: 8px;
+      border: 2px solid var(--ion-color-light);
+    }
+    
+    ion-label {
+      h2 {
+        font-weight: 600;
+        color: var(--ion-color-dark);
+        text-transform: capitalize;
+      }
+      
+      p {
+        color: var(--ion-color-medium);
+        font-style: italic;
+      }
+    }
+  }
+}
+
+.no-results {
+  margin: 40px 0;
+  
+  ion-card {
+    --border-radius: 16px;
+    text-align: center;
+    
+    ion-icon {
+      margin-bottom: 16px;
+    }
+    
+    h2 {
+      color: var(--ion-color-dark);
+      margin: 16px 0 8px 0;
+    }
+    
+    p {
+      color: var(--ion-color-medium);
+      margin: 0;
+    }
+  }
+}
+
+.ingredient-details {
+  ion-button {
+    margin-bottom: 16px;
+  }
+  
+  ion-card {
+    --border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    
+    img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+    }
+    
+    ion-card-header {
+      ion-card-title {
+        font-size: 1.5em;
+        font-weight: 700;
+        color: var(--ion-color-primary);
+        text-transform: capitalize;
+      }
+      
+      ion-card-subtitle {
+        color: var(--ion-color-medium);
+        font-style: italic;
+        margin-top: 4px;
+      }
+    }
+  }
+  
+  .ingredient-info {
+    margin-bottom: 20px;
+    
+    ion-chip {
+      --border-radius: 20px;
+      font-weight: 500;
+    }
+  }
+  
+  .section {
+    margin: 24px 0;
+    
+    h3 {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 1.1em;
+      font-weight: 600;
+      color: var(--ion-color-dark);
+      margin-bottom: 12px;
+    }
+    
+    p {
+      color: var(--ion-color-medium);
+      line-height: 1.5;
+      margin: 8px 0;
+    }
+    
+    ion-chip {
+      margin: 4px 4px 4px 0;
+      --border-radius: 16px;
+    }
+    
+    ion-card {
+      margin: 8px 0;
+      --border-radius: 12px;
+      
+      ion-card-content {
+        p {
+          margin: 0;
+          font-weight: 600;
+          color: var(--ion-color-dark);
+        }
+      }
+    }
+  }
+}
+
+.welcome-section {
+  margin: 40px 0;
+  
+  ion-card {
+    --border-radius: 16px;
+    text-align: center;
+    
+    ion-icon {
+      margin-bottom: 16px;
+    }
+    
+    h2 {
+      color: var(--ion-color-primary);
+      font-weight: 700;
+      margin: 16px 0 8px 0;
+    }
+    
+    p {
+      color: var(--ion-color-medium);
+      line-height: 1.6;
+      margin: 16px 0 24px 0;
+    }
+    
+    ion-button {
+      --border-radius: 12px;
+      font-weight: 600;
+    }
+  }
+}
+
+// Responsive design
+@media (min-width: 768px) {
+  .search-section,
+  .results-section,
+  .ingredient-details,
+  .welcome-section,
+  .no-results {
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+// Dark mode support
+@media (prefers-color-scheme: dark) {
+  .results-section ion-item {
+    ion-avatar {
+      border-color: var(--ion-color-dark);
+    }
+  }
+  
+  .ingredient-details ion-card img {
+    border-bottom: 1px solid var(--ion-color-dark);
+  }
+}

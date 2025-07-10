@@ -1,5 +1,5 @@
 import { Injectable, NgZone } from '@angular/core';
-import { Auth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile, User } from '@angular/fire/auth';
+import { Auth, User, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile } from '@angular/fire/auth';
 import { Firestore, doc, setDoc, collection, query, where, getDocs } from '@angular/fire/firestore';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { Router } from '@angular/router';
@@ -74,7 +74,7 @@ export class AuthService {
     private zone: NgZone // Inject NgZone
   ) {
     // Listen to auth state changes
-    this.auth.onAuthStateChanged((user) => {
+    onAuthStateChanged(this.auth, (user) => {
       this.zone.run(() => {
         console.log('Auth state changed:', user ? 'User logged in' : 'User logged out');
         this.currentUserSubject.next(user);

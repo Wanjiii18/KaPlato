@@ -1,0 +1,7 @@
+<!-- This is a placeholder SVG for food items -->
+<svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="120" height="120" rx="8" fill="#f0f0f0"/>
+  <path d="M40 80L60 40L80 80H40Z" fill="#ddd"/>
+  <circle cx="60" cy="60" r="25" fill="#ccc"/>
+  <text x="60" y="100" text-anchor="middle" font-family="Arial" font-size="10" fill="#999">Food</text>
+</svg>

@@ -61,6 +61,10 @@ export class KarenderiaDashboardPage implements OnInit {
     this.router.navigate(['/karenderia-orders']);
   }
 
+  navigateToPos() {
+    this.router.navigate(['/karenderia/pos']);
+  }
+
   navigateToAnalytics() {
     this.router.navigate(['/karenderia-analytics']);
   }

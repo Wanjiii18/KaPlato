@@ -3,7 +3,7 @@ import { AuthService } from '../services/auth.service';
 import { UserService, UserProfile } from '../services/user.service';
 import { KarenderiaService } from '../services/karenderia.service';
 import { User } from '@angular/fire/auth';
-import { GeoPoint } from '@angular/fire/firestore';
+import { GeoPoint } from 'firebase/firestore';
 import { Subscription } from 'rxjs';
 import { Router } from '@angular/router';
 import { ToastController } from '@ionic/angular';

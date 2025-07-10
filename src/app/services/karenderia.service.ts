@@ -1,5 +1,6 @@
 import { Injectable, NgZone } from '@angular/core';
-import { Firestore, collection, query, where, getDocs, addDoc, doc, updateDoc, deleteDoc, GeoPoint, getDoc, setDoc } from '@angular/fire/firestore';
+import { Firestore, collection, query, where, getDocs, addDoc, doc, updateDoc, deleteDoc, getDoc, setDoc } from '@angular/fire/firestore';
+import { GeoPoint } from 'firebase/firestore';
 import { Observable, from } from 'rxjs';
 import { map } from 'rxjs/operators';
 

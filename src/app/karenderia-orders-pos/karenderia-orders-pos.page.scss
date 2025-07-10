@@ -1,0 +1,559 @@
+.pos-content {
+  --background: #f8f9fa;
+}
+
+.pos-container {
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  height: 100vh;
+  gap: 0;
+  
+  @media (max-width: 1024px) {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+}
+
+// Left Side - Menu Section
+.menu-section {
+  background: #ffffff;
+  padding: 24px;
+  overflow-y: auto;
+  
+  .categories-section {
+    margin-bottom: 32px;
+    
+    h3 {
+      margin: 0 0 20px 0;
+      font-size: 20px;
+      font-weight: 600;
+      color: #333;
+    }
+    
+    .categories-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+      gap: 16px;
+      
+      .category-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 16px 12px;
+        border-radius: 16px;
+        background: #f8f9fa;
+        border: 2px solid transparent;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        
+        &.active {
+          background: #ffebee;
+          border-color: #ff5722;
+          
+          ion-icon {
+            color: #ff5722;
+          }
+          
+          span {
+            color: #ff5722;
+            font-weight: 600;
+          }
+        }
+        
+        &:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        ion-icon {
+          font-size: 32px;
+          margin-bottom: 8px;
+          color: #666;
+        }
+        
+        span {
+          font-size: 12px;
+          text-align: center;
+          color: #333;
+        }
+      }
+    }
+  }
+  
+  .menu-items-section {
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      
+      h3 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 600;
+        color: #333;
+      }
+      
+      .item-count {
+        font-size: 14px;
+        color: #666;
+        background: #f0f0f0;
+        padding: 4px 12px;
+        border-radius: 12px;
+      }
+    }
+    
+    .menu-items-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      
+      @media (max-width: 768px) {
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      }
+      
+      .menu-item-card {
+        background: #ffffff;
+        border-radius: 16px;
+        padding: 0;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        overflow: hidden;
+        
+        &:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+        }
+        
+        .item-image {
+          position: relative;
+          height: 140px;
+          overflow: hidden;
+          
+          img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+          }
+          
+          .item-badge {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: #ff9800;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            
+            ion-icon {
+              font-size: 14px;
+            }
+          }
+        }
+        
+        .item-info {
+          padding: 16px;
+          
+          h4 {
+            margin: 0 0 8px 0;
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+          }
+          
+          .item-price {
+            margin: 0 0 12px 0;
+            font-size: 18px;
+            font-weight: 700;
+            color: #ff5722;
+          }
+          
+          .item-tags {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            
+            .spicy-tag,
+            .time-tag {
+              display: flex;
+              align-items: center;
+              gap: 4px;
+              font-size: 12px;
+              padding: 4px 8px;
+              border-radius: 12px;
+              background: #f0f0f0;
+              color: #666;
+              
+              ion-icon {
+                font-size: 12px;
+              }
+            }
+            
+            .spicy-tag {
+              background: #ffebee;
+              color: #f44336;
+              
+              ion-icon {
+                color: #f44336;
+              }
+            }
+          }
+          
+          .add-to-billing-btn {
+            width: 100%;
+            padding: 12px;
+            background: #ff5722;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            
+            &:hover {
+              background: #e64a19;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+// Right Side - Order Section
+.order-section {
+  background: #ffffff;
+  border-left: 1px solid #e0e0e0;
+  padding: 24px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  
+  @media (max-width: 1024px) {
+    border-left: none;
+    border-top: 1px solid #e0e0e0;
+    max-height: 500px;
+  }
+  
+  .bills-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    
+    h3 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 600;
+      color: #333;
+    }
+  }
+  
+  .order-items {
+    flex: 1;
+    margin-bottom: 20px;
+    
+    .order-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 0;
+      border-bottom: 1px solid #f0f0f0;
+      
+      .item-details {
+        display: flex;
+        align-items: center;
+        flex: 1;
+        gap: 12px;
+        
+        .item-image-small {
+          width: 50px;
+          height: 50px;
+          border-radius: 8px;
+          overflow: hidden;
+          
+          img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+          }
+        }
+        
+        .item-info-small {
+          h5 {
+            margin: 0 0 4px 0;
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+          }
+          
+          .item-price-small {
+            margin: 0;
+            font-size: 13px;
+            color: #666;
+          }
+        }
+      }
+      
+      .quantity-controls {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 0 12px;
+        
+        ion-button {
+          --padding-start: 8px;
+          --padding-end: 8px;
+          --color: #666;
+        }
+        
+        .quantity {
+          min-width: 20px;
+          text-align: center;
+          font-weight: 600;
+        }
+      }
+      
+      .remove-item-btn {
+        background: none;
+        border: none;
+        color: #f44336;
+        cursor: pointer;
+        padding: 8px;
+        border-radius: 50%;
+        
+        &:hover {
+          background: #ffebee;
+        }
+        
+        ion-icon {
+          font-size: 16px;
+        }
+      }
+    }
+  }
+  
+  .empty-order {
+    text-align: center;
+    padding: 40px 20px;
+    color: #999;
+    
+    ion-icon {
+      margin-bottom: 16px;
+    }
+    
+    p {
+      margin: 0 0 8px 0;
+      font-size: 16px;
+      font-weight: 500;
+    }
+    
+    span {
+      font-size: 14px;
+    }
+  }
+  
+  .order-summary {
+    border-top: 1px solid #f0f0f0;
+    padding-top: 16px;
+    margin-bottom: 20px;
+    
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      
+      &.total-row {
+        border-top: 1px solid #f0f0f0;
+        padding-top: 8px;
+        margin-top: 8px;
+        font-size: 18px;
+        font-weight: 600;
+        color: #333;
+      }
+    }
+  }
+  
+  .customer-info {
+    margin-bottom: 20px;
+    
+    ion-item {
+      --background: #f8f9fa;
+      --border-radius: 8px;
+      margin-bottom: 12px;
+    }
+  }
+  
+  .payment-method {
+    margin-bottom: 20px;
+    
+    h4 {
+      margin: 0 0 16px 0;
+      font-size: 16px;
+      font-weight: 600;
+      color: #333;
+    }
+    
+    .payment-options {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      
+      .payment-btn {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 16px 8px;
+        border: 2px solid #e0e0e0;
+        border-radius: 12px;
+        background: #ffffff;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        
+        &.active {
+          border-color: #ff5722;
+          background: #ffebee;
+          
+          ion-icon {
+            color: #ff5722;
+          }
+          
+          span {
+            color: #ff5722;
+            font-weight: 600;
+          }
+        }
+        
+        ion-icon {
+          font-size: 24px;
+          margin-bottom: 8px;
+          color: #666;
+        }
+        
+        span {
+          font-size: 12px;
+          color: #333;
+        }
+      }
+    }
+  }
+  
+  .process-order-section {
+    .process-order-btn {
+      width: 100%;
+      padding: 16px;
+      background: #ff5722;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      
+      &:hover {
+        background: #e64a19;
+      }
+      
+      &:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+      }
+    }
+  }
+}
+
+// Analytics Bar
+.analytics-bar {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  margin-bottom: 20px;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 4px 20px rgba(102, 126, 234, 0.15);
+  
+  .analytics-card {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    
+    @media (max-width: 768px) {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+    }
+    
+    .metric {
+      text-align: center;
+      color: white;
+      
+      .value {
+        display: block;
+        font-size: 20px;
+        font-weight: 700;
+        margin-bottom: 4px;
+      }
+      
+      .label {
+        display: block;
+        font-size: 12px;
+        opacity: 0.9;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      
+      &.seasonal {
+        .value {
+          background: rgba(255, 255, 255, 0.2);
+          border-radius: 20px;
+          padding: 4px 12px;
+          font-size: 14px;
+          display: inline-block;
+        }
+      }
+    }
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .pos-container {
+    grid-template-columns: 1fr;
+  }
+  
+  .menu-section {
+    padding: 16px;
+    
+    .categories-grid {
+      grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+    }
+    
+    .menu-items-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  .order-section {
+    padding: 16px;
+  }
+}
+
+// Scrollbar styling
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a1a1a1;
+}

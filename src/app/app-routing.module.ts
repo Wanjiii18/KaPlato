@@ -58,6 +58,16 @@ const routes: Routes = [
     path: 'karenderia-analytics',
     loadChildren: () => import('./karenderia-analytics/karenderia-analytics.module').then( m => m.KarenderiaAnalyticsPageModule)
   },
+  {
+    path: 'karenderia-orders-pos',
+    loadChildren: () => import('./karenderia-orders-pos/karenderia-orders-pos.module').then( m => m.KarenderiaOrdersPosPageModule),
+    canActivate: [AuthGuard, KarenderiaGuard]
+  },
+  {
+    path: 'order-details',
+    loadChildren: () => import('./pages/order-details/order-details.module').then( m => m.OrderDetailsPageModule),
+    canActivate: [AuthGuard, KarenderiaGuard]
+  },
 ];
 
 @NgModule({

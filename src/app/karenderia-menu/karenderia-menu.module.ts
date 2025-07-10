@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 
 import { KarenderiaMenuPageRoutingModule } from './karenderia-menu-routing.module';
+import { SharedModule } from '../shared/shared.module';
 
 import { KarenderiaMenuPage } from './karenderia-menu.page';
 
@@ -13,8 +14,11 @@ import { KarenderiaMenuPage } from './karenderia-menu.page';
     CommonModule,
     FormsModule,
     IonicModule,
-    KarenderiaMenuPageRoutingModule
+    KarenderiaMenuPageRoutingModule,
+    SharedModule
   ],
-  declarations: [KarenderiaMenuPage]
+  declarations: [
+    KarenderiaMenuPage
+  ]
 })
 export class KarenderiaMenuPageModule {}

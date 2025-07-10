@@ -5,6 +5,13 @@
     </ion-buttons>
     <ion-title>Menu Management</ion-title>
     <ion-buttons slot="end">
+      <ion-button (click)="testSpoonacularApi()" fill="clear" color="light" title="Test Spoonacular API">
+        <ion-icon name="wifi" slot="icon-only"></ion-icon>
+      </ion-button>
+      <ion-button (click)="openOrderModal()" fill="solid" color="success">
+        <ion-icon name="bag" slot="start"></ion-icon>
+        Place Order
+      </ion-button>
       <ion-button (click)="startAddingItem()" *ngIf="!isAddingItem">
         <ion-icon name="add"></ion-icon>
         Add Item
@@ -15,7 +22,6 @@
 
 <ion-content [fullscreen]="true" class="menu-content">
   <div class="menu-container">
-    
     <!-- Add Menu Item Form -->
     <ion-card *ngIf="isAddingItem" class="add-item-card">
       <ion-card-header>
@@ -110,14 +116,14 @@
                   <ion-input 
                     type="number" 
                     [value]="ingredient.quantity"
-                    (ionBlur)="updateIngredientQuantity(i, $event.target.value)"
+                    (ionBlur)="updateIngredientQuantity(i, +($event.target.value || 0))"
                     placeholder="Quantity">
                   </ion-input>
                   <span class="unit">{{ ingredient.unit }}</span>
                   <ion-input 
                     type="number" 
                     [value]="ingredient.cost"
-                    (ionBlur)="updateIngredientCost(i, $event.target.value)"
+                    (ionBlur)="updateIngredientCost(i, +($event.target.value || 0))"
                     placeholder="Cost">
                   </ion-input>
                   <span class="currency">PHP</span>
@@ -228,11 +234,11 @@
       </ion-card>
     </div>
 
-    <!-- No Items State -->
-    <div class="no-items" *ngIf="!isAddingItem && filteredMenuItems.length === 0">
-      <ion-icon name="restaurant-outline" size="large" color="medium"></ion-icon>
-      <h3>No menu items found</h3>
-      <p>{{ selectedCategory === 'all' ? 'Start by adding your first menu item' : 'No items in this category' }}</p>
+    <!-- Empty State -->
+    <div class="empty-state" *ngIf="filteredMenuItems.length === 0">
+      <ion-icon name="restaurant-outline"></ion-icon>
+      <h2>No menu items found</h2>
+      <p>Start building your menu by adding your first item</p>
       <ion-button (click)="startAddingItem()">
         <ion-icon name="add" slot="start"></ion-icon>
         Add Menu Item
