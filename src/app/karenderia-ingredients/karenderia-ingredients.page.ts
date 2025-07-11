@@ -11,8 +11,10 @@ import { LoadingController, ToastController } from '@ionic/angular';
 export class KarenderiaIngredientsPage implements OnInit {
   searchQuery: string = '';
   ingredients: SpoonacularIngredient[] = [];
+  popularIngredients: SpoonacularIngredient[] = [];
   isLoading: boolean = false;
   hasSearched: boolean = false;
+  lastSearchFromFirestore: boolean = false;
 
   constructor(
     private spoonacularService: SpoonacularService,
@@ -21,8 +23,25 @@ export class KarenderiaIngredientsPage implements OnInit {
   ) { }
 
   ngOnInit() {
-    // Perform a test search on load
+    // Load popular ingredients and test API connection
+    this.loadPopularIngredients();
     this.testApiConnection();
+  }
+
+  async loadPopularIngredients() {
+    try {
+      this.spoonacularService.getPopularIngredients(8).subscribe({
+        next: (popular) => {
+          this.popularIngredients = popular;
+          console.log(`📊 Loaded ${popular.length} popular ingredients from database`);
+        },
+        error: (error) => {
+          console.error('Error loading popular ingredients:', error);
+        }
+      });
+    } catch (error) {
+      console.error('Error in loadPopularIngredients:', error);
+    }
   }
 
   async testApiConnection() {
@@ -66,22 +85,25 @@ export class KarenderiaIngredientsPage implements OnInit {
       });
       await loading.present();
 
-      this.spoonacularService.searchIngredients(this.searchQuery, 20).subscribe({
-        next: (results) => {
-          console.log('🔍 Search Results:', results);
-          this.ingredients = results;
+      // Use hybrid search (Firestore + API)
+      this.spoonacularService.searchIngredientsHybrid(this.searchQuery, 20).subscribe({
+        next: (result) => {
+          console.log('🔍 Hybrid Search Results:', result);
+          this.ingredients = result.ingredients;
+          this.lastSearchFromFirestore = result.fromFirestore;
           this.hasSearched = true;
           this.isLoading = false;
           loading.dismiss();
 
-          if (results.length === 0) {
+          if (result.ingredients.length === 0) {
             this.presentToast('No ingredients found. Try a different search term.', 'warning');
           } else {
-            this.presentToast(`Found ${results.length} ingredients`, 'success');
+            const source = result.fromFirestore ? 'database cache' : 'Spoonacular API';
+            this.presentToast(`Found ${result.ingredients.length} ingredients from ${source}`, 'success');
           }
         },
         error: (error) => {
-          console.error('❌ Search Error:', error);
+          console.error('❌ Hybrid Search Error:', error);
           this.isLoading = false;
           this.hasSearched = true;
           loading.dismiss();
@@ -124,5 +146,31 @@ export class KarenderiaIngredientsPage implements OnInit {
 
   onImageError(event: any) {
     event.target.src = 'assets/images/placeholder-food.jpg';
+  }
+
+  async addIngredientToDatabase(ingredient: SpoonacularIngredient) {
+    try {
+      const loading = await this.loadingController.create({
+        message: 'Adding ingredient to database...',
+        duration: 5000
+      });
+      await loading.present();
+
+      await this.spoonacularService.addIngredientToDatabase(ingredient);
+      loading.dismiss();
+      
+      this.presentToast(`"${ingredient.name}" added to ingredient database!`, 'success');
+      
+      // Refresh popular ingredients
+      this.loadPopularIngredients();
+    } catch (error) {
+      console.error('Error adding ingredient to database:', error);
+      this.presentToast('Failed to add ingredient to database', 'danger');
+    }
+  }
+
+  selectPopularIngredient(ingredient: SpoonacularIngredient) {
+    this.searchQuery = ingredient.name;
+    this.searchIngredients();
   }
 }

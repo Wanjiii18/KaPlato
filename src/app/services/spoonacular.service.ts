@@ -1,9 +1,13 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, BehaviorSubject } from 'rxjs';
-import { map, catchError } from 'rxjs/operators';
+import { Observable, BehaviorSubject, from, forkJoin } from 'rxjs';
+import { map, catchError, switchMap, tap } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { environment } from '../../environments/environment';
+
+// Firebase imports
+import { Firestore, collection, doc, getDoc, getDocs, setDoc, addDoc, query as firestoreQuery, where, orderBy, limit as firestoreLimit, serverTimestamp, updateDoc } from '@angular/fire/firestore';
+import { inject } from '@angular/core';
 
 // Spoonacular API interfaces
 export interface SpoonacularRecipe {
@@ -116,15 +120,69 @@ export interface SpoonacularMenuIngredient {
   aisle: string;
 }
 
+// Firestore interfaces for cached data
+export interface FirestoreIngredient {
+  id: string;
+  spoonacularId: number;
+  name: string;
+  nameClean?: string;
+  image: string;
+  aisle: string;
+  consistency?: string;
+  original?: string;
+  unit?: string;
+  amount?: number;
+  measures?: any;
+  addedAt: any; // Firestore timestamp
+  searchCount: number; // How many times this ingredient was searched
+  isPopular: boolean;
+  addedBy?: string; // User ID who added it
+}
+
+export interface FirestoreMenuItem {
+  id: string;
+  spoonacularId?: number;
+  name: string;
+  description: string;
+  price: number;
+  category: string;
+  image: string;
+  ingredients: SpoonacularMenuIngredient[];
+  preparationTime: number;
+  isAvailable: boolean;
+  isPopular: boolean;
+  allergens: string[];
+  nutritionalInfo: {
+    calories: number;
+    protein: number;
+    carbs: number;
+    fat: number;
+  };
+  servings: number;
+  healthScore: number;
+  vegan: boolean;
+  vegetarian: boolean;
+  glutenFree: boolean;
+  dairyFree: boolean;
+  addedAt: any; // Firestore timestamp
+  searchCount: number;
+  addedBy?: string; // User ID who added it
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class SpoonacularService {
   private readonly API_KEY = environment.spoonacular.apiKey;
   private readonly BASE_URL = environment.spoonacular.baseUrl;
+  private firestore = inject(Firestore);
   
   private menuItemsSubject = new BehaviorSubject<SpoonacularMenuItem[]>([]);
   public menuItems$ = this.menuItemsSubject.asObservable();
+
+  // Firestore collections
+  private ingredientsCollection = collection(this.firestore, 'ingredients');
+  private menuItemsCollection = collection(this.firestore, 'menuItems');
 
   // Estimated ingredient costs (per 100g/100ml) in PHP
   private ingredientCostMap: { [key: string]: number } = {
@@ -527,6 +585,417 @@ export class SpoonacularService {
           return of([]);
         })
       );
+  }
+
+  /**
+   * HYBRID SEARCH: Search ingredients in Firestore first, then API as fallback
+   */
+  searchIngredientsHybrid(query: string, number: number = 10): Observable<{ ingredients: SpoonacularIngredient[], fromFirestore: boolean }> {
+    console.log(`🔍 Hybrid search for ingredients: "${query}"`);
+    
+    // First, search in Firestore
+    return this.searchIngredientsFromFirestore(query, number).pipe(
+      switchMap(firestoreResults => {
+        if (firestoreResults.length > 0) {
+          console.log(`✅ Found ${firestoreResults.length} ingredients in Firestore cache`);
+          return of({ 
+            ingredients: this.convertFirestoreToSpoonacularIngredients(firestoreResults), 
+            fromFirestore: true 
+          });
+        } else {
+          console.log('📡 No results in Firestore, searching Spoonacular API...');
+          // No results in Firestore, search API
+          return this.searchIngredients(query, number).pipe(
+            tap(apiResults => {
+              // Cache API results in Firestore for future use
+              if (apiResults.length > 0) {
+                this.cacheIngredientsInFirestore(apiResults, query);
+              }
+            }),
+            map(apiResults => ({ ingredients: apiResults, fromFirestore: false }))
+          );
+        }
+      }),
+      catchError(error => {
+        console.error('Error in hybrid ingredient search:', error);
+        // Fallback to API only
+        return this.searchIngredients(query, number).pipe(
+          map(apiResults => ({ ingredients: apiResults, fromFirestore: false }))
+        );
+      })
+    );
+  }
+
+  /**
+   * Search ingredients in Firestore cache
+   */
+  private searchIngredientsFromFirestore(searchQuery: string, limitNum: number = 10): Observable<FirestoreIngredient[]> {
+    const queryText = searchQuery.toLowerCase().trim();
+    
+    return from(getDocs(
+      firestoreQuery(
+        this.ingredientsCollection,
+        where('name', '>=', queryText),
+        where('name', '<=', queryText + '\uf8ff'),
+        orderBy('searchCount', 'desc'),
+        firestoreLimit(limitNum)
+      )
+    )).pipe(
+      map(snapshot => {
+        const results: FirestoreIngredient[] = [];
+        snapshot.forEach(doc => {
+          const data = doc.data() as any;
+          results.push({ id: doc.id, ...data } as FirestoreIngredient);
+        });
+        
+        // Also search by partial name match if exact search yields few results
+        if (results.length < 3) {
+          // This would require a more complex query or client-side filtering
+          // For now, return what we have
+        }
+        
+        return results;
+      }),
+      catchError(error => {
+        console.error('Error searching Firestore ingredients:', error);
+        return of([]);
+      })
+    );
+  }
+
+  /**
+   * Cache API ingredients in Firestore
+   */
+  private async cacheIngredientsInFirestore(ingredients: SpoonacularIngredient[], searchQuery?: string): Promise<void> {
+    try {
+      console.log(`💾 Caching ${ingredients.length} ingredients in Firestore`);
+      
+      for (const ingredient of ingredients) {
+        const ingredientData: Omit<FirestoreIngredient, 'id'> = {
+          spoonacularId: ingredient.id,
+          name: (ingredient.nameClean || ingredient.name).toLowerCase(),
+          nameClean: ingredient.nameClean,
+          image: ingredient.image,
+          aisle: ingredient.aisle,
+          consistency: ingredient.consistency,
+          original: ingredient.original,
+          unit: ingredient.unit,
+          amount: ingredient.amount,
+          measures: ingredient.measures,
+          addedAt: serverTimestamp(),
+          searchCount: 1,
+          isPopular: false
+        };
+
+        // Use spoonacular ID as document ID to avoid duplicates
+        const docRef = doc(this.ingredientsCollection, `spoon_${ingredient.id}`);
+        
+        // Check if document exists
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          // Update search count
+          await updateDoc(docRef, {
+            searchCount: docSnap.data()['searchCount'] + 1,
+            isPopular: docSnap.data()['searchCount'] >= 5
+          });
+        } else {
+          // Create new document
+          await setDoc(docRef, ingredientData);
+        }
+      }
+    } catch (error) {
+      console.error('Error caching ingredients in Firestore:', error);
+    }
+  }
+
+  /**
+   * Convert Firestore ingredients back to Spoonacular format
+   */
+  private convertFirestoreToSpoonacularIngredients(firestoreIngredients: FirestoreIngredient[]): SpoonacularIngredient[] {
+    return firestoreIngredients.map(fsIngredient => ({
+      id: fsIngredient.spoonacularId,
+      aisle: fsIngredient.aisle,
+      image: fsIngredient.image,
+      consistency: fsIngredient.consistency || '',
+      name: fsIngredient.nameClean || fsIngredient.name,
+      nameClean: fsIngredient.nameClean || fsIngredient.name,
+      original: fsIngredient.original || '',
+      originalString: fsIngredient.original || '',
+      originalName: fsIngredient.name,
+      amount: fsIngredient.amount || 1,
+      unit: fsIngredient.unit || 'unit',
+      meta: [],
+      metaInformation: [],
+      measures: fsIngredient.measures || {
+        us: { amount: 1, unitShort: 'unit', unitLong: 'unit' },
+        metric: { amount: 1, unitShort: 'unit', unitLong: 'unit' }
+      }
+    }));
+  }
+
+  /**
+   * Add an ingredient to Firestore database manually
+   */
+  async addIngredientToDatabase(ingredient: SpoonacularIngredient): Promise<void> {
+    try {
+      const ingredientData: Omit<FirestoreIngredient, 'id'> = {
+        spoonacularId: ingredient.id,
+        name: (ingredient.nameClean || ingredient.name).toLowerCase(),
+        nameClean: ingredient.nameClean,
+        image: ingredient.image,
+        aisle: ingredient.aisle,
+        consistency: ingredient.consistency,
+        original: ingredient.original,
+        unit: ingredient.unit,
+        amount: ingredient.amount,
+        measures: ingredient.measures,
+        addedAt: serverTimestamp(),
+        searchCount: 1,
+        isPopular: false,
+        addedBy: 'user' // Could be replaced with actual user ID
+      };
+
+      const docRef = doc(this.ingredientsCollection, `spoon_${ingredient.id}`);
+      await setDoc(docRef, ingredientData, { merge: true });
+      
+      console.log(`✅ Added ingredient "${ingredient.name}" to database`);
+    } catch (error) {
+      console.error('Error adding ingredient to database:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get popular ingredients from Firestore
+   */
+  getPopularIngredients(limitNum: number = 10): Observable<SpoonacularIngredient[]> {
+    return from(getDocs(
+      firestoreQuery(
+        this.ingredientsCollection,
+        where('isPopular', '==', true),
+        orderBy('searchCount', 'desc'),
+        firestoreLimit(limitNum)
+      )
+    )).pipe(
+      map(snapshot => {
+        const results: FirestoreIngredient[] = [];
+        snapshot.forEach(doc => {
+          const data = doc.data() as any;
+          results.push({ id: doc.id, ...data } as FirestoreIngredient);
+        });
+        return this.convertFirestoreToSpoonacularIngredients(results);
+      }),
+      catchError(error => {
+        console.error('Error getting popular ingredients:', error);
+        return of([]);
+      })
+    );
+  }
+
+  /**
+   * HYBRID MENU SEARCH: Search menu items in Firestore first, then API as fallback
+   */
+  searchMenuItemsHybrid(query: string, number: number = 12): Observable<{ menuItems: SpoonacularMenuItem[], fromFirestore: boolean }> {
+    console.log(`🔍 Hybrid search for menu items: "${query}"`);
+    
+    return this.searchMenuItemsFromFirestore(query, number).pipe(
+      switchMap(firestoreResults => {
+        if (firestoreResults.length > 0) {
+          console.log(`✅ Found ${firestoreResults.length} menu items in Firestore cache`);
+          return of({ 
+            menuItems: this.convertFirestoreToSpoonacularMenuItems(firestoreResults), 
+            fromFirestore: true 
+          });
+        } else {
+          console.log('📡 No results in Firestore, searching Spoonacular API...');
+          return this.searchRecipes(query, undefined, undefined, number).pipe(
+            tap(apiResults => {
+              if (apiResults.length > 0) {
+                this.cacheMenuItemsInFirestore(apiResults, query);
+              }
+            }),
+            map(apiResults => ({ menuItems: apiResults, fromFirestore: false }))
+          );
+        }
+      }),
+      catchError(error => {
+        console.error('Error in hybrid menu search:', error);
+        return this.searchRecipes(query, undefined, undefined, number).pipe(
+          map(apiResults => ({ menuItems: apiResults, fromFirestore: false }))
+        );
+      })
+    );
+  }
+
+  /**
+   * Search menu items in Firestore cache
+   */
+  private searchMenuItemsFromFirestore(searchQuery: string, limitNum: number = 12): Observable<FirestoreMenuItem[]> {
+    const queryText = searchQuery.toLowerCase().trim();
+    
+    return from(getDocs(
+      firestoreQuery(
+        this.menuItemsCollection,
+        where('name', '>=', queryText),
+        where('name', '<=', queryText + '\uf8ff'),
+        orderBy('searchCount', 'desc'),
+        firestoreLimit(limitNum)
+      )
+    )).pipe(
+      map(snapshot => {
+        const results: FirestoreMenuItem[] = [];
+        snapshot.forEach(doc => {
+          const data = doc.data() as any;
+          results.push({ id: doc.id, ...data } as FirestoreMenuItem);
+        });
+        return results;
+      }),
+      catchError(error => {
+        console.error('Error searching Firestore menu items:', error);
+        return of([]);
+      })
+    );
+  }
+
+  /**
+   * Cache menu items in Firestore
+   */
+  private async cacheMenuItemsInFirestore(menuItems: SpoonacularMenuItem[], searchQuery?: string): Promise<void> {
+    try {
+      console.log(`💾 Caching ${menuItems.length} menu items in Firestore`);
+      
+      for (const menuItem of menuItems) {
+        const menuData: Omit<FirestoreMenuItem, 'id'> = {
+          spoonacularId: menuItem.spoonacularId,
+          name: menuItem.name.toLowerCase(),
+          description: menuItem.description,
+          price: menuItem.price,
+          category: menuItem.category,
+          image: menuItem.image,
+          ingredients: menuItem.ingredients,
+          preparationTime: menuItem.preparationTime,
+          isAvailable: menuItem.isAvailable,
+          isPopular: menuItem.isPopular,
+          allergens: menuItem.allergens,
+          nutritionalInfo: menuItem.nutritionalInfo,
+          servings: menuItem.servings,
+          healthScore: menuItem.healthScore,
+          vegan: menuItem.vegan,
+          vegetarian: menuItem.vegetarian,
+          glutenFree: menuItem.glutenFree,
+          dairyFree: menuItem.dairyFree,
+          addedAt: serverTimestamp(),
+          searchCount: 1
+        };
+
+        const docRef = doc(this.menuItemsCollection, menuItem.id);
+        
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          await updateDoc(docRef, {
+            searchCount: docSnap.data()['searchCount'] + 1,
+            isPopular: docSnap.data()['searchCount'] >= 3
+          });
+        } else {
+          await setDoc(docRef, menuData);
+        }
+      }
+    } catch (error) {
+      console.error('Error caching menu items in Firestore:', error);
+    }
+  }
+
+  /**
+   * Convert Firestore menu items back to Spoonacular format
+   */
+  private convertFirestoreToSpoonacularMenuItems(firestoreMenuItems: FirestoreMenuItem[]): SpoonacularMenuItem[] {
+    return firestoreMenuItems.map(fsMenuItem => ({
+      id: fsMenuItem.id,
+      name: fsMenuItem.name,
+      description: fsMenuItem.description,
+      price: fsMenuItem.price,
+      category: fsMenuItem.category,
+      image: fsMenuItem.image,
+      ingredients: fsMenuItem.ingredients,
+      preparationTime: fsMenuItem.preparationTime,
+      isAvailable: fsMenuItem.isAvailable,
+      isPopular: fsMenuItem.isPopular,
+      allergens: fsMenuItem.allergens,
+      nutritionalInfo: fsMenuItem.nutritionalInfo,
+      spoonacularId: fsMenuItem.spoonacularId || 0,
+      servings: fsMenuItem.servings,
+      healthScore: fsMenuItem.healthScore,
+      vegan: fsMenuItem.vegan,
+      vegetarian: fsMenuItem.vegetarian,
+      glutenFree: fsMenuItem.glutenFree,
+      dairyFree: fsMenuItem.dairyFree
+    }));
+  }
+
+  /**
+   * Add a menu item to Firestore database manually
+   */
+  async addMenuItemToDatabase(menuItem: SpoonacularMenuItem): Promise<void> {
+    try {
+      const menuData: Omit<FirestoreMenuItem, 'id'> = {
+        spoonacularId: menuItem.spoonacularId,
+        name: menuItem.name.toLowerCase(),
+        description: menuItem.description,
+        price: menuItem.price,
+        category: menuItem.category,
+        image: menuItem.image,
+        ingredients: menuItem.ingredients,
+        preparationTime: menuItem.preparationTime,
+        isAvailable: menuItem.isAvailable,
+        isPopular: menuItem.isPopular,
+        allergens: menuItem.allergens,
+        nutritionalInfo: menuItem.nutritionalInfo,
+        servings: menuItem.servings,
+        healthScore: menuItem.healthScore,
+        vegan: menuItem.vegan,
+        vegetarian: menuItem.vegetarian,
+        glutenFree: menuItem.glutenFree,
+        dairyFree: menuItem.dairyFree,
+        addedAt: serverTimestamp(),
+        searchCount: 1,
+        addedBy: 'user'
+      };
+
+      const docRef = doc(this.menuItemsCollection, menuItem.id);
+      await setDoc(docRef, menuData, { merge: true });
+      
+      console.log(`✅ Added menu item "${menuItem.name}" to database`);
+    } catch (error) {
+      console.error('Error adding menu item to database:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get popular menu items from Firestore
+   */
+  getPopularMenuItems(limitNum: number = 10): Observable<SpoonacularMenuItem[]> {
+    return from(getDocs(
+      firestoreQuery(
+        this.menuItemsCollection,
+        where('isPopular', '==', true),
+        orderBy('searchCount', 'desc'),
+        firestoreLimit(limitNum)
+      )
+    )).pipe(
+      map(snapshot => {
+        const results: FirestoreMenuItem[] = [];
+        snapshot.forEach(doc => {
+          const data = doc.data() as any;
+          results.push({ id: doc.id, ...data } as FirestoreMenuItem);
+        });
+        return this.convertFirestoreToSpoonacularMenuItems(results);
+      }),
+      catchError(error => {
+        console.error('Error getting popular menu items:', error);
+        return of([]);
+      })
+    );
   }
 
   /**
