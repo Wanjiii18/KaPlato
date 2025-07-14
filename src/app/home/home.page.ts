@@ -1,9 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { AuthService } from '../services/auth.service';
+import { AuthService, User } from '../services/auth.service';
 import { UserService, UserProfile } from '../services/user.service';
 import { KarenderiaService } from '../services/karenderia.service';
-import { User } from '@angular/fire/auth';
-import { GeoPoint } from '@angular/fire/firestore';
 import { Subscription } from 'rxjs';
 import { Router } from '@angular/router';
 import { ToastController } from '@ionic/angular';
@@ -150,7 +148,7 @@ export class HomePage implements OnInit, OnDestroy {
       const testData1 = {
         name: "Test Karenderia 1",
         address: `Near your location (${userLat.toFixed(4)}, ${userLng.toFixed(4)})`,
-        location: new GeoPoint(userLat + 0.001, userLng + 0.001), // ~110m away
+        location: { latitude: userLat + 0.001, longitude: userLng + 0.001 }, // ~110m away
         description: "First test karenderia for map search testing",
         rating: 4.2,
         priceRange: 'Budget' as const,
@@ -170,7 +168,7 @@ export class HomePage implements OnInit, OnDestroy {
       const testData2 = {
         name: "Test Karenderia 2",
         address: `Business area near you (${userLat.toFixed(4)}, ${userLng.toFixed(4)})`,
-        location: new GeoPoint(userLat - 0.0015, userLng + 0.0015), // ~165m away
+        location: { latitude: userLat - 0.0015, longitude: userLng + 0.0015 }, // ~165m away
         description: "Second test karenderia for search functionality",
         rating: 4.5,
         priceRange: 'Moderate' as const,
@@ -477,7 +475,16 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   async logout() {
-    await this.authService.logout();
+    this.authService.logout().subscribe({
+      next: () => {
+        this.router.navigate(['/login']);
+      },
+      error: (error) => {
+        console.error('Logout error:', error);
+        // Even if logout fails on server, we still redirect to login
+        this.router.navigate(['/login']);
+      }
+    });
   }
 
   goToApplicationPage() {

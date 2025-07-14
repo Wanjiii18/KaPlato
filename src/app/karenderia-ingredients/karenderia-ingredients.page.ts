@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { SpoonacularService, SpoonacularIngredient } from '../services/spoonacular.service';
+import { SpoonacularService, SpoonacularMenuIngredient } from '../services/spoonacular.service';
 import { LoadingController, ToastController } from '@ionic/angular';
 
 @Component({
@@ -10,8 +10,8 @@ import { LoadingController, ToastController } from '@ionic/angular';
 })
 export class KarenderiaIngredientsPage implements OnInit {
   searchQuery: string = '';
-  ingredients: SpoonacularIngredient[] = [];
-  popularIngredients: SpoonacularIngredient[] = [];
+  ingredients: SpoonacularMenuIngredient[] = [];
+  popularIngredients: SpoonacularMenuIngredient[] = [];
   isLoading: boolean = false;
   hasSearched: boolean = false;
   lastSearchFromFirestore: boolean = false;
@@ -127,7 +127,7 @@ export class KarenderiaIngredientsPage implements OnInit {
     toast.present();
   }
 
-  getIngredientImageUrl(ingredient: SpoonacularIngredient): string {
+  getIngredientImageUrl(ingredient: SpoonacularMenuIngredient): string {
     if (ingredient.image) {
       return `https://spoonacular.com/cdn/ingredients_100x100/${ingredient.image}`;
     }
@@ -140,7 +140,7 @@ export class KarenderiaIngredientsPage implements OnInit {
     this.hasSearched = false;
   }
 
-  trackByIngredientId(index: number, ingredient: SpoonacularIngredient): number {
+  trackByIngredientId(index: number, ingredient: SpoonacularMenuIngredient): string {
     return ingredient.id;
   }
 
@@ -148,7 +148,7 @@ export class KarenderiaIngredientsPage implements OnInit {
     event.target.src = 'assets/images/placeholder-food.jpg';
   }
 
-  async addIngredientToDatabase(ingredient: SpoonacularIngredient) {
+  async addIngredientToDatabase(ingredient: SpoonacularMenuIngredient) {
     try {
       const loading = await this.loadingController.create({
         message: 'Adding ingredient to database...',
@@ -169,7 +169,7 @@ export class KarenderiaIngredientsPage implements OnInit {
     }
   }
 
-  selectPopularIngredient(ingredient: SpoonacularIngredient) {
+  selectPopularIngredient(ingredient: SpoonacularMenuIngredient) {
     this.searchQuery = ingredient.name;
     this.searchIngredients();
   }

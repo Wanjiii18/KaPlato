@@ -1,8 +1,8 @@
 import { Injectable, NgZone } from '@angular/core';
-import { Firestore, collection, query, where, getDocs, addDoc, doc, updateDoc, deleteDoc, getDoc, setDoc } from '@angular/fire/firestore';
-import { GeoPoint } from 'firebase/firestore';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, from } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { environment } from '../../environments/environment';
 
 export interface MenuItem {
   id?: string;
@@ -34,13 +34,13 @@ export interface Karenderia {
   id?: string;
   name: string;
   address: string;
-  location: GeoPoint;
+  location: { latitude: number; longitude: number };
   description?: string;
   rating?: number;
   priceRange: 'Budget' | 'Moderate' | 'Expensive';
   cuisine?: string[];
   openingHours?: {
-    [key: string]: { open: string; close: string; closed?: boolean };
+    [key: string]: { open: string; close: string; closed?: boolean } | { closed: true; open?: string; close?: string };
   };
   contactNumber?: string;
   imageUrl?: string;
@@ -54,110 +54,97 @@ export interface Karenderia {
   providedIn: 'root'
 })
 export class KarenderiaService {
-  private karenderiaCollection = collection(this.firestore, 'karenderias');
+  private apiUrl = environment.apiUrl;
 
-  constructor(private firestore: Firestore, private zone: NgZone) {}
+  constructor(private http: HttpClient, private zone: NgZone) {}
+
+  private getHeaders(): HttpHeaders {
+    const token = localStorage.getItem('auth_token');
+    return new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': token ? `Bearer ${token}` : ''
+    });
+  }
 
   // Get all karenderias
   getAllKarenderias(): Observable<Karenderia[]> {
-    const promise = this.zone.run(() => 
-      getDocs(this.karenderiaCollection).then(snapshot => 
-        snapshot.docs.map(doc => ({ 
-          id: doc.id, 
-          ...doc.data() 
-        } as Karenderia))
-      )
+    return this.http.get<{ data: Karenderia[] }>(`${this.apiUrl}/karenderias`, { 
+      headers: this.getHeaders() 
+    }).pipe(
+      map(response => response.data)
     );
-    return from(promise);
   }
 
   // Get nearby karenderias within radius (in meters)
   getNearbyKarenderias(userLat: number, userLng: number, radiusInMeters: number): Observable<Karenderia[]> {
-    return this.getAllKarenderias().pipe(
-      map(karenderias => 
-        karenderias.filter(karenderia => {
-          const distance = this.calculateDistance(
-            userLat, 
-            userLng, 
-            karenderia.location.latitude, 
-            karenderia.location.longitude
-          );
-          return distance <= radiusInMeters;
-        }).map(karenderia => ({
-          ...karenderia,
-          distance: this.calculateDistance(
-            userLat, 
-            userLng, 
-            karenderia.location.latitude, 
-            karenderia.location.longitude
-          )
-        }))
-      )
+    const params = {
+      latitude: userLat.toString(),
+      longitude: userLng.toString(),
+      radius: radiusInMeters.toString()
+    };
+
+    return this.http.get<{ data: Karenderia[] }>(`${this.apiUrl}/karenderias/nearby`, { 
+      headers: this.getHeaders(),
+      params 
+    }).pipe(
+      map(response => response.data.map(karenderia => ({
+        ...karenderia,
+        distance: this.calculateDistance(
+          userLat, 
+          userLng, 
+          karenderia.location.latitude, 
+          karenderia.location.longitude
+        )
+      })))
     );
   }
 
   // Get karenderia by ID
   getKarenderiaById(id: string): Observable<Karenderia | null> {
-    const promise = this.zone.run(() => 
-      getDoc(doc(this.firestore, 'karenderias', id)).then(docSnap => {
-        if (docSnap.exists()) {
-          return { id: docSnap.id, ...docSnap.data() } as Karenderia;
-        }
-        return null;
-      })
+    return this.http.get<{ data: Karenderia }>(`${this.apiUrl}/karenderias/${id}`, { 
+      headers: this.getHeaders() 
+    }).pipe(
+      map(response => response.data)
     );
-    return from(promise);
   }
 
   // Add new karenderia
   addKarenderia(karenderia: Omit<Karenderia, 'id'>): Observable<string> {
-    const karenderiaData = {
-      ...karenderia,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    };
-
-    const promise = this.zone.run(() => 
-      addDoc(this.karenderiaCollection, karenderiaData).then(docRef => docRef.id)
+    return this.http.post<{ data: { id: string } }>(`${this.apiUrl}/karenderias`, karenderia, { 
+      headers: this.getHeaders() 
+    }).pipe(
+      map(response => response.data.id)
     );
-    return from(promise);
   }
 
   // Update karenderia
   updateKarenderia(id: string, updates: Partial<Karenderia>): Observable<void> {
-    const updateData = {
-      ...updates,
-      updatedAt: new Date()
-    };
-
-    const promise = this.zone.run(() => 
-      updateDoc(doc(this.firestore, 'karenderias', id), updateData)
+    return this.http.put<any>(`${this.apiUrl}/karenderias/${id}`, updates, { 
+      headers: this.getHeaders() 
+    }).pipe(
+      map(() => void 0)
     );
-    return from(promise);
   }
 
   // Delete karenderia
   deleteKarenderia(id: string): Observable<void> {
-    const promise = this.zone.run(() => 
-      deleteDoc(doc(this.firestore, 'karenderias', id))
+    return this.http.delete<any>(`${this.apiUrl}/karenderias/${id}`, { 
+      headers: this.getHeaders() 
+    }).pipe(
+      map(() => void 0)
     );
-    return from(promise);
   }
 
   // Search karenderias by name or cuisine
   searchKarenderias(searchTerm: string): Observable<Karenderia[]> {
-    const promise = this.zone.run(() => 
-      getDocs(this.karenderiaCollection).then(snapshot => {
-        const results = snapshot.docs
-          .map(doc => ({ id: doc.id, ...doc.data() } as Karenderia))
-          .filter(karenderia => 
-            karenderia.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            karenderia.cuisine?.some(c => c.toLowerCase().includes(searchTerm.toLowerCase()))
-          );
-        return results;
-      })
+    const params = { search: searchTerm };
+    
+    return this.http.get<{ data: Karenderia[] }>(`${this.apiUrl}/karenderias/search`, { 
+      headers: this.getHeaders(),
+      params 
+    }).pipe(
+      map(response => response.data)
     );
-    return from(promise);
   }
 
   // Calculate distance between two points using Haversine formula (returns meters)
@@ -180,8 +167,8 @@ export class KarenderiaService {
   async seedInitialData(): Promise<void> {
     try {
       // Check if data already exists
-      const snapshot = await this.zone.run(() => getDocs(this.karenderiaCollection));
-      if (!snapshot.empty) {
+      const response = await this.getAllKarenderias().toPromise();
+      if (response && response.length > 0) {
         console.log('Karenderia data already exists, skipping seed');
         return;
       }
@@ -194,7 +181,7 @@ export class KarenderiaService {
         {
           name: "Lola's Lutong Bahay",
           address: "A.C. Cortes Avenue, Mandaue City, Cebu",
-          location: new GeoPoint(mandaueLat + 0.001, mandaueLng + 0.001), // ~150m away
+          location: { latitude: mandaueLat + 0.001, longitude: mandaueLng + 0.001 }, // ~150m away
           description: "Authentic Filipino home-cooked meals",
           rating: 4.5,
           priceRange: 'Budget' as const,
@@ -213,7 +200,7 @@ export class KarenderiaService {
         {
           name: "Cebu Lechon House",
           address: "Plaridel Street, Mandaue City, Cebu",
-          location: new GeoPoint(mandaueLat - 0.002, mandaueLng + 0.003), // ~300m away
+          location: { latitude: mandaueLat - 0.002, longitude: mandaueLng + 0.003 }, // ~300m away
           description: "Famous for crispy lechon and traditional Cebuano dishes",
           rating: 4.8,
           priceRange: 'Moderate' as const,
@@ -232,7 +219,7 @@ export class KarenderiaService {
         {
           name: "Tita's Carinderia",
           address: "Burgos Street, Mandaue City, Cebu",
-          location: new GeoPoint(mandaueLat + 0.003, mandaueLng - 0.001), // ~400m away
+          location: { latitude: mandaueLat + 0.003, longitude: mandaueLng - 0.001 }, // ~400m away
           description: "Affordable meals and snacks, perfect for students",
           rating: 4.2,
           priceRange: 'Budget' as const,
@@ -245,13 +232,13 @@ export class KarenderiaService {
             thursday: { open: "05:30", close: "19:00" },
             friday: { open: "05:30", close: "19:00" },
             saturday: { open: "06:00", close: "19:00" },
-            sunday: { closed: true }
+            sunday: { open: "06:00", close: "19:00", closed: true }
           }
         },
         {
           name: "Nanay's Kitchen",
           address: "Hernan Cortes Street, Mandaue City, Cebu",
-          location: new GeoPoint(mandaueLat - 0.001, mandaueLng - 0.002), // ~250m away
+          location: { latitude: mandaueLat - 0.001, longitude: mandaueLng - 0.002 }, // ~250m away
           description: "Home-style cooking with love, just like nanay makes",
           rating: 4.6,
           priceRange: 'Budget' as const,
@@ -270,7 +257,7 @@ export class KarenderiaService {
         {
           name: "Sugbo Grill",
           address: "U.N. Avenue, Mandaue City, Cebu",
-          location: new GeoPoint(mandaueLat + 0.004, mandaueLng + 0.002), // ~500m away
+          location: { latitude: mandaueLat + 0.004, longitude: mandaueLng + 0.002 }, // ~500m away
           description: "Grilled specialties and seafood with Cebuano flavor",
           rating: 4.7,
           priceRange: 'Moderate' as const,
@@ -289,7 +276,7 @@ export class KarenderiaService {
         {
           name: "Kuya's Pares House",
           address: "M.C. Briones Street, Mandaue City, Cebu",
-          location: new GeoPoint(mandaueLat - 0.003, mandaueLng + 0.001), // ~350m away
+          location: { latitude: mandaueLat - 0.003, longitude: mandaueLng + 0.001 }, // ~350m away
           description: "Best beef pares and goto in the area",
           rating: 4.3,
           priceRange: 'Budget' as const,
@@ -307,13 +294,9 @@ export class KarenderiaService {
         }
       ];
 
-      // Add each karenderia to Firestore
+      // Add each karenderia via API
       for (const karenderia of mockKarenderias) {
-        await this.zone.run(() => addDoc(this.karenderiaCollection, {
-          ...karenderia,
-          createdAt: new Date(),
-          updatedAt: new Date()
-        }));
+        await this.addKarenderia(karenderia).toPromise();
       }
 
       console.log('Successfully seeded initial Karenderia data for Mandaue, Cebu');
@@ -326,11 +309,14 @@ export class KarenderiaService {
   async addTestKarenderias(): Promise<void> {
     try {
       // Clear existing data first for clean testing
-      const snapshot = await this.zone.run(() => getDocs(this.karenderiaCollection));
-      const deletePromises = snapshot.docs.map(doc => 
-        this.zone.run(() => deleteDoc(doc.ref))
-      );
-      await Promise.all(deletePromises);
+      const karenderias = await this.getAllKarenderias().toPromise();
+      if (karenderias) {
+        for (const karenderia of karenderias) {
+          if (karenderia.id) {
+            await this.deleteKarenderia(karenderia.id).toPromise();
+          }
+        }
+      }
       console.log('Cleared existing karenderia data');
 
       // Base coordinates for Mandaue, Cebu (your area)
@@ -342,7 +328,7 @@ export class KarenderiaService {
         {
           name: "Test Karenderia 1",
           address: "Near Mandaue City Hall, Cebu",
-          location: new GeoPoint(mandaueLat + 0.0008, mandaueLng + 0.0008), // ~90m away
+          location: { latitude: mandaueLat + 0.0008, longitude: mandaueLng + 0.0008 }, // ~90m away
           description: "First test karenderia for map search testing",
           rating: 4.2,
           priceRange: 'Budget' as const,
@@ -361,7 +347,7 @@ export class KarenderiaService {
         {
           name: "Test Karenderia 2",
           address: "Mandaue Business Area, Cebu",
-          location: new GeoPoint(mandaueLat - 0.0012, mandaueLng + 0.0012), // ~130m away
+          location: { latitude: mandaueLat - 0.0012, longitude: mandaueLng + 0.0012 }, // ~130m away
           description: "Second test karenderia for search functionality",
           rating: 4.5,
           priceRange: 'Moderate' as const,
@@ -379,13 +365,9 @@ export class KarenderiaService {
         }
       ];
 
-      // Add test karenderias to Firestore
+      // Add test karenderias via API
       for (const karenderia of testKarenderias) {
-        await this.zone.run(() => addDoc(this.karenderiaCollection, {
-          ...karenderia,
-          createdAt: new Date(),
-          updatedAt: new Date()
-        }));
+        await this.addKarenderia(karenderia).toPromise();
       }
 
       console.log('Successfully added 2 test karenderias near Mandaue, Cebu');

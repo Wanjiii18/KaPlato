@@ -15,7 +15,7 @@ export class RegisterPage implements OnInit {
     email: '',
     password: '',
     confirmPassword: '',
-    role: 'user' as 'user' | 'karenderia_owner'
+    role: 'customer' as 'customer' | 'karenderia_owner'
   };
 
   showPassword = false;
@@ -32,7 +32,12 @@ export class RegisterPage implements OnInit {
   ngOnInit() {
     // Check if user is already logged in
     if (this.authService.isAuthenticated()) {
-      this.router.navigate(['/home']);
+      const currentUser = this.authService.getCurrentUser();
+      if (currentUser && currentUser.role === 'karenderia_owner') {
+        this.router.navigate(['/karenderia-dashboard']);
+      } else {
+        this.router.navigate(['/home']);
+      }
     }
   }
 
@@ -43,28 +48,31 @@ export class RegisterPage implements OnInit {
       this.successMessage = '';
 
       try {
-        await this.authService.register(
-          this.registerData.email,
-          this.registerData.password,
-          this.registerData.username,
-          this.registerData.role
-        );
-        
-        // Show success message
-        this.successMessage = 'Registration successful! Please log in with your credentials.';
-        
-        // Clear form
-        this.registerData = {
-          username: '',
-          email: '',
-          password: '',
-          confirmPassword: '',
-          role: 'user'
+        const registerData = {
+          name: this.registerData.username,
+          email: this.registerData.email,
+          password: this.registerData.password,
+          password_confirmation: this.registerData.confirmPassword,
+          role: this.registerData.role as 'customer' | 'karenderia_owner'
         };
-        form.resetForm();
+        const response = await this.authService.register(registerData).toPromise();
+        
+        // Redirect based on user role
+        if (response && response.user) {
+          if (response.user.role === 'karenderia_owner') {
+            this.router.navigate(['/karenderia-dashboard']);
+          } else if (response.user.role === 'customer') {
+            this.router.navigate(['/home']);
+          } else {
+            // Default redirect for unknown roles
+            this.router.navigate(['/home']);
+          }
+        } else {
+          this.router.navigate(['/home']);
+        }
         
       } catch (error: any) {
-        this.errorMessage = error.message;
+        this.errorMessage = error.message || 'Registration failed. Please try again.';
       } finally {
         this.isLoading = false;
       }

@@ -7,7 +7,7 @@ import { AuthService } from '../services/auth.service';
 @Injectable({
   providedIn: 'root'
 })
-export class KarenderiaGuard implements CanActivate {
+export class CustomerGuard implements CanActivate {
   constructor(
     private authService: AuthService,
     private router: Router
@@ -17,11 +17,11 @@ export class KarenderiaGuard implements CanActivate {
     return this.authService.currentUser$.pipe(
       take(1),
       map((user) => {
-        if (user && user.role === 'karenderia_owner') {
+        if (user && user.role === 'customer') {
           return true;
-        } else if (user && user.role === 'customer') {
-          // Redirect customers to their home page
-          this.router.navigate(['/home']);
+        } else if (user && user.role === 'karenderia_owner') {
+          // Redirect karenderia owners to their dashboard
+          this.router.navigate(['/karenderia-dashboard']);
           return false;
         } else {
           // No user or invalid role, redirect to login

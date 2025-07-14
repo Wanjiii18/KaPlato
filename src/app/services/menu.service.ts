@@ -1,12 +1,14 @@
 import { Injectable } from '@angular/core';
-import { Firestore, collection, doc, addDoc, updateDoc, deleteDoc, getDocs, getDoc, query, where, orderBy, limit } from '@angular/fire/firestore';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
+import { environment } from '../../environments/environment';
 import { MenuItem, Ingredient, MenuCategory, Order, DailySales } from '../models/menu.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class MenuService {
+  private apiUrl = environment.apiUrl;
   private menuItemsSubject = new BehaviorSubject<MenuItem[]>([]);
   private ingredientsSubject = new BehaviorSubject<Ingredient[]>([]);
   private categoriesSubject = new BehaviorSubject<MenuCategory[]>([]);
@@ -17,11 +19,19 @@ export class MenuService {
   categories$ = this.categoriesSubject.asObservable();
   orders$ = this.ordersSubject.asObservable();
 
-  constructor(private firestore: Firestore) {
+  constructor(private http: HttpClient) {
     this.loadCategories();
     this.loadIngredients();
     this.loadMenuItems();
     this.loadOrders();
+  }
+
+  private getHeaders(): HttpHeaders {
+    const token = localStorage.getItem('auth_token');
+    return new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': token ? `Bearer ${token}` : ''
+    });
   }
 
   // Format PHP currency
@@ -36,211 +46,152 @@ export class MenuService {
   // MENU ITEMS
   async loadMenuItems(): Promise<void> {
     try {
-      const menuItemsRef = collection(this.firestore, 'menuItems');
-      const q = query(menuItemsRef, orderBy('name'));
-      const snapshot = await getDocs(q);
+      const response = await this.http.get<{ data: MenuItem[] }>(`${this.apiUrl}/menu-items`, {
+        headers: this.getHeaders()
+      }).toPromise();
       
-      const menuItems = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })) as MenuItem[];
-      
-      this.menuItemsSubject.next(menuItems);
+      this.menuItemsSubject.next(response?.data || []);
     } catch (error) {
       console.error('Error loading menu items:', error);
     }
   }
 
   async addMenuItem(menuItem: Partial<MenuItem>): Promise<string> {
-    const menuItemsRef = collection(this.firestore, 'menuItems');
-    const docRef = await addDoc(menuItemsRef, {
-      ...menuItem,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    });
+    const response = await this.http.post<{ data: { id: string } }>(`${this.apiUrl}/menu-items`, menuItem, {
+      headers: this.getHeaders()
+    }).toPromise();
+    
     this.loadMenuItems();
-    return docRef.id;
+    return response?.data.id || '';
   }
 
   async updateMenuItem(id: string, updates: Partial<MenuItem>): Promise<void> {
-    const menuItemRef = doc(this.firestore, 'menuItems', id);
-    await updateDoc(menuItemRef, {
-      ...updates,
-      updatedAt: new Date()
-    });
+    await this.http.put(`${this.apiUrl}/menu-items/${id}`, updates, {
+      headers: this.getHeaders()
+    }).toPromise();
+    
     this.loadMenuItems();
   }
 
   async deleteMenuItem(id: string): Promise<void> {
-    const menuItemRef = doc(this.firestore, 'menuItems', id);
-    await deleteDoc(menuItemRef);
+    await this.http.delete(`${this.apiUrl}/menu-items/${id}`, {
+      headers: this.getHeaders()
+    }).toPromise();
+    
     this.loadMenuItems();
   }
 
   // INGREDIENTS
   async loadIngredients(): Promise<void> {
     try {
-      const ingredientsRef = collection(this.firestore, 'ingredients');
-      const q = query(ingredientsRef, orderBy('name'));
-      const snapshot = await getDocs(q);
+      const response = await this.http.get<{ data: Ingredient[] }>(`${this.apiUrl}/ingredients`, {
+        headers: this.getHeaders()
+      }).toPromise();
       
-      const ingredients = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })) as Ingredient[];
-      
-      this.ingredientsSubject.next(ingredients);
+      this.ingredientsSubject.next(response?.data || []);
     } catch (error) {
       console.error('Error loading ingredients:', error);
     }
   }
 
   async addIngredient(ingredient: Omit<Ingredient, 'id'>): Promise<string> {
-    const ingredientsRef = collection(this.firestore, 'ingredients');
-    const docRef = await addDoc(ingredientsRef, {
-      ...ingredient,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    });
+    const response = await this.http.post<{ data: { id: string } }>(`${this.apiUrl}/ingredients`, ingredient, {
+      headers: this.getHeaders()
+    }).toPromise();
+    
     this.loadIngredients();
-    return docRef.id;
+    return response?.data.id || '';
   }
 
   async updateIngredient(id: string, updates: Partial<Ingredient>): Promise<void> {
-    const ingredientRef = doc(this.firestore, 'ingredients', id);
-    await updateDoc(ingredientRef, {
-      ...updates,
-      updatedAt: new Date()
-    });
+    await this.http.put(`${this.apiUrl}/ingredients/${id}`, updates, {
+      headers: this.getHeaders()
+    }).toPromise();
+    
     this.loadIngredients();
   }
 
   async deleteIngredient(id: string): Promise<void> {
-    const ingredientRef = doc(this.firestore, 'ingredients', id);
-    await deleteDoc(ingredientRef);
+    await this.http.delete(`${this.apiUrl}/ingredients/${id}`, {
+      headers: this.getHeaders()
+    }).toPromise();
+    
     this.loadIngredients();
   }
 
   // CATEGORIES
   async loadCategories(): Promise<void> {
     try {
-      const categoriesRef = collection(this.firestore, 'menuCategories');
-      const q = query(categoriesRef, orderBy('order'));
-      const snapshot = await getDocs(q);
+      const response = await this.http.get<{ data: MenuCategory[] }>(`${this.apiUrl}/menu-categories`, {
+        headers: this.getHeaders()
+      }).toPromise();
       
-      const categories = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })) as MenuCategory[];
-      
-      this.categoriesSubject.next(categories);
+      this.categoriesSubject.next(response?.data || []);
     } catch (error) {
       console.error('Error loading categories:', error);
     }
   }
 
   async addCategory(category: Omit<MenuCategory, 'id'>): Promise<string> {
-    const categoriesRef = collection(this.firestore, 'menuCategories');
-    const docRef = await addDoc(categoriesRef, category);
+    const response = await this.http.post<{ data: { id: string } }>(`${this.apiUrl}/menu-categories`, category, {
+      headers: this.getHeaders()
+    }).toPromise();
+    
     this.loadCategories();
-    return docRef.id;
+    return response?.data.id || '';
   }
 
   async updateCategory(id: string, updates: Partial<MenuCategory>): Promise<void> {
-    const categoryRef = doc(this.firestore, 'menuCategories', id);
-    await updateDoc(categoryRef, updates);
+    await this.http.put(`${this.apiUrl}/menu-categories/${id}`, updates, {
+      headers: this.getHeaders()
+    }).toPromise();
+    
     this.loadCategories();
   }
 
   async deleteCategory(id: string): Promise<void> {
-    const categoryRef = doc(this.firestore, 'menuCategories', id);
-    await deleteDoc(categoryRef);
+    await this.http.delete(`${this.apiUrl}/menu-categories/${id}`, {
+      headers: this.getHeaders()
+    }).toPromise();
+    
     this.loadCategories();
   }
 
   // ORDERS
   async loadOrders(): Promise<void> {
     try {
-      const ordersRef = collection(this.firestore, 'orders');
-      const q = query(ordersRef, orderBy('createdAt', 'desc'));
-      const snapshot = await getDocs(q);
+      const response = await this.http.get<{ data: Order[] }>(`${this.apiUrl}/orders`, {
+        headers: this.getHeaders()
+      }).toPromise();
       
-      const orders = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })) as Order[];
-      
-      this.ordersSubject.next(orders);
+      this.ordersSubject.next(response?.data || []);
     } catch (error) {
       console.error('Error loading orders:', error);
     }
   }
 
   async updateOrderStatus(id: string, status: Order['status']): Promise<void> {
-    const orderRef = doc(this.firestore, 'orders', id);
-    await updateDoc(orderRef, {
-      status,
-      updatedAt: new Date()
-    });
+    await this.http.put(`${this.apiUrl}/orders/${id}`, { status }, {
+      headers: this.getHeaders()
+    }).toPromise();
+    
     this.loadOrders();
   }
 
   // ANALYTICS
   async getDailySales(date: Date): Promise<DailySales> {
-    const startOfDay = new Date(date);
-    startOfDay.setHours(0, 0, 0, 0);
+    const params = { date: date.toISOString().split('T')[0] };
     
-    const endOfDay = new Date(date);
-    endOfDay.setHours(23, 59, 59, 999);
+    const response = await this.http.get<{ data: DailySales }>(`${this.apiUrl}/analytics/daily-sales`, {
+      headers: this.getHeaders(),
+      params
+    }).toPromise();
     
-    const ordersRef = collection(this.firestore, 'orders');
-    const q = query(
-      ordersRef,
-      where('createdAt', '>=', startOfDay),
-      where('createdAt', '<=', endOfDay),
-      where('status', '!=', 'cancelled')
-    );
-    
-    const snapshot = await getDocs(q);
-    const orders = snapshot.docs.map(doc => doc.data()) as Order[];
-    
-    const totalSales = orders.reduce((sum, order) => sum + order.totalAmount, 0);
-    const totalOrders = orders.length;
-    
-    // Calculate popular items
-    const itemCounts = new Map<string, { name: string; quantity: number; revenue: number }>();
-    
-    orders.forEach(order => {
-      order.items.forEach(item => {
-        if (itemCounts.has(item.menuItemId)) {
-          const existing = itemCounts.get(item.menuItemId)!;
-          existing.quantity += item.quantity;
-          existing.revenue += item.subtotal;
-        } else {
-          itemCounts.set(item.menuItemId, {
-            name: item.menuItemName,
-            quantity: item.quantity,
-            revenue: item.subtotal
-          });
-        }
-      });
-    });
-    
-    const popularItems = Array.from(itemCounts.entries())
-      .map(([itemId, data]) => ({
-        itemId,
-        itemName: data.name,
-        quantity: data.quantity,
-        revenue: data.revenue
-      }))
-      .sort((a, b) => b.quantity - a.quantity)
-      .slice(0, 10);
-    
-    return {
+    return response?.data || {
       date,
-      totalSales,
-      totalOrders,
-      popularItems
+      totalSales: 0,
+      totalOrders: 0,
+      popularItems: []
     };
   }
 

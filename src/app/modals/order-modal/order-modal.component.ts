@@ -110,9 +110,29 @@ export class OrderModalComponent implements OnInit {
         // Search using Spoonacular API for new items
         this.isLoading = true;
         try {
-          const searchResults = await this.spoonacularService.searchRecipes(this.searchTerm, undefined, undefined, 12).toPromise();
-          if (searchResults) {
-            this.filteredItems = searchResults.filter(item => item.isAvailable);
+          const searchResults = await this.spoonacularService.searchRecipes(this.searchTerm, undefined, undefined, undefined, 12).toPromise();
+          if (searchResults && searchResults.results) {
+            // Convert recipes to menu items using the same approach as searchByCategory
+            this.filteredItems = searchResults.results.map((recipe: any) => ({
+              id: recipe.id.toString(),
+              name: recipe.title,
+              description: recipe.summary || '',
+              price: 150, // Default price for Spoonacular items
+              category: 'main dish',
+              image: recipe.image || 'assets/images/placeholder-food.jpg',
+              ingredients: [],
+              preparationTime: recipe.readyInMinutes || 30,
+              isAvailable: true,
+              isPopular: false,
+              allergens: [],
+              nutritionalInfo: {
+                calories: 300,
+                protein: 20,
+                carbs: 30,
+                fat: 10
+              },
+              spoonacularId: recipe.id
+            } as SpoonacularMenuItem)).filter(item => item.isAvailable);
           }
         } catch (error) {
           console.error('Error searching recipes:', error);
@@ -183,7 +203,7 @@ export class OrderModalComponent implements OnInit {
    */
   calculateItemProfit(menuItem: SpoonacularMenuItem): number {
     const ingredientCost = menuItem.ingredients.reduce((total, ingredient) => {
-      return total + ingredient.cost;
+      return total + (ingredient.cost || 0);
     }, 0);
     return menuItem.price - ingredientCost;
   }
@@ -256,7 +276,7 @@ export class OrderModalComponent implements OnInit {
         quantity: item.quantity,
         unitPrice: item.menuItem.price,
         subtotal: item.subtotal,
-        ingredientCost: item.menuItem.ingredients.reduce((total, ing) => total + ing.cost, 0) * item.quantity,
+        ingredientCost: item.menuItem.ingredients.reduce((total, ing) => total + (ing.cost || 0), 0) * item.quantity,
         profitMargin: item.profit,
         preparationTime: item.menuItem.preparationTime,
         specialInstructions: '',

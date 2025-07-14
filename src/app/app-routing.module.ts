@@ -2,16 +2,18 @@ import { NgModule } from '@angular/core';
 import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 import { AuthGuard } from './guards/auth.guard';
 import { KarenderiaGuard } from './guards/karenderia.guard';
+import { CustomerGuard } from './guards/customer.guard';
+import { RedirectComponent } from './components/redirect.component';
 
 const routes: Routes = [
   {
     path: 'home',
     loadChildren: () => import('./home/home.module').then( m => m.HomePageModule),
-    canActivate: [AuthGuard]
+    canActivate: [AuthGuard, CustomerGuard]
   },
   {
     path: '',
-    redirectTo: 'home',
+    component: RedirectComponent,
     pathMatch: 'full'
   },
   {
@@ -28,7 +30,8 @@ const routes: Routes = [
   },
   {
     path: 'profile',
-    loadChildren: () => import('./profile/profile.module').then( m => m.ProfilePageModule)
+    loadChildren: () => import('./profile/profile.module').then( m => m.ProfilePageModule),
+    canActivate: [AuthGuard, CustomerGuard]
   },
   {
     path: 'karenderia-dashboard',
@@ -49,10 +52,6 @@ const routes: Routes = [
     path: 'karenderia-orders',
     loadChildren: () => import('./karenderia-orders/karenderia-orders.module').then( m => m.KarenderiaOrdersPageModule),
     canActivate: [AuthGuard, KarenderiaGuard]
-  },
-  {
-    path: 'karenderia-inventory',
-    loadChildren: () => import('./karenderia-inventory/karenderia-inventory.module').then( m => m.KarenderiaInventoryPageModule)
   },
   {
     path: 'karenderia-analytics',

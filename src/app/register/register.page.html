@@ -56,14 +56,14 @@
           [(ngModel)]="registerData.role" 
           placeholder="Select your role"
           interface="popover">
-          <ion-select-option value="user">Customer</ion-select-option>
+          <ion-select-option value="customer">Customer</ion-select-option>
           <ion-select-option value="karenderia_owner">Karenderia Owner</ion-select-option>
         </ion-select>
       </ion-item>
 
       <!-- Role Description -->
       <div class="role-description">
-        <ion-card *ngIf="registerData.role === 'user'" color="light">
+        <ion-card *ngIf="registerData.role === 'customer'" color="light">
           <ion-card-content>
             <ion-icon name="person-outline" color="primary"></ion-icon>
             <p><strong>Customer Account:</strong> Find and discover nearby karenderias, view menus, and plan your meals.</p>

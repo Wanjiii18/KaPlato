@@ -138,6 +138,8 @@ export class KarenderiaApplicationPage implements OnInit {
     try {
       const applicationData = {
         applicantId: this.currentUser.uid,
+        applicationStatus: 'pending' as const,
+        businessPermitImageUrl: '', // Will be set by the service when file is uploaded
         ...this.applicationData
       };
 

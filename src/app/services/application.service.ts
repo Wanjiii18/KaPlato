@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { Firestore, collection, addDoc, doc, updateDoc, query, where, getDocs, orderBy, limit } from '@angular/fire/firestore';
-import { Storage, ref, uploadBytes, getDownloadURL, deleteObject } from '@angular/fire/storage';
+import { HttpClient } from '@angular/common/http';
 import { Observable, from } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { environment } from '../../environments/environment';
 
 export interface KarenderiaApplication {
   id?: string;
@@ -36,117 +36,42 @@ export interface KarenderiaApplication {
   providedIn: 'root'
 })
 export class ApplicationService {
-  private applicationsCollection = collection(this.firestore, 'karenderia_applications');
+  private apiUrl = environment.apiUrl;
 
-  constructor(
-    private firestore: Firestore,
-    private storage: Storage
-  ) {}
+  constructor(private http: HttpClient) {}
 
-  // Submit a new karenderia application
-  async submitApplication(
-    applicationData: Omit<KarenderiaApplication, 'id' | 'submittedAt' | 'applicationStatus' | 'businessPermitImageUrl'>,
-    businessPermitFile: File
-  ): Promise<string> {
+  // Submit new application
+  async submitApplication(applicationData: Omit<KarenderiaApplication, 'id' | 'submittedAt'>, businessPermitFile: File): Promise<string> {
     try {
-      // Upload business permit image
-      const businessPermitUrl = await this.uploadBusinessPermit(businessPermitFile, applicationData.applicantId);
-      
-      // Create application document
-      const application: Omit<KarenderiaApplication, 'id'> = {
-        ...applicationData,
-        businessPermitImageUrl: businessPermitUrl,
-        applicationStatus: 'pending',
-        submittedAt: new Date()
-      };
+      const formData = new FormData();
+      formData.append('businessPermitFile', businessPermitFile);
+      formData.append('applicationData', JSON.stringify(applicationData));
 
-      const docRef = await addDoc(this.applicationsCollection, application);
-      return docRef.id;
+      const response = await this.http.post<{id: string}>(`${this.apiUrl}/karenderia/applications`, formData).toPromise();
+      return response?.id || '';
     } catch (error) {
       console.error('Error submitting application:', error);
       throw error;
     }
   }
 
-  // Upload business permit image to Firebase Storage
-  private async uploadBusinessPermit(file: File, applicantId: string): Promise<string> {
-    try {
-      const fileName = `business_permits/${applicantId}_${Date.now()}_${file.name}`;
-      const storageRef = ref(this.storage, fileName);
-      
-      const snapshot = await uploadBytes(storageRef, file);
-      const downloadURL = await getDownloadURL(snapshot.ref);
-      
-      return downloadURL;
-    } catch (error) {
-      console.error('Error uploading business permit:', error);
-      throw error;
-    }
-  }
-
-  // Get applications by applicant ID
+  // Get applications by applicant
   getApplicationsByApplicant(applicantId: string): Observable<KarenderiaApplication[]> {
-    const q = query(
-      this.applicationsCollection,
-      where('applicantId', '==', applicantId),
-      orderBy('submittedAt', 'desc')
-    );
-
-    return from(getDocs(q)).pipe(
-      map(snapshot =>
-        snapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        } as KarenderiaApplication))
-      )
-    );
-  }
-
-  // Get all pending applications (for admin)
-  getPendingApplications(): Observable<KarenderiaApplication[]> {
-    const q = query(
-      this.applicationsCollection,
-      where('applicationStatus', '==', 'pending'),
-      orderBy('submittedAt', 'asc')
-    );
-
-    return from(getDocs(q)).pipe(
-      map(snapshot =>
-        snapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        } as KarenderiaApplication))
-      )
-    );
+    return this.http.get<KarenderiaApplication[]>(`${this.apiUrl}/karenderia/applications/applicant/${applicantId}`);
   }
 
   // Get all applications (for admin)
   getAllApplications(): Observable<KarenderiaApplication[]> {
-    const q = query(
-      this.applicationsCollection,
-      orderBy('submittedAt', 'desc')
-    );
-
-    return from(getDocs(q)).pipe(
-      map(snapshot =>
-        snapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        } as KarenderiaApplication))
-      )
-    );
+    return this.http.get<KarenderiaApplication[]>(`${this.apiUrl}/karenderia/applications`);
   }
 
   // Approve application (admin only)
   async approveApplication(applicationId: string, adminId: string, adminNotes?: string): Promise<void> {
     try {
-      const applicationDoc = doc(this.firestore, 'karenderia_applications', applicationId);
-      await updateDoc(applicationDoc, {
-        applicationStatus: 'approved',
-        reviewedAt: new Date(),
-        reviewedBy: adminId,
-        adminNotes: adminNotes || ''
-      });
+      await this.http.patch(`${this.apiUrl}/karenderia/applications/${applicationId}/approve`, {
+        adminId,
+        adminNotes
+      }).toPromise();
     } catch (error) {
       console.error('Error approving application:', error);
       throw error;
@@ -161,14 +86,11 @@ export class ApplicationService {
     adminNotes?: string
   ): Promise<void> {
     try {
-      const applicationDoc = doc(this.firestore, 'karenderia_applications', applicationId);
-      await updateDoc(applicationDoc, {
-        applicationStatus: 'rejected',
-        reviewedAt: new Date(),
-        reviewedBy: adminId,
-        rejectionReason: rejectionReason,
-        adminNotes: adminNotes || ''
-      });
+      await this.http.patch(`${this.apiUrl}/karenderia/applications/${applicationId}/reject`, {
+        adminId,
+        rejectionReason,
+        adminNotes
+      }).toPromise();
     } catch (error) {
       console.error('Error rejecting application:', error);
       throw error;
@@ -190,8 +112,9 @@ export class ApplicationService {
   // Delete business permit image (when application is deleted)
   async deleteBusinessPermitImage(imageUrl: string): Promise<void> {
     try {
-      const imageRef = ref(this.storage, imageUrl);
-      await deleteObject(imageRef);
+      await this.http.delete(`${this.apiUrl}/files/business-permits`, {
+        body: { imageUrl }
+      }).toPromise();
     } catch (error) {
       console.error('Error deleting business permit image:', error);
       // Don't throw error for image deletion failures

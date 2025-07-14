@@ -28,7 +28,12 @@ export class LoginPage implements OnInit {
   ngOnInit() {
     // Check if user is already logged in
     if (this.authService.isAuthenticated()) {
-      this.router.navigate(['/home']);
+      const currentUser = this.authService.getCurrentUser();
+      if (currentUser && currentUser.role === 'karenderia_owner') {
+        this.router.navigate(['/karenderia-dashboard']);
+      } else {
+        this.router.navigate(['/home']);
+      }
     }
   }
 
@@ -38,10 +43,27 @@ export class LoginPage implements OnInit {
       this.errorMessage = '';
 
       try {
-        await this.authService.login(this.loginData.emailOrUsername, this.loginData.password);
-        // Navigation is handled in the service
+        const credentials = { 
+          email: this.loginData.emailOrUsername, 
+          password: this.loginData.password 
+        };
+        const response = await this.authService.login(credentials).toPromise();
+        
+        // Redirect based on user role
+        if (response && response.user) {
+          if (response.user.role === 'karenderia_owner') {
+            this.router.navigate(['/karenderia-dashboard']);
+          } else if (response.user.role === 'customer') {
+            this.router.navigate(['/home']);
+          } else {
+            // Default redirect for unknown roles
+            this.router.navigate(['/home']);
+          }
+        } else {
+          this.router.navigate(['/home']);
+        }
       } catch (error: any) {
-        this.errorMessage = error.message;
+        this.errorMessage = error.message || 'Login failed. Please try again.';
       } finally {
         this.isLoading = false;
       }

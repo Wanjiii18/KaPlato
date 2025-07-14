@@ -43,7 +43,7 @@ export class ProfilePage implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.loadUserProfile();
-    this.predefinedAllergens = this.profileService.getPredefinedAllergens();
+    this.predefinedAllergens = this.profileService.getPredefinedAllergens().map(a => a.name);
     this.dietaryRestrictions = this.profileService.getDietaryRestrictions();
     this.cuisinePreferences = this.profileService.getCuisinePreferences();
   }
@@ -205,6 +205,7 @@ export class ProfilePage implements OnInit, OnDestroy {
     try {
       await this.profileService.addAllergen(this.userProfile.uid, {
         name,
+        category: 'Other', // Default category
         severity,
         notes: notes?.trim() || undefined
       });
@@ -247,7 +248,7 @@ export class ProfilePage implements OnInit, OnDestroy {
             await loading.present();
 
             try {
-              await this.profileService.removeAllergen(this.userProfile.uid, allergen);
+              await this.profileService.removeAllergen(this.userProfile.uid, allergen.id);
               
               const toast = await this.toastController.create({
                 message: 'Allergen removed successfully',
@@ -330,15 +331,13 @@ export class ProfilePage implements OnInit, OnDestroy {
     await loading.present();
 
     try {
-      const mealPlan: Omit<MealPlan, 'id' | 'createdAt' | 'updatedAt'> = {
+      const mealPlan: Omit<MealPlan, 'id'> = {
         name: data.name.trim(),
         description: data.description?.trim(),
-        meals: {
-          breakfast: [],
-          lunch: [],
-          dinner: [],
-          snacks: []
-        },
+        duration: 7, // Default 7 days
+        caloriesPerDay: 2000, // Default calories
+        type: 'custom',
+        meals: [],
         startDate: new Date(data.startDate || Date.now()),
         endDate: new Date(data.endDate || Date.now() + 7 * 24 * 60 * 60 * 1000), // Default 1 week
         isActive: this.mealPlans.length === 0 // First meal plan is active by default
@@ -413,7 +412,7 @@ export class ProfilePage implements OnInit, OnDestroy {
             await loading.present();
 
             try {
-              await this.profileService.removeMealPlan(this.userProfile.uid, mealPlan);
+              await this.profileService.removeMealPlan(this.userProfile.uid, mealPlan.id);
               
               const toast = await this.toastController.create({
                 message: 'Meal plan removed successfully',
@@ -439,7 +438,7 @@ export class ProfilePage implements OnInit, OnDestroy {
     await alert.present();
   }
 
-  getSeverityColor(severity: string): string {
+  getSeverityColor(severity?: string): string {
     switch (severity) {
       case 'mild': return 'success';
       case 'moderate': return 'warning';
@@ -448,7 +447,8 @@ export class ProfilePage implements OnInit, OnDestroy {
     }
   }
 
-  formatDate(date: Date): string {
+  formatDate(date?: Date): string {
+    if (!date) return 'N/A';
     return new Date(date).toLocaleDateString();
   }
 }

@@ -7,17 +7,11 @@ import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
 
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
-
-// Firebase imports
-import { provideFirebaseApp, initializeApp } from '@angular/fire/app';
-import { provideAuth, getAuth, connectAuthEmulator } from '@angular/fire/auth';
-import { provideFirestore, getFirestore, connectFirestoreEmulator } from '@angular/fire/firestore';
-import { provideStorage, getStorage, connectStorageEmulator } from '@angular/fire/storage';
-import { firebaseConfig } from '../environments/firebase.config';
 import { environment } from '../environments/environment';
+import { RedirectComponent } from './components/redirect.component';
 
 @NgModule({
-  declarations: [AppComponent],
+  declarations: [AppComponent, RedirectComponent],
   imports: [
     BrowserModule, 
     IonicModule.forRoot(), 
@@ -25,11 +19,7 @@ import { environment } from '../environments/environment';
   ],
   providers: [
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
-    provideHttpClient(withFetch()),
-    provideFirebaseApp(() => initializeApp(firebaseConfig)),
-    provideAuth(() => getAuth()),
-    provideFirestore(() => getFirestore()),
-    provideStorage(() => getStorage())
+    provideHttpClient(withFetch())
   ],
   bootstrap: [AppComponent],
 })
