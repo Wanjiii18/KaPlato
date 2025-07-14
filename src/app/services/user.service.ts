@@ -82,8 +82,14 @@ export class UserService {
     return this.http.get<UserProfile>(`${this.apiUrl}/user/profile`, {
       headers: this.getAuthHeaders()
     }).pipe(
+      map(response => {
+        // The backend now returns the profile directly, not nested in a 'user' property
+        return response;
+      }),
       tap(profile => {
-        this.currentUserProfileSubject.next(profile);
+        if (profile) {
+          this.currentUserProfileSubject.next(profile);
+        }
       }),
       catchError(error => {
         console.error('Error loading user profile:', error);
@@ -96,8 +102,14 @@ export class UserService {
     return this.http.put<UserProfile>(`${this.apiUrl}/user/profile`, profile, {
       headers: this.getAuthHeaders()
     }).pipe(
+      map(response => {
+        // Handle both old format (nested in user) and new format (direct response)
+        return response;
+      }),
       tap(updatedProfile => {
-        this.currentUserProfileSubject.next(updatedProfile);
+        if (updatedProfile) {
+          this.currentUserProfileSubject.next(updatedProfile);
+        }
       }),
       catchError(error => {
         console.error('Error updating user profile:', error);
@@ -110,8 +122,14 @@ export class UserService {
     return this.http.post<UserProfile>(`${this.apiUrl}/user/profile`, profile, {
       headers: this.getAuthHeaders()
     }).pipe(
+      map(response => {
+        // Handle both old format (nested in user) and new format (direct response)
+        return response;
+      }),
       tap(newProfile => {
-        this.currentUserProfileSubject.next(newProfile);
+        if (newProfile) {
+          this.currentUserProfileSubject.next(newProfile);
+        }
       }),
       catchError(error => {
         console.error('Error creating user profile:', error);

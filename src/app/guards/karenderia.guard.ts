@@ -2,30 +2,25 @@ import { Injectable } from '@angular/core';
 import { CanActivate, Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { map, take } from 'rxjs/operators';
-import { AuthService } from '../services/auth.service';
+import { UserService, UserProfile } from '../services/user.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class KarenderiaGuard implements CanActivate {
   constructor(
-    private authService: AuthService,
+    private userService: UserService,
     private router: Router
   ) {}
 
   canActivate(): Observable<boolean> {
-    return this.authService.currentUser$.pipe(
+    return this.userService.currentUserProfile$.pipe(
       take(1),
-      map((user) => {
+      map((user: UserProfile | null) => {
         if (user && user.role === 'karenderia_owner') {
           return true;
-        } else if (user && user.role === 'customer') {
-          // Redirect customers to their home page
-          this.router.navigate(['/home']);
-          return false;
         } else {
-          // No user or invalid role, redirect to login
-          this.router.navigate(['/login']);
+          this.router.navigate(['/home']);
           return false;
         }
       })

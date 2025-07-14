@@ -32,12 +32,7 @@ export class RegisterPage implements OnInit {
   ngOnInit() {
     // Check if user is already logged in
     if (this.authService.isAuthenticated()) {
-      const currentUser = this.authService.getCurrentUser();
-      if (currentUser && currentUser.role === 'karenderia_owner') {
-        this.router.navigate(['/karenderia-dashboard']);
-      } else {
-        this.router.navigate(['/home']);
-      }
+      this.router.navigate(['/home']);
     }
   }
 
@@ -55,24 +50,23 @@ export class RegisterPage implements OnInit {
           password_confirmation: this.registerData.confirmPassword,
           role: this.registerData.role as 'customer' | 'karenderia_owner'
         };
-        const response = await this.authService.register(registerData).toPromise();
+        await this.authService.register(registerData).toPromise();
         
-        // Redirect based on user role
-        if (response && response.user) {
-          if (response.user.role === 'karenderia_owner') {
-            this.router.navigate(['/karenderia-dashboard']);
-          } else if (response.user.role === 'customer') {
-            this.router.navigate(['/home']);
-          } else {
-            // Default redirect for unknown roles
-            this.router.navigate(['/home']);
-          }
-        } else {
-          this.router.navigate(['/home']);
-        }
+        // Show success message
+        this.successMessage = 'Registration successful! Please log in with your credentials.';
+        
+        // Clear form
+        this.registerData = {
+          username: '',
+          email: '',
+          password: '',
+          confirmPassword: '',
+          role: 'customer'
+        };
+        form.resetForm();
         
       } catch (error: any) {
-        this.errorMessage = error.message || 'Registration failed. Please try again.';
+        this.errorMessage = error.message;
       } finally {
         this.isLoading = false;
       }

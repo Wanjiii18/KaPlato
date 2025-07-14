@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import { map, tap, catchError } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
@@ -67,14 +67,6 @@ export class AuthService {
     this.checkStoredAuth();
   }
 
-  private getHttpHeaders(): HttpHeaders {
-    return new HttpHeaders({
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-      'X-Requested-With': 'XMLHttpRequest'
-    });
-  }
-
   private checkStoredAuth(): void {
     const token = localStorage.getItem('auth_token');
     const userData = localStorage.getItem('user_data');
@@ -85,14 +77,13 @@ export class AuthService {
         this.currentUserSubject.next(user);
       } catch (error) {
         console.error('Error parsing stored user data:', error);
-        this.clearUserData();
+        this.logout();
       }
     }
   }
 
   login(credentials: LoginCredentials): Observable<AuthResponse> {
-    const headers = this.getHttpHeaders();
-    return this.http.post<AuthResponse>(`${this.apiUrl}/auth/login`, credentials, { headers })
+    return this.http.post<AuthResponse>(`${this.apiUrl}/auth/login`, credentials)
       .pipe(
         tap(response => {
           localStorage.setItem('auth_token', response.access_token);
@@ -107,8 +98,7 @@ export class AuthService {
   }
 
   register(userData: RegisterData): Observable<AuthResponse> {
-    const headers = this.getHttpHeaders();
-    return this.http.post<AuthResponse>(`${this.apiUrl}/auth/register`, userData, { headers })
+    return this.http.post<AuthResponse>(`${this.apiUrl}/auth/register`, userData)
       .pipe(
         tap(response => {
           localStorage.setItem('auth_token', response.access_token);
@@ -125,32 +115,22 @@ export class AuthService {
   logout(): Observable<any> {
     const token = localStorage.getItem('auth_token');
     
-    // Clear local storage first
-    this.clearUserData();
-
-    if (token) {
-      const headers = new HttpHeaders({
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      });
-
-      return this.http.post(`${this.apiUrl}/auth/logout`, {}, { headers })
-        .pipe(
-          catchError(error => {
-            console.error('Logout error:', error);
-            return of(null);
-          })
-        );
-    }
-
-    return of(null);
-  }
-
-  private clearUserData(): void {
     localStorage.removeItem('auth_token');
     localStorage.removeItem('user_data');
     this.currentUserSubject.next(null);
+
+    if (token) {
+      return this.http.post(`${this.apiUrl}/auth/logout`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      }).pipe(
+        catchError(error => {
+          console.error('Logout error:', error);
+          return of(null);
+        })
+      );
+    }
+
+    return of(null);
   }
 
   isAuthenticated(): boolean {

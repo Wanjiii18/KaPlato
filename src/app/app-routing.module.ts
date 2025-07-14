@@ -2,18 +2,16 @@ import { NgModule } from '@angular/core';
 import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 import { AuthGuard } from './guards/auth.guard';
 import { KarenderiaGuard } from './guards/karenderia.guard';
-import { CustomerGuard } from './guards/customer.guard';
-import { RedirectComponent } from './components/redirect.component';
 
 const routes: Routes = [
   {
     path: 'home',
     loadChildren: () => import('./home/home.module').then( m => m.HomePageModule),
-    canActivate: [AuthGuard, CustomerGuard]
+    canActivate: [AuthGuard]
   },
   {
     path: '',
-    component: RedirectComponent,
+    redirectTo: 'home',
     pathMatch: 'full'
   },
   {
@@ -30,8 +28,7 @@ const routes: Routes = [
   },
   {
     path: 'profile',
-    loadChildren: () => import('./profile/profile.module').then( m => m.ProfilePageModule),
-    canActivate: [AuthGuard, CustomerGuard]
+    loadChildren: () => import('./profile/profile.module').then( m => m.ProfilePageModule)
   },
   {
     path: 'karenderia-dashboard',

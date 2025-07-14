@@ -475,16 +475,7 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   async logout() {
-    this.authService.logout().subscribe({
-      next: () => {
-        this.router.navigate(['/login']);
-      },
-      error: (error) => {
-        console.error('Logout error:', error);
-        // Even if logout fails on server, we still redirect to login
-        this.router.navigate(['/login']);
-      }
-    });
+    await this.authService.logout();
   }
 
   goToApplicationPage() {
