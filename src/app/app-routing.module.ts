@@ -64,6 +64,11 @@ const routes: Routes = [
     loadChildren: () => import('./pages/order-details/order-details.module').then( m => m.OrderDetailsPageModule),
     canActivate: [AuthGuard, KarenderiaGuard]
   },
+  {
+    path: 'meal-planner',
+    loadChildren: () => import('./meal-planner/meal-planner.module').then(m => m.MealPlannerPageModule),
+    canActivate: [AuthGuard]
+  },
 ];
 
 @NgModule({

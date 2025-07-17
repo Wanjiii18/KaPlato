@@ -10,7 +10,8 @@
     "src/polyfills.ts"
   ],
   "include": [
-    "src/**/*.d.ts"
+    "src/**/*.d.ts",
+    "src/app/meal-planner/**/*.ts"
   ],
   "exclude": [
     "src/environments/environment.prod.ts"

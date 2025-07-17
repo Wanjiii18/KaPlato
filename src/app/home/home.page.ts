@@ -4,7 +4,7 @@ import { UserService, UserProfile } from '../services/user.service';
 import { KarenderiaService } from '../services/karenderia.service';
 import { Subscription } from 'rxjs';
 import { Router } from '@angular/router';
-import { ToastController } from '@ionic/angular';
+import { ToastController, LoadingController } from '@ionic/angular';
 
 @Component({
   selector: 'app-home',
@@ -27,7 +27,8 @@ export class HomePage implements OnInit, OnDestroy {
     private userService: UserService,
     private karenderiaService: KarenderiaService,
     private router: Router,
-    private toastController: ToastController
+    private toastController: ToastController,
+    private loadingController: LoadingController
   ) {}
 
   ngOnInit() {
@@ -475,7 +476,25 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   async logout() {
-    await this.authService.logout();
+    const loading = await this.loadingController.create({
+      message: 'Logging out...',
+      duration: 2000
+    });
+    await loading.present();
+
+    this.authService.logout().subscribe({
+      next: (response) => {
+        console.log('Logout successful:', response);
+        loading.dismiss();
+        this.router.navigate(['/login']);
+      },
+      error: (error) => {
+        console.error('Logout error:', error);
+        loading.dismiss();
+        // Even if logout fails on server, clear local data and redirect
+        this.router.navigate(['/login']);
+      }
+    });
   }
 
   goToApplicationPage() {
@@ -502,5 +521,37 @@ export class HomePage implements OnInit, OnDestroy {
         // Regular users stay on home page
       }
     });
+  }
+
+  openMealPlanner() {
+    // Navigate to the meal planner page
+    this.router.navigate(['/meal-planner']);
+  }
+
+  planMeal() {
+    // Logic for meal planning
+    console.log('Meal planning initiated');
+
+    // Example structure for meal planning
+    const mealPlan = {
+      breakfast: '',
+      lunch: '',
+      dinner: ''
+    };
+
+    // Prompt user to select meals for each time
+    mealPlan.breakfast = prompt('What would you like for breakfast?') || '';
+    mealPlan.lunch = prompt('What would you like for lunch?') || '';
+    mealPlan.dinner = prompt('What would you like for dinner?') || '';
+
+    // Save the meal plan (this can be expanded to save in a database or localStorage)
+    console.log('Meal Plan:', mealPlan);
+
+    // Notify the user
+    alert('Your meal plan has been saved!');
+  }
+
+  viewSuggestedKarenderias() {
+    this.router.navigate(['/suggested-karenderias']);
   }
 }

@@ -19,7 +19,7 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
+<ion-content [fullscreen]="true" class="tablet-view">
   <!-- Loading state -->
   <div *ngIf="isLoading" class="loading-container">
     <ion-spinner name="crescent"></ion-spinner>
@@ -37,126 +37,50 @@
 
     <!-- Menu Section -->
     <div class="menu-section">
-      <h2>Menu</h2>
-      
+      <h2>Explore</h2>
       <div class="menu-grid">
+        <ion-card button (click)="addTestData()" class="menu-card">
+          <ion-card-content>
+            <ion-icon name="add-circle-outline" size="large" color="success"></ion-icon>
+            <h3>Add Test Karenderia</h3>
+            <p>Generate sample karenderias</p>
+          </ion-card-content>
+        </ion-card>
+
         <ion-card button (click)="toggleMap()" class="menu-card">
           <ion-card-content>
             <ion-icon name="map-outline" size="large" color="primary"></ion-icon>
-            <h3>{{ showMap ? 'Hide Map' : 'Show Map' }}</h3>
-            <p>View locations on map</p>
+            <h3>Search Nearby Karenderia</h3>
+            <p>Find karenderias near your location</p>
           </ion-card-content>
         </ion-card>
 
-        <ion-card button (click)="searchKarenderia()" class="menu-card">
+        <ion-card button (click)="openMealPlanner()" class="menu-card">
           <ion-card-content>
-            <ion-icon name="search-outline" size="large" color="secondary"></ion-icon>
-            <h3>Search Karenderia</h3>
-            <p>Find local eateries</p>
+            <ion-icon name="restaurant-outline" size="large" color="secondary"></ion-icon>
+            <h3>Meal Planner</h3>
+            <p>Plan your meals efficiently</p>
           </ion-card-content>
         </ion-card>
 
-        <ion-card button (click)="addTestData()" class="menu-card">
+        <ion-card button (click)="viewSuggestedKarenderias()" class="menu-card">
           <ion-card-content>
-            <ion-icon name="flask-outline" size="large" color="warning"></ion-icon>
-            <h3>Add Test Data</h3>
-            <p>Add 4 test karenderias at different ranges</p>
-          </ion-card-content>
-        </ion-card>
-
-        <ion-card button (click)="debugKarenderias()" class="menu-card">
-          <ion-card-content>
-            <ion-icon name="bug-outline" size="large" color="danger"></ion-icon>
-            <h3>Debug Search</h3>
-            <p>Check locations & distances</p>
-          </ion-card-content>
-        </ion-card>
-
-        <ion-card button (click)="troubleshootSearch()" class="menu-card">
-          <ion-card-content>
-            <ion-icon name="construct-outline" size="large" color="warning"></ion-icon>
-            <h3>Troubleshoot</h3>
-            <p>Find the problem</p>
-          </ion-card-content>
-        </ion-card>
-
-        <ion-card button (click)="testLocalStorage()" class="menu-card">
-          <ion-card-content>
-            <ion-icon name="checkmark-circle-outline" size="large" color="success"></ion-icon>
-            <h3>Test Storage</h3>
-            <p>Check localStorage</p>
-          </ion-card-content>
-        </ion-card>
-
-        <ion-card button (click)="clearTestData()" class="menu-card">
-          <ion-card-content>
-            <ion-icon name="trash-outline" size="large" color="medium"></ion-icon>
-            <h3>Clear Test Data</h3>
-            <p>Remove all test karenderias</p>
-          </ion-card-content>
-        </ion-card>
-
-        <ion-card button class="menu-card">
-          <ion-card-content>
-            <ion-icon name="restaurant-outline" size="large" color="tertiary"></ion-icon>
-            <h3>Menu Planner</h3>
-            <p>Plan your meals</p>
-          </ion-card-content>
-        </ion-card>
-
-        <ion-card button class="menu-card">
-          <ion-card-content>
-            <ion-icon name="heart-outline" size="large" color="danger"></ion-icon>
-            <h3>Favorites</h3>
-            <p>Your favorite places</p>
-          </ion-card-content>
-        </ion-card>
-
-        <!-- Karenderia Owner Specific Options -->
-        <ion-card 
-          *ngIf="userProfile?.role === 'karenderia_owner'" 
-          button 
-          (click)="goToApplicationPage()" 
-          class="menu-card owner-card">
-          <ion-card-content>
-            <ion-icon name="storefront-outline" size="large" color="success"></ion-icon>
-            <h3>My Business</h3>
-            <p>Manage your karenderia</p>
-          </ion-card-content>
-        </ion-card>
-
-        <ion-card 
-          *ngIf="userProfile?.role === 'karenderia_owner' && userProfile?.applicationStatus === 'pending'" 
-          class="menu-card status-card pending">
-          <ion-card-content>
-            <ion-icon name="time-outline" size="large" color="warning"></ion-icon>
-            <h3>Application Pending</h3>
-            <p>Your application is being reviewed</p>
-          </ion-card-content>
-        </ion-card>
-
-        <ion-card 
-          *ngIf="userProfile?.role === 'karenderia_owner' && userProfile?.applicationStatus === 'approved'" 
-          class="menu-card status-card approved">
-          <ion-card-content>
-            <ion-icon name="checkmark-circle-outline" size="large" color="success"></ion-icon>
-            <h3>Verified Business</h3>
-            <p>Your karenderia is approved!</p>
-          </ion-card-content>
-        </ion-card>
-
-        <ion-card 
-          *ngIf="userProfile?.role === 'karenderia_owner' && userProfile?.applicationStatus === 'rejected'" 
-          button
-          (click)="goToApplicationPage()"
-          class="menu-card status-card rejected">
-          <ion-card-content>
-            <ion-icon name="close-circle-outline" size="large" color="danger"></ion-icon>
-            <h3>Application Rejected</h3>
-            <p>Click to reapply</p>
+            <ion-icon name="star-outline" size="large" color="tertiary"></ion-icon>
+            <h3>Suggested Karenderias</h3>
+            <p>Explore recommended eateries</p>
           </ion-card-content>
         </ion-card>
       </div>
+    </div>
+
+    <!-- Meal Planner Section -->
+    <div class="meal-planner-section">
+      <h2>Meal Planner</h2>
+      <p>Plan your meals for the week and stay organized.</p>
+      <ion-button expand="block" (click)="openMealPlanner()" color="primary">
+        <ion-icon name="calendar-outline" slot="start"></ion-icon>
+        Open Meal Planner
+      </ion-button>
     </div>
 
     <!-- Map Section -->

@@ -115,6 +115,7 @@ export class AuthService {
   logout(): Observable<any> {
     const token = localStorage.getItem('auth_token');
     
+    // Always clear local storage first
     localStorage.removeItem('auth_token');
     localStorage.removeItem('user_data');
     this.currentUserSubject.next(null);
@@ -125,12 +126,13 @@ export class AuthService {
       }).pipe(
         catchError(error => {
           console.error('Logout error:', error);
-          return of(null);
+          // Even if server logout fails, we've already cleared local data
+          return of({ success: true, message: 'Logged out locally' });
         })
       );
     }
 
-    return of(null);
+    return of({ success: true, message: 'Already logged out' });
   }
 
   isAuthenticated(): boolean {

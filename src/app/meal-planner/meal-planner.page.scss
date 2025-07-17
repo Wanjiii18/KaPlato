@@ -1,0 +1,150 @@
+.meal-planner-content {
+  --background: #f5f5f5;
+}
+
+.meal-planner-container {
+  padding: 16px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.meal-planner-card {
+  margin-bottom: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.meal-planner-card ion-card-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  text-align: center;
+  padding: 20px;
+}
+
+.meal-planner-card ion-card-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.meal-planner-card ion-card-subtitle {
+  font-size: 1rem;
+  opacity: 0.9;
+  font-weight: 400;
+}
+
+.meal-item {
+  margin-bottom: 16px;
+  --border-radius: 8px;
+  --background: #fff;
+  --color: #333;
+  --padding-start: 16px;
+  --padding-end: 16px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.meal-item ion-icon {
+  font-size: 1.5rem;
+  margin-right: 12px;
+}
+
+.meal-item ion-label {
+  font-weight: 500;
+  color: #333;
+}
+
+.meal-item ion-select {
+  font-size: 1rem;
+  --placeholder-color: #999;
+}
+
+.button-container {
+  margin-top: 24px;
+  padding: 0 16px;
+}
+
+.save-button {
+  --border-radius: 8px;
+  height: 50px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  --box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  
+  &:hover {
+    --box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+  }
+  
+  &[disabled] {
+    --opacity: 0.6;
+    --box-shadow: none;
+  }
+}
+
+.loading-card {
+  text-align: center;
+  margin-top: 50px;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+}
+
+.loading-container ion-spinner {
+  width: 40px;
+  height: 40px;
+}
+
+.loading-container p {
+  font-size: 1rem;
+  color: #666;
+  margin: 0;
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .meal-planner-container {
+    padding: 12px;
+  }
+  
+  .meal-planner-card ion-card-title {
+    font-size: 1.3rem;
+  }
+  
+  .meal-planner-card ion-card-subtitle {
+    font-size: 0.9rem;
+  }
+}
+
+// Animation for smooth transitions
+.meal-item {
+  animation: slideInUp 0.3s ease-out;
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.save-button {
+  animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
