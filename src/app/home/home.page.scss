@@ -1,3 +1,12 @@
+// Modern Dashboard Styles
+.modern-dashboard {
+  --background: #f8f9fa;
+}
+
+.dashboard-content {
+  padding: 0;
+}
+
 .loading-container {
   display: flex;
   flex-direction: column;
@@ -7,46 +16,277 @@
   color: var(--ion-color-medium);
 }
 
-.welcome-section {
-  padding: 2rem 1rem;
-  text-align: center;
-  background: linear-gradient(135deg, var(--ion-color-primary), var(--ion-color-secondary));
+// Header Styles
+.header-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 1.2rem;
+}
+
+.profile-avatar {
+  width: 32px;
+  height: 32px;
+}
+
+// Search Section
+.search-section {
+  padding: 16px;
+  background: white;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.custom-searchbar {
+  --background: #f5f5f5;
+  --border-radius: 20px;
+  --box-shadow: none;
+  --color: #333;
+  --placeholder-color: #999;
+}
+
+// Navigation Tabs
+.nav-tabs {
+  background: white;
+  padding: 0 16px;
+  border-bottom: 1px solid #e0e0e0;
+  
+  ion-segment {
+    --background: transparent;
+    
+    ion-segment-button {
+      --background-checked: transparent;
+      --border-color: transparent;
+      --color: #666;
+      --color-checked: var(--ion-color-primary);
+      --indicator-color: var(--ion-color-primary);
+      min-height: 60px;
+      
+      ion-icon {
+        font-size: 20px;
+        margin-bottom: 4px;
+      }
+      
+      ion-label {
+        font-size: 12px;
+        font-weight: 500;
+      }
+    }
+  }
+}
+
+// Banner Section
+.banner-section {
+  padding: 16px;
+  background: white;
+}
+
+.banner-card {
+  margin: 0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
-  margin-bottom: 1rem;
-
-  ion-icon {
-    font-size: 4rem;
-    margin-bottom: 1rem;
-  }
-
-  h1 {
-    margin: 0.5rem 0;
-    font-size: 1.8rem;
-    font-weight: 600;
-  }
-
-  .user-email {
-    opacity: 0.9;
-    font-size: 0.9rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  
+  .banner-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24px;
+    
+    .banner-text {
+      flex: 1;
+      
+      h2 {
+        margin: 0 0 8px 0;
+        font-size: 1.4rem;
+        font-weight: 600;
+      }
+      
+      p {
+        margin: 0;
+        font-size: 0.9rem;
+        opacity: 0.9;
+      }
+    }
+    
+    .banner-image {
+      font-size: 3rem;
+      opacity: 0.8;
+    }
   }
 }
 
-.menu-section {
-  padding: 0 1rem 2rem;
-
-  h2 {
-    margin: 1.5rem 0 1rem;
-    font-size: 1.3rem;
+// Section Headers
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  background: white;
+  
+  h3 {
+    margin: 0;
+    font-size: 1.1rem;
     font-weight: 600;
-    color: var(--ion-color-dark);
+    color: #333;
   }
 }
 
-.menu-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 1rem;
-  margin-bottom: 2rem;
+// Quick Actions
+.quick-actions {
+  display: flex;
+  gap: 16px;
+  padding: 0 16px 16px;
+  background: white;
+  overflow-x: auto;
+  
+  .action-card {
+    margin: 0;
+    min-width: 120px;
+    flex-shrink: 0;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    
+    ion-card-content {
+      padding: 24px 16px;
+      text-align: center;
+      
+      .action-icon {
+        font-size: 3rem;
+        margin-bottom: 12px;
+      }
+      
+      h4 {
+        margin: 0;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #333;
+      }
+    }
+  }
+}
+
+// Featured Restaurants
+.featured-restaurants {
+  display: flex;
+  gap: 16px;
+  padding: 0 16px 16px;
+  background: white;
+  overflow-x: auto;
+  
+  .restaurant-card {
+    min-width: 160px;
+    flex-shrink: 0;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 16px;
+    
+    .restaurant-image {
+      text-align: center;
+      margin-bottom: 12px;
+      font-size: 2.5rem;
+      color: #ddd;
+    }
+    
+    .restaurant-info {
+      h4 {
+        margin: 0 0 4px 0;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #333;
+      }
+      
+      p {
+        margin: 0 0 8px 0;
+        font-size: 0.8rem;
+        color: #666;
+      }
+      
+      .rating {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 0.8rem;
+        color: #666;
+        
+        ion-icon {
+          font-size: 0.9rem;
+        }
+      }
+    }
+  }
+}
+
+// Map Section
+.map-section {
+  margin-top: 16px;
+  background: white;
+  
+  .map-container {
+    height: 300px;
+    margin: 16px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .quick-actions {
+    .action-card {
+      min-width: 100px;
+    }
+  }
+}
+
+// Animations
+.banner-card {
+  animation: slideInUp 0.6s ease-out;
+}
+
+.action-card {
+  animation: slideInUp 0.6s ease-out;
+}
+
+.restaurant-card {
+  animation: slideInUp 0.6s ease-out;
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Scrollbar Styling
+.quick-actions::-webkit-scrollbar,
+.featured-restaurants::-webkit-scrollbar {
+  height: 4px;
+}
+
+.quick-actions::-webkit-scrollbar-track,
+.featured-restaurants::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.quick-actions::-webkit-scrollbar-thumb,
+.featured-restaurants::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 10px;
+}
+
+.quick-actions::-webkit-scrollbar-thumb:hover,
+.featured-restaurants::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
 }
 
 .menu-card {

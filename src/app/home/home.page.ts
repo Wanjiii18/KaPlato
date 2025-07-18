@@ -21,6 +21,7 @@ export class HomePage implements OnInit, OnDestroy {
   showMap = false;
   searchQuery = '';
   featuredKarenderias: any[] = [];
+  selectedTab = 'favorites';
 
   constructor(
     private authService: AuthService,

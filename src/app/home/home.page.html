@@ -19,7 +19,7 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true" class="tablet-view">
+<ion-content [fullscreen]="true" class="modern-dashboard">
   <!-- Loading state -->
   <div *ngIf="isLoading" class="loading-container">
     <ion-spinner name="crescent"></ion-spinner>
@@ -27,69 +27,134 @@
   </div>
 
   <!-- Main content when user is authenticated -->
-  <div *ngIf="!isLoading && currentUser" class="main-content">
-    <!-- Welcome Section -->
-    <div class="welcome-section">
-      <ion-icon name="person-circle-outline" size="large" color="primary"></ion-icon>
-      <h1>Welcome, {{ currentUser.displayName || 'User' }}!</h1>
-      <p class="user-email">{{ currentUser.email }}</p>
+  <div *ngIf="!isLoading && currentUser" class="dashboard-content">
+    
+    <!-- Search Bar -->
+    <div class="search-section">
+      <ion-searchbar 
+        [(ngModel)]="searchQuery" 
+        placeholder="Search for restaurants, food..."
+        mode="ios"
+        class="custom-searchbar">
+      </ion-searchbar>
     </div>
 
-    <!-- Menu Section -->
-    <div class="menu-section">
-      <h2>Explore</h2>
-      <div class="menu-grid">
-        <ion-card button (click)="addTestData()" class="menu-card">
-          <ion-card-content>
-            <ion-icon name="add-circle-outline" size="large" color="success"></ion-icon>
-            <h3>Add Test Karenderia</h3>
-            <p>Generate sample karenderias</p>
-          </ion-card-content>
-        </ion-card>
-
-        <ion-card button (click)="toggleMap()" class="menu-card">
-          <ion-card-content>
-            <ion-icon name="map-outline" size="large" color="primary"></ion-icon>
-            <h3>Search Nearby Karenderia</h3>
-            <p>Find karenderias near your location</p>
-          </ion-card-content>
-        </ion-card>
-
-        <ion-card button (click)="openMealPlanner()" class="menu-card">
-          <ion-card-content>
-            <ion-icon name="restaurant-outline" size="large" color="secondary"></ion-icon>
-            <h3>Meal Planner</h3>
-            <p>Plan your meals efficiently</p>
-          </ion-card-content>
-        </ion-card>
-
-        <ion-card button (click)="viewSuggestedKarenderias()" class="menu-card">
-          <ion-card-content>
-            <ion-icon name="star-outline" size="large" color="tertiary"></ion-icon>
-            <h3>Suggested Karenderias</h3>
-            <p>Explore recommended eateries</p>
-          </ion-card-content>
-        </ion-card>
-      </div>
+    <!-- Navigation Tabs -->
+    <div class="nav-tabs">
+      <ion-segment [(ngModel)]="selectedTab" mode="md">
+        <ion-segment-button value="favorites">
+          <ion-icon name="heart-outline"></ion-icon>
+          <ion-label>Favorites</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="history">
+          <ion-icon name="time-outline"></ion-icon>
+          <ion-label>History</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="following">
+          <ion-icon name="people-outline"></ion-icon>
+          <ion-label>Following</ion-label>
+        </ion-segment-button>
+      </ion-segment>
     </div>
 
-    <!-- Meal Planner Section -->
-    <div class="meal-planner-section">
-      <h2>Meal Planner</h2>
-      <p>Plan your meals for the week and stay organized.</p>
-      <ion-button expand="block" (click)="openMealPlanner()" color="primary">
-        <ion-icon name="calendar-outline" slot="start"></ion-icon>
-        Open Meal Planner
+    <!-- Banner Section -->
+    <div class="banner-section">
+      <ion-card class="banner-card">
+        <div class="banner-content">
+          <div class="banner-text">
+            <h2>Welcome to KaPlato!</h2>
+            <p>Discover amazing local restaurants</p>
+          </div>
+          <div class="banner-image">
+            <ion-icon name="restaurant" size="large" color="warning"></ion-icon>
+          </div>
+        </div>
+      </ion-card>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="section-header">
+      <h3>Quick Actions</h3>
+      <ion-button fill="clear" size="small">
+        <ion-icon name="chevron-forward-outline"></ion-icon>
       </ion-button>
+    </div>
+
+    <div class="quick-actions">
+      <ion-card button (click)="openMealPlanner()" class="action-card">
+        <ion-card-content>
+          <div class="action-icon">
+            <ion-icon name="calendar-outline" color="primary"></ion-icon>
+          </div>
+          <h4>Meal Planner</h4>
+        </ion-card-content>
+      </ion-card>
+
+      <ion-card button (click)="toggleMap()" class="action-card">
+        <ion-card-content>
+          <div class="action-icon">
+            <ion-icon name="map-outline" color="success"></ion-icon>
+          </div>
+          <h4>Find Nearby</h4>
+        </ion-card-content>
+      </ion-card>
+
+      <ion-card button (click)="addTestData()" class="action-card">
+        <ion-card-content>
+          <div class="action-icon">
+            <ion-icon name="add-circle-outline" color="secondary"></ion-icon>
+          </div>
+          <h4>Add Test Data</h4>
+        </ion-card-content>
+      </ion-card>
+
+      <ion-card button (click)="viewSuggestedKarenderias()" class="action-card">
+        <ion-card-content>
+          <div class="action-icon">
+            <ion-icon name="star-outline" color="tertiary"></ion-icon>
+          </div>
+          <h4>Suggested</h4>
+        </ion-card-content>
+      </ion-card>
+    </div>
+
+    <!-- Featured Restaurants -->
+    <div class="section-header">
+      <h3>Featured Restaurants</h3>
+      <ion-button fill="clear" size="small">
+        <ion-icon name="chevron-forward-outline"></ion-icon>
+      </ion-button>
+    </div>
+
+    <div class="featured-restaurants">
+      <div class="restaurant-card" *ngFor="let restaurant of featuredKarenderias">
+        <div class="restaurant-image">
+          <ion-icon name="restaurant" size="large" color="medium"></ion-icon>
+        </div>
+        <div class="restaurant-info">
+          <h4>{{ restaurant.name || 'Restaurant' }}</h4>
+          <p>{{ restaurant.cuisine || 'Filipino Cuisine' }}</p>
+          <div class="rating">
+            <ion-icon name="star" color="warning"></ion-icon>
+            <span>{{ restaurant.rating || '4.5' }}</span>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Map Section -->
     <div *ngIf="showMap" class="map-section">
-      <h2>Map View</h2>
+      <div class="section-header">
+        <h3>Nearby Restaurants</h3>
+        <ion-button fill="clear" size="small" (click)="toggleMap()">
+          <ion-icon name="close-outline"></ion-icon>
+        </ion-button>
+      </div>
       <div class="map-container">
         <app-map></app-map>
       </div>
     </div>
+
   </div>
 
   <!-- Not authenticated -->
