@@ -46,11 +46,20 @@ export class MenuService {
   // MENU ITEMS
   async loadMenuItems(): Promise<void> {
     try {
-      const response = await this.http.get<{ data: MenuItem[] }>(`${this.apiUrl}/menu-items`, {
+      const response = await this.http.get<{ data: any[] }>(`${this.apiUrl}/menu-items`, {
         headers: this.getHeaders()
       }).toPromise();
       
-      this.menuItemsSubject.next(response?.data || []);
+      // Transform backend field names to frontend model
+      const menuItems = (response?.data || []).map(item => ({
+        ...item,
+        isAvailable: item.is_available,
+        isPopular: item.is_popular,
+        createdAt: new Date(item.created_at),
+        updatedAt: new Date(item.updated_at)
+      }));
+      
+      this.menuItemsSubject.next(menuItems);
     } catch (error) {
       console.error('Error loading menu items:', error);
     }
@@ -69,6 +78,15 @@ export class MenuService {
     await this.http.put(`${this.apiUrl}/menu-items/${id}`, updates, {
       headers: this.getHeaders()
     }).toPromise();
+    
+    this.loadMenuItems();
+  }
+
+  async updateMenuItemAvailability(id: string, isAvailable: boolean): Promise<void> {
+    await this.http.patch(`${this.apiUrl}/menu-items/${id}/availability`, 
+      { is_available: isAvailable }, 
+      { headers: this.getHeaders() }
+    ).toPromise();
     
     this.loadMenuItems();
   }

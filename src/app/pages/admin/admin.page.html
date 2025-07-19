@@ -1,0 +1,178 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>Admin Dashboard</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">Admin Dashboard</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <div class="container">
+    <!-- Tab Selector -->
+    <ion-segment [(ngModel)]="selectedTab" mode="md" class="tab-segment">
+      <ion-segment-button value="inventory">
+        <ion-icon name="cube-outline"></ion-icon>
+        <ion-label>Inventory</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="sales">
+        <ion-icon name="analytics-outline"></ion-icon>
+        <ion-label>Sales</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="karenderias">
+        <ion-icon name="storefront-outline"></ion-icon>
+        <ion-label>Karenderias</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+
+    <!-- Loading State -->
+    <div *ngIf="loading" class="loading">
+      <ion-spinner></ion-spinner>
+      <p>Loading dashboard data...</p>
+    </div>
+
+    <!-- Inventory Tab -->
+    <div *ngIf="selectedTab === 'inventory' && !loading">
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>Menu Items Inventory</ion-card-title>
+          <ion-button fill="clear" (click)="loadInventory()" [disabled]="loading">
+            <ion-icon name="refresh" slot="icon-only"></ion-icon>
+          </ion-button>
+        </ion-card-header>
+        
+        <ion-card-content>
+          <div *ngIf="menuItems.length === 0" class="no-data">
+            <ion-icon name="cube-outline" size="large"></ion-icon>
+            <p>No menu items found.</p>
+          </div>
+
+          <ion-list *ngIf="menuItems.length > 0">
+            <ion-item *ngFor="let item of menuItems">
+              <ion-thumbnail slot="start" *ngIf="item.image_url">
+                <img [src]="item.image_url" [alt]="item.name">
+              </ion-thumbnail>
+              <ion-label>
+                <h3>{{ item.name }}</h3>
+                <p>{{ getKarenderiaName(item.karenderia_id) }}</p>
+                <p>Price: {{ formatCurrency(item.price) }}</p>
+                <p>Cost: {{ formatCurrency(item.cost) }}</p>
+                <p>Profit per item: {{ formatCurrency(item.price - item.cost) }}</p>
+              </ion-label>
+              <ion-chip 
+                slot="end" 
+                [color]="getAvailabilityColor(item.is_available)">
+                {{ getAvailabilityStatus(item.is_available) }}
+              </ion-chip>
+            </ion-item>
+          </ion-list>
+        </ion-card-content>
+      </ion-card>
+    </div>
+
+    <!-- Sales Tab -->
+    <div *ngIf="selectedTab === 'sales' && !loading">
+      <!-- Summary Cards -->
+      <div class="summary-cards">
+        <ion-card>
+          <ion-card-header>
+            <ion-card-title>Total Sales Today</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <h2>{{ formatCurrency(totalSales) }}</h2>
+          </ion-card-content>
+        </ion-card>
+
+        <ion-card>
+          <ion-card-header>
+            <ion-card-title>Total Profit Today</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <h2>{{ formatCurrency(totalProfit) }}</h2>
+          </ion-card-content>
+        </ion-card>
+      </div>
+
+      <!-- Recent Sales -->
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>Recent Sales</ion-card-title>
+          <ion-button fill="clear" (click)="loadSalesData()" [disabled]="loading">
+            <ion-icon name="refresh" slot="icon-only"></ion-icon>
+          </ion-button>
+        </ion-card-header>
+        
+        <ion-card-content>
+          <div *ngIf="salesData.length === 0" class="no-data">
+            <ion-icon name="receipt-outline" size="large"></ion-icon>
+            <p>No sales data available yet.</p>
+            <p class="note">Sales are currently being logged to Laravel logs. Check the backend logs to see recorded sales.</p>
+          </div>
+
+          <div *ngIf="salesData.length > 0">
+            <ion-item *ngFor="let sale of salesData">
+              <ion-label>
+                <h3>Order #{{ sale.id }}</h3>
+                <p>Amount: {{ formatCurrency(sale.total_amount) }}</p>
+                <p>Profit: {{ formatCurrency(sale.profit) }}</p>
+                <p>{{ formatDate(sale.created_at) }}</p>
+              </ion-label>
+            </ion-item>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- View Logs Instructions -->
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>Recent Sales from Logs</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <p>To see the most recent sales that were recorded:</p>
+          <ol>
+            <li>Sales recorded: ₱104.16 (profit: ₱27.90)</li>
+            <li>Sales recorded: ₱138.88 (profit: ₱37.20)</li>
+          </ol>
+          <p class="note">These sales are being logged to Laravel backend. Future versions will store them in the database for better reporting.</p>
+        </ion-card-content>
+      </ion-card>
+    </div>
+
+    <!-- Karenderias Tab -->
+    <div *ngIf="selectedTab === 'karenderias' && !loading">
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>Registered Karenderias</ion-card-title>
+          <ion-button fill="clear" (click)="loadKarenderias()" [disabled]="loading">
+            <ion-icon name="refresh" slot="icon-only"></ion-icon>
+          </ion-button>
+        </ion-card-header>
+        
+        <ion-card-content>
+          <div *ngIf="karenderias.length === 0" class="no-data">
+            <ion-icon name="storefront-outline" size="large"></ion-icon>
+            <p>No karenderias found.</p>
+          </div>
+
+          <ion-list *ngIf="karenderias.length > 0">
+            <ion-item *ngFor="let karenderia of karenderias">
+              <ion-label>
+                <h3>{{ karenderia.name }}</h3>
+                <p>{{ karenderia.description }}</p>
+                <p>Address: {{ karenderia.address }}</p>
+                <p>Phone: {{ karenderia.phone }}</p>
+                <p>Status: {{ karenderia.status }}</p>
+              </ion-label>
+              <ion-chip slot="end" [color]="karenderia.status === 'approved' ? 'success' : 'warning'">
+                {{ karenderia.status }}
+              </ion-chip>
+            </ion-item>
+          </ion-list>
+        </ion-card-content>
+      </ion-card>
+    </div>
+  </div>
+</ion-content>

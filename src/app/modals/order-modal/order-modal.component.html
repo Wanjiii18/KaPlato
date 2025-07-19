@@ -2,9 +2,6 @@
   <ion-toolbar color="primary">
     <ion-title>📱 Place Order</ion-title>
     <ion-buttons slot="end">
-      <ion-button (click)="testSpoonacularApi()" fill="clear" title="Test API">
-        <ion-icon name="wifi"></ion-icon>
-      </ion-button>
       <ion-button (click)="closeModal()">
         <ion-icon name="close"></ion-icon>
       </ion-button>
@@ -28,16 +25,67 @@
       </ion-segment-button>
       <ion-segment-button value="cart">
         <ion-label>Cart ({{ getOrderItemsCount() }})</ion-label>
-        <ion-icon name="bag"></ion-icon>
+        <ion-icon name="basket"></ion-icon>
       </ion-segment-button>
       <ion-segment-button value="details">
         <ion-label>Details</ion-label>
-        <ion-icon name="information-circle"></ion-icon>
+        <ion-icon name="person"></ion-icon>
       </ion-segment-button>
     </ion-segment>
 
-    <!-- MENU TAB -->
-    <div *ngIf="activeTab === 'menu'" class="tab-content">
+    <!-- Menu Tab -->
+    <div *ngIf="activeTab === 'menu'">
+      <!-- Category Filter -->
+      <ion-segment [(ngModel)]="selectedCategory" (ionChange)="applyFilters()">
+        <ion-segment-button *ngFor="let category of categories" [value]="category">
+          <ion-label>{{ category | titlecase }}</ion-label>
+        </ion-segment-button>
+      </ion-segment>
+
+      <!-- Search Bar -->
+      <ion-searchbar
+        [(ngModel)]="searchTerm"
+        (ionInput)="applyFilters()"
+        placeholder="Search menu items..."
+        debounce="300">
+      </ion-searchbar>
+
+      <!-- Menu Items Grid -->
+      <ion-grid>
+        <ion-row>
+          <ion-col size="12" size-md="6" size-lg="4" *ngFor="let item of filteredItems">
+            <ion-card class="menu-item-card">
+              <img [src]="item.image || 'assets/images/placeholder-food.jpg'" 
+                   alt="{{ item.name }}" 
+                   class="menu-item-image">
+              
+              <ion-card-header>
+                <ion-card-title>{{ item.name }}</ion-card-title>
+                <ion-card-subtitle>₱{{ item.price }}</ion-card-subtitle>
+              </ion-card-header>
+              
+              <ion-card-content>
+                <p>{{ item.description }}</p>
+                <ion-chip color="primary">
+                  <ion-icon name="time"></ion-icon>
+                  <ion-label>{{ item.preparationTime }} min</ion-label>
+                </ion-chip>
+                <ion-button 
+                  expand="block" 
+                  (click)="addToOrder(item)"
+                  color="success">
+                  <ion-icon name="add" slot="start"></ion-icon>
+                  Add to Order
+                </ion-button>
+              </ion-card-content>
+            </ion-card>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </div>
+
+    <!-- Cart Tab -->
+    <div *ngIf="activeTab === 'cart'">
       <!-- Search and Filter -->
       <ion-toolbar>
         <ion-searchbar 
@@ -56,18 +104,6 @@
             {{ category | titlecase }}
           </ion-select-option>
         </ion-select>
-      </ion-item>
-
-      <!-- API Test Section -->
-      <ion-item color="light">
-        <ion-label>
-          <h3>🧪 API Test</h3>
-          <p>Test Spoonacular API connection</p>
-        </ion-label>
-        <ion-button slot="end" fill="outline" color="secondary" (click)="testSpoonacularApi()" [disabled]="isLoading">
-          <ion-icon name="wifi" slot="start"></ion-icon>
-          Test API
-        </ion-button>
       </ion-item>
 
       <!-- Menu Items Grid -->

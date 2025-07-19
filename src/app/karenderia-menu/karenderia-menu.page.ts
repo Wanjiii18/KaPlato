@@ -396,21 +396,24 @@ export class KarenderiaMenuPage implements OnInit {
 
   async toggleAvailability(item: MenuItem) {
     try {
-      await this.menuService.updateMenuItem(item.id, { 
-        isAvailable: !item.isAvailable,
-        updatedAt: new Date()
-      });
+      const newAvailability = !item.isAvailable;
+      
+      // Use the correct field name and method
+      await this.menuService.updateMenuItemAvailability(item.id, newAvailability);
+      
+      // Update local state
+      item.isAvailable = newAvailability;
       
       const toast = await this.toastController.create({
-        message: `${item.name} ${item.isAvailable ? 'disabled' : 'enabled'} successfully`,
+        message: `${item.name} ${newAvailability ? 'enabled' : 'disabled'} successfully`,
         duration: 2000,
         color: 'success'
       });
       await toast.present();
     } catch (error) {
-      console.error('Error updating menu item:', error);
+      console.error('Error updating menu item availability:', error);
       const toast = await this.toastController.create({
-        message: 'Failed to update menu item',
+        message: 'Failed to update menu item availability',
         duration: 3000,
         color: 'danger'
       });
