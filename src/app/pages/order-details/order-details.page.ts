@@ -52,7 +52,7 @@ export class OrderDetailsPage implements OnInit {
       const ordersCollection = collection(this.firestore, 'detailed_orders');
       let ordersQuery = query(
         ordersCollection,
-        where('karenderiaId', '==', 'karenderia-id'), // Replace with actual ID
+        where('karenderiaId', '==', '1'), // Use karenderia ID 1 from seeded data
         orderBy('placedAt', 'desc'),
         limit(100)
       );

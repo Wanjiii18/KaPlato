@@ -396,24 +396,21 @@ export class KarenderiaMenuPage implements OnInit {
 
   async toggleAvailability(item: MenuItem) {
     try {
-      const newAvailability = !item.isAvailable;
-      
-      // Use the correct field name and method
-      await this.menuService.updateMenuItemAvailability(item.id, newAvailability);
-      
-      // Update local state
-      item.isAvailable = newAvailability;
+      await this.menuService.updateMenuItem(item.id, { 
+        isAvailable: !item.isAvailable,
+        updatedAt: new Date()
+      });
       
       const toast = await this.toastController.create({
-        message: `${item.name} ${newAvailability ? 'enabled' : 'disabled'} successfully`,
+        message: `${item.name} ${item.isAvailable ? 'disabled' : 'enabled'} successfully`,
         duration: 2000,
         color: 'success'
       });
       await toast.present();
     } catch (error) {
-      console.error('Error updating menu item availability:', error);
+      console.error('Error updating menu item:', error);
       const toast = await this.toastController.create({
-        message: 'Failed to update menu item availability',
+        message: 'Failed to update menu item',
         duration: 3000,
         color: 'danger'
       });
@@ -433,35 +430,5 @@ export class KarenderiaMenuPage implements OnInit {
     return dishType.split('-').map(word => 
       word.charAt(0).toUpperCase() + word.slice(1)
     ).join(' ');
-  }
-
-  /**
-   * Test Spoonacular API connection
-   */
-  async testSpoonacularApi() {
-    try {
-      const result = await this.spoonacularService.testApiConnection();
-      
-      if (result.success) {
-        await this.showToast(result.message, 'success');
-        console.log('✅ API Test Success:', result);
-      } else {
-        await this.showToast(result.message, 'danger');
-        console.error('❌ API Test Failed:', result.message);
-      }
-    } catch (error) {
-      console.error('Error testing API:', error);
-      await this.showToast('Failed to test API connection', 'danger');
-    }
-  }
-
-  private async showToast(message: string, color: 'success' | 'danger') {
-    const toast = await this.toastController.create({
-      message,
-      duration: 3000,
-      color,
-      position: 'top'
-    });
-    await toast.present();
   }
 }

@@ -50,23 +50,52 @@ export class MenuService {
         headers: this.getHeaders()
       }).toPromise();
       
-      // Transform backend field names to frontend model
-      const menuItems = (response?.data || []).map(item => ({
+      // Map backend field names to frontend field names
+      const mappedItems: MenuItem[] = (response?.data || []).map(item => ({
         ...item,
-        isAvailable: item.is_available,
-        isPopular: item.is_popular,
-        createdAt: new Date(item.created_at),
-        updatedAt: new Date(item.updated_at)
+        isAvailable: item.is_available !== undefined ? item.is_available : item.isAvailable,
+        isPopular: item.is_popular !== undefined ? item.is_popular : item.isPopular,
+        preparationTime: item.preparation_time !== undefined ? item.preparation_time : item.preparationTime,
+        createdAt: item.created_at ? new Date(item.created_at) : item.createdAt,
+        updatedAt: item.updated_at ? new Date(item.updated_at) : item.updatedAt
       }));
       
-      this.menuItemsSubject.next(menuItems);
+      this.menuItemsSubject.next(mappedItems);
     } catch (error) {
       console.error('Error loading menu items:', error);
     }
   }
 
   async addMenuItem(menuItem: Partial<MenuItem>): Promise<string> {
-    const response = await this.http.post<{ data: { id: string } }>(`${this.apiUrl}/menu-items`, menuItem, {
+    // Map frontend field names to backend field names
+    const backendMenuItem: any = { ...menuItem };
+    
+    if ('isAvailable' in menuItem) {
+      backendMenuItem.is_available = menuItem.isAvailable;
+      delete backendMenuItem.isAvailable;
+    }
+    
+    if ('isPopular' in menuItem) {
+      backendMenuItem.is_popular = menuItem.isPopular;
+      delete backendMenuItem.isPopular;
+    }
+    
+    if ('preparationTime' in menuItem) {
+      backendMenuItem.preparation_time = menuItem.preparationTime;
+      delete backendMenuItem.preparationTime;
+    }
+    
+    if ('createdAt' in menuItem) {
+      backendMenuItem.created_at = menuItem.createdAt;
+      delete backendMenuItem.createdAt;
+    }
+    
+    if ('updatedAt' in menuItem) {
+      backendMenuItem.updated_at = menuItem.updatedAt;
+      delete backendMenuItem.updatedAt;
+    }
+    
+    const response = await this.http.post<{ data: { id: string } }>(`${this.apiUrl}/menu-items`, backendMenuItem, {
       headers: this.getHeaders()
     }).toPromise();
     
@@ -75,18 +104,37 @@ export class MenuService {
   }
 
   async updateMenuItem(id: string, updates: Partial<MenuItem>): Promise<void> {
-    await this.http.put(`${this.apiUrl}/menu-items/${id}`, updates, {
+    // Map frontend field names to backend field names
+    const backendUpdates: any = { ...updates };
+    
+    if ('isAvailable' in updates) {
+      backendUpdates.is_available = updates.isAvailable;
+      delete backendUpdates.isAvailable;
+    }
+    
+    if ('updatedAt' in updates) {
+      backendUpdates.updated_at = updates.updatedAt;
+      delete backendUpdates.updatedAt;
+    }
+    
+    if ('createdAt' in updates) {
+      backendUpdates.created_at = updates.createdAt;
+      delete backendUpdates.createdAt;
+    }
+    
+    if ('preparationTime' in updates) {
+      backendUpdates.preparation_time = updates.preparationTime;
+      delete backendUpdates.preparationTime;
+    }
+    
+    if ('isPopular' in updates) {
+      backendUpdates.is_popular = updates.isPopular;
+      delete backendUpdates.isPopular;
+    }
+    
+    await this.http.put(`${this.apiUrl}/menu-items/${id}`, backendUpdates, {
       headers: this.getHeaders()
     }).toPromise();
-    
-    this.loadMenuItems();
-  }
-
-  async updateMenuItemAvailability(id: string, isAvailable: boolean): Promise<void> {
-    await this.http.patch(`${this.apiUrl}/menu-items/${id}/availability`, 
-      { is_available: isAvailable }, 
-      { headers: this.getHeaders() }
-    ).toPromise();
     
     this.loadMenuItems();
   }

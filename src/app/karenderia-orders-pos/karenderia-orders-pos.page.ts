@@ -247,8 +247,8 @@ export class KarenderiaOrdersPosPage implements OnInit {
 
   async loadTodaysAnalytics() {
     try {
-      // Replace 'karenderia-id' with actual karenderia ID
-      this.todaysAnalytics = await this.analyticsService.getSalesAnalytics('karenderia-id', 'daily');
+      // Use karenderia ID 1 from seeded data
+      this.todaysAnalytics = await this.analyticsService.getSalesAnalytics('1', 'daily');
     } catch (error) {
       console.error('Error loading analytics:', error);
     }
@@ -257,7 +257,7 @@ export class KarenderiaOrdersPosPage implements OnInit {
   async loadSeasonalTrends() {
     try {
       const currentSeason = this.getCurrentSeason();
-      this.seasonalTrends = await this.analyticsService.getPopularItemsBySeason('karenderia-id', currentSeason);
+      this.seasonalTrends = await this.analyticsService.getPopularItemsBySeason('1', currentSeason);
     } catch (error) {
       console.error('Error loading seasonal trends:', error);
     }
@@ -310,7 +310,7 @@ export class KarenderiaOrdersPosPage implements OnInit {
 
       // Create detailed order
       const detailedOrder: Omit<DetailedOrder, 'id' | 'orderNumber' | 'placedAt' | 'seasonalData'> = {
-        karenderiaId: 'karenderia-id', // Replace with actual ID
+        karenderiaId: '1', // Use karenderia ID 1 from seeded data
         items: detailedItems,
         customerName: this.customerName,
         customerPhone: this.currentDetailedOrder.customerPhone,

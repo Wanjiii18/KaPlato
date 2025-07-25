@@ -6,7 +6,7 @@ import { SpoonacularService, SpoonacularMenuItem } from '../../services/spoonacu
 import { MenuItem, DetailedOrder, DetailedOrderItem } from '../../models/menu.model';
 
 interface OrderItem {
-  menuItem: MenuItem; // Changed back to local MenuItem
+  menuItem: SpoonacularMenuItem; // Changed to SpoonacularMenuItem
   quantity: number;
   subtotal: number;
   profit: number;
@@ -19,8 +19,8 @@ interface OrderItem {
   standalone: false
 })
 export class OrderModalComponent implements OnInit {
-  availableItems: MenuItem[] = [];
-  filteredItems: MenuItem[] = [];
+  availableItems: SpoonacularMenuItem[] = [];
+  filteredItems: SpoonacularMenuItem[] = [];
   orderItems: OrderItem[] = [];
   selectedCategory: string = 'all';
   searchTerm: string = '';
@@ -42,9 +42,9 @@ export class OrderModalComponent implements OnInit {
   
   // UI states
   isLoading: boolean = false;
-  activeTab: 'menu' | 'cart' | 'details' = 'menu';
+  activeTab: 'menu' | 'cart' = 'menu';
   
-  categories: string[] = ['all', 'breakfast', 'main', 'appetizer', 'dessert', 'drinks', 'side'];
+  categories: string[] = ['all', 'breakfast', 'main dish', 'appetizer', 'dessert', 'drinks', 'side dish'];
 
   constructor(
     private modalController: ModalController,
@@ -60,15 +60,17 @@ export class OrderModalComponent implements OnInit {
   }
 
   /**
-   * Load available menu items from local karenderia menu
+   * Load available menu items from Spoonacular
    */
   async loadAvailableItems() {
     this.isLoading = true;
     try {
-      // Load menu items from the local MenuService
-      this.menuService.menuItems$.subscribe(items => {
+      // Load popular menu items from Spoonacular
+      await this.spoonacularService.loadPopularMenu();
+      
+      // Subscribe to menu items
+      this.spoonacularService.menuItems$.subscribe(items => {
         this.availableItems = items;
-        // Only show items that are available
         this.filteredItems = this.availableItems.filter(item => item.isAvailable);
         this.applyFilters();
         this.isLoading = false;
@@ -85,29 +87,72 @@ export class OrderModalComponent implements OnInit {
    * Apply category and search filters
    */
   async applyFilters() {
-    let items = this.availableItems.filter(item => item.isAvailable);
-    
-    // Apply category filter
     if (this.selectedCategory !== 'all') {
-      items = items.filter(item => item.category === this.selectedCategory);
+      // Load items from specific category using Spoonacular
+      this.isLoading = true;
+      try {
+        const categoryItems = await this.spoonacularService.searchByCategory(this.selectedCategory);
+        this.filteredItems = categoryItems.filter(item => item.isAvailable);
+      } catch (error) {
+        console.error('Error loading category items:', error);
+        this.filteredItems = [];
+      } finally {
+        this.isLoading = false;
+      }
+    } else {
+      // Show all available items
+      this.filteredItems = this.availableItems.filter(item => item.isAvailable);
     }
 
     // Apply search filter
-    if (this.searchTerm && this.searchTerm.length >= 2) {
-      const searchLower = this.searchTerm.toLowerCase();
-      items = items.filter(item => 
-        item.name.toLowerCase().includes(searchLower) ||
-        item.description.toLowerCase().includes(searchLower)
-      );
+    if (this.searchTerm) {
+      if (this.searchTerm.length >= 3) {
+        // Search using Spoonacular API for new items
+        this.isLoading = true;
+        try {
+          const searchResults = await this.spoonacularService.searchRecipes(this.searchTerm, undefined, undefined, undefined, 12).toPromise();
+          if (searchResults && searchResults.results) {
+            // Convert recipes to menu items using the same approach as searchByCategory
+            this.filteredItems = searchResults.results.map((recipe: any) => ({
+              id: recipe.id.toString(),
+              name: recipe.title,
+              description: recipe.summary || '',
+              price: 150, // Default price for Spoonacular items
+              category: 'main dish',
+              image: recipe.image || 'assets/images/placeholder-food.jpg',
+              ingredients: [],
+              preparationTime: recipe.readyInMinutes || 30,
+              isAvailable: true,
+              isPopular: false,
+              allergens: [],
+              nutritionalInfo: {
+                calories: 300,
+                protein: 20,
+                carbs: 30,
+                fat: 10
+              },
+              spoonacularId: recipe.id
+            } as SpoonacularMenuItem)).filter(item => item.isAvailable);
+          }
+        } catch (error) {
+          console.error('Error searching recipes:', error);
+        } finally {
+          this.isLoading = false;
+        }
+      } else {
+        // Filter locally for short search terms
+        this.filteredItems = this.filteredItems.filter(item =>
+          item.name.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+          item.description.toLowerCase().includes(this.searchTerm.toLowerCase())
+        );
+      }
     }
-    
-    this.filteredItems = items;
   }
 
   /**
    * Add item to order
    */
-  addToOrder(menuItem: MenuItem) {
+  addToOrder(menuItem: SpoonacularMenuItem) {
     // Check if item already in order
     const existingItemIndex = this.orderItems.findIndex(item => item.menuItem.id === menuItem.id);
     
@@ -154,121 +199,9 @@ export class OrderModalComponent implements OnInit {
   }
 
   /**
-   * Update item quantity in order
+   * Calculate profit for a Spoonacular menu item
    */
-  updateQuantity(index: number, newQuantity: number) {
-    if (newQuantity <= 0) {
-      this.removeFromOrder(index);
-      return;
-    }
-    
-    this.orderItems[index].quantity = newQuantity;
-    this.orderItems[index].subtotal = this.orderItems[index].menuItem.price * newQuantity;
-    this.orderItems[index].profit = this.calculateItemProfit(this.orderItems[index].menuItem) * newQuantity;
-    this.updateOrderTotals();
-  }
-
-  /**
-   * Place the order
-   */
-  async placeOrder() {
-    if (!this.customerName.trim()) {
-      this.showToast('Please enter customer name', 'danger');
-      return;
-    }
-
-    if (this.orderItems.length === 0) {
-      this.showToast('Please add items to your order', 'danger');
-      return;
-    }
-
-    this.isLoading = true;
-
-    try {
-      // Create order data
-      const orderData = {
-        customerName: this.customerName,
-        customerPhone: this.customerPhone,
-        orderType: this.orderType,
-        paymentMethod: this.paymentMethod,
-        tableNumber: this.tableNumber,
-        notes: this.notes,
-        items: this.orderItems.map(item => ({
-          menuItemId: item.menuItem.id,
-          name: item.menuItem.name,
-          price: item.menuItem.price,
-          quantity: item.quantity,
-          subtotal: item.subtotal
-        })),
-        subtotal: this.subtotal,
-        tax: this.tax,
-        discount: this.discount,
-        totalAmount: this.totalAmount,
-        totalProfit: this.totalProfit,
-        orderDate: new Date().toISOString()
-      };
-
-      // Save order using analytics service
-      const detailedOrder: Omit<DetailedOrder, 'id' | 'orderNumber' | 'placedAt' | 'seasonalData'> = {
-        karenderiaId: 'current-karenderia', // TODO: Get actual karenderia ID
-        customerName: this.customerName,
-        customerPhone: this.customerPhone || '',
-        orderType: this.orderType,
-        paymentMethod: this.paymentMethod,
-        items: this.orderItems.map(item => ({
-          menuItemId: item.menuItem.id,
-          menuItemName: item.menuItem.name,
-          quantity: item.quantity,
-          unitPrice: item.menuItem.price,
-          subtotal: item.subtotal,
-          ingredientCost: item.menuItem.ingredients.reduce((total, ing) => total + ing.cost, 0),
-          profitMargin: item.profit,
-          preparationTime: item.menuItem.preparationTime
-        })),
-        subtotal: this.subtotal,
-        tax: this.tax,
-        discount: this.discount,
-        totalAmount: this.totalAmount,
-        orderStatus: 'pending'
-      };
-
-      // Create order
-      const orderId = await this.analyticsService.createDetailedOrder(detailedOrder);
-
-      // Log order details for local menu items
-      console.log('Order saved with local menu items:', {
-        orderId,
-        items: this.orderItems,
-        menuItems: this.orderItems.map(item => ({
-          id: item.menuItem.id,
-          name: item.menuItem.name,
-          quantity: item.quantity,
-          price: item.menuItem.price
-        }))
-      });
-      
-      this.showToast('Order placed successfully!', 'success');
-      
-      // Close modal and return order data
-      this.modalController.dismiss({
-        success: true,
-        orderId: orderId,
-        orderData: orderData,
-        menuItems: this.orderItems
-      });
-      
-    } catch (error) {
-      console.error('Error placing order:', error);
-      this.showToast('Failed to place order. Please try again.', 'danger');
-    } finally {
-      this.isLoading = false;
-    }
-  }
-
-  /**
-   * Calculate profit for a menu item
-   */
-  calculateItemProfit(menuItem: MenuItem): number {
+  calculateItemProfit(menuItem: SpoonacularMenuItem): number {
     const ingredientCost = menuItem.ingredients.reduce((total, ingredient) => {
       return total + (ingredient.cost || 0);
     }, 0);
@@ -294,6 +227,18 @@ export class OrderModalComponent implements OnInit {
   }
 
   /**
+   * Place order (simplified version)
+   */
+  async placeOrder() {
+    if (this.orderItems.length === 0) {
+      this.showToast('Please add items to your order', 'warning');
+      return;
+    }
+
+    await this.processOrder();
+  }
+
+  /**
    * Process the order
    */
   async processOrder() {
@@ -309,9 +254,6 @@ export class OrderModalComponent implements OnInit {
           <p><strong>Items:</strong> ${this.orderItems.length}</p>
           <p><strong>Total:</strong> ${this.formatPhp(this.totalAmount)}</p>
           <p><strong>Expected Profit:</strong> ${this.formatPhp(this.totalProfit)}</p>
-          <p><strong>Customer:</strong> ${this.customerName || 'Walk-in'}</p>
-          <p><strong>Type:</strong> ${this.orderType}</p>
-          <p><strong>Payment:</strong> ${this.paymentMethod}</p>
         </div>
       `,
       buttons: [
@@ -352,7 +294,7 @@ export class OrderModalComponent implements OnInit {
 
       // Create detailed order
       const orderData: Omit<DetailedOrder, 'id' | 'orderNumber' | 'placedAt' | 'seasonalData'> = {
-        karenderiaId: 'karenderia-id', // Replace with actual karenderia ID
+        karenderiaId: '1', // Use karenderia ID 1 from seeded data
         items: detailedItems,
         customerName: this.customerName || undefined,
         customerPhone: this.customerPhone || undefined,
@@ -369,15 +311,14 @@ export class OrderModalComponent implements OnInit {
       // Save order using analytics service
       const orderId = await this.analyticsService.createDetailedOrder(orderData);
       
-      // Log order details for local menu items
-      console.log('Order saved with local menu items:', {
+      // Log order details for now (since we're using API data, no real inventory to update)
+      console.log('Order saved with Spoonacular items:', {
         orderId,
         items: this.orderItems,
-        menuItems: this.orderItems.map(item => ({
-          id: item.menuItem.id,
+        spoonacularRecipes: this.orderItems.map(item => ({
+          spoonacularId: item.menuItem.spoonacularId,
           name: item.menuItem.name,
-          quantity: item.quantity,
-          price: item.menuItem.price
+          quantity: item.quantity
         }))
       });
       
@@ -388,7 +329,7 @@ export class OrderModalComponent implements OnInit {
         success: true,
         orderId: orderId,
         orderData: orderData,
-        menuItems: this.orderItems
+        spoonacularItems: this.orderItems
       });
       
     } catch (error) {
@@ -430,13 +371,6 @@ export class OrderModalComponent implements OnInit {
     this.modalController.dismiss({
       success: false
     });
-  }
-
-  /**
-   * Switch tabs
-   */
-  switchTab(tab: 'menu' | 'cart' | 'details') {
-    this.activeTab = tab;
   }
 
   /**
@@ -503,15 +437,4 @@ export class OrderModalComponent implements OnInit {
     return this.orderItems.findIndex(oi => oi.menuItem.id === menuItemId);
   }
 
-  /**
-   * Test API method
-   */
-  async testApi() {
-    try {
-      const response = await this.spoonacularService.testApi().toPromise();
-      console.log('API Response:', response);
-    } catch (error) {
-      console.error('API Error:', error);
-    }
-  }
 }

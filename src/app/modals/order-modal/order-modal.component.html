@@ -25,67 +25,12 @@
       </ion-segment-button>
       <ion-segment-button value="cart">
         <ion-label>Cart ({{ getOrderItemsCount() }})</ion-label>
-        <ion-icon name="basket"></ion-icon>
-      </ion-segment-button>
-      <ion-segment-button value="details">
-        <ion-label>Details</ion-label>
-        <ion-icon name="person"></ion-icon>
+        <ion-icon name="bag"></ion-icon>
       </ion-segment-button>
     </ion-segment>
 
-    <!-- Menu Tab -->
-    <div *ngIf="activeTab === 'menu'">
-      <!-- Category Filter -->
-      <ion-segment [(ngModel)]="selectedCategory" (ionChange)="applyFilters()">
-        <ion-segment-button *ngFor="let category of categories" [value]="category">
-          <ion-label>{{ category | titlecase }}</ion-label>
-        </ion-segment-button>
-      </ion-segment>
-
-      <!-- Search Bar -->
-      <ion-searchbar
-        [(ngModel)]="searchTerm"
-        (ionInput)="applyFilters()"
-        placeholder="Search menu items..."
-        debounce="300">
-      </ion-searchbar>
-
-      <!-- Menu Items Grid -->
-      <ion-grid>
-        <ion-row>
-          <ion-col size="12" size-md="6" size-lg="4" *ngFor="let item of filteredItems">
-            <ion-card class="menu-item-card">
-              <img [src]="item.image || 'assets/images/placeholder-food.jpg'" 
-                   alt="{{ item.name }}" 
-                   class="menu-item-image">
-              
-              <ion-card-header>
-                <ion-card-title>{{ item.name }}</ion-card-title>
-                <ion-card-subtitle>₱{{ item.price }}</ion-card-subtitle>
-              </ion-card-header>
-              
-              <ion-card-content>
-                <p>{{ item.description }}</p>
-                <ion-chip color="primary">
-                  <ion-icon name="time"></ion-icon>
-                  <ion-label>{{ item.preparationTime }} min</ion-label>
-                </ion-chip>
-                <ion-button 
-                  expand="block" 
-                  (click)="addToOrder(item)"
-                  color="success">
-                  <ion-icon name="add" slot="start"></ion-icon>
-                  Add to Order
-                </ion-button>
-              </ion-card-content>
-            </ion-card>
-          </ion-col>
-        </ion-row>
-      </ion-grid>
-    </div>
-
-    <!-- Cart Tab -->
-    <div *ngIf="activeTab === 'cart'">
+    <!-- MENU TAB -->
+    <div *ngIf="activeTab === 'menu'" class="tab-content">
       <!-- Search and Filter -->
       <ion-toolbar>
         <ion-searchbar 
@@ -212,7 +157,7 @@
         <ion-icon name="bag-outline" color="medium"></ion-icon>
         <h3>Your cart is empty</h3>
         <p>Add items from the menu to start your order</p>
-        <ion-button (click)="switchTab('menu')" fill="outline">
+        <ion-button (click)="activeTab = 'menu'" fill="outline">
           Browse Menu
         </ion-button>
       </div>
@@ -251,124 +196,12 @@
         <ion-button expand="block" fill="outline" color="warning" (click)="clearOrder()">
           Clear Order
         </ion-button>
-        <ion-button expand="block" fill="solid" color="primary" (click)="switchTab('details')">
-          Continue to Details
-        </ion-button>
-      </div>
-    </div>
-
-    <!-- DETAILS TAB -->
-    <div *ngIf="activeTab === 'details'" class="tab-content">
-      <ion-list>
-        <ion-item>
-          <ion-label position="stacked">Customer Name</ion-label>
-          <ion-input [(ngModel)]="customerName" placeholder="Enter customer name (optional)"></ion-input>
-        </ion-item>
-
-        <ion-item>
-          <ion-label position="stacked">Customer Phone</ion-label>
-          <ion-input [(ngModel)]="customerPhone" type="tel" placeholder="Enter phone number (optional)"></ion-input>
-        </ion-item>
-
-        <ion-item>
-          <ion-label position="stacked">Order Type</ion-label>
-          <ion-select [(ngModel)]="orderType" placeholder="Select order type">
-            <ion-select-option value="dine-in">Dine In</ion-select-option>
-            <ion-select-option value="takeout">Takeout</ion-select-option>
-            <ion-select-option value="delivery">Delivery</ion-select-option>
-          </ion-select>
-        </ion-item>
-
-        <ion-item *ngIf="orderType === 'dine-in'">
-          <ion-label position="stacked">Table Number</ion-label>
-          <ion-input [(ngModel)]="tableNumber" placeholder="Enter table number"></ion-input>
-        </ion-item>
-
-        <ion-item>
-          <ion-label position="stacked">Payment Method</ion-label>
-          <ion-select [(ngModel)]="paymentMethod" placeholder="Select payment method">
-            <ion-select-option value="cash">Cash</ion-select-option>
-            <ion-select-option value="card">Card</ion-select-option>
-            <ion-select-option value="gcash">GCash</ion-select-option>
-            <ion-select-option value="maya">Maya</ion-select-option>
-          </ion-select>
-        </ion-item>
-
-        <ion-item>
-          <ion-label position="stacked">Special Instructions</ion-label>
-          <ion-textarea [(ngModel)]="notes" placeholder="Any special requests or notes"></ion-textarea>
-        </ion-item>
-      </ion-list>
-
-      <!-- Discount Section -->
-      <ion-card>
-        <ion-card-header>
-          <ion-card-title>Apply Discount</ion-card-title>
-        </ion-card-header>
-        <ion-card-content>
-          <ion-item>
-            <ion-label position="stacked">Discount Amount</ion-label>
-            <ion-input type="number" [value]="discount" (ionInput)="applyDiscount(+$any($event.detail.value))" placeholder="0.00"></ion-input>
-          </ion-item>
-          <ion-button fill="outline" size="small" (click)="applyDiscount(subtotal * 0.10)">10% Discount</ion-button>
-          <ion-button fill="outline" size="small" (click)="applyDiscount(subtotal * 0.20)">20% Discount</ion-button>
-        </ion-card-content>
-      </ion-card>
-
-      <!-- Final Order Summary -->
-      <ion-card *ngIf="orderItems.length > 0" class="final-summary">
-        <ion-card-header>
-          <ion-card-title>Final Order Summary</ion-card-title>
-        </ion-card-header>
-        <ion-card-content>
-          <div class="order-items">
-            <div *ngFor="let item of orderItems" class="order-item">
-              <span>{{ item.quantity }}x {{ item.menuItem.name }}</span>
-              <span>{{ formatPhp(item.subtotal) }}</span>
-            </div>
-          </div>
-          <hr>
-          <div class="summary-line">
-            <span>Subtotal:</span>
-            <span>{{ formatPhp(subtotal) }}</span>
-          </div>
-          <div class="summary-line">
-            <span>Tax:</span>
-            <span>{{ formatPhp(tax) }}</span>
-          </div>
-          <div *ngIf="discount > 0" class="summary-line">
-            <span>Discount:</span>
-            <span class="discount">-{{ formatPhp(discount) }}</span>
-          </div>
-          <div class="summary-line total">
-            <span><strong>Total:</strong></span>
-            <span><strong>{{ formatPhp(totalAmount) }}</strong></span>
-          </div>
-          <div class="summary-line profit">
-            <span><strong>Expected Profit:</strong></span>
-            <span><strong>{{ formatPhp(totalProfit) }}</strong></span>
-          </div>
-        </ion-card-content>
-      </ion-card>
-
-      <!-- Place Order Button -->
-      <div class="place-order-section">
-        <ion-button 
-          expand="block" 
-          size="large" 
-          color="success" 
-          (click)="processOrder()"
-          [disabled]="orderItems.length === 0 || isLoading">
+        <ion-button expand="block" fill="solid" color="success" (click)="placeOrder()" [disabled]="isLoading">
           <ion-icon name="checkmark-circle" slot="start"></ion-icon>
           <span *ngIf="!isLoading">Place Order - {{ formatPhp(totalAmount) }}</span>
           <span *ngIf="isLoading">Processing...</span>
         </ion-button>
       </div>
     </div>
-  </div>
-
-  <!-- Test API Button (for development) -->
-  <div class="test-api-button" *ngIf="!isLoading">
-    <button (click)="testApi()">Test Spoonacular API</button>
   </div>
 </ion-content>
