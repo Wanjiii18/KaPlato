@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { AnalyticsService } from '../../services/analytics.service';
 import { DetailedOrder, DetailedOrderItem } from '../../models/menu.model';
 import { AlertController, ToastController, ModalController } from '@ionic/angular';
-import { Firestore, collection, query, where, orderBy, limit, getDocs } from '@angular/fire/firestore';
+import { OrderService } from '../../services/order.service';
 
 @Component({
   selector: 'app-order-details',
@@ -34,7 +34,7 @@ export class OrderDetailsPage implements OnInit {
     private alertController: AlertController,
     private toastController: ToastController,
     private modalController: ModalController,
-    private firestore: Firestore
+    private orderService: OrderService
   ) { }
 
   async ngOnInit() {
@@ -49,26 +49,8 @@ export class OrderDetailsPage implements OnInit {
     this.isLoading = true;
     
     try {
-      const ordersCollection = collection(this.firestore, 'detailed_orders');
-      let ordersQuery = query(
-        ordersCollection,
-        where('karenderiaId', '==', '1'), // Use karenderia ID 1 from seeded data
-        orderBy('placedAt', 'desc'),
-        limit(100)
-      );
-
-      const snapshot = await getDocs(ordersQuery);
-      this.orders = snapshot.docs.map(doc => {
-        const data = doc.data();
-        return {
-          id: doc.id,
-          ...data,
-          placedAt: data['placedAt']?.toDate ? data['placedAt'].toDate() : new Date(data['placedAt']),
-          preparedAt: data['preparedAt']?.toDate ? data['preparedAt'].toDate() : (data['preparedAt'] ? new Date(data['preparedAt']) : undefined),
-          completedAt: data['completedAt']?.toDate ? data['completedAt'].toDate() : (data['completedAt'] ? new Date(data['completedAt']) : undefined)
-        };
-      }) as DetailedOrder[];
-
+      // Use OrderService to get orders instead of direct Firebase calls
+      this.orders = await this.orderService.getDetailedOrders();
       this.applyFilters();
       
     } catch (error) {
