@@ -1,0 +1,356 @@
+// Map View Styles
+.map-content {
+  --background: #f8f9fa;
+}
+
+.map-header {
+  ion-toolbar {
+    --background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --color: white;
+    --border-width: 0;
+  }
+}
+
+.header-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 1.2rem;
+  color: white;
+  
+  ion-icon {
+    font-size: 1.4rem;
+  }
+}
+
+// Search and Filter Section
+.search-filter-section {
+  background: white;
+  padding: 16px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  position: relative;
+}
+
+.search-container {
+  margin-bottom: 12px;
+}
+
+.map-searchbar {
+  --background: #f8f9fb;
+  --border-radius: 16px;
+  --box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  --color: #333;
+  --placeholder-color: #999;
+  --icon-color: var(--ion-color-primary);
+  margin: 0;
+  
+  .searchbar-input-container {
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+    
+    &:focus-within {
+      border-color: var(--ion-color-primary);
+      --background: white;
+    }
+  }
+}
+
+.filter-controls {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 4px 0;
+}
+
+.filter-chip {
+  --background: #f1f3f4;
+  --color: #5f6368;
+  min-width: auto;
+  height: 36px;
+  border-radius: 18px;
+  transition: all 0.3s ease;
+  
+  &.active {
+    --background: var(--ion-color-primary);
+    --color: white;
+    transform: scale(1.05);
+  }
+  
+  ion-icon {
+    margin-right: 4px;
+    font-size: 16px;
+  }
+  
+  ion-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+}
+
+// Map Container
+.map-container {
+  height: calc(100vh - 200px);
+  margin: 0;
+  position: relative;
+  z-index: 1;
+}
+
+// Location Controls
+.location-controls {
+  ion-fab-button {
+    --background: var(--ion-color-primary);
+    --color: white;
+    --box-shadow: 0 4px 16px rgba(102, 126, 234, 0.4);
+    
+    &:hover {
+      --background: var(--ion-color-primary-shade);
+    }
+  }
+}
+
+// List Toggle
+.list-toggle {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  right: 80px;
+  z-index: 1001;
+}
+
+.toggle-button {
+  --background: var(--ion-color-primary);
+  --color: white;
+  --border-radius: 25px;
+  --box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  height: 50px;
+  font-weight: 600;
+  
+  &:hover {
+    --background: var(--ion-color-primary-shade);
+  }
+}
+
+// Karenderias List
+.karenderias-list {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  border-radius: 20px 20px 0 0;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+  transform: translateY(100%);
+  transition: transform 0.3s ease;
+  z-index: 1002;
+  max-height: 70vh;
+  
+  &.show {
+    transform: translateY(0);
+  }
+}
+
+.list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 20px 10px;
+  border-bottom: 1px solid #f0f0f0;
+  
+  h3 {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #2c3e50;
+  }
+}
+
+.list-content {
+  padding: 10px 20px 20px;
+  max-height: calc(70vh - 80px);
+  overflow-y: auto;
+}
+
+.karenderia-item {
+  margin: 0 0 12px 0;
+  border-radius: 16px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
+  }
+  
+  ion-card-content {
+    padding: 16px;
+  }
+}
+
+.karenderia-info {
+  .info-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 8px;
+    
+    h4 {
+      margin: 0;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #2c3e50;
+      flex: 1;
+    }
+  }
+  
+  .status-badge {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: #f8f9fa;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #6c757d;
+    
+    &.open {
+      background: #d4edda;
+      color: #155724;
+    }
+    
+    ion-icon {
+      font-size: 10px;
+    }
+  }
+  
+  .cuisine {
+    margin: 0 0 4px 0;
+    font-size: 0.9rem;
+    color: var(--ion-color-primary);
+    font-weight: 500;
+  }
+  
+  .address {
+    margin: 0 0 12px 0;
+    font-size: 0.85rem;
+    color: #6c757d;
+  }
+  
+  .karenderia-meta {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 12px;
+    
+    > div {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.8rem;
+      color: #6c757d;
+      
+      ion-icon {
+        font-size: 14px;
+      }
+    }
+    
+    .rating {
+      color: #f39c12;
+    }
+  }
+  
+  .action-buttons {
+    display: flex;
+    gap: 8px;
+    
+    ion-button {
+      --height: 32px;
+      --border-radius: 16px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .filter-controls {
+    .filter-chip {
+      ion-label {
+        font-size: 0.8rem;
+      }
+    }
+  }
+  
+  .karenderia-meta {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+    
+    ion-button {
+      --height: 36px;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .search-filter-section {
+    padding: 12px;
+  }
+  
+  .list-header {
+    padding: 16px;
+    
+    h3 {
+      font-size: 1.1rem;
+    }
+  }
+  
+  .list-content {
+    padding: 8px 16px 16px;
+  }
+  
+  .toggle-button {
+    height: 44px;
+    font-size: 0.9rem;
+  }
+}
+
+// Animations
+.karenderia-item {
+  animation: slideInUp 0.6s ease-out;
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Scrollbar styling
+.list-content::-webkit-scrollbar {
+  width: 4px;
+}
+
+.list-content::-webkit-scrollbar-track {
+  background: #f8f9fa;
+  border-radius: 10px;
+}
+
+.list-content::-webkit-scrollbar-thumb {
+  background: #dee2e6;
+  border-radius: 10px;
+}
+
+.list-content::-webkit-scrollbar-thumb:hover {
+  background: #adb5bd;
+}

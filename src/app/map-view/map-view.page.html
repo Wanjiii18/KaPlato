@@ -1,0 +1,146 @@
+<ion-header [translucent]="true" class="map-header">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home" color="light"></ion-back-button>
+    </ion-buttons>
+    <ion-title>
+      <div class="header-title">
+        <ion-icon name="map" color="light"></ion-icon>
+        <span>Find Karenderias</span>
+      </div>
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button fill="clear" color="light" (click)="refreshLocation()">
+        <ion-icon name="refresh-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="map-content">
+  <!-- Search and Filter Section -->
+  <div class="search-filter-section">
+    <div class="search-container">
+      <ion-searchbar 
+        [(ngModel)]="searchQuery" 
+        placeholder="Search karenderias, cuisine, or location..."
+        mode="ios"
+        class="map-searchbar"
+        (ionInput)="onSearchChange()">
+        <ion-icon name="search-outline" slot="start"></ion-icon>
+      </ion-searchbar>
+    </div>
+    
+    <div class="filter-controls">
+      <ion-chip class="filter-chip" [class.active]="selectedFilter === 'all'" (click)="setFilter('all')">
+        <ion-icon name="grid-outline"></ion-icon>
+        <ion-label>All</ion-label>
+      </ion-chip>
+      
+      <ion-chip class="filter-chip" [class.active]="selectedFilter === 'open'" (click)="setFilter('open')">
+        <ion-icon name="checkmark-circle" color="success"></ion-icon>
+        <ion-label>Open Now</ion-label>
+      </ion-chip>
+      
+      <ion-chip class="filter-chip" [class.active]="selectedFilter === 'nearby'" (click)="setFilter('nearby')">
+        <ion-icon name="location-outline"></ion-icon>
+        <ion-label>Nearby</ion-label>
+      </ion-chip>
+      
+      <ion-chip class="filter-chip" [class.active]="selectedFilter === 'rating'" (click)="setFilter('rating')">
+        <ion-icon name="star" color="warning"></ion-icon>
+        <ion-label>Top Rated</ion-label>
+      </ion-chip>
+    </div>
+  </div>
+
+  <!-- Map Container -->
+  <div class="map-container">
+    <app-map [lat]="currentLat" [lng]="currentLng" [zoom]="mapZoom"></app-map>
+  </div>
+
+  <!-- Location Controls -->
+  <div class="location-controls">
+    <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+      <ion-fab-button color="primary" (click)="centerOnUserLocation()">
+        <ion-icon name="locate"></ion-icon>
+      </ion-fab-button>
+    </ion-fab>
+  </div>
+
+  <!-- Karenderias List Toggle -->
+  <div class="list-toggle">
+    <ion-button 
+      expand="block" 
+      fill="solid" 
+      color="primary" 
+      (click)="toggleListView()"
+      class="toggle-button">
+      <ion-icon name="list-outline" slot="start"></ion-icon>
+      {{ showList ? 'Hide List' : 'Show List' }}
+    </ion-button>
+  </div>
+
+  <!-- Karenderias List -->
+  <div class="karenderias-list" [class.show]="showList">
+    <div class="list-header">
+      <h3>Found {{ filteredKarenderias.length }} Karenderias</h3>
+      <ion-button fill="clear" size="small" (click)="toggleListView()">
+        <ion-icon name="close-outline"></ion-icon>
+      </ion-button>
+    </div>
+    
+    <div class="list-content">
+      <ion-card 
+        button 
+        class="karenderia-item" 
+        *ngFor="let karenderia of filteredKarenderias"
+        (click)="selectKarenderia(karenderia)">
+        <ion-card-content>
+          <div class="karenderia-info">
+            <div class="info-header">
+              <h4>{{ karenderia.name }}</h4>
+              <div class="status-badge" [class.open]="karenderia.isOpen">
+                <ion-icon name="radio-button-on" color="success" *ngIf="karenderia.isOpen"></ion-icon>
+                <ion-icon name="radio-button-off" color="medium" *ngIf="!karenderia.isOpen"></ion-icon>
+                {{ karenderia.isOpen ? 'Open' : 'Closed' }}
+              </div>
+            </div>
+            
+            <p class="cuisine">{{ karenderia.cuisine || 'Filipino Cuisine' }}</p>
+            <p class="address">{{ karenderia.address }}</p>
+            
+            <div class="karenderia-meta">
+              <div class="rating">
+                <ion-icon name="star" color="warning"></ion-icon>
+                <span>{{ karenderia.rating || '4.5' }}</span>
+              </div>
+              
+              <div class="distance" *ngIf="karenderia.distance">
+                <ion-icon name="location-outline" color="primary"></ion-icon>
+                <span>{{ karenderia.distance }}m away</span>
+              </div>
+              
+              <div class="delivery-time">
+                <ion-icon name="time-outline" color="medium"></ion-icon>
+                <span>{{ karenderia.deliveryTime || '20-30 min' }}</span>
+              </div>
+            </div>
+            
+            <div class="action-buttons">
+              <ion-button fill="outline" size="small" color="primary">
+                <ion-icon name="call-outline" slot="start"></ion-icon>
+                Call
+              </ion-button>
+              
+              <ion-button fill="solid" size="small" color="primary">
+                <ion-icon name="navigate-outline" slot="start"></ion-icon>
+                Directions
+              </ion-button>
+            </div>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    </div>
+  </div>
+</ion-content>

@@ -69,6 +69,10 @@ const routes: Routes = [
     loadChildren: () => import('./meal-planner/meal-planner.module').then(m => m.MealPlannerPageModule),
     canActivate: [AuthGuard]
   },
+  {
+    path: 'map-view',
+    loadChildren: () => import('./map-view/map-view.module').then(m => m.MapViewPageModule)
+  },
 ];
 
 @NgModule({

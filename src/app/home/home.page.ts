@@ -70,6 +70,10 @@ export class HomePage implements OnInit, OnDestroy {
     }
   }
 
+  navigateToMap() {
+    this.router.navigate(['/map-view']);
+  }
+
   toggleMap() {
     this.showMap = !this.showMap;
     
