@@ -1,0 +1,223 @@
+.registration-container {
+  padding: 16px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Registration Header */
+.registration-header {
+  text-align: center;
+  margin-bottom: 32px;
+  padding: 32px 16px;
+}
+
+.header-icon {
+  font-size: 64px;
+  color: var(--ion-color-primary);
+  margin-bottom: 16px;
+}
+
+.registration-header h1 {
+  margin: 16px 0 8px 0;
+  color: var(--ion-color-dark);
+  font-weight: 600;
+  font-size: 28px;
+}
+
+.registration-header p {
+  color: var(--ion-color-medium);
+  margin: 0;
+  line-height: 1.5;
+  font-size: 16px;
+}
+
+/* Registration Form */
+.registration-form {
+  padding: 0 8px;
+}
+
+/* Form Sections */
+.form-section {
+  margin-bottom: 32px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--ion-color-light);
+}
+
+.form-section:last-of-type {
+  border-bottom: none;
+  margin-bottom: 24px;
+}
+
+.form-section h3 {
+  margin: 0 0 16px 0;
+  color: var(--ion-color-dark);
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.section-description {
+  margin: 0 0 20px 0;
+  color: var(--ion-color-medium);
+  font-size: 14px;
+  font-style: italic;
+}
+
+/* Preferences Sections */
+.preferences-section {
+  margin: 24px 0;
+}
+
+.preferences-section h4 {
+  margin: 0 0 12px 0;
+  color: var(--ion-color-dark);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.preferences-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.preferences-grid ion-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid var(--ion-color-light);
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.preferences-grid ion-checkbox:hover {
+  background: var(--ion-color-light);
+  border-color: var(--ion-color-primary);
+}
+
+.preferences-grid ion-checkbox[checked] {
+  background: var(--ion-color-primary-shade);
+  border-color: var(--ion-color-primary);
+  color: white;
+}
+
+/* Form Actions */
+.form-actions {
+  margin: 32px 0 24px 0;
+}
+
+.form-actions ion-button {
+  margin: 0;
+  font-weight: 600;
+  --border-radius: 12px;
+  height: 48px;
+}
+
+/* Alternative Action */
+.alternative-action {
+  text-align: center;
+  padding: 24px 0;
+  border-top: 1px solid var(--ion-color-light);
+  margin-top: 24px;
+}
+
+.alternative-action p {
+  margin: 0 0 16px 0;
+  color: var(--ion-color-medium);
+  font-size: 14px;
+}
+
+.alternative-action ion-button {
+  margin: 0;
+  --border-radius: 12px;
+  height: 44px;
+}
+
+/* Form Validation */
+ion-input.error,
+ion-textarea.error {
+  --border-color: var(--ion-color-danger);
+  --color: var(--ion-color-danger);
+}
+
+ion-item {
+  margin-bottom: 16px;
+  --border-radius: 8px;
+  --background: var(--ion-color-light-tint);
+}
+
+ion-input,
+ion-textarea {
+  --padding-top: 12px;
+  --padding-bottom: 12px;
+  --padding-start: 16px;
+  --padding-end: 16px;
+}
+
+/* Responsive Design */
+@media (min-width: 768px) {
+  .registration-container {
+    padding: 32px;
+  }
+  
+  .registration-header {
+    padding: 48px 16px;
+  }
+  
+  .registration-header h1 {
+    font-size: 32px;
+  }
+  
+  .registration-header p {
+    font-size: 18px;
+  }
+  
+  .header-icon {
+    font-size: 80px;
+  }
+  
+  .preferences-grid {
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  }
+}
+
+@media (max-width: 480px) {
+  .registration-container {
+    padding: 12px;
+  }
+  
+  .registration-header {
+    padding: 24px 8px;
+  }
+  
+  .registration-header h1 {
+    font-size: 24px;
+  }
+  
+  .header-icon {
+    font-size: 48px;
+  }
+  
+  .preferences-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Animation */
+.registration-form {
+  animation: slideUp 0.4s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

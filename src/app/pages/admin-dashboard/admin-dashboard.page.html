@@ -1,0 +1,459 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-title>Admin Dashboard</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="logout()">
+        <ion-icon name="log-out-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div class="admin-dashboard">
+    
+    <!-- Welcome Header -->
+    <div class="welcome-section">
+      <div class="admin-info">
+        <ion-icon name="shield-checkmark" class="admin-icon"></ion-icon>
+        <div>
+          <h1>Welcome, {{currentUser?.name}}</h1>
+          <p>KaPlato Administrator Panel</p>
+        </div>
+      </div>
+      <div class="date-time">
+        <p>{{currentDate | date:'fullDate'}}</p>
+        <p class="time">{{currentTime}}</p>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="navigation-tabs">
+      <ion-segment [(ngModel)]="selectedTab" (ionChange)="onTabChange($event)">
+        <ion-segment-button value="overview">
+          <ion-icon name="analytics-outline"></ion-icon>
+          <ion-label>Overview</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="customers">
+          <ion-icon name="people-outline"></ion-icon>
+          <ion-label>Customers</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="owners">
+          <ion-icon name="business-outline"></ion-icon>
+          <ion-label>Owners</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="karenderias">
+          <ion-icon name="restaurant-outline"></ion-icon>
+          <ion-label>Karenderias</ion-label>
+        </ion-segment-button>
+      </ion-segment>
+    </div>
+
+    <!-- Overview Tab -->
+    <div *ngIf="selectedTab === 'overview'" class="tab-content">
+      
+      <!-- Quick Stats Cards -->
+      <div class="stats-section">
+        <h2>
+          <ion-icon name="analytics-outline"></ion-icon>
+          Overview Statistics
+        </h2>
+        
+        <div class="stats-grid">
+          <ion-card class="stat-card applications">
+            <ion-card-content>
+              <div class="stat-header">
+                <ion-icon name="document-text-outline"></ion-icon>
+                <span class="label">Applications</span>
+              </div>
+              <div class="stat-numbers">
+                <div class="main-number">{{dashboardStats?.pending_karenderias || 0}}</div>
+                <div class="sub-text">Pending Approval</div>
+              </div>
+            </ion-card-content>
+          </ion-card>
+
+          <ion-card class="stat-card karenderias">
+            <ion-card-content>
+              <div class="stat-header">
+                <ion-icon name="restaurant-outline"></ion-icon>
+                <span class="label">Karenderias</span>
+              </div>
+              <div class="stat-numbers">
+                <div class="main-number">{{dashboardStats?.active_karenderias || 0}}</div>
+                <div class="sub-text">Active Businesses</div>
+              </div>
+            </ion-card-content>
+          </ion-card>
+
+          <ion-card class="stat-card users">
+            <ion-card-content>
+              <div class="stat-header">
+                <ion-icon name="people-outline"></ion-icon>
+                <span class="label">Customers</span>
+              </div>
+              <div class="stat-numbers">
+                <div class="main-number">{{dashboardStats?.total_users || 0}}</div>
+                <div class="sub-text">Registered Users</div>
+              </div>
+            </ion-card-content>
+          </ion-card>
+
+          <ion-card class="stat-card orders">
+            <ion-card-content>
+              <div class="stat-header">
+                <ion-icon name="bag-handle-outline"></ion-icon>
+                <span class="label">Orders</span>
+              </div>
+              <div class="stat-numbers">
+                <div class="main-number">{{dashboardStats?.todays_orders || 0}}</div>
+                <div class="sub-text">Today's Orders</div>
+              </div>
+            </ion-card-content>
+          </ion-card>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="actions-section">
+        <h2>
+          <ion-icon name="flash-outline"></ion-icon>
+          Quick Actions
+        </h2>
+        
+        <div class="actions-grid">
+          <ion-button 
+            expand="block" 
+            fill="outline" 
+            class="action-button"
+            (click)="selectedTab = 'karenderias'">
+            <ion-icon name="document-text" slot="start"></ion-icon>
+            <div>
+              <div class="action-title">Review Applications</div>
+              <div class="action-subtitle">{{dashboardStats?.pending_karenderias || 0}} pending</div>
+            </div>
+          </ion-button>
+
+          <ion-button 
+            expand="block" 
+            fill="outline" 
+            class="action-button"
+            routerLink="/admin-location-management">
+            <ion-icon name="map" slot="start"></ion-icon>
+            <div>
+              <div class="action-title">Manage Locations</div>
+              <div class="action-subtitle">Set karenderia maps</div>
+            </div>
+          </ion-button>
+
+          <ion-button 
+            expand="block" 
+            fill="outline" 
+            class="action-button"
+            (click)="selectedTab = 'customers'">
+            <ion-icon name="people" slot="start"></ion-icon>
+            <div>
+              <div class="action-title">Manage Customers</div>
+              <div class="action-subtitle">{{dashboardStats?.total_users || 0}} users</div>
+            </div>
+          </ion-button>
+
+          <ion-button 
+            expand="block" 
+            fill="outline" 
+            class="action-button"
+            (click)="selectedTab = 'owners'">
+            <ion-icon name="business" slot="start"></ion-icon>
+            <div>
+              <div class="action-title">Manage Owners</div>
+              <div class="action-subtitle">{{dashboardStats?.total_owners || 0}} owners</div>
+            </div>
+          </ion-button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Customers Tab -->
+    <div *ngIf="selectedTab === 'customers'" class="tab-content">
+      <div class="users-section">
+        <div class="section-header">
+          <h2>
+            <ion-icon name="people-outline"></ion-icon>
+            Customer Management
+          </h2>
+          <ion-button 
+            fill="outline" 
+            size="small"
+            (click)="loadCustomers()">
+            <ion-icon name="refresh-outline" slot="start"></ion-icon>
+            Refresh
+          </ion-button>
+        </div>
+
+        <div *ngIf="!customers || customers.length === 0" class="empty-state">
+          <ion-icon name="people-outline"></ion-icon>
+          <p>No customers found</p>
+        </div>
+
+        <div *ngFor="let customer of customers" class="user-card">
+          <ion-card>
+            <ion-card-content>
+              <div class="user-header">
+                <div class="user-info">
+                  <h3>{{customer.name}}</h3>
+                  <p>{{customer.email}}</p>
+                  <ion-chip [color]="customer.status === 'verified' ? 'success' : 'warning'">
+                    {{customer.status}}
+                  </ion-chip>
+                </div>
+                <div class="user-stats">
+                  <div class="stat-item">
+                    <span class="stat-value">{{customer.total_orders}}</span>
+                    <span class="stat-label">Orders</span>
+                  </div>
+                  <div class="stat-item">
+                    <span class="stat-value">₱{{customer.total_spent | number:'1.2-2'}}</span>
+                    <span class="stat-label">Spent</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="user-details">
+                <div class="detail-item">
+                  <ion-icon name="call-outline"></ion-icon>
+                  <span>{{customer.phone || 'No phone number'}}</span>
+                </div>
+                <div class="detail-item">
+                  <ion-icon name="calendar-outline"></ion-icon>
+                  <span>Joined: {{customer.created_at | date:'mediumDate'}}</span>
+                </div>
+                <div class="detail-item">
+                  <ion-icon name="time-outline"></ion-icon>
+                  <span>Last active: {{customer.last_login | date:'short'}}</span>
+                </div>
+              </div>
+
+              <div class="user-actions">
+                <ion-button 
+                  size="small" 
+                  fill="outline"
+                  (click)="toggleUserStatus(customer.id, 'customer')">
+                  <ion-icon name="{{customer.status === 'verified' ? 'ban' : 'checkmark-circle'}}-outline" slot="start"></ion-icon>
+                  {{customer.status === 'verified' ? 'Disable' : 'Enable'}}
+                </ion-button>
+                <ion-button 
+                  size="small" 
+                  fill="outline" 
+                  color="tertiary"
+                  (click)="changeUserRole(customer.id, customer.name)">
+                  <ion-icon name="swap-horizontal-outline" slot="start"></ion-icon>
+                  Change Role
+                </ion-button>
+                <ion-button 
+                  size="small" 
+                  fill="outline" 
+                  color="danger"
+                  (click)="deleteUser(customer.id, customer.name, 'customer')">
+                  <ion-icon name="trash-outline" slot="start"></ion-icon>
+                  Delete
+                </ion-button>
+              </div>
+            </ion-card-content>
+          </ion-card>
+        </div>
+      </div>
+    </div>
+
+    <!-- Karenderia Owners Tab -->
+    <div *ngIf="selectedTab === 'owners'" class="tab-content">
+      <div class="users-section">
+        <div class="section-header">
+          <h2>
+            <ion-icon name="business-outline"></ion-icon>
+            Karenderia Owner Management
+          </h2>
+          <ion-button 
+            fill="outline" 
+            size="small"
+            (click)="loadKarenderiaOwners()">
+            <ion-icon name="refresh-outline" slot="start"></ion-icon>
+            Refresh
+          </ion-button>
+        </div>
+
+        <div *ngIf="!karenderiaOwners || karenderiaOwners.length === 0" class="empty-state">
+          <ion-icon name="business-outline"></ion-icon>
+          <p>No karenderia owners found</p>
+        </div>
+
+        <div *ngFor="let owner of karenderiaOwners" class="user-card">
+          <ion-card>
+            <ion-card-content>
+              <div class="user-header">
+                <div class="user-info">
+                  <h3>{{owner.name}}</h3>
+                  <p>{{owner.email}}</p>
+                  <ion-chip [color]="getOwnerStatusColor(owner)">
+                    {{getOwnerStatusText(owner)}}
+                  </ion-chip>
+                </div>
+                <div class="business-info" *ngIf="owner.karenderia">
+                  <div class="detail-item">
+                    <ion-icon name="restaurant-outline"></ion-icon>
+                    <span>{{owner.karenderia.business_name}}</span>
+                  </div>
+                  <div class="detail-item">
+                    <ion-icon name="location-outline"></ion-icon>
+                    <span>{{owner.karenderia.location}}</span>
+                  </div>
+                  <ion-chip [color]="owner.karenderia.status === 'approved' ? 'success' : owner.karenderia.status === 'pending' ? 'warning' : 'danger'">
+                    {{owner.karenderia.status}}
+                  </ion-chip>
+                </div>
+              </div>
+              
+              <div class="user-details">
+                <div class="detail-item">
+                  <ion-icon name="call-outline"></ion-icon>
+                  <span>{{owner.phone || 'No phone number'}}</span>
+                </div>
+                <div class="detail-item">
+                  <ion-icon name="calendar-outline"></ion-icon>
+                  <span>Joined: {{owner.created_at | date:'mediumDate'}}</span>
+                </div>
+                <div class="detail-item" *ngIf="owner.karenderia?.approved_at">
+                  <ion-icon name="checkmark-circle-outline"></ion-icon>
+                  <span>Approved: {{owner.karenderia.approved_at | date:'mediumDate'}}</span>
+                </div>
+                <div class="detail-item">
+                  <ion-icon name="map-outline"></ion-icon>
+                  <span>{{owner.karenderia?.has_location ? 'Location Set' : 'No Location'}}</span>
+                </div>
+              </div>
+
+              <div class="user-actions">
+                <ion-button 
+                  size="small" 
+                  fill="outline"
+                  color="success"
+                  *ngIf="owner.karenderia?.status === 'pending'"
+                  (click)="approveKarenderia(owner.karenderia)">
+                  <ion-icon name="checkmark-outline" slot="start"></ion-icon>
+                  Approve Business
+                </ion-button>
+                <ion-button 
+                  size="small" 
+                  fill="outline"
+                  routerLink="/admin-location-management"
+                  *ngIf="owner.karenderia && !owner.karenderia.has_location">
+                  <ion-icon name="map-outline" slot="start"></ion-icon>
+                  Set Location
+                </ion-button>
+                <ion-button 
+                  size="small" 
+                  fill="outline"
+                  (click)="toggleUserStatus(owner.id, 'owner')">
+                  <ion-icon name="{{owner.status === 'verified' ? 'ban' : 'checkmark-circle'}}-outline" slot="start"></ion-icon>
+                  {{owner.status === 'verified' ? 'Disable' : 'Enable'}}
+                </ion-button>
+                <ion-button 
+                  size="small" 
+                  fill="outline" 
+                  color="tertiary"
+                  (click)="changeUserRole(owner.id, owner.name)">
+                  <ion-icon name="swap-horizontal-outline" slot="start"></ion-icon>
+                  Change Role
+                </ion-button>
+                <ion-button 
+                  size="small" 
+                  fill="outline" 
+                  color="danger"
+                  (click)="deleteUser(owner.id, owner.name, 'owner')">
+                  <ion-icon name="trash-outline" slot="start"></ion-icon>
+                  Delete
+                </ion-button>
+              </div>
+            </ion-card-content>
+          </ion-card>
+        </div>
+      </div>
+    </div>
+
+    <!-- Karenderias Tab -->
+    <div *ngIf="selectedTab === 'karenderias'" class="tab-content">
+      <div class="karenderias-section">
+        <div class="section-header">
+          <h2>
+            <ion-icon name="restaurant-outline"></ion-icon>
+            Karenderia Applications
+          </h2>
+          <ion-button 
+            fill="outline" 
+            size="small"
+            (click)="loadRecentApplications()">
+            <ion-icon name="refresh-outline" slot="start"></ion-icon>
+            Refresh
+          </ion-button>
+        </div>
+
+        <div *ngIf="!recentApplications || recentApplications.length === 0" class="empty-state">
+          <ion-icon name="checkmark-circle-outline"></ion-icon>
+          <p>All applications have been reviewed!</p>
+        </div>
+
+        <div *ngFor="let application of recentApplications" class="application-card">
+          <ion-card>
+            <ion-card-content>
+              <div class="application-header">
+                <div class="business-info">
+                  <h3>{{application.business_name}}</h3>
+                  <p>{{application.owner_name}} • {{application.owner_email}}</p>
+                </div>
+                <ion-chip [color]="application.status === 'approved' ? 'success' : 'warning'">
+                  {{application.status}}
+                </ion-chip>
+              </div>
+              
+              <div class="application-details">
+                <div class="detail-item">
+                  <ion-icon name="location-outline"></ion-icon>
+                  <span>{{application.city}}, {{application.province}}</span>
+                </div>
+                <div class="detail-item">
+                  <ion-icon name="mail-outline"></ion-icon>
+                  <span>{{application.business_email || 'No business email'}}</span>
+                </div>
+                <div class="detail-item">
+                  <ion-icon name="call-outline"></ion-icon>
+                  <span>{{application.phone || 'No phone number'}}</span>
+                </div>
+                <div class="detail-item">
+                  <ion-icon name="time-outline"></ion-icon>
+                  <span>Applied: {{application.created_at | date:'medium'}}</span>
+                </div>
+              </div>
+
+              <div class="application-actions" *ngIf="application.status === 'pending'">
+                <ion-button 
+                  fill="solid" 
+                  color="success"
+                  (click)="quickApprove(application.id)">
+                  <ion-icon name="checkmark" slot="start"></ion-icon>
+                  Approve
+                </ion-button>
+                <ion-button 
+                  fill="outline" 
+                  color="primary"
+                  routerLink="/admin-location-management">
+                  <ion-icon name="eye" slot="start"></ion-icon>
+                  Review
+                </ion-button>
+              </div>
+            </ion-card-content>
+          </ion-card>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</ion-content>

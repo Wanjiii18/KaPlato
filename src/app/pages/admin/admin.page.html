@@ -164,11 +164,34 @@
                 <p>{{ karenderia.description }}</p>
                 <p>Address: {{ karenderia.address }}</p>
                 <p>Phone: {{ karenderia.phone }}</p>
+                <p>Owner: {{ karenderia.owner?.name || 'Unknown' }}</p>
                 <p>Status: {{ karenderia.status }}</p>
               </ion-label>
-              <ion-chip slot="end" [color]="karenderia.status === 'approved' ? 'success' : 'warning'">
-                {{ karenderia.status }}
-              </ion-chip>
+              <div slot="end" class="karenderia-actions">
+                <ion-chip [color]="getStatusColor(karenderia.status)">
+                  {{ karenderia.status | titlecase }}
+                </ion-chip>
+                <div class="action-buttons" *ngIf="karenderia.status === 'pending'">
+                  <ion-button 
+                    fill="solid" 
+                    color="success" 
+                    size="small" 
+                    (click)="approveKarenderia(karenderia)"
+                    [disabled]="loading">
+                    <ion-icon name="checkmark" slot="start"></ion-icon>
+                    Approve
+                  </ion-button>
+                  <ion-button 
+                    fill="solid" 
+                    color="danger" 
+                    size="small" 
+                    (click)="rejectKarenderia(karenderia)"
+                    [disabled]="loading">
+                    <ion-icon name="close" slot="start"></ion-icon>
+                    Reject
+                  </ion-button>
+                </div>
+              </div>
             </ion-item>
           </ion-list>
         </ion-card-content>

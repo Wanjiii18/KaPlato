@@ -28,6 +28,15 @@ export class LoginPage implements OnInit {
   ngOnInit() {
     // Check if user is already logged in
     if (this.authService.isAuthenticated()) {
+      const currentUser = this.authService.getCurrentUser();
+      this.redirectBasedOnRole(currentUser);
+    }
+  }
+
+  private redirectBasedOnRole(user: any) {
+    if (user?.role === 'admin') {
+      this.router.navigate(['/admin-dashboard']);
+    } else {
       this.router.navigate(['/home']);
     }
   }
@@ -42,8 +51,15 @@ export class LoginPage implements OnInit {
           email: this.loginData.emailOrUsername, 
           password: this.loginData.password 
         };
-        await this.authService.login(credentials).toPromise();
-        this.router.navigate(['/home']);
+        const response = await this.authService.login(credentials).toPromise();
+        
+        // Redirect based on user role
+        if (response?.user) {
+          this.redirectBasedOnRole(response.user);
+        } else {
+          this.router.navigate(['/home']);
+        }
+        
       } catch (error: any) {
         this.errorMessage = error.message;
       } finally {

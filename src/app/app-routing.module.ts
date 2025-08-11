@@ -27,13 +27,18 @@ const routes: Routes = [
     loadChildren: () => import('./karenderia-application/karenderia-application.module').then( m => m.KarenderiaApplicationPageModule)
   },
   {
+    path: 'karenderia-registration',
+    loadChildren: () => import('./pages/karenderia-registration/karenderia-registration.module').then( m => m.KarenderiaRegistrationPageModule),
+    canActivate: [AuthGuard]
+  },
+  {
     path: 'profile',
     loadChildren: () => import('./profile/profile.module').then( m => m.ProfilePageModule)
   },
   {
     path: 'karenderia-dashboard',
     loadChildren: () => import('./karenderia-dashboard/karenderia-dashboard.module').then( m => m.KarenderiaDashboardPageModule),
-    canActivate: [AuthGuard, KarenderiaGuard]
+    canActivate: [AuthGuard]
   },
   {
     path: 'karenderia-menu',
@@ -72,6 +77,14 @@ const routes: Routes = [
   {
     path: 'map-view',
     loadChildren: () => import('./map-view/map-view.module').then(m => m.MapViewPageModule)
+  },
+  {
+    path: 'admin-dashboard',
+    loadChildren: () => import('./pages/admin-dashboard/admin-dashboard.module').then(m => m.AdminDashboardPageModule)
+  },
+  {
+    path: 'admin-location-management',
+    loadChildren: () => import('./pages/admin-location-management/admin-location-management.module').then(m => m.AdminLocationManagementPageModule)
   },
 ];
 

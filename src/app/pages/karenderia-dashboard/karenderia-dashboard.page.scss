@@ -1,0 +1,317 @@
+.dashboard-container {
+  padding: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+// Loading State
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+  
+  ion-spinner {
+    margin-bottom: 20px;
+  }
+  
+  p {
+    color: var(--ion-color-medium);
+    font-size: 1rem;
+  }
+}
+
+// No Application State
+.no-application {
+  text-align: center;
+  padding: 60px 20px;
+  
+  .empty-icon {
+    font-size: 64px;
+    color: var(--ion-color-medium);
+    margin-bottom: 20px;
+  }
+  
+  h2 {
+    color: var(--ion-color-dark);
+    margin-bottom: 10px;
+  }
+  
+  p {
+    color: var(--ion-color-medium);
+    margin-bottom: 30px;
+    line-height: 1.5;
+  }
+}
+
+// Status Card
+.status-card {
+  margin-bottom: 20px;
+  padding: 20px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--ion-color-primary-tint), var(--ion-color-primary));
+  color: white;
+  
+  .status-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 15px;
+    
+    .status-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      
+      &.status-pending {
+        background-color: rgba(255, 193, 7, 0.2);
+        color: #ffc107;
+        border: 1px solid rgba(255, 193, 7, 0.3);
+      }
+      
+      &.status-active {
+        background-color: rgba(40, 167, 69, 0.2);
+        color: #28a745;
+        border: 1px solid rgba(40, 167, 69, 0.3);
+      }
+      
+      &.status-inactive {
+        background-color: rgba(220, 53, 69, 0.2);
+        color: #dc3545;
+        border: 1px solid rgba(220, 53, 69, 0.3);
+      }
+      
+      ion-icon {
+        font-size: 16px;
+      }
+    }
+    
+    .application-date {
+      font-size: 0.8rem;
+      opacity: 0.8;
+    }
+  }
+  
+  .status-message {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    background-color: rgba(255, 255, 255, 0.1);
+    padding: 15px;
+    border-radius: 8px;
+    
+    ion-icon {
+      font-size: 20px;
+      margin-top: 2px;
+      opacity: 0.8;
+    }
+    
+    p {
+      margin: 0;
+      line-height: 1.4;
+      font-size: 0.95rem;
+    }
+  }
+}
+
+// Karenderia Info Cards
+.karenderia-info {
+  ion-card {
+    margin-bottom: 16px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    
+    ion-card-header {
+      ion-card-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--ion-color-primary);
+        font-size: 1.1rem;
+        
+        ion-icon {
+          font-size: 24px;
+        }
+      }
+    }
+  }
+}
+
+// Info Rows
+.info-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  
+  ion-icon {
+    font-size: 18px;
+    color: var(--ion-color-primary);
+    min-width: 18px;
+  }
+  
+  span {
+    flex: 1;
+    color: var(--ion-color-dark);
+  }
+}
+
+.description {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid var(--ion-color-light);
+  
+  p {
+    margin: 0;
+    line-height: 1.5;
+    color: var(--ion-color-medium);
+  }
+}
+
+// Map Container
+.map-container {
+  height: 200px;
+  width: 100%;
+  border-radius: 8px;
+  border: 2px solid var(--ion-color-light);
+  margin-bottom: 10px;
+  background-color: var(--ion-color-light-tint);
+  
+  // Fallback content
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ion-color-medium);
+  
+  &::before {
+    content: "Loading map...";
+  }
+}
+
+.coordinates {
+  text-align: center;
+  
+  ion-chip {
+    --background: var(--ion-color-primary-tint);
+    --color: var(--ion-color-primary-shade);
+  }
+}
+
+// Operating Details
+.operating-details {
+  .detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    
+    .label {
+      font-weight: 600;
+      color: var(--ion-color-dark);
+      min-width: 120px;
+    }
+    
+    .value {
+      color: var(--ion-color-medium);
+      text-align: right;
+    }
+    
+    .days-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      justify-content: flex-end;
+      
+      ion-chip {
+        --background: var(--ion-color-primary-tint);
+        --color: var(--ion-color-primary-shade);
+        font-size: 0.8rem;
+        height: 24px;
+      }
+    }
+  }
+}
+
+// Payment Methods
+.payment-methods {
+  .payment-method {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--ion-color-light);
+    
+    &:last-child {
+      border-bottom: none;
+    }
+    
+    &.enabled {
+      ion-icon {
+        color: var(--ion-color-success);
+      }
+    }
+    
+    ion-icon {
+      font-size: 20px;
+      color: var(--ion-color-medium);
+      margin-right: 12px;
+    }
+    
+    span {
+      flex: 1;
+      color: var(--ion-color-dark);
+    }
+  }
+}
+
+// Action Buttons
+.action-buttons {
+  margin-top: 30px;
+  
+  ion-button {
+    margin-bottom: 12px;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .dashboard-container {
+    padding: 15px;
+  }
+  
+  .status-card {
+    .status-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+    }
+  }
+  
+  .operating-details {
+    .detail-row {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 5px;
+      
+      .value,
+      .days-chips {
+        align-self: flex-start;
+        justify-content: flex-start;
+      }
+    }
+  }
+  
+  .map-container {
+    height: 180px;
+  }
+}

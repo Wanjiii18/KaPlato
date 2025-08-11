@@ -1,0 +1,187 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>My Karenderia</ion-title>
+    <ion-buttons slot="end">
+      <ion-button fill="clear" (click)="refreshStatus()">
+        <ion-icon name="refresh" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div class="dashboard-container">
+    
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="loading-container">
+      <ion-spinner name="crescent"></ion-spinner>
+      <p>Loading your karenderia information...</p>
+    </div>
+
+    <!-- No Application Found -->
+    <div *ngIf="!isLoading && !karenderia" class="no-application">
+      <ion-icon name="restaurant-outline" class="empty-icon"></ion-icon>
+      <h2>No Karenderia Application Found</h2>
+      <p>You haven't submitted a karenderia application yet.</p>
+      <ion-button expand="block" fill="solid" routerLink="/karenderia-registration">
+        <ion-icon name="add" slot="start"></ion-icon>
+        Register Your Karenderia
+      </ion-button>
+    </div>
+
+    <!-- Application Status Card -->
+    <div *ngIf="!isLoading && karenderia" class="status-card">
+      <div class="status-header">
+        <div class="status-badge" [ngClass]="getStatusClass(karenderia.status)">
+          <ion-icon [name]="getStatusIcon(karenderia.status)"></ion-icon>
+          <span>{{ getStatusText(karenderia.status) }}</span>
+        </div>
+        <div class="application-date">
+          Applied: {{ karenderia.created_at | date:'mediumDate' }}
+        </div>
+      </div>
+
+      <div class="status-message">
+        <ion-icon name="information-circle-outline"></ion-icon>
+        <p>{{ karenderia.status_message }}</p>
+      </div>
+    </div>
+
+    <!-- Karenderia Information -->
+    <div *ngIf="!isLoading && karenderia" class="karenderia-info">
+      
+      <!-- Basic Info -->
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>
+            <ion-icon name="restaurant"></ion-icon>
+            {{ karenderia.name }}
+          </ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <div class="info-row">
+            <ion-icon name="location"></ion-icon>
+            <span>{{ karenderia.address }}</span>
+          </div>
+          <div class="info-row" *ngIf="karenderia.phone">
+            <ion-icon name="call"></ion-icon>
+            <span>{{ karenderia.phone }}</span>
+          </div>
+          <div class="info-row" *ngIf="karenderia.email">
+            <ion-icon name="mail"></ion-icon>
+            <span>{{ karenderia.email }}</span>
+          </div>
+          <div class="description">
+            <p>{{ karenderia.description }}</p>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Map Location -->
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>
+            <ion-icon name="map"></ion-icon>
+            Location on Map
+          </ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <div class="map-container" #mapContainer>
+            <!-- Map will be rendered here -->
+          </div>
+          <div class="coordinates">
+            <ion-chip color="primary">
+              <ion-label>{{ karenderia.latitude | number:'1.6-6' }}, {{ karenderia.longitude | number:'1.6-6' }}</ion-label>
+            </ion-chip>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Operating Details -->
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>
+            <ion-icon name="time"></ion-icon>
+            Operating Details
+          </ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <div class="operating-details">
+            <div class="detail-row">
+              <span class="label">Hours:</span>
+              <span class="value">{{ karenderia.opening_time || 'Not set' }} - {{ karenderia.closing_time || 'Not set' }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Operating Days:</span>
+              <div class="days-chips">
+                <ion-chip 
+                  *ngFor="let day of karenderia.operating_days" 
+                  color="primary" 
+                  outline>
+                  {{ day | titlecase }}
+                </ion-chip>
+              </div>
+            </div>
+            <div class="detail-row">
+              <span class="label">Delivery Fee:</span>
+              <span class="value">₱{{ karenderia.delivery_fee || 0 }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Delivery Time:</span>
+              <span class="value">{{ karenderia.delivery_time_minutes || 'Not set' }} minutes</span>
+            </div>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Payment Methods -->
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>
+            <ion-icon name="card"></ion-icon>
+            Payment Methods
+          </ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <div class="payment-methods">
+            <div class="payment-method" [class.enabled]="karenderia.accepts_cash">
+              <ion-icon [name]="karenderia.accepts_cash ? 'cash' : 'cash-outline'"></ion-icon>
+              <span>Cash on Delivery</span>
+              <ion-badge [color]="karenderia.accepts_cash ? 'success' : 'medium'">
+                {{ karenderia.accepts_cash ? 'Enabled' : 'Disabled' }}
+              </ion-badge>
+            </div>
+            <div class="payment-method" [class.enabled]="karenderia.accepts_online_payment">
+              <ion-icon [name]="karenderia.accepts_online_payment ? 'card' : 'card-outline'"></ion-icon>
+              <span>Online Payment</span>
+              <ion-badge [color]="karenderia.accepts_online_payment ? 'success' : 'medium'">
+                {{ karenderia.accepts_online_payment ? 'Enabled' : 'Disabled' }}
+              </ion-badge>
+            </div>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Action Buttons -->
+      <div class="action-buttons">
+        <ion-button 
+          expand="block" 
+          fill="outline" 
+          [disabled]="karenderia.status === 'pending'"
+          (click)="editKarenderia()">
+          <ion-icon name="create" slot="start"></ion-icon>
+          Edit Information
+        </ion-button>
+        
+        <ion-button 
+          *ngIf="karenderia.status === 'active'" 
+          expand="block" 
+          fill="solid"
+          routerLink="/menu-management">
+          <ion-icon name="restaurant" slot="start"></ion-icon>
+          Manage Menu Items
+        </ion-button>
+      </div>
+    </div>
+  </div>
+</ion-content>

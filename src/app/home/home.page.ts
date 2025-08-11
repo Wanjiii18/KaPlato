@@ -517,6 +517,14 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   private checkUserRoleAndRedirect() {
+    // First check the current user from auth service for immediate role check
+    if (this.currentUser?.role === 'admin') {
+      console.log('Admin user detected, redirecting to admin dashboard');
+      this.router.navigate(['/admin-dashboard']);
+      return;
+    }
+
+    // Then check the user profile for karenderia owners
     this.userService.currentUserProfile$.subscribe(profile => {
       if (profile) {
         if (profile.role === 'karenderia_owner') {

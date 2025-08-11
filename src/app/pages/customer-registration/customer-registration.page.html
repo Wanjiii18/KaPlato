@@ -1,0 +1,146 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>Customer Registration</ion-title>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/"></ion-back-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div class="registration-container">
+    
+    <div class="registration-header">
+      <ion-icon name="person-add-outline" class="header-icon"></ion-icon>
+      <h1>Join KaPlato</h1>
+      <p>Create your customer account to start ordering from local karenderias</p>
+    </div>
+
+    <div class="registration-form">
+      <form [formGroup]="customerForm" (ngSubmit)="registerCustomer()">
+        
+        <div class="form-section">
+          <h3>Personal Information</h3>
+          
+          <ion-item>
+            <ion-input 
+              formControlName="name"
+              label="Full Name *"
+              labelPlacement="stacked"
+              placeholder="Enter your full name"
+              [class.error]="customerForm.get('name')?.invalid && customerForm.get('name')?.touched">
+            </ion-input>
+          </ion-item>
+
+          <ion-item>
+            <ion-input 
+              formControlName="email"
+              label="Email Address *"
+              labelPlacement="stacked"
+              placeholder="your@email.com"
+              type="email"
+              [class.error]="customerForm.get('email')?.invalid && customerForm.get('email')?.touched">
+            </ion-input>
+          </ion-item>
+
+          <ion-item>
+            <ion-input 
+              formControlName="password"
+              label="Password *"
+              labelPlacement="stacked"
+              placeholder="Minimum 8 characters"
+              type="password"
+              [class.error]="customerForm.get('password')?.invalid && customerForm.get('password')?.touched">
+            </ion-input>
+          </ion-item>
+
+          <ion-item>
+            <ion-input 
+              formControlName="password_confirmation"
+              label="Confirm Password *"
+              labelPlacement="stacked"
+              placeholder="Re-enter your password"
+              type="password"
+              [class.error]="customerForm.get('password_confirmation')?.invalid && customerForm.get('password_confirmation')?.touched">
+            </ion-input>
+          </ion-item>
+        </div>
+
+        <div class="form-section">
+          <h3>Optional Information</h3>
+          <p class="section-description">This helps us provide better food recommendations</p>
+          
+          <ion-item>
+            <ion-input 
+              formControlName="phone"
+              label="Phone Number"
+              labelPlacement="stacked"
+              placeholder="+63 9XX XXX XXXX"
+              type="tel">
+            </ion-input>
+          </ion-item>
+
+          <ion-item>
+            <ion-textarea 
+              formControlName="address"
+              label="Delivery Address"
+              labelPlacement="stacked"
+              placeholder="Your complete address for delivery"
+              rows="3">
+            </ion-textarea>
+          </ion-item>
+
+          <!-- Dietary Preferences -->
+          <div class="preferences-section">
+            <h4>Dietary Preferences</h4>
+            <div class="preferences-grid">
+              <ion-checkbox 
+                *ngFor="let pref of dietaryPreferences" 
+                [checked]="selectedDietaryPrefs.includes(pref.value)"
+                (ionChange)="toggleDietaryPreference(pref.value)">
+                {{pref.label}}
+              </ion-checkbox>
+            </div>
+          </div>
+
+          <!-- Cuisine Preferences -->
+          <div class="preferences-section">
+            <h4>Favorite Cuisines</h4>
+            <div class="preferences-grid">
+              <ion-checkbox 
+                *ngFor="let cuisine of cuisinePreferences" 
+                [checked]="selectedCuisines.includes(cuisine.value)"
+                (ionChange)="toggleCuisinePreference(cuisine.value)">
+                {{cuisine.label}}
+              </ion-checkbox>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <ion-button 
+            expand="block" 
+            type="submit" 
+            [disabled]="!customerForm.valid || isRegistering"
+            color="primary">
+            <ion-icon name="person-add" slot="start"></ion-icon>
+            {{isRegistering ? 'Creating Account...' : 'Create Customer Account'}}
+          </ion-button>
+        </div>
+
+        <div class="alternative-action">
+          <p>Want to register as a karenderia owner instead?</p>
+          <ion-button 
+            fill="outline" 
+            expand="block"
+            routerLink="/karenderia-owner-registration">
+            <ion-icon name="restaurant" slot="start"></ion-icon>
+            Register as Karenderia Owner
+          </ion-button>
+        </div>
+
+      </form>
+    </div>
+
+  </div>
+</ion-content>

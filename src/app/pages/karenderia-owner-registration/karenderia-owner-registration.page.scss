@@ -1,0 +1,372 @@
+.registration-container {
+  padding: 16px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Step Indicator */
+.step-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 32px;
+  padding: 16px 0;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.step-number {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--ion-color-medium);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  margin-bottom: 8px;
+  transition: all 0.3s ease;
+}
+
+.step.active .step-number {
+  background: var(--ion-color-primary);
+  transform: scale(1.1);
+}
+
+.step.completed .step-number {
+  background: var(--ion-color-success);
+}
+
+.step-label {
+  font-size: 12px;
+  color: var(--ion-color-medium);
+  font-weight: 500;
+}
+
+.step.active .step-label {
+  color: var(--ion-color-primary);
+  font-weight: bold;
+}
+
+.step.completed .step-label {
+  color: var(--ion-color-success);
+}
+
+.step-line {
+  width: 50px;
+  height: 2px;
+  background: var(--ion-color-light);
+  margin: 0 8px;
+  margin-bottom: 24px;
+  transition: all 0.3s ease;
+}
+
+.step-line.completed {
+  background: var(--ion-color-success);
+}
+
+/* Step Content */
+.step-content {
+  animation: slideIn 0.3s ease-in-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.step-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.step-icon {
+  font-size: 48px;
+  color: var(--ion-color-primary);
+  margin-bottom: 16px;
+}
+
+.step-header h2 {
+  margin: 16px 0 8px 0;
+  color: var(--ion-color-dark);
+  font-weight: 600;
+}
+
+.step-header p {
+  color: var(--ion-color-medium);
+  margin: 0 0 16px 0;
+}
+
+/* Form Sections */
+.form-section {
+  margin: 24px 0;
+  padding: 16px 0;
+  border-top: 1px solid var(--ion-color-light);
+}
+
+.form-section h3 {
+  margin: 0 0 16px 0;
+  color: var(--ion-color-dark);
+  font-size: 18px;
+  font-weight: 600;
+}
+
+/* Time Inputs */
+.time-inputs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+/* Days Grid */
+.days-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px;
+}
+
+.days-grid ion-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  border: 1px solid var(--ion-color-light);
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.days-grid ion-checkbox:hover {
+  background: var(--ion-color-light);
+}
+
+/* Address Note */
+.address-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+  background: var(--ion-color-warning-tint);
+  border: 1px solid var(--ion-color-warning);
+  border-radius: 8px;
+  margin: 16px 0;
+}
+
+.address-note ion-icon {
+  color: var(--ion-color-warning);
+  font-size: 20px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.address-note p {
+  margin: 0;
+  font-size: 14px;
+  color: var(--ion-color-dark);
+  line-height: 1.4;
+}
+
+/* Map Section (keeping for future use) */
+.map-section {
+  margin: 24px 0;
+}
+
+.map-instructions {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 12px;
+  background: var(--ion-color-light);
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+
+.map-instructions ion-icon {
+  color: var(--ion-color-primary);
+  font-size: 20px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.map-instructions p {
+  margin: 0;
+  font-size: 14px;
+  color: var(--ion-color-dark);
+}
+
+.map-container {
+  width: 100%;
+  height: 300px;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  margin-bottom: 16px;
+}
+
+.map-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  background: var(--ion-color-light);
+  border-radius: 12px;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.map-loading p {
+  margin: 16px 0;
+  color: var(--ion-color-medium);
+  font-size: 14px;
+}
+
+.map-loading ion-spinner {
+  margin-bottom: 8px;
+}
+
+.coordinates-display {
+  margin: 16px 0;
+  text-align: center;
+}
+
+.location-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* Delivery Inputs */
+.delivery-inputs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+/* Payment Methods */
+.payment-label {
+  margin-left: 12px;
+  font-size: 14px;
+}
+
+/* Form Actions */
+.form-actions {
+  margin-top: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.form-actions ion-button {
+  margin: 0;
+}
+
+/* Success Step */
+.success-step {
+  text-align: center;
+}
+
+.success-content {
+  padding: 32px 16px;
+}
+
+.success-icon {
+  font-size: 80px;
+  color: var(--ion-color-success);
+  margin-bottom: 24px;
+}
+
+.success-content h2 {
+  color: var(--ion-color-success);
+  margin-bottom: 16px;
+}
+
+.success-content p {
+  color: var(--ion-color-medium);
+  margin-bottom: 32px;
+  line-height: 1.6;
+}
+
+.next-steps {
+  text-align: left;
+  background: var(--ion-color-light);
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 32px;
+}
+
+.next-steps h3 {
+  color: var(--ion-color-dark);
+  margin: 0 0 16px 0;
+  font-size: 16px;
+}
+
+.next-steps ul {
+  margin: 0;
+  padding-left: 20px;
+  color: var(--ion-color-medium);
+}
+
+.next-steps li {
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+
+/* Form Validation */
+ion-input.error,
+ion-textarea.error {
+  --border-color: var(--ion-color-danger);
+  --color: var(--ion-color-danger);
+}
+
+/* Responsive Design */
+@media (min-width: 768px) {
+  .registration-container {
+    padding: 32px;
+  }
+  
+  .step-indicator {
+    margin-bottom: 48px;
+  }
+  
+  .step-header {
+    margin-bottom: 48px;
+  }
+  
+  .form-actions {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+  
+  .form-actions ion-button {
+    flex: 1;
+    max-width: 200px;
+  }
+}
+
+@media (max-width: 480px) {
+  .time-inputs,
+  .delivery-inputs {
+    grid-template-columns: 1fr;
+  }
+  
+  .location-actions {
+    flex-direction: column;
+  }
+  
+  .location-actions ion-button {
+    width: 100%;
+  }
+}

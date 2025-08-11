@@ -112,6 +112,21 @@ export class AuthService {
       );
   }
 
+  registerKarenderiaOwner(registrationData: any): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.apiUrl}/auth/register-karenderia-owner`, registrationData)
+      .pipe(
+        tap(response => {
+          localStorage.setItem('auth_token', response.access_token);
+          localStorage.setItem('user_data', JSON.stringify(response.user));
+          this.currentUserSubject.next(response.user);
+        }),
+        catchError(error => {
+          console.error('Karenderia owner registration error:', error);
+          throw error;
+        })
+      );
+  }
+
   logout(): Observable<any> {
     const token = localStorage.getItem('auth_token');
     

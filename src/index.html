@@ -14,6 +14,16 @@
 
   <link rel="icon" type="image/png" href="assets/icon/favicon.png" />
 
+  <!-- Google Maps API - Replace YOUR_API_KEY with actual API key -->
+  <script async defer src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places&callback=initMap"></script>
+  <script>
+    // Global callback function for Google Maps
+    function initMap() {
+      console.log('Google Maps API loaded successfully');
+      window.googleMapsLoaded = true;
+    }
+  </script>
+
   <!-- add to homescreen for ios -->
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />

@@ -645,4 +645,25 @@ export class KarenderiaService {
     }
   }
 
+  // Get current user's karenderia application
+  getMyKarenderia(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/karenderias/my-karenderia`, {
+      headers: this.getHeaders()
+    });
+  }
+
+  // Submit karenderia registration
+  registerKarenderia(data: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/karenderias`, data, {
+      headers: this.getHeaders()
+    });
+  }
+
+  // Update karenderia (for owner/admin use)
+  updateKarenderiaData(id: number, data: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}/karenderias/${id}`, data, {
+      headers: this.getHeaders()
+    });
+  }
+
 }

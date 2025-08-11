@@ -1,0 +1,520 @@
+.admin-dashboard {
+  padding: 16px;
+  max-width: 1400px;
+  margin: 0 auto;
+  background: var(--ion-color-light-tint);
+  min-height: 100vh;
+}
+
+/* Welcome Section */
+.welcome-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+  padding: 24px;
+  background: linear-gradient(135deg, var(--ion-color-primary), var(--ion-color-primary-shade));
+  color: white;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+.admin-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.admin-icon {
+  font-size: 48px;
+  color: var(--ion-color-primary-contrast);
+}
+
+.admin-info h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 600;
+}
+
+.admin-info p {
+  margin: 4px 0 0 0;
+  opacity: 0.9;
+  font-size: 16px;
+}
+
+.date-time {
+  text-align: right;
+}
+
+.date-time p {
+  margin: 0;
+  opacity: 0.9;
+}
+
+.time {
+  font-size: 18px;
+  font-weight: 600;
+  margin-top: 4px !important;
+}
+
+/* Stats Section */
+.stats-section h2,
+.actions-section h2,
+.recent-section h2,
+.health-section h2 {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 20px 0;
+  color: var(--ion-color-dark);
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.stats-section h2 ion-icon,
+.actions-section h2 ion-icon,
+.recent-section h2 ion-icon,
+.health-section h2 ion-icon {
+  color: var(--ion-color-primary);
+  font-size: 24px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.stat-card {
+  border-radius: 12px;
+  margin: 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.stat-card.applications {
+  border-left: 4px solid var(--ion-color-warning);
+}
+
+.stat-card.karenderias {
+  border-left: 4px solid var(--ion-color-success);
+}
+
+.stat-card.revenue {
+  border-left: 4px solid var(--ion-color-tertiary);
+}
+
+.stat-card.orders {
+  border-left: 4px solid var(--ion-color-secondary);
+}
+
+.stat-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.stat-header ion-icon {
+  font-size: 20px;
+  color: var(--ion-color-medium);
+}
+
+.stat-header .label {
+  font-size: 14px;
+  color: var(--ion-color-medium);
+  font-weight: 500;
+}
+
+.stat-numbers .main-number {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--ion-color-dark);
+  line-height: 1;
+}
+
+.stat-numbers .sub-text {
+  font-size: 12px;
+  color: var(--ion-color-medium);
+  margin-top: 4px;
+}
+
+/* Actions Section */
+.actions-section {
+  margin-bottom: 32px;
+}
+
+.actions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+.action-button {
+  height: 80px;
+  --border-radius: 12px;
+  --border-width: 1px;
+  --border-style: solid;
+  --border-color: var(--ion-color-light-shade);
+  text-align: left;
+  justify-content: flex-start;
+  margin: 0;
+}
+
+.action-button ion-icon {
+  font-size: 24px;
+  margin-right: 16px;
+}
+
+.action-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ion-color-dark);
+}
+
+.action-subtitle {
+  font-size: 12px;
+  color: var(--ion-color-medium);
+  margin-top: 2px;
+}
+
+/* Recent Section */
+.recent-section {
+  margin-bottom: 32px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.section-header h2 {
+  margin: 0;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 48px 16px;
+  background: var(--ion-color-light);
+  border-radius: 12px;
+}
+
+.empty-state ion-icon {
+  font-size: 48px;
+  color: var(--ion-color-success);
+  margin-bottom: 16px;
+}
+
+.empty-state p {
+  color: var(--ion-color-medium);
+  margin: 0;
+}
+
+.application-card {
+  margin-bottom: 16px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.application-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.business-info h3 {
+  margin: 0 0 4px 0;
+  color: var(--ion-color-dark);
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.business-info p {
+  margin: 0;
+  color: var(--ion-color-medium);
+  font-size: 14px;
+}
+
+.application-details {
+  margin-bottom: 16px;
+}
+
+.detail-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.detail-item ion-icon {
+  color: var(--ion-color-medium);
+  font-size: 16px;
+}
+
+.detail-item span {
+  color: var(--ion-color-dark);
+  font-size: 14px;
+}
+
+.application-actions {
+  display: flex;
+  gap: 12px;
+}
+
+/* Health Section */
+.health-section {
+  margin-bottom: 32px;
+}
+
+.health-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.health-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.health-icon {
+  font-size: 24px;
+}
+
+.health-icon.active {
+  color: var(--ion-color-success);
+}
+
+.health-label {
+  font-size: 14px;
+  color: var(--ion-color-medium);
+  font-weight: 500;
+}
+
+.health-status {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.health-status.active {
+  color: var(--ion-color-success);
+}
+
+/* Navigation Tabs */
+.navigation-tabs {
+  margin-bottom: 24px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 8px;
+}
+
+.navigation-tabs ion-segment {
+  --background: transparent;
+}
+
+.navigation-tabs ion-segment-button {
+  --border-radius: 8px;
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --indicator-color: var(--ion-color-primary);
+  --indicator-color-checked: var(--ion-color-primary);
+  --color: var(--ion-color-medium);
+  --color-checked: var(--ion-color-primary);
+  min-height: 48px;
+}
+
+.navigation-tabs ion-segment-button ion-icon {
+  margin-bottom: 4px;
+  font-size: 20px;
+}
+
+.navigation-tabs ion-segment-button ion-label {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Tab Content */
+.tab-content {
+  min-height: 400px;
+}
+
+/* Users Section */
+.users-section {
+  margin-bottom: 32px;
+}
+
+.user-card {
+  margin-bottom: 16px;
+}
+
+.user-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.user-info h3 {
+  margin: 0 0 4px 0;
+  color: var(--ion-color-dark);
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.user-info p {
+  margin: 0 0 8px 0;
+  color: var(--ion-color-medium);
+  font-size: 14px;
+}
+
+.user-stats {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.stat-item {
+  text-align: center;
+}
+
+.stat-value {
+  display: block;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ion-color-dark);
+}
+
+.stat-label {
+  display: block;
+  font-size: 12px;
+  color: var(--ion-color-medium);
+}
+
+.business-info {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--ion-color-light-shade);
+}
+
+.user-details {
+  margin-bottom: 16px;
+}
+
+.user-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.user-actions ion-button {
+  --padding-start: 12px;
+  --padding-end: 12px;
+  height: 32px;
+  font-size: 12px;
+}
+
+/* Additional stat card styles */
+.stat-card.users {
+  border-left: 4px solid var(--ion-color-primary);
+}
+
+/* Responsive adjustments for tabs */
+@media (max-width: 768px) {
+  .navigation-tabs ion-segment-button {
+    --padding-start: 8px;
+    --padding-end: 8px;
+    min-height: 44px;
+  }
+  
+  .navigation-tabs ion-segment-button ion-icon {
+    font-size: 18px;
+  }
+  
+  .navigation-tabs ion-segment-button ion-label {
+    font-size: 11px;
+  }
+  
+  .user-header {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .user-stats {
+    justify-content: flex-start;
+  }
+  
+  .user-actions {
+    flex-direction: column;
+  }
+  
+  .user-actions ion-button {
+    width: 100%;
+  }
+}
+@media (max-width: 768px) {
+  .admin-dashboard {
+    padding: 12px;
+  }
+  
+  .welcome-section {
+    flex-direction: column;
+    text-align: center;
+    gap: 16px;
+  }
+  
+  .date-time {
+    text-align: center;
+  }
+  
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .actions-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .health-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .application-header {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .application-actions {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-info {
+    flex-direction: column;
+    text-align: center;
+    gap: 8px;
+  }
+  
+  .admin-icon {
+    font-size: 32px;
+  }
+  
+  .admin-info h1 {
+    font-size: 24px;
+  }
+}
