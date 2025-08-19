@@ -630,4 +630,26 @@ export class HomePage implements OnInit, OnDestroy {
       await this.showToast('Unable to browse karenderias at this time');
     }
   }
+
+  async openNutritionDemo() {
+    console.log('🍎 Nutrition Demo clicked');
+    
+    try {
+      // Navigate to nutrition demo page
+      console.log('📊 Navigating to nutrition demo page');
+      
+      const success = await this.router.navigateByUrl('/nutrition-demo');
+      
+      if (success) {
+        console.log('✅ Successfully navigated to nutrition demo page');
+        await this.showToast('Explore Filipino food nutrition data!');
+      } else {
+        console.error('❌ Failed to navigate to nutrition demo page');
+        await this.showToast('Unable to load nutrition demo at this time');
+      }
+    } catch (error) {
+      console.error('❌ Error navigating to nutrition demo page:', error);
+      await this.showToast('Unable to access nutrition demo at this time');
+    }
+  }
 }

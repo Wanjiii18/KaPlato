@@ -1,0 +1,160 @@
+.search-section {
+  padding: 16px;
+  background: var(--ion-color-light);
+}
+
+.filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  
+  ion-spinner {
+    margin-bottom: 16px;
+  }
+  
+  p {
+    color: var(--ion-color-medium);
+    margin: 0;
+  }
+}
+
+.menu-items {
+  padding: 16px;
+}
+
+.menu-item-card {
+  margin-bottom: 16px;
+  
+  .nutrition-info {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--ion-color-light);
+    
+    h4 {
+      margin: 0 0 12px 0;
+      color: var(--ion-color-primary);
+      font-weight: 600;
+    }
+  }
+  
+  .nutrition-stat {
+    text-align: center;
+    
+    ion-badge {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 14px;
+      font-weight: bold;
+    }
+    
+    small {
+      color: var(--ion-color-medium);
+      font-size: 11px;
+    }
+  }
+  
+  .additional-nutrition {
+    margin: 12px 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  
+  .allergens {
+    margin: 12px 0;
+    
+    strong {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--ion-color-danger);
+      font-size: 14px;
+    }
+    
+    ion-chip {
+      margin-right: 8px;
+      margin-bottom: 4px;
+    }
+  }
+  
+  .spice-level {
+    margin: 12px 0;
+  }
+  
+  .dietary-tags {
+    margin: 12px 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  
+  .serving-size {
+    margin: 12px 0 0 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--ion-color-medium);
+    
+    small {
+      margin: 0;
+    }
+  }
+  
+  .no-nutrition {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--ion-color-light);
+    text-align: center;
+  }
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  text-align: center;
+  
+  ion-icon {
+    font-size: 64px;
+    margin-bottom: 16px;
+  }
+  
+  h2 {
+    margin: 0 0 8px 0;
+    color: var(--ion-color-dark);
+  }
+  
+  p {
+    margin: 0 0 24px 0;
+    color: var(--ion-color-medium);
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .filter-chips {
+    ion-chip {
+      font-size: 12px;
+    }
+  }
+  
+  .nutrition-stat {
+    ion-badge {
+      font-size: 12px;
+    }
+    
+    small {
+      font-size: 10px;
+    }
+  }
+}

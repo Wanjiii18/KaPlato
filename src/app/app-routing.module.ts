@@ -133,6 +133,11 @@ const routes: Routes = [
     path: 'allergen-profile',
     loadComponent: () => import('./pages/allergen-profile/allergen-profile.page').then(m => m.AllergenProfilePage),
     canActivate: [AuthGuard, CustomerGuard]
+  },
+  {
+    path: 'nutrition-demo',
+    loadComponent: () => import('./nutrition-demo/nutrition-demo.page').then(m => m.NutritionDemoPage)
+    // No auth guard for demo purposes - accessible to all users
   }
 ];
 

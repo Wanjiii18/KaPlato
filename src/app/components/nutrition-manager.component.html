@@ -1,0 +1,245 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Nutrition Manager</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="refreshAllNutrition()" [disabled]="loading">
+        <ion-icon name="refresh"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <!-- Search and Filters -->
+  <div class="search-section">
+    <ion-searchbar 
+      [(ngModel)]="searchQuery" 
+      (ionInput)="searchByNutrition()"
+      placeholder="Search menu items..."
+      show-clear-button="focus">
+    </ion-searchbar>
+
+    <!-- Nutrition Filters -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Nutrition Filters</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-grid>
+          <ion-row>
+            <!-- Calorie Filter -->
+            <ion-col size="12" size-md="6">
+              <ion-item>
+                <ion-label position="floating">Max Calories</ion-label>
+                <ion-input 
+                  type="number" 
+                  [(ngModel)]="selectedFilters.maxCalories"
+                  (ionChange)="searchByNutrition()"
+                  placeholder="e.g., 400">
+                </ion-input>
+              </ion-item>
+            </ion-col>
+
+            <!-- Protein Filter -->
+            <ion-col size="12" size-md="6">
+              <ion-item>
+                <ion-label position="floating">Min Protein (g)</ion-label>
+                <ion-input 
+                  type="number" 
+                  [(ngModel)]="selectedFilters.minProtein"
+                  (ionChange)="searchByNutrition()"
+                  placeholder="e.g., 15">
+                </ion-input>
+              </ion-item>
+            </ion-col>
+          </ion-row>
+
+          <!-- Spice Level -->
+          <ion-row>
+            <ion-col size="12">
+              <ion-item>
+                <ion-label>Spice Level</ion-label>
+                <ion-select 
+                  [(ngModel)]="selectedFilters.spiceLevel" 
+                  (ionChange)="searchByNutrition()"
+                  interface="popover"
+                  placeholder="Any spice level">
+                  <ion-select-option value="">Any</ion-select-option>
+                  <ion-select-option *ngFor="let level of spiceLevels" [value]="level">
+                    {{ level | titlecase }}
+                  </ion-select-option>
+                </ion-select>
+              </ion-item>
+            </ion-col>
+          </ion-row>
+
+          <!-- Allergen-Free Filter -->
+          <ion-row>
+            <ion-col size="12">
+              <ion-label>Allergen-Free Options</ion-label>
+              <div class="filter-chips">
+                <ion-chip 
+                  *ngFor="let allergen of allergenOptions" 
+                  [color]="selectedFilters.allergenFree.includes(allergen) ? 'primary' : 'medium'"
+                  (click)="toggleAllergenFilter(allergen)">
+                  <ion-label>{{ allergen | titlecase }}</ion-label>
+                </ion-chip>
+              </div>
+            </ion-col>
+          </ion-row>
+
+          <!-- Dietary Tags -->
+          <ion-row>
+            <ion-col size="12">
+              <ion-label>Dietary Preferences</ion-label>
+              <div class="filter-chips">
+                <ion-chip 
+                  *ngFor="let tag of dietaryOptions" 
+                  [color]="selectedFilters.dietaryTags.includes(tag) ? 'success' : 'medium'"
+                  (click)="toggleDietaryFilter(tag)">
+                  <ion-label>{{ tag | titlecase }}</ion-label>
+                </ion-chip>
+              </div>
+            </ion-col>
+          </ion-row>
+
+          <!-- Clear Filters -->
+          <ion-row>
+            <ion-col size="12">
+              <ion-button 
+                fill="outline" 
+                color="medium" 
+                (click)="clearFilters()"
+                expand="block">
+                <ion-icon name="close" slot="start"></ion-icon>
+                Clear All Filters
+              </ion-button>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="loading-container">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Loading nutrition data...</p>
+  </div>
+
+  <!-- Menu Items with Nutrition -->
+  <div *ngIf="!loading && menuItems.length > 0" class="menu-items">
+    <ion-card *ngFor="let item of menuItems" class="menu-item-card">
+      <ion-card-header>
+        <ion-card-title>{{ item.name }}</ion-card-title>
+        <ion-card-subtitle>{{ item.category }} • ₱{{ item.price }}</ion-card-subtitle>
+      </ion-card-header>
+
+      <ion-card-content>
+        <p *ngIf="item.description">{{ item.description }}</p>
+
+        <!-- Nutrition Information -->
+        <div *ngIf="getNutritionForItem(item.id!) as nutrition" class="nutrition-info">
+          <h4>Nutrition Facts</h4>
+          
+          <!-- Main Macros -->
+          <ion-grid>
+            <ion-row>
+              <ion-col size="3">
+                <div class="nutrition-stat">
+                  <ion-badge [color]="getCalorieColor(nutrition.nutrition.calories)">
+                    {{ nutrition.nutrition.calories }}
+                  </ion-badge>
+                  <small>Calories</small>
+                </div>
+              </ion-col>
+              <ion-col size="3">
+                <div class="nutrition-stat">
+                  <ion-badge [color]="getProteinColor(nutrition.nutrition.protein)">
+                    {{ nutrition.nutrition.protein }}g
+                  </ion-badge>
+                  <small>Protein</small>
+                </div>
+              </ion-col>
+              <ion-col size="3">
+                <div class="nutrition-stat">
+                  <ion-badge color="primary">
+                    {{ nutrition.nutrition.carbs }}g
+                  </ion-badge>
+                  <small>Carbs</small>
+                </div>
+              </ion-col>
+              <ion-col size="3">
+                <div class="nutrition-stat">
+                  <ion-badge color="warning">
+                    {{ nutrition.nutrition.fat }}g
+                  </ion-badge>
+                  <small>Fat</small>
+                </div>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+
+          <!-- Additional Nutrition -->
+          <div *ngIf="nutrition.nutrition.fiber || nutrition.nutrition.sodium" class="additional-nutrition">
+            <ion-chip *ngIf="nutrition.nutrition.fiber" color="success" outline>
+              <ion-label>Fiber: {{ nutrition.nutrition.fiber }}g</ion-label>
+            </ion-chip>
+            <ion-chip *ngIf="nutrition.nutrition.sodium" color="danger" outline>
+              <ion-label>Sodium: {{ nutrition.nutrition.sodium }}mg</ion-label>
+            </ion-chip>
+          </div>
+
+          <!-- Allergens -->
+          <div *ngIf="nutrition.allergens.length > 0" class="allergens">
+            <strong>Allergens:</strong>
+            <ion-chip *ngFor="let allergen of nutrition.allergens" color="danger" outline>
+              <ion-icon name="warning" slot="start"></ion-icon>
+              <ion-label>{{ allergen | titlecase }}</ion-label>
+            </ion-chip>
+          </div>
+
+          <!-- Spice Level -->
+          <div class="spice-level">
+            <ion-chip [color]="getSpiceLevelColor(nutrition.spiceLevel)">
+              <ion-icon name="flame" slot="start"></ion-icon>
+              <ion-label>{{ nutrition.spiceLevel | titlecase }}</ion-label>
+            </ion-chip>
+          </div>
+
+          <!-- Dietary Tags -->
+          <div *ngIf="nutrition.dietaryTags.length > 0" class="dietary-tags">
+            <ion-chip *ngFor="let tag of nutrition.dietaryTags" color="success" outline>
+              <ion-icon name="leaf" slot="start"></ion-icon>
+              <ion-label>{{ tag | titlecase }}</ion-label>
+            </ion-chip>
+          </div>
+
+          <!-- Serving Size -->
+          <p class="serving-size">
+            <ion-icon name="restaurant" color="medium"></ion-icon>
+            <small>Serving Size: {{ nutrition.servingSize }}</small>
+          </p>
+        </div>
+
+        <!-- No Nutrition Data -->
+        <div *ngIf="!getNutritionForItem(item.id!)" class="no-nutrition">
+          <ion-chip color="warning" outline>
+            <ion-icon name="information-circle" slot="start"></ion-icon>
+            <ion-label>Nutrition data not available</ion-label>
+          </ion-chip>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading && menuItems.length === 0" class="empty-state">
+    <ion-icon name="nutrition" color="medium"></ion-icon>
+    <h2>No menu items found</h2>
+    <p>Try adjusting your filters or search query</p>
+    <ion-button fill="outline" (click)="clearFilters()">
+      Clear Filters
+    </ion-button>
+  </div>
+</ion-content>

@@ -103,7 +103,13 @@ export interface SpoonacularMenuItem {
     protein: number;
     carbs: number;
     fat: number;
+    fiber?: number;
+    sodium?: number;
+    sugar?: number;
   };
+  spiceLevel?: 'mild' | 'medium' | 'spicy' | 'very_spicy';
+  dietaryTags?: string[];
+  servingSize?: string;
   searchCount?: number;
   addedAt?: Date;
   spoonacularId?: number;
@@ -322,10 +328,17 @@ export class SpoonacularService {
         calories: Math.round(recipe.nutrition?.nutrients?.find(n => n.name === 'Calories')?.amount || 0),
         protein: Math.round(recipe.nutrition?.nutrients?.find(n => n.name === 'Protein')?.amount || 0),
         carbs: Math.round(recipe.nutrition?.nutrients?.find(n => n.name === 'Carbohydrates')?.amount || 0),
-        fat: Math.round(recipe.nutrition?.nutrients?.find(n => n.name === 'Fat')?.amount || 0)
+        fat: Math.round(recipe.nutrition?.nutrients?.find(n => n.name === 'Fat')?.amount || 0),
+        fiber: Math.round(recipe.nutrition?.nutrients?.find(n => n.name === 'Fiber')?.amount || 0),
+        sodium: Math.round(recipe.nutrition?.nutrients?.find(n => n.name === 'Sodium')?.amount || 0),
+        sugar: Math.round(recipe.nutrition?.nutrients?.find(n => n.name === 'Sugar')?.amount || 0)
       },
+      spiceLevel: this.determineSpiceLevel(recipe),
+      dietaryTags: this.extractDietaryTags(recipe),
+      servingSize: recipe.servings ? `${recipe.servings} serving${recipe.servings !== 1 ? 's' : ''}` : '1 serving',
       searchCount: 1,
-      addedAt: new Date()
+      addedAt: new Date(),
+      spoonacularId: recipe.id
     };
   }
 
@@ -367,6 +380,52 @@ export class SpoonacularService {
     });
     
     return [...new Set(allergens)];
+  }
+
+  private determineSpiceLevel(recipe: SpoonacularRecipe): 'mild' | 'medium' | 'spicy' | 'very_spicy' {
+    const title = recipe.title.toLowerCase();
+    const summary = recipe.summary?.toLowerCase() || '';
+    
+    // Check for spice indicators in title and summary
+    if (title.includes('very spicy') || title.includes('extra hot') || summary.includes('very spicy')) {
+      return 'very_spicy';
+    } else if (title.includes('spicy') || title.includes('hot') || title.includes('chili') || summary.includes('spicy')) {
+      return 'spicy';
+    } else if (title.includes('mild spice') || summary.includes('mild spice')) {
+      return 'medium';
+    }
+    
+    // Check ingredients for spicy elements
+    const spicyIngredients = recipe.extendedIngredients?.some(ing => {
+      const name = ing.name.toLowerCase();
+      return name.includes('chili') || name.includes('pepper') || name.includes('hot sauce') || 
+             name.includes('cayenne') || name.includes('jalapeño') || name.includes('habanero');
+    });
+    
+    return spicyIngredients ? 'medium' : 'mild';
+  }
+
+  private extractDietaryTags(recipe: SpoonacularRecipe): string[] {
+    const tags: string[] = [];
+    
+    if (recipe.vegetarian) tags.push('vegetarian');
+    if (recipe.vegan) tags.push('vegan');
+    if (recipe.glutenFree) tags.push('gluten-free');
+    if (recipe.dairyFree) tags.push('dairy-free');
+    if (recipe.veryHealthy) tags.push('healthy');
+    if (recipe.cheap) tags.push('budget-friendly');
+    if (recipe.ketogenic) tags.push('keto');
+    if (recipe.whole30) tags.push('whole30');
+    if (recipe.lowFodmap) tags.push('low-fodmap');
+    
+    // Add cuisine tags
+    if (recipe.cuisines && recipe.cuisines.length > 0) {
+      recipe.cuisines.forEach(cuisine => {
+        tags.push(cuisine.toLowerCase());
+      });
+    }
+    
+    return tags;
   }
 
   private stripHtml(text: string): string {
