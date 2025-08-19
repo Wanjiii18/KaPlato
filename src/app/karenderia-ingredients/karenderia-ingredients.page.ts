@@ -22,6 +22,30 @@ export class KarenderiaIngredientsPage implements OnInit {
     private toastController: ToastController
   ) { }
 
+  // Add missing methods
+  goBack() {
+    window.history.back();
+  }
+
+  showHelp() {
+    // Implement help functionality
+    console.log('Show help');
+  }
+
+  refreshIngredients() {
+    // Refresh the current search or load popular ingredients
+    if (this.searchQuery.trim()) {
+      this.searchIngredients();
+    } else {
+      this.loadPopularIngredients();
+    }
+  }
+
+  addToRecipe(ingredient: SpoonacularMenuIngredient) {
+    // Implement add to recipe functionality
+    console.log('Adding ingredient to recipe:', ingredient);
+  }
+
   ngOnInit() {
     // Load popular ingredients and test API connection
     this.loadPopularIngredients();

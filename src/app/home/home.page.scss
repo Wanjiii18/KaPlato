@@ -1,12 +1,12 @@
-// Modern Dashboard Styles
+// Modern Dashboard Styles - 2025 Design System
 .modern-dashboard {
-  --background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  --background: #f8fafc;
   --ion-safe-area-top: 0;
 }
 
 .dashboard-content {
   padding: 0;
-  background: transparent;
+  background: var(--background);
 }
 
 .loading-container {
@@ -16,87 +16,603 @@
   justify-content: center;
   height: 50vh;
   color: var(--ion-color-medium);
+}
+
+// Quick Access Grid - Modern Card Design with Responsive Layout
+.quick-access-section {
+  background: #f8fafc;
   
-  ion-spinner {
-    margin-bottom: 16px;
+  // Mobile: Compact padding
+  @media (max-width: 767px) {
+    padding: 16px 0;
+  }
+  
+  // Tablet: Medium padding
+  @media (min-width: 768px) and (max-width: 1023px) {
+    padding: 24px 0;
+  }
+  
+  // Desktop: Full padding
+  @media (min-width: 1024px) {
+    padding: 32px 0;
   }
 }
 
-// Enhanced Header Styles
+.quick-grid {
+  display: grid;
+  gap: 16px;
+  
+  // Mobile: Single column for better readability
+  @media (max-width: 767px) {
+    grid-template-columns: 1fr;
+    padding: 0 16px;
+    gap: 12px;
+  }
+  
+  // Tablet: 2 columns
+  @media (min-width: 768px) and (max-width: 1023px) {
+    grid-template-columns: repeat(2, 1fr);
+    padding: 0 20px;
+    gap: 14px;
+  }
+  
+  // Desktop: 2 columns with more spacing
+  @media (min-width: 1024px) {
+    grid-template-columns: repeat(2, 1fr);
+    padding: 0 24px;
+    gap: 16px;
+  }
+}
+
+.quick-card {
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  background: white;
+  
+  &:active {
+    transform: scale(0.95);
+  }
+  
+  // Mobile: Compact border radius and touch-friendly sizing
+  @media (max-width: 767px) {
+    border-radius: 16px;
+    min-height: 80px;
+    
+    &:active {
+      transform: scale(0.97);
+    }
+  }
+  
+  // Tablet: Medium sizing
+  @media (min-width: 768px) and (max-width: 1023px) {
+    border-radius: 18px;
+    min-height: 90px;
+  }
+  
+  // Desktop: Full styling
+  @media (min-width: 1024px) {
+    border-radius: 20px;
+    min-height: 100px;
+  }
+  
+  ion-card-content {
+    text-align: center;
+    
+    // Mobile: Compact padding
+    @media (max-width: 767px) {
+      padding: 16px 12px;
+    }
+    
+    // Tablet: Medium padding
+    @media (min-width: 768px) and (max-width: 1023px) {
+      padding: 20px 14px;
+    }
+    
+    // Desktop: Full padding
+    @media (min-width: 1024px) {
+      padding: 24px 16px;
+    }
+  }
+  
+  .quick-icon-container {
+    // Mobile: Smaller margin
+    @media (max-width: 767px) {
+      margin-bottom: 8px;
+    }
+    
+    // Tablet: Medium margin
+    @media (min-width: 768px) and (max-width: 1023px) {
+      margin-bottom: 12px;
+    }
+    
+    // Desktop: Full margin
+    @media (min-width: 1024px) {
+      margin-bottom: 16px;
+    }
+  }
+  
+  .quick-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 12px;
+    transition: all 0.3s ease;
+    
+    // Mobile: Smaller icons
+    @media (max-width: 767px) {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      margin-bottom: 8px;
+      
+      ion-icon {
+        font-size: 20px;
+      }
+    }
+    
+    // Tablet: Medium icons
+    @media (min-width: 768px) and (max-width: 1023px) {
+      width: 50px;
+      height: 50px;
+      border-radius: 14px;
+      margin-bottom: 10px;
+      
+      ion-icon {
+        font-size: 22px;
+      }
+    }
+    
+    // Desktop: Full size icons
+    @media (min-width: 1024px) {
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
+      margin-bottom: 12px;
+      
+      ion-icon {
+        font-size: 24px;
+      }
+    }
+    
+    &.recommended-icon {
+      background: linear-gradient(135deg, #f59e0b, #f97316);
+    }
+    
+    &.favorites-icon {
+      background: linear-gradient(135deg, #ec4899, #be185d);
+    }
+    
+    &.history-icon {
+      background: linear-gradient(135deg, #6366f1, #4f46e5);
+    }
+    
+    &.promotions-icon {
+      background: linear-gradient(135deg, #10b981, #059669);
+    }
+    
+    &.browse-menu-icon {
+      background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+    }
+    
+    &.nutrition-icon {
+      background: linear-gradient(135deg, #f97316, #ea580c);
+    }
+    
+    &.allergen-icon {
+      background: linear-gradient(135deg, #dc2626, #b91c1c);
+    }
+  }
+  
+  h4 {
+    margin: 0 0 4px 0;
+    font-weight: 700;
+    color: #0f172a;
+    letter-spacing: -0.01em;
+    
+    // Mobile: Smaller text
+    @media (max-width: 767px) {
+      font-size: 0.85rem;
+      margin-bottom: 2px;
+    }
+    
+    // Tablet: Medium text
+    @media (min-width: 768px) and (max-width: 1023px) {
+      font-size: 0.95rem;
+      margin-bottom: 3px;
+    }
+    
+    // Desktop: Full size text
+    @media (min-width: 1024px) {
+      font-size: 1rem;
+      margin-bottom: 4px;
+    }
+  }
+  
+  p {
+    margin: 0;
+    color: #64748b;
+    font-weight: 500;
+    
+    // Mobile: Smaller text
+    @media (max-width: 767px) {
+      font-size: 0.7rem;
+    }
+    
+    // Tablet: Medium text
+    @media (min-width: 768px) and (max-width: 1023px) {
+      font-size: 0.75rem;
+    }
+    
+    // Desktop: Standard text
+    @media (min-width: 1024px) {
+      font-size: 0.8rem;
+    }
+  }
+  
+  &:hover .quick-icon {
+    transform: scale(1.1);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  }
+}
+
+// Featured Restaurants - Modern Horizontal Scroll with Responsive Design
+.featured-section {
+  background: white;
+  
+  // Mobile: Compact padding
+  @media (max-width: 767px) {
+    padding: 16px 0;
+  }
+  
+  // Tablet: Medium padding
+  @media (min-width: 768px) and (max-width: 1023px) {
+    padding: 24px 0;
+  }
+  
+  // Desktop: Full padding
+  @media (min-width: 1024px) {
+    padding: 32px 0;
+  }
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 24px;
+  margin-bottom: 24px;
+  
+  .view-all-btn {
+    --color: var(--ion-color-primary);
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+}
+
+.restaurants-scroll {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  padding: 0 24px;
+  
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.restaurant-card-modern {
+  flex: 0 0 280px;
+  background: white;
+  border-radius: 24px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  
+  &:active {
+    transform: scale(0.97);
+  }
+  
+  .restaurant-image-container {
+    position: relative;
+    height: 160px;
+    background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    
+    .restaurant-image {
+      position: relative;
+      z-index: 1;
+      
+      ion-icon {
+        font-size: 4rem;
+        color: #94a3b8;
+      }
+    }
+    
+    .image-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.1) 100%);
+      z-index: 2;
+    }
+    
+    .restaurant-status {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
+      padding: 6px 12px;
+      border-radius: 16px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      backdrop-filter: blur(10px);
+      z-index: 3;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      
+      .status-indicator {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #ef4444;
+        
+        &.open {
+          background: #10b981;
+        }
+      }
+    }
+    
+    .rating-badge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
+      padding: 6px 10px;
+      border-radius: 16px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      backdrop-filter: blur(10px);
+      z-index: 3;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      
+      ion-icon {
+        font-size: 0.9rem;
+      }
+    }
+  }
+  
+  .restaurant-details {
+    padding: 20px;
+    
+    h3 {
+      margin: 0 0 8px 0;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #0f172a;
+      letter-spacing: -0.02em;
+      line-height: 1.3;
+    }
+    
+    .cuisine-type {
+      margin: 0 0 16px 0;
+      color: #64748b;
+      font-size: 0.9rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      
+      ion-icon {
+        font-size: 1rem;
+        color: var(--ion-color-primary);
+      }
+    }
+    
+    .restaurant-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      
+      .delivery-info {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: #64748b;
+        font-size: 0.85rem;
+        font-weight: 500;
+        
+        ion-icon {
+          font-size: 1rem;
+        }
+      }
+      
+      .price-info {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 2px;
+        
+        .price-range {
+          font-weight: 700;
+          color: #0f172a;
+          font-size: 0.9rem;
+        }
+        
+        .delivery-fee {
+          font-size: 0.75rem;
+          color: #64748b;
+          font-weight: 500;
+        }
+      }
+    }
+    
+    .order-btn {
+      width: 100%;
+      --border-radius: 16px;
+      --box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+      height: 44px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      
+      ion-icon {
+        font-size: 1.1rem;
+      }
+    }
+  }
+}
+
+// Enhanced Header Styles - Modern Gradient
 .modern-header {
-  ion-toolbar {
-    --background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  .gradient-toolbar {
+    --background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #d946ef 100%);
     --color: white;
     --border-width: 0;
-    padding: 8px 0;
+    padding: 12px 0;
+    box-shadow: 0 4px 20px rgba(99, 102, 241, 0.3);
   }
 }
 
 .header-title {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-weight: 700;
-  font-size: 1.4rem;
+  gap: 12px;
+  font-weight: 800;
+  font-size: 1.5rem;
   color: white;
-  text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  text-shadow: 0 2px 8px rgba(0,0,0,0.2);
   
   ion-icon {
-    font-size: 1.6rem;
+    font-size: 1.8rem;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+  }
+}
+
+.profile-btn, .logout-btn {
+  transition: all 0.3s ease;
+  border-radius: 12px;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: scale(1.05);
   }
 }
 
 .profile-avatar {
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   border: 2px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
   
   ion-icon {
-    font-size: 2rem;
+    font-size: 2.2rem;
   }
 }
 
-// Welcome Header
+// Welcome Header - Modern Card Design
 .welcome-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 30px 24px 40px;
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #d946ef 100%);
+  padding: 32px 24px 48px;
   color: white;
   margin-top: -8px;
+  position: relative;
+  overflow: hidden;
+  
+  .welcome-content {
+    position: relative;
+    z-index: 2;
+  }
+  
+  .header-decoration {
+    position: absolute;
+    right: -30px;
+    top: 20px;
+    opacity: 0.1;
+    z-index: 1;
+    
+    ion-icon {
+      font-size: 150px;
+    }
+  }
   
   h1 {
     margin: 0 0 12px 0;
-    font-size: 2rem;
-    font-weight: 700;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    font-size: 2.2rem;
+    font-weight: 800;
+    text-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    line-height: 1.2;
   }
   
   p {
-    margin: 0;
+    margin: 0 0 16px 0;
     font-size: 1.1rem;
     opacity: 0.9;
     font-weight: 400;
+    line-height: 1.4;
+  }
+  
+  .location-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.15);
+    padding: 8px 16px;
+    border-radius: 20px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    width: fit-content;
+    
+    ion-icon {
+      font-size: 1rem;
+    }
+    
+    span {
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
   }
 }
 
-// Enhanced Search Section
+// Enhanced Search Section - Glass Morphism
 .search-section {
-  padding: 24px;
+  padding: 32px 24px 24px;
   background: white;
-  margin-top: -20px;
-  border-radius: 24px 24px 0 0;
-  box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+  margin-top: -24px;
+  border-radius: 32px 32px 0 0;
+  box-shadow: 0 -8px 32px rgba(0,0,0,0.1);
   z-index: 10;
   position: relative;
 }
 
 .enhanced-searchbar {
-  --background: #f8f9fb;
-  --border-radius: 20px;
-  --box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-  --color: #333;
-  --placeholder-color: #999;
+  --background: #f8fafc;
+  --border-radius: 24px;
+  --box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+  --color: #1e293b;
+  --placeholder-color: #64748b;
   --icon-color: var(--ion-color-primary);
-  margin: 0;
+  margin: 0 0 20px 0;
+  transition: all 0.3s ease;
+  
+  &:focus-within {
+    --box-shadow: 0 8px 32px rgba(99, 102, 241, 0.2);
+    --background: white;
+    transform: translateY(-2px);
+  }
   
   .searchbar-input-container {
     border: 2px solid transparent;
@@ -104,55 +620,119 @@
     
     &:focus-within {
       border-color: var(--ion-color-primary);
-      --background: white;
     }
   }
 }
 
-// Section Titles
-.section-title {
-  margin: 0 0 20px 0;
-  font-size: 1.4rem;
-  font-weight: 700;
-  color: #2c3e50;
-  padding: 0 24px;
+.filter-chips {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding: 4px 0;
+  
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
-// Main Feature Cards - Large and Colorful
+.filter-chip {
+  --background: #f1f5f9;
+  --color: #64748b;
+  border-radius: 20px;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  
+  &.active {
+    --background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    --color: white;
+    transform: scale(1.05);
+  }
+  
+  &:not(.active):hover {
+    --background: #e2e8f0;
+    transform: translateY(-2px);
+  }
+  
+  ion-icon {
+    margin-right: 6px;
+    font-size: 1rem;
+  }
+}
+// Section Titles - Modern Typography
+.section-title {
+  margin: 0 0 24px 0;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #0f172a;
+  padding: 0 24px;
+  letter-spacing: -0.02em;
+}
+
+// Main Feature Cards - Modern Glass Design
 .main-features-section {
-  padding: 24px 0;
+  padding: 32px 0;
   background: white;
 }
 
+.features-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 0 24px;
+}
+
 .feature-card {
-  margin: 0 24px 20px;
   border-radius: 24px;
   overflow: hidden;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-  transition: all 0.3s ease;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   position: relative;
-  min-height: 140px;
+  min-height: 160px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
   
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.2);
+  &:active {
+    transform: scale(0.98);
+  }
+  
+  .card-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.1);
+    z-index: 1;
+    pointer-events: none; // Allow clicks to pass through
   }
   
   .card-background {
     position: absolute;
-    right: -20px;
+    right: -40px;
     top: 50%;
     transform: translateY(-50%);
-    opacity: 0.1;
-    z-index: 1;
+    opacity: 0.15;
+    z-index: 0;
     
     .bg-icon {
-      font-size: 120px;
+      font-size: 140px;
+      color: white;
+    }
+    
+    &.nearby-bg {
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.3) 0%, transparent 70%);
+    }
+    
+    &.planner-bg {
+      background: radial-gradient(circle, rgba(139, 92, 246, 0.3) 0%, transparent 70%);
+    }
+    
+    &.browse-bg {
+      background: radial-gradient(circle, rgba(245, 158, 11, 0.3) 0%, transparent 70%);
     }
   }
   
   ion-card-content {
-    padding: 28px;
+    padding: 32px;
     position: relative;
     z-index: 2;
   }
@@ -160,21 +740,34 @@
   .feature-content {
     display: flex;
     align-items: center;
+    gap: 20px;
   }
   
   .feature-icon {
-    width: 70px;
-    height: 70px;
-    border-radius: 20px;
+    width: 80px;
+    height: 80px;
+    border-radius: 24px;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-right: 20px;
-    background: rgba(255, 255, 255, 0.2);
-    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
     
     ion-icon {
-      font-size: 32px;
+      font-size: 36px;
+    }
+    
+    &.nearby-icon {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.8), rgba(59, 130, 246, 0.8));
+    }
+    
+    &.planner-icon {
+      background: linear-gradient(135deg, rgba(139, 92, 246, 0.8), rgba(168, 85, 247, 0.8));
+    }
+    
+    &.browse-icon {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.8), rgba(249, 115, 22, 0.8));
     }
   }
   
@@ -183,21 +776,72 @@
     
     h3 {
       margin: 0 0 8px 0;
-      font-size: 1.4rem;
-      font-weight: 700;
+      font-size: 1.5rem;
+      font-weight: 800;
       color: white;
-      text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      text-shadow: 0 4px 8px rgba(0,0,0,0.3);
+      letter-spacing: -0.02em;
     }
     
     p {
-      margin: 0 0 12px 0;
+      margin: 0 0 16px 0;
       color: rgba(255, 255, 255, 0.9);
       font-size: 1rem;
-      line-height: 1.4;
+      line-height: 1.5;
+      font-weight: 400;
     }
   }
   
-  .feature-badge {
+  .feature-stats {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.8);
+    font-weight: 600;
+    
+    .stat-divider {
+      width: 1px;
+      height: 12px;
+      background: rgba(255, 255, 255, 0.4);
+    }
+  }
+  
+  .feature-badge, .health-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 6px 12px;
+    border-radius: 16px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    width: fit-content;
+    
+    ion-icon {
+      font-size: 0.9rem;
+    }
+    
+    span {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: white;
+    }
+  }
+  
+  &.hero-card {
+    background: linear-gradient(135deg, #6366f1 0%, #3b82f6 100%);
+  }
+  
+  &.planner-card {
+    background: linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%);
+  }
+  
+  &.browse-card {
+    background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
+  }
+  
+  .feature-tag {
     display: inline-flex;
     align-items: center;
     gap: 6px;
@@ -586,5 +1230,58 @@
 .restaurant-card-large {
   &:active {
     transform: translateY(-2px);
+  }
+}
+
+// Modern Animation Classes
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-slide-up {
+  animation: slideInUp 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-out;
+}
+
+// Enhanced Search Bar Animations
+.modern-search-container {
+  .search-input:focus {
+    transform: scale(1.02);
+    box-shadow: 0 8px 30px rgba(99, 102, 241, 0.2);
+  }
+}
+
+// Glass Morphism Effects
+.glass-card {
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+// Modern Button Hover Effects
+.feature-card {
+  &:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(99, 102, 241, 0.3);
   }
 }

@@ -236,4 +236,8 @@ export class KarenderiaApplicationPage implements OnInit {
     toast.present();
   }
 
+  // Add missing method
+  showHelp() {
+    console.log('Show help');
+  }
 }

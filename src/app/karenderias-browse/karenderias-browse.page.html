@@ -1,0 +1,169 @@
+<ion-header [translucent]="true" class="browse-header">
+  <ion-toolbar class="gradient-toolbar">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home" color="light" class="back-btn"></ion-back-button>
+    </ion-buttons>
+    <ion-title>
+      <div class="header-title">
+        <ion-icon name="storefront" color="light"></ion-icon>
+        <span>Browse Karenderias</span>
+      </div>
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button fill="clear" color="light" (click)="loadKarenderias()">
+        <ion-icon name="refresh-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="browse-content">
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Finding delicious karenderias for you...</p>
+  </div>
+
+  <!-- Main Content -->
+  <div *ngIf="!isLoading" class="browse-container animate-fade-in">
+    
+    <!-- Search Section -->
+    <div class="search-section">
+      <ion-searchbar 
+        [(ngModel)]="searchQuery" 
+        placeholder="Search karenderias, cuisine, or location..."
+        mode="ios"
+        class="browse-searchbar"
+        (ionInput)="onSearchChange()">
+        <ion-icon name="search-outline" slot="start"></ion-icon>
+      </ion-searchbar>
+    </div>
+
+    <!-- Filter Categories -->
+    <div class="categories-section">
+      <div class="categories-scroll">
+        <ion-chip 
+          *ngFor="let category of categories"
+          class="category-chip"
+          [class.active]="selectedCategory === category.id"
+          (click)="selectCategory(category.id)">
+          <ion-icon [name]="category.icon"></ion-icon>
+          <ion-label>{{ category.name }}</ion-label>
+        </ion-chip>
+      </div>
+    </div>
+
+    <!-- Sort and Results Header -->
+    <div class="results-header">
+      <div class="results-info">
+        <h3>{{ filteredKarenderias.length }} Karenderias Found</h3>
+        <p>Near your location</p>
+      </div>
+      <ion-select 
+        [(ngModel)]="selectedSort" 
+        (ionChange)="onSortChange()"
+        interface="popover"
+        placeholder="Sort by"
+        class="sort-select">
+        <ion-select-option *ngFor="let option of sortOptions" [value]="option.id">
+          {{ option.name }}
+        </ion-select-option>
+      </ion-select>
+    </div>
+
+    <!-- Karenderias Grid -->
+    <div class="karenderias-grid" *ngIf="filteredKarenderias.length > 0">
+      <ion-card 
+        button 
+        class="karenderia-card" 
+        *ngFor="let karenderia of filteredKarenderias"
+        (click)="selectKarenderia(karenderia)">
+        
+        <!-- Card Image -->
+        <div class="card-image-container">
+          <div class="card-image">
+            <ion-icon name="storefront" size="large" class="placeholder-icon"></ion-icon>
+            <div class="image-overlay"></div>
+          </div>
+          
+          <!-- Status Badge -->
+          <div class="status-badge" [class.open]="karenderia.isOpen">
+            <div class="status-indicator" [class.open]="karenderia.isOpen"></div>
+            {{ karenderia.isOpen ? 'Open' : 'Closed' }}
+          </div>
+          
+          <!-- Rating Badge -->
+          <div class="rating-badge">
+            <ion-icon name="star" color="warning"></ion-icon>
+            <span>{{ karenderia.rating }}</span>
+          </div>
+        </div>
+
+        <!-- Card Content -->
+        <ion-card-content class="card-content">
+          <div class="karenderia-info">
+            <h4 class="karenderia-name">{{ karenderia.name }}</h4>
+            
+            <div class="cuisine-tags">
+              <ion-chip 
+                *ngFor="let cuisine of karenderia.cuisine" 
+                class="cuisine-chip"
+                color="primary" 
+                fill="outline" 
+                size="small">
+                {{ cuisine }}
+              </ion-chip>
+            </div>
+            
+            <p class="address">
+              <ion-icon name="location-outline" color="medium"></ion-icon>
+              {{ karenderia.address }}
+            </p>
+            
+            <div class="karenderia-meta">
+              <div class="meta-item">
+                <ion-icon name="bicycle-outline" color="primary"></ion-icon>
+                <span>{{ karenderia.deliveryTime }}</span>
+              </div>
+              
+              <div class="meta-item">
+                <ion-icon name="navigate-outline" color="medium"></ion-icon>
+                <span>{{ karenderia.distance }}km away</span>
+              </div>
+              
+              <div class="meta-item delivery-fee">
+                <ion-icon name="cash-outline" color="success"></ion-icon>
+                <span>₱{{ karenderia.deliveryFee }} delivery</span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Action Button -->
+          <ion-button 
+            fill="solid" 
+            size="small" 
+            color="primary" 
+            class="view-menu-btn"
+            [disabled]="!karenderia.isOpen">
+            <ion-icon name="restaurant-outline" slot="start"></ion-icon>
+            {{ karenderia.isOpen ? 'View Menu' : 'Closed' }}
+          </ion-button>
+        </ion-card-content>
+      </ion-card>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="filteredKarenderias.length === 0" class="empty-state">
+      <div class="empty-icon">
+        <ion-icon name="storefront-outline" size="large"></ion-icon>
+      </div>
+      <h3>No Karenderias Found</h3>
+      <p>Try adjusting your search or filters</p>
+      <ion-button fill="outline" color="primary" (click)="selectCategory('all')">
+        <ion-icon name="refresh-outline" slot="start"></ion-icon>
+        Show All
+      </ion-button>
+    </div>
+
+  </div>
+</ion-content>

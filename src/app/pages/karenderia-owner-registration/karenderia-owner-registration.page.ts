@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 import { 
   IonContent, IonHeader, IonTitle, IonToolbar, IonButtons, IonBackButton,
   IonItem, IonInput, IonButton, IonIcon, IonTextarea, IonCheckbox, 
-  IonLabel, IonChip, IonSpinner, LoadingController, AlertController, ToastController
+  IonLabel, LoadingController, AlertController, ToastController
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { 
@@ -29,7 +29,7 @@ declare var window: any;
     ReactiveFormsModule,
     IonContent, IonHeader, IonTitle, IonToolbar, IonButtons, IonBackButton,
     IonItem, IonInput, IonButton, IonIcon, IonTextarea, IonCheckbox, 
-    IonLabel, IonChip, IonSpinner
+    IonLabel
   ]
 })
 export class KarenderiaOwnerRegistrationPage implements OnInit {

@@ -30,6 +30,12 @@ export class KarenderiaAnalyticsPage implements OnInit {
     private toastController: ToastController
   ) { }
 
+  // Add missing method
+  getRecommendationIcon(index: number): string {
+    const icons = ['bulb', 'trending-up', 'flash', 'star', 'rocket'];
+    return icons[index % icons.length];
+  }
+
   async ngOnInit() {
     this.currentSeason = this.getCurrentSeason();
     this.seasonalRecommendations = this.analyticsService.getSeasonalRecommendations(this.currentSeason);

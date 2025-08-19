@@ -1,0 +1,232 @@
+// Modern API Test Page Styles - 2025 Design System with Responsive Design
+
+.modern-api-content {
+  --background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+}
+
+.modern-api-header {
+  .gradient-api-toolbar {
+    --background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #d946ef 100%);
+    --color: white;
+    --border-width: 0;
+    box-shadow: 0 4px 20px rgba(99, 102, 241, 0.3);
+    
+    // Mobile: Compact padding
+    @media (max-width: 767px) {
+      padding: 8px 0;
+    }
+    
+    // Tablet: Medium padding
+    @media (min-width: 768px) and (max-width: 1023px) {
+      padding: 10px 0;
+    }
+    
+    // Desktop: Full padding
+    @media (min-width: 1024px) {
+      padding: 12px 0;
+    }
+  }
+}
+
+.modern-api-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 800;
+  color: white;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  
+  // Mobile: Smaller title
+  @media (max-width: 767px) {
+    font-size: 1.1rem;
+    gap: 8px;
+    
+    ion-icon {
+      font-size: 1.3rem;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+    }
+  }
+  
+  // Tablet: Medium title
+  @media (min-width: 768px) and (max-width: 1023px) {
+    font-size: 1.25rem;
+    gap: 10px;
+    
+    ion-icon {
+      font-size: 1.45rem;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+    }
+  }
+  
+  // Desktop: Full title
+  @media (min-width: 1024px) {
+    font-size: 1.4rem;
+    gap: 12px;
+    
+    ion-icon {
+      font-size: 1.6rem;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+    }
+  }
+}
+
+.modern-back-btn {
+  --color: white;
+  --background: rgba(255, 255, 255, 0.1);
+  --border-radius: 12px;
+  margin: 0 8px;
+  backdrop-filter: blur(10px);
+}
+
+.api-test-container {
+  max-width: 800px;
+  margin: 0 auto;
+  
+  // Mobile: Compact padding
+  @media (max-width: 767px) {
+    padding: 16px 12px;
+  }
+  
+  // Tablet: Medium padding
+  @media (min-width: 768px) and (max-width: 1023px) {
+    padding: 20px 16px;
+  }
+  
+  // Desktop: Full padding
+  @media (min-width: 1024px) {
+    padding: 24px 20px;
+  }
+}
+
+// Modern API Test Cards
+.api-test-card {
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  
+  // Mobile: Compact styling
+  @media (max-width: 767px) {
+    border-radius: 16px;
+    margin-bottom: 16px;
+  }
+  
+  // Tablet: Medium styling
+  @media (min-width: 768px) and (max-width: 1023px) {
+    border-radius: 18px;
+    margin-bottom: 20px;
+  }
+  
+  // Desktop: Full styling
+  @media (min-width: 1024px) {
+    border-radius: 20px;
+    margin-bottom: 24px;
+  }
+  
+  ion-card-content {
+    // Mobile: Compact padding
+    @media (max-width: 767px) {
+      padding: 16px;
+    }
+    
+    // Tablet: Medium padding
+    @media (min-width: 768px) and (max-width: 1023px) {
+      padding: 20px;
+    }
+    
+    // Desktop: Full padding
+    @media (min-width: 1024px) {
+      padding: 24px;
+    }
+  }
+}
+
+// Modern buttons
+.modern-test-btn {
+  --background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #d946ef 100%);
+  --color: white;
+  --border-radius: 16px;
+  --box-shadow: 0 8px 24px rgba(99, 102, 241, 0.4);
+  font-weight: 600;
+  height: 48px;
+  
+  // Mobile: Touch-friendly sizing
+  @media (max-width: 767px) {
+    height: 44px;
+    --border-radius: 12px;
+    font-size: 0.9rem;
+  }
+  
+  // Tablet: Medium sizing
+  @media (min-width: 768px) and (max-width: 1023px) {
+    height: 46px;
+    --border-radius: 14px;
+    font-size: 0.95rem;
+  }
+  
+  // Desktop: Full sizing
+  @media (min-width: 1024px) {
+    height: 48px;
+    --border-radius: 16px;
+    font-size: 1rem;
+  }
+}
+
+// Responsive text elements
+.api-endpoint-text {
+  font-family: 'Courier New', monospace;
+  background: #f8fafc;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  
+  // Mobile: Smaller text
+  @media (max-width: 767px) {
+    font-size: 0.75rem;
+    padding: 8px;
+    border-radius: 6px;
+  }
+  
+  // Tablet: Medium text
+  @media (min-width: 768px) and (max-width: 1023px) {
+    font-size: 0.85rem;
+    padding: 10px;
+    border-radius: 7px;
+  }
+  
+  // Desktop: Full text
+  @media (min-width: 1024px) {
+    font-size: 0.9rem;
+    padding: 12px;
+    border-radius: 8px;
+  }
+}
+
+.response-container {
+  background: #f1f5f9;
+  border-radius: 12px;
+  padding: 16px;
+  margin-top: 16px;
+  
+  // Mobile: Compact styling
+  @media (max-width: 767px) {
+    border-radius: 8px;
+    padding: 12px;
+    margin-top: 12px;
+  }
+  
+  // Tablet: Medium styling
+  @media (min-width: 768px) and (max-width: 1023px) {
+    border-radius: 10px;
+    padding: 14px;
+    margin-top: 14px;
+  }
+  
+  // Desktop: Full styling
+  @media (min-width: 1024px) {
+    border-radius: 12px;
+    padding: 16px;
+    margin-top: 16px;
+  }
+}

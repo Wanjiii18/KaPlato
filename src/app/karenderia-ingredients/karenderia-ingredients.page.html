@@ -1,117 +1,211 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>Ingredient Search</ion-title>
-  </ion-toolbar>
-</ion-header>
-
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Ingredient Search</ion-title>
+<div class="modern-menu-header">
+  <ion-header [translucent]="true">
+    <ion-toolbar class="gradient-menu-toolbar">
+      <ion-buttons slot="start">
+        <ion-button class="modern-back-btn" fill="clear" (click)="goBack()">
+          <ion-icon name="arrow-back"></ion-icon>
+        </ion-button>
+      </ion-buttons>
+      <ion-title>
+        <div class="modern-menu-title">
+          <ion-icon name="leaf"></ion-icon>
+          Ingredient Search
+        </div>
+      </ion-title>
+      <ion-buttons slot="end">
+        <ion-button class="modern-refresh-btn" fill="solid" size="small" (click)="refreshIngredients()">
+          <ion-icon name="refresh" slot="icon-only"></ion-icon>
+        </ion-button>
+        <ion-button class="modern-filter-btn" fill="outline" size="small" (click)="showHelp()">
+          <ion-icon name="help-circle" slot="icon-only"></ion-icon>
+        </ion-button>
+      </ion-buttons>
     </ion-toolbar>
   </ion-header>
+</div>
 
-  <!-- Search Section -->
-  <div class="search-section">
-    <ion-searchbar 
-      [(ngModel)]="searchQuery"
-      placeholder="Search for ingredients..."
-      (ionInput)="searchIngredients()"
-      debounce="500"
-      show-clear-button="focus">
-    </ion-searchbar>
+<ion-content [fullscreen]="true" class="modern-menu-content">
+  <div class="modern-menu-container">
+    <!-- Modern Page Header -->
+    <div class="modern-page-header">
+      <div class="header-content">
+        <div class="header-icon">
+          <ion-icon name="search"></ion-icon>
+        </div>
+        <div class="header-text">
+          <h1>Ingredient Search</h1>
+          <p>Find ingredients for your recipes using our comprehensive database</p>
+        </div>
+      </div>
+    </div>
 
-    <ion-button 
-      expand="block" 
-      (click)="searchIngredients()"
-      [disabled]="!searchQuery.trim() || isLoading"
-      class="search-button">
-      <ion-icon name="search" slot="start"></ion-icon>
-      {{ isLoading ? 'Searching...' : 'Search Ingredients' }}
-    </ion-button>
+    <!-- Modern Search Section -->
+    <div class="modern-search-section">
+      <div class="search-card">
+        <div class="search-header">
+          <h2>Search Ingredients</h2>
+          <p>Find ingredients from our comprehensive database</p>
+        </div>
+        
+        <div class="search-controls">
+          <ion-searchbar 
+            [(ngModel)]="searchQuery"
+            placeholder="Enter ingredient name (e.g., chicken, tomato, garlic)"
+            (ionInput)="searchIngredients()"
+            debounce="500"
+            show-clear-button="focus"
+            class="modern-searchbar">
+          </ion-searchbar>
 
-    <ion-button 
-      fill="clear" 
-      (click)="clearSearch()"
-      [disabled]="!hasSearched"
-      class="clear-button">
-      <ion-icon name="refresh" slot="start"></ion-icon>
-      Clear Results
-    </ion-button>
-  </div>
+          <div class="search-actions">
+            <ion-button 
+              expand="block" 
+              (click)="searchIngredients()"
+              [disabled]="!searchQuery.trim() || isLoading"
+              class="search-button">
+              <ion-icon name="search" slot="start"></ion-icon>
+              {{ isLoading ? 'Searching...' : 'Search Ingredients' }}
+            </ion-button>
 
-  <!-- Loading State -->
-  <div *ngIf="isLoading" class="loading-section">
-    <ion-spinner name="circular"></ion-spinner>
-    <p>Searching ingredients...</p>
-  </div>
+            <ion-button 
+              fill="outline" 
+              (click)="clearSearch()"
+              [disabled]="!hasSearched"
+              class="clear-button">
+              <ion-icon name="refresh" slot="start"></ion-icon>
+              Clear Results
+            </ion-button>
+          </div>
+        </div>
+        
+        <!-- Quick Search Suggestions -->
+        <div class="suggestion-section" *ngIf="!hasSearched && !isLoading">
+          <h4>Popular Searches:</h4>
+          <div class="suggestion-chips">
+            <ion-chip 
+              *ngFor="let suggestion of ['chicken', 'tomato', 'onion', 'garlic', 'rice', 'cheese', 'beef', 'pasta']"
+              (click)="searchQuery = suggestion; searchIngredients()"
+              class="suggestion-chip">
+              <ion-icon name="add" slot="start"></ion-icon>
+              {{ suggestion }}
+            </ion-chip>
+          </div>
+        </div>
+      </div>
+    </div>
 
-  <!-- Results Section -->
-  <div *ngIf="hasSearched && !isLoading" class="results-section">
-    <ion-text *ngIf="ingredients.length === 0" class="no-results">
-      <h3>No ingredients found</h3>
-      <p>Try searching for a different ingredient name.</p>
-    </ion-text>
+    <!-- Modern Loading State -->
+    <div *ngIf="isLoading" class="modern-loading-section">
+      <div class="loading-card">
+        <div class="loading-animation">
+          <ion-spinner name="circular" class="loading-spinner"></ion-spinner>
+        </div>
+        <h3>Searching Ingredients</h3>
+        <p>Finding the best matches for "{{ searchQuery }}"...</p>
+      </div>
+    </div>
 
-    <ion-grid *ngIf="ingredients.length > 0">
-      <ion-row>
-        <ion-col size="12" class="results-header">
-          <h3>Found {{ ingredients.length }} ingredients</h3>
-        </ion-col>
-      </ion-row>
-      
-      <ion-row>
-        <ion-col 
-          size="6" 
-          size-md="4" 
-          size-lg="3" 
-          *ngFor="let ingredient of ingredients; trackBy: trackByIngredientId"
-          class="ingredient-col">
-          
-          <ion-card class="ingredient-card">
+    <!-- Modern Results Section -->
+    <div *ngIf="hasSearched && !isLoading" class="modern-results-section">
+      <!-- No Results State -->
+      <div *ngIf="ingredients.length === 0" class="modern-empty-state">
+        <div class="empty-icon">
+          <ion-icon name="search"></ion-icon>
+        </div>
+        <h3>No Ingredients Found</h3>
+        <p>We couldn't find any ingredients matching "{{ searchQuery }}". Try adjusting your search terms or check the suggestions below.</p>
+        <div class="empty-actions">
+          <ion-button fill="outline" (click)="clearSearch()">
+            <ion-icon name="refresh" slot="start"></ion-icon>
+            Try New Search
+          </ion-button>
+        </div>
+      </div>
+
+      <!-- Results Grid -->
+      <div *ngIf="ingredients.length > 0" class="results-container">
+        <div class="results-header">
+          <div class="results-info">
+            <h3>Search Results</h3>
+            <p>Found {{ ingredients.length }} ingredients for "{{ searchQuery }}"</p>
+          </div>
+          <div class="results-actions">
+            <ion-button fill="outline" size="small" (click)="clearSearch()">
+              <ion-icon name="close" slot="start"></ion-icon>
+              Clear
+            </ion-button>
+          </div>
+        </div>
+        
+        <div class="ingredients-grid">
+          <div 
+            *ngFor="let ingredient of ingredients; trackBy: trackByIngredientId"
+            class="ingredient-card">
+            
             <div class="ingredient-image-container">
               <img 
                 [src]="getIngredientImageUrl(ingredient)" 
                 [alt]="ingredient.name"
                 class="ingredient-image"
                 (error)="onImageError($event)">
+              <div class="image-overlay">
+                <ion-button fill="clear" size="small" class="view-btn">
+                  <ion-icon name="eye"></ion-icon>
+                </ion-button>
+              </div>
             </div>
             
-            <ion-card-content>
-              <ion-card-title class="ingredient-name">
-                {{ ingredient.name }}
-              </ion-card-title>
-              
-              <ion-card-subtitle *ngIf="ingredient.aisle" class="ingredient-aisle">
-                {{ ingredient.aisle }}
-              </ion-card-subtitle>
+            <div class="ingredient-content">
+              <h4 class="ingredient-name">{{ ingredient.name }}</h4>
               
               <div class="ingredient-details">
-                <ion-chip *ngIf="ingredient.consistency" color="secondary">
+                <ion-chip *ngIf="ingredient.aisle" color="primary" class="detail-chip">
+                  <ion-icon name="location" slot="start"></ion-icon>
+                  {{ ingredient.aisle }}
+                </ion-chip>
+                
+                <ion-chip *ngIf="ingredient.consistency" color="secondary" class="detail-chip">
+                  <ion-icon name="layers" slot="start"></ion-icon>
                   {{ ingredient.consistency }}
                 </ion-chip>
               </div>
-            </ion-card-content>
-          </ion-card>
-        </ion-col>
-      </ion-row>
-    </ion-grid>
-  </div>
+              
+              <div class="ingredient-actions">
+                <ion-button fill="clear" size="small" (click)="addToRecipe(ingredient)">
+                  <ion-icon name="add-circle" slot="start"></ion-icon>
+                  Add to Recipe
+                </ion-button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-  <!-- Welcome Message -->
-  <div *ngIf="!hasSearched && !isLoading" class="welcome-section">
-    <ion-icon name="search" class="welcome-icon"></ion-icon>
-    <h2>Welcome to Ingredient Search</h2>
-    <p>Search for ingredients using the Spoonacular API. Enter an ingredient name above to get started!</p>
-    
-    <div class="suggestion-chips">
-      <h4>Try searching for:</h4>
-      <ion-chip 
-        *ngFor="let suggestion of ['chicken', 'tomato', 'onion', 'garlic', 'rice', 'cheese']"
-        (click)="searchQuery = suggestion; searchIngredients()"
-        class="suggestion-chip">
-        {{ suggestion }}
-      </ion-chip>
+    <!-- Modern Welcome Section -->
+    <div *ngIf="!hasSearched && !isLoading" class="modern-welcome-section">
+      <div class="welcome-card">
+        <div class="welcome-icon">
+          <ion-icon name="leaf"></ion-icon>
+        </div>
+        <h2>Discover Ingredients</h2>
+        <p>Search through thousands of ingredients to find exactly what you need for your recipes. Get detailed information including nutritional data and cooking suggestions.</p>
+        
+        <div class="welcome-features">
+          <div class="feature-item">
+            <ion-icon name="search" class="feature-icon"></ion-icon>
+            <span>Smart Search</span>
+          </div>
+          <div class="feature-item">
+            <ion-icon name="nutrition" class="feature-icon"></ion-icon>
+            <span>Nutrition Info</span>
+          </div>
+          <div class="feature-item">
+            <ion-icon name="restaurant" class="feature-icon"></ion-icon>
+            <span>Recipe Ideas</span>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </ion-content>

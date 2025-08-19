@@ -1,12 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { 
-  IonContent, IonHeader, IonTitle, IonToolbar, IonButtons, IonBackButton,
-  IonCard, IonCardHeader, IonCardTitle, IonCardSubtitle, IonCardContent,
-  IonItem, IonInput, IonButton, IonIcon, IonChip, IonLabel, IonModal,
-  LoadingController, AlertController, ToastController
-} from '@ionic/angular/standalone';
+import { IonicModule, LoadingController, AlertController, ToastController } from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import { 
   timeOutline, restaurantOutline, locationOutline, map, checkmark, pencil, 
@@ -15,13 +10,21 @@ import {
 } from 'ionicons/icons';
 
 import { AdminService } from 'src/app/services/admin.service';
+import { GoogleMapsService } from 'src/app/services/google-maps.service';
+import { LoggerService } from 'src/app/services/logger.service';
 
 declare var google: any;
 
 @Component({
   selector: 'app-admin-location-management',
   templateUrl: './admin-location-management.page.html',
-  styleUrls: ['./admin-location-management.page.scss']
+  styleUrls: ['./admin-location-management.page.scss'],
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    IonicModule
+  ]
 })
 export class AdminLocationManagementPage implements OnInit {
   @ViewChild('adminMapContainer', { static: false }) adminMapContainer!: ElementRef;
@@ -33,6 +36,7 @@ export class AdminLocationManagementPage implements OnInit {
   selectedKarenderia: any = null;
   searchAddress = '';
   isSaving = false;
+  mapLoaded = false;
   
   map: any;
   marker: any;
@@ -40,6 +44,8 @@ export class AdminLocationManagementPage implements OnInit {
 
   constructor(
     private adminService: AdminService,
+    private googleMapsService: GoogleMapsService,
+    private logger: LoggerService,
     private loadingCtrl: LoadingController,
     private alertCtrl: AlertController,
     private toastCtrl: ToastController,
@@ -97,9 +103,15 @@ export class AdminLocationManagementPage implements OnInit {
     }
   }
 
+  async refreshData() {
+    await this.loadKarenderias();
+    await this.showToast('Data refreshed successfully', 'success');
+  }
+
   setKarenderiaLocation(karenderia: any) {
     this.selectedKarenderia = karenderia;
     this.searchAddress = `${karenderia.address}, ${karenderia.city}, ${karenderia.province}`;
+    this.mapLoaded = false;
     this.isLocationModalOpen = true;
     
     // Load map after modal opens
@@ -122,12 +134,11 @@ export class AdminLocationManagementPage implements OnInit {
     }, 500);
   }
 
-  loadAdminMap() {
-    if (typeof google === 'undefined') {
-      console.log('Google Maps not loaded yet, waiting...');
-      setTimeout(() => {
-        this.loadAdminMap();
-      }, 1000);
+  async loadAdminMap() {
+    try {
+      await this.googleMapsService.loadGoogleMaps();
+    } catch (error) {
+      this.logger.error('Failed to load Google Maps:', error);
       return;
     }
 
@@ -155,6 +166,9 @@ export class AdminLocationManagementPage implements OnInit {
       };
 
       this.map = new google.maps.Map(this.adminMapContainer.nativeElement, mapOptions);
+
+      // Set mapLoaded to true when map is ready
+      this.mapLoaded = true;
 
       // Add draggable marker
       this.marker = new google.maps.Marker({

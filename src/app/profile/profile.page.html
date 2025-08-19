@@ -1,180 +1,242 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
+<ion-header [translucent]="true" class="modern-profile-header">
+  <ion-toolbar class="gradient-profile-toolbar">
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/home"></ion-back-button>
+      <ion-back-button defaultHref="/home" color="light" class="modern-back-btn"></ion-back-button>
     </ion-buttons>
-    <ion-title>Profile</ion-title>
+    <ion-title>
+      <div class="modern-profile-title">
+        <ion-icon name="person" color="light"></ion-icon>
+        <span>Profile</span>
+      </div>
+    </ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Profile</ion-title>
-    </ion-toolbar>
-  </ion-header>
-
-  <div class="profile-container" *ngIf="userProfile">
-    <!-- User Info Card -->
-    <ion-card class="user-info-card">
-      <ion-card-header>
-        <div class="user-avatar">
+<ion-content [fullscreen]="true" class="modern-profile-content">
+  <div class="modern-profile-container animate-fade-in" *ngIf="userProfile">
+    <!-- Modern User Info Card -->
+    <div class="modern-user-card animate-slide-up">
+      <div class="user-card-background">
+        <div class="background-pattern"></div>
+      </div>
+      <div class="user-card-content">
+        <div class="modern-user-avatar">
           <ion-icon name="person-circle" size="large"></ion-icon>
         </div>
-        <ion-card-title>{{ userProfile.displayName }}</ion-card-title>
-        <ion-card-subtitle>{{ userProfile.email }}</ion-card-subtitle>
-        <ion-chip color="primary">
-          <ion-label>{{ userProfile.role?.replace('_', ' ') | titlecase }}</ion-label>
-        </ion-chip>
-      </ion-card-header>
-    </ion-card>
-
-    <!-- Segmented Control -->
-    <ion-segment [(ngModel)]="selectedSegment" class="profile-segment">
-      <ion-segment-button value="general">
-        <ion-label>General</ion-label>
-      </ion-segment-button>
-      <ion-segment-button value="allergens">
-        <ion-label>Allergens</ion-label>
-      </ion-segment-button>
-      <ion-segment-button value="meal-plans">
-        <ion-label>Meal Plans</ion-label>
-      </ion-segment-button>
-    </ion-segment>
-
-    <!-- General Info -->
-    <div *ngIf="selectedSegment === 'general'" class="segment-content">
-      <ion-card>
-        <ion-card-header>
-          <ion-card-title>General Information</ion-card-title>
-        </ion-card-header>
-        <ion-card-content>
-          <ion-list>
-            <ion-item>
-              <ion-label>
-                <h3>Username</h3>
-                <p>{{ userProfile.username }}</p>
-              </ion-label>
-            </ion-item>
-            <ion-item>
-              <ion-label>
-                <h3>Email</h3>
-                <p>{{ userProfile.email }}</p>
-              </ion-label>
-            </ion-item>
-            <ion-item *ngIf="userProfile.phoneNumber">
-              <ion-label>
-                <h3>Phone Number</h3>
-                <p>{{ userProfile.phoneNumber }}</p>
-              </ion-label>
-            </ion-item>
-            <ion-item *ngIf="userProfile.address">
-              <ion-label>
-                <h3>Address</h3>
-                <p>{{ userProfile.address }}</p>
-              </ion-label>
-            </ion-item>
-            <ion-item>
-              <ion-label>
-                <h3>Member Since</h3>
-                <p>{{ formatDate(userProfile.createdAt) }}</p>
-              </ion-label>
-            </ion-item>
-          </ion-list>
-        </ion-card-content>
-      </ion-card>
+        <div class="user-info">
+          <h2>{{ userProfile.displayName }}</h2>
+          <p>{{ userProfile.email }}</p>
+          <div class="modern-role-chip">
+            <ion-icon name="shield-checkmark-outline"></ion-icon>
+            <span>{{ userProfile.role?.replace('_', ' ') | titlecase }}</span>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!-- Allergens Section -->
-    <div *ngIf="selectedSegment === 'allergens'" class="segment-content">
-      <ion-card>
-        <ion-card-header>
-          <ion-card-title>Food Allergens</ion-card-title>
-          <ion-card-subtitle>Manage your food allergies and intolerances</ion-card-subtitle>
-        </ion-card-header>
-        <ion-card-content>
-          <ion-button expand="block" fill="outline" (click)="addAllergen()">
-            <ion-icon name="add" slot="start"></ion-icon>
-            Add Allergen
-          </ion-button>
-
-          <div class="allergens-list" *ngIf="allergens.length > 0">
-            <ion-list>
-              <ion-item *ngFor="let allergen of allergens" class="allergen-item">
-                <ion-label>
-                  <h3>{{ allergen.name }}</h3>
-                  <p *ngIf="allergen.notes">{{ allergen.notes }}</p>
-                  <p class="allergen-date" *ngIf="allergen.addedAt">Added: {{ formatDate(allergen.addedAt) }}</p>
-                </ion-label>
-                <ion-chip [color]="getSeverityColor(allergen.severity)" slot="end">
-                  <ion-label>{{ allergen.severity | titlecase }}</ion-label>
-                </ion-chip>
-                <ion-button fill="clear" size="small" color="danger" slot="end" (click)="removeAllergen(allergen)">
-                  <ion-icon name="trash"></ion-icon>
-                </ion-button>
-              </ion-item>
-            </ion-list>
-          </div>
-
-          <div *ngIf="allergens.length === 0" class="empty-state">
-            <ion-icon name="warning-outline" size="large"></ion-icon>
-            <p>No allergens added yet</p>
-            <p class="empty-subtitle">Add your food allergies to get personalized recommendations</p>
-          </div>
-        </ion-card-content>
-      </ion-card>
+    <!-- Modern Segmented Control -->
+    <div class="modern-segment-container animate-slide-up">
+      <ion-segment [(ngModel)]="selectedSegment" class="modern-profile-segment">
+        <ion-segment-button value="general" class="modern-segment-btn">
+          <ion-icon name="person-outline"></ion-icon>
+          <ion-label>General</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="allergens" class="modern-segment-btn">
+          <ion-icon name="warning-outline"></ion-icon>
+          <ion-label>Allergens</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="meal-plans" class="modern-segment-btn">
+          <ion-icon name="restaurant-outline"></ion-icon>
+          <ion-label>Meal Plans</ion-label>
+        </ion-segment-button>
+      </ion-segment>
     </div>
 
-    <!-- Meal Plans Section -->
-    <div *ngIf="selectedSegment === 'meal-plans'" class="segment-content">
-      <ion-card>
-        <ion-card-header>
-          <ion-card-title>Meal Plans</ion-card-title>
-          <ion-card-subtitle>Create and manage your meal planning</ion-card-subtitle>
-        </ion-card-header>
-        <ion-card-content>
-          <ion-button expand="block" fill="outline" (click)="addMealPlan()">
-            <ion-icon name="add" slot="start"></ion-icon>
-            Create Meal Plan
+    <!-- Modern General Info -->
+    <div *ngIf="selectedSegment === 'general'" class="modern-segment-content animate-slide-up">
+      <div class="modern-info-card">
+        <div class="modern-card-header">
+          <div class="header-content">
+            <h3>General Information</h3>
+            <p>Your account details and preferences</p>
+          </div>
+          <div class="header-icon">
+            <ion-icon name="person-outline"></ion-icon>
+          </div>
+        </div>
+        
+        <div class="modern-info-list">
+          <div class="modern-info-item">
+            <div class="info-icon username-icon">
+              <ion-icon name="at-outline"></ion-icon>
+            </div>
+            <div class="info-content">
+              <h4>Username</h4>
+              <p>{{ userProfile.username }}</p>
+            </div>
+          </div>
+          
+          <div class="modern-info-item">
+            <div class="info-icon email-icon">
+              <ion-icon name="mail-outline"></ion-icon>
+            </div>
+            <div class="info-content">
+              <h4>Email</h4>
+              <p>{{ userProfile.email }}</p>
+            </div>
+          </div>
+          
+          <div class="modern-info-item" *ngIf="userProfile.phoneNumber">
+            <div class="info-icon phone-icon">
+              <ion-icon name="call-outline"></ion-icon>
+            </div>
+            <div class="info-content">
+              <h4>Phone Number</h4>
+              <p>{{ userProfile.phoneNumber }}</p>
+            </div>
+          </div>
+          
+          <div class="modern-info-item" *ngIf="userProfile.address">
+            <div class="info-icon address-icon">
+              <ion-icon name="location-outline"></ion-icon>
+            </div>
+            <div class="info-content">
+              <h4>Address</h4>
+              <p>{{ userProfile.address }}</p>
+            </div>
+          </div>
+          
+          <div class="modern-info-item">
+            <div class="info-icon member-icon">
+              <ion-icon name="calendar-outline"></ion-icon>
+            </div>
+            <div class="info-content">
+              <h4>Member Since</h4>
+              <p>{{ formatDate(userProfile.createdAt) }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modern Allergens Section -->
+    <div *ngIf="selectedSegment === 'allergens'" class="modern-segment-content animate-slide-up">
+      <div class="modern-allergens-card">
+        <div class="modern-card-header">
+          <div class="header-content">
+            <h3>Food Allergens</h3>
+            <p>Manage your food allergies and intolerances</p>
+          </div>
+          <div class="header-icon">
+            <ion-icon name="warning-outline"></ion-icon>
+          </div>
+        </div>
+        
+        <div class="modern-card-content">
+          <ion-button expand="block" fill="solid" (click)="addAllergen()" class="modern-add-button">
+            <ion-icon name="add-circle-outline" slot="start"></ion-icon>
+            Add New Allergen
           </ion-button>
 
-          <div class="meal-plans-list" *ngIf="mealPlans.length > 0">
-            <ion-list>
-              <ion-item *ngFor="let mealPlan of mealPlans" class="meal-plan-item">
-                <ion-label>
-                  <h3>{{ mealPlan.name }}</h3>
-                  <p *ngIf="mealPlan.description">{{ mealPlan.description }}</p>
-                  <p class="meal-plan-dates" *ngIf="mealPlan.startDate && mealPlan.endDate">
-                    {{ formatDate(mealPlan.startDate) }} - {{ formatDate(mealPlan.endDate) }}
-                  </p>
-                </ion-label>
-                <div slot="end" class="meal-plan-actions">
-                  <ion-chip *ngIf="mealPlan.isActive" color="success">
-                    <ion-label>Active</ion-label>
-                  </ion-chip>
-                  <ion-button *ngIf="!mealPlan.isActive" fill="clear" size="small" color="primary" (click)="setActiveMealPlan(mealPlan)">
-                    <ion-icon name="play"></ion-icon>
-                  </ion-button>
-                  <ion-button fill="clear" size="small" color="danger" (click)="removeMealPlan(mealPlan)">
-                    <ion-icon name="trash"></ion-icon>
+          <div class="modern-allergens-list" *ngIf="allergens.length > 0">
+            <div class="allergens-grid">
+              <div *ngFor="let allergen of allergens" class="modern-allergen-item">
+                <div class="allergen-content">
+                  <div class="allergen-header">
+                    <h4>{{ allergen.name }}</h4>
+                    <div class="modern-severity-badge" [ngClass]="'severity-' + allergen.severity">
+                      <span>{{ allergen.severity | titlecase }}</span>
+                    </div>
+                  </div>
+                  <p *ngIf="allergen.notes" class="allergen-notes">{{ allergen.notes }}</p>
+                  <p *ngIf="allergen.addedAt" class="allergen-date">Added: {{ formatDate(allergen.addedAt) }}</p>
+                </div>
+                <div class="allergen-actions">
+                  <ion-button fill="clear" size="small" color="danger" (click)="removeAllergen(allergen)" class="remove-btn">
+                    <ion-icon name="trash-outline"></ion-icon>
                   </ion-button>
                 </div>
-              </ion-item>
-            </ion-list>
+              </div>
+            </div>
           </div>
 
-          <div *ngIf="mealPlans.length === 0" class="empty-state">
-            <ion-icon name="restaurant-outline" size="large"></ion-icon>
-            <p>No meal plans created yet</p>
-            <p class="empty-subtitle">Create your first meal plan to start organizing your meals</p>
+          <div *ngIf="allergens.length === 0" class="modern-empty-state">
+            <div class="empty-icon">
+              <ion-icon name="shield-checkmark-outline"></ion-icon>
+            </div>
+            <h4>No allergens added yet</h4>
+            <p>Add your food allergies to get personalized recommendations and safer dining options</p>
           </div>
-        </ion-card-content>
-      </ion-card>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modern Meal Plans Section -->
+    <div *ngIf="selectedSegment === 'meal-plans'" class="modern-segment-content animate-slide-up">
+      <div class="modern-meal-plans-card">
+        <div class="modern-card-header">
+          <div class="header-content">
+            <h3>Meal Plans</h3>
+            <p>Create and manage your meal planning</p>
+          </div>
+          <div class="header-icon">
+            <ion-icon name="restaurant-outline"></ion-icon>
+          </div>
+        </div>
+        
+        <div class="modern-card-content">
+          <ion-button expand="block" fill="solid" (click)="addMealPlan()" class="modern-add-button">
+            <ion-icon name="add-circle-outline" slot="start"></ion-icon>
+            Create New Meal Plan
+          </ion-button>
+
+          <div class="modern-meal-plans-list" *ngIf="mealPlans.length > 0">
+            <div class="meal-plans-grid">
+              <div *ngFor="let mealPlan of mealPlans" class="modern-meal-plan-item">
+                <div class="meal-plan-content">
+                  <div class="meal-plan-header">
+                    <h4>{{ mealPlan.name }}</h4>
+                    <div class="modern-status-badge" [ngClass]="mealPlan.isActive ? 'active' : 'inactive'">
+                      <ion-icon [name]="mealPlan.isActive ? 'checkmark-circle' : 'pause-circle'"></ion-icon>
+                      <span>{{ mealPlan.isActive ? 'Active' : 'Inactive' }}</span>
+                    </div>
+                  </div>
+                  <p *ngIf="mealPlan.description" class="meal-plan-description">{{ mealPlan.description }}</p>
+                  <div *ngIf="mealPlan.startDate && mealPlan.endDate" class="meal-plan-dates">
+                    <ion-icon name="calendar-outline"></ion-icon>
+                    <span>{{ formatDate(mealPlan.startDate) }} - {{ formatDate(mealPlan.endDate) }}</span>
+                  </div>
+                </div>
+                <div class="meal-plan-actions">
+                  <ion-button *ngIf="!mealPlan.isActive" fill="clear" size="small" color="primary" (click)="setActiveMealPlan(mealPlan)" class="activate-btn">
+                    <ion-icon name="play-circle-outline"></ion-icon>
+                  </ion-button>
+                  <ion-button fill="clear" size="small" color="danger" (click)="removeMealPlan(mealPlan)" class="remove-btn">
+                    <ion-icon name="trash-outline"></ion-icon>
+                  </ion-button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div *ngIf="mealPlans.length === 0" class="modern-empty-state">
+            <div class="empty-icon">
+              <ion-icon name="restaurant-outline"></ion-icon>
+            </div>
+            <h4>No meal plans created yet</h4>
+            <p>Create your first meal plan to start organizing your meals and maintaining a healthy diet</p>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
-  <div *ngIf="!userProfile" class="loading-state">
-    <ion-spinner name="crescent"></ion-spinner>
-    <p>Loading profile...</p>
+  <!-- Modern Loading State -->
+  <div *ngIf="!userProfile" class="modern-loading-state animate-fade-in">
+    <div class="loading-content">
+      <ion-spinner name="crescent" color="primary"></ion-spinner>
+      <h3>Loading your profile...</h3>
+      <p>Getting your personal information ready</p>
+    </div>
   </div>
 </ion-content>

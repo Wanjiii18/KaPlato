@@ -9,12 +9,180 @@
  * https://ionicframework.com/docs/layout/global-stylesheets
  */
 
+/* Import Shared Karenderia Styles */
+@use './app/shared/karenderia-shared.scss';
+
 /* Core CSS required for Ionic components to work properly */
 @import "@ionic/angular/css/core.css";
 
 /* Basic CSS for apps built with Ionic */
 @import "@ionic/angular/css/normalize.css";
 @import "@ionic/angular/css/structure.css";
+
+/* High-Contrast UI Theme Variables - No Gradients */
+:root {
+  /* Primary Colors - Clean Blues */
+  --ion-color-primary: #2563eb;
+  --ion-color-primary-rgb: 37, 99, 235;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: #1d4ed8;
+  --ion-color-primary-tint: #3b82f6;
+
+  /* Secondary Colors - Clean Grays */
+  --ion-color-secondary: #64748b;
+  --ion-color-secondary-rgb: 100, 116, 139;
+  --ion-color-secondary-contrast: #ffffff;
+  --ion-color-secondary-contrast-rgb: 255, 255, 255;
+  --ion-color-secondary-shade: #475569;
+  --ion-color-secondary-tint: #94a3b8;
+
+  /* Success - Vibrant Green */
+  --ion-color-success: #059669;
+  --ion-color-success-rgb: 5, 150, 105;
+  --ion-color-success-contrast: #ffffff;
+  --ion-color-success-contrast-rgb: 255, 255, 255;
+  --ion-color-success-shade: #047857;
+  --ion-color-success-tint: #10b981;
+
+  /* Warning - Bright Orange */
+  --ion-color-warning: #d97706;
+  --ion-color-warning-rgb: 217, 119, 6;
+  --ion-color-warning-contrast: #ffffff;
+  --ion-color-warning-contrast-rgb: 255, 255, 255;
+  --ion-color-warning-shade: #b45309;
+  --ion-color-warning-tint: #f59e0b;
+
+  /* Danger - Bold Red */
+  --ion-color-danger: #dc2626;
+  --ion-color-danger-rgb: 220, 38, 38;
+  --ion-color-danger-contrast: #ffffff;
+  --ion-color-danger-contrast-rgb: 255, 255, 255;
+  --ion-color-danger-shade: #b91c1c;
+  --ion-color-danger-tint: #ef4444;
+
+  /* High Contrast Grays */
+  --ion-color-light: #f8fafc;
+  --ion-color-light-rgb: 248, 250, 252;
+  --ion-color-light-contrast: #0f172a;
+  --ion-color-light-contrast-rgb: 15, 23, 42;
+  --ion-color-light-shade: #e2e8f0;
+  --ion-color-light-tint: #f1f5f9;
+
+  --ion-color-medium: #64748b;
+  --ion-color-medium-rgb: 100, 116, 139;
+  --ion-color-medium-contrast: #ffffff;
+  --ion-color-medium-contrast-rgb: 255, 255, 255;
+  --ion-color-medium-shade: #475569;
+  --ion-color-medium-tint: #94a3b8;
+
+  --ion-color-dark: #0f172a;
+  --ion-color-dark-rgb: 15, 23, 42;
+  --ion-color-dark-contrast: #ffffff;
+  --ion-color-dark-contrast-rgb: 255, 255, 255;
+  --ion-color-dark-shade: #020617;
+  --ion-color-dark-tint: #1e293b;
+
+  /* Background Colors - Clean & Accessible */
+  --ion-background-color: #ffffff;
+  --ion-background-color-rgb: 255, 255, 255;
+  --ion-text-color: #0f172a;
+  --ion-text-color-rgb: 15, 23, 42;
+  --ion-toolbar-background: #ffffff;
+  --ion-toolbar-color: #0f172a;
+  --ion-item-background: #ffffff;
+  --ion-border-color: #e2e8f0;
+}
+
+/* Ensure NO gradients anywhere */
+ion-button {
+  --background: var(--ion-color-primary) !important;
+  --background-activated: var(--ion-color-primary-shade) !important;
+  --background-hover: var(--ion-color-primary-tint) !important;
+  --border-radius: 12px;
+  font-weight: 600;
+}
+
+ion-card {
+  --background: #ffffff;
+  border: 2px solid #e2e8f0;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+ion-toolbar {
+  --background: #ffffff;
+  --color: #0f172a;
+  --border-color: #e2e8f0;
+}
+
+ion-tabs {
+  --background: #ffffff;
+  --color: #64748b;
+  --color-selected: #2563eb;
+  border-top: 2px solid #e2e8f0;
+  position: relative;
+  z-index: 1000; /* Ensure tabs are always on top */
+}
+
+/* Tab buttons specifically */
+ion-tab-button {
+  position: relative;
+  z-index: 1001;
+  pointer-events: auto; /* Ensure clickable */
+}
+
+/* Ensure the entire tab bar area is protected */
+ion-tab-bar {
+  position: relative;
+  z-index: 1002;
+  pointer-events: auto;
+  background: var(--ion-background-color);
+}
+
+/* Ensure all interactive elements are clickable */
+ion-router-outlet {
+  position: relative;
+  z-index: 1;
+  pointer-events: auto;
+}
+
+/* Fix any overlay issues */
+* {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* But allow text selection where needed */
+input, textarea, ion-input, ion-textarea {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}
+
+/* DEBUGGING: Force all page content to be visible but not overlapping tabs */
+ion-content {
+  --background: white !important;
+  background: white !important;
+  min-height: calc(100vh - 120px) !important; /* Reserve space for tabs */
+  position: relative !important;
+  z-index: 5 !important;
+}
+
+app-customer-home, app-browse, app-customer-profile, app-customer-settings {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: calc(100vh - 120px) !important; /* Reserve space for tabs */
+  background: white !important;
+  position: relative !important;
+  z-index: 5 !important;
+}
 @import "@ionic/angular/css/typography.css";
 @import "@ionic/angular/css/display.css";
 
@@ -45,6 +213,45 @@
 }
 
 /* Fix for Leaflet marker icons */
+
+/* Fix viewport height for mobile */
+html, body {
+  height: 100vh;
+  height: 100dvh; /* Use dynamic viewport height on modern browsers */
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
+  top: 0;
+  left: 0;
+}
+
+ion-app {
+  height: 100vh;
+  height: 100dvh;
+  max-height: 100vh;
+  max-height: 100dvh;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Ensure content fills full height */
+ion-content {
+  height: 100%;
+  --background: transparent;
+}
+
+/* Mobile viewport fixes */
+@supports (-webkit-touch-callout: none) {
+  html, body, ion-app {
+    height: -webkit-fill-available;
+  }
+}
+
+/* Remove iOS safe area padding - let tabs handle it */
+/* ion-app padding removed to fix the half-screen issue */
 .leaflet-marker-icon {
   margin-left: -12px !important;
   margin-top: -41px !important;
@@ -59,4 +266,266 @@
   background: #f0f0f0 !important;
   height: 100% !important;
   width: 100% !important;
+}
+
+// Modern Design System Overrides for Alerts, Toasts, and Modals
+// Modern Alert Styles
+.alert-wrapper {
+  --background: white;
+  --border-radius: 24px;
+  --box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  border-radius: 24px !important;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+}
+
+.alert-head {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #d946ef 100%) !important;
+  padding: 24px 24px 20px !important;
+  
+  .alert-title {
+    color: white !important;
+    font-weight: 800 !important;
+    font-size: 1.4rem !important;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.2) !important;
+    margin: 0 !important;
+  }
+  
+  .alert-sub-title {
+    color: rgba(255, 255, 255, 0.9) !important;
+    font-weight: 500 !important;
+    margin-top: 8px !important;
+  }
+}
+
+.alert-message {
+  padding: 20px 24px !important;
+  color: #64748b !important;
+  font-size: 1rem !important;
+  line-height: 1.5 !important;
+}
+
+.alert-input-wrapper {
+  background: #f8fafc !important;
+  border: 2px solid #e2e8f0 !important;
+  border-radius: 12px !important;
+  margin: 8px 0 !important;
+  
+  .alert-input {
+    padding: 12px 16px !important;
+    font-size: 1rem !important;
+    color: #1e293b !important;
+    
+    &::placeholder {
+      color: #94a3b8 !important;
+    }
+  }
+  
+  &.alert-input-has-focus {
+    border-color: #6366f1 !important;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1) !important;
+  }
+}
+
+.alert-radio-group {
+  .alert-radio-button {
+    --border-radius: 12px;
+    margin: 4px 0 !important;
+    border-radius: 12px !important;
+    border: 2px solid #e2e8f0 !important;
+    
+    &.alert-radio-button-checked {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1)) !important;
+      border-color: #6366f1 !important;
+    }
+  }
+  
+  .alert-radio-label {
+    color: #1e293b !important;
+    font-weight: 500 !important;
+  }
+  
+  .alert-radio-icon {
+    border-color: #6366f1 !important;
+    
+    &.alert-radio-icon-checked {
+      background: #6366f1 !important;
+    }
+  }
+}
+
+.alert-button-group {
+  padding: 16px 24px 24px !important;
+  
+  .alert-button {
+    border-radius: 16px !important;
+    font-weight: 700 !important;
+    height: 48px !important;
+    margin: 0 4px !important;
+    
+    &.alert-button-role-cancel {
+      background: #f1f5f9 !important;
+      color: #64748b !important;
+      border: 2px solid #e2e8f0 !important;
+    }
+    
+    &:not(.alert-button-role-cancel) {
+      background: linear-gradient(135deg, #6366f1, #8b5cf6) !important;
+      color: white !important;
+      box-shadow: 0 4px 16px rgba(99, 102, 241, 0.3) !important;
+    }
+  }
+}
+
+// Modern Toast Styles
+.toast-wrapper {
+  --background: white;
+  --border-radius: 20px;
+  --box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+  border-radius: 20px !important;
+  margin: 16px !important;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  overflow: hidden;
+  
+  .toast-container {
+    padding: 20px 24px !important;
+  }
+  
+  .toast-header {
+    font-weight: 700 !important;
+    font-size: 1.1rem !important;
+    color: #1e293b !important;
+  }
+  
+  .toast-message {
+    color: #64748b !important;
+    font-size: 0.95rem !important;
+    margin-top: 4px !important;
+    line-height: 1.4 !important;
+  }
+  
+  .toast-button {
+    --color: #6366f1;
+    font-weight: 600 !important;
+    border-radius: 12px !important;
+    
+    &.toast-button-cancel {
+      --color: #64748b;
+    }
+  }
+  
+  // Toast Color Variants
+  &.toast-color-success {
+    border-left: 4px solid #059669;
+    
+    .toast-header {
+      color: #059669 !important;
+    }
+  }
+  
+  &.toast-color-warning {
+    border-left: 4px solid #f59e0b;
+    
+    .toast-header {
+      color: #f59e0b !important;
+    }
+  }
+  
+  &.toast-color-danger {
+    border-left: 4px solid #ef4444;
+    
+    .toast-header {
+      color: #ef4444 !important;
+    }
+  }
+  
+  &.toast-color-primary {
+    border-left: 4px solid #6366f1;
+    
+    .toast-header {
+      color: #6366f1 !important;
+    }
+  }
+}
+
+// Modern Modal Styles
+.modal-wrapper {
+  --border-radius: 24px 24px 0 0;
+  border-radius: 24px 24px 0 0 !important;
+  overflow: hidden;
+  
+  &.modal-card {
+    --border-radius: 24px;
+    border-radius: 24px !important;
+    margin: 16px !important;
+    max-height: calc(100vh - 32px) !important;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15) !important;
+  }
+}
+
+// Modern Loading Styles
+.loading-wrapper {
+  --background: rgba(255, 255, 255, 0.95);
+  --border-radius: 20px;
+  border-radius: 20px !important;
+  backdrop-filter: blur(10px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  
+  .loading-content {
+    padding: 32px !important;
+  }
+  
+  .loading-spinner {
+    color: #6366f1 !important;
+  }
+  
+  .loading-text {
+    color: #1e293b !important;
+    font-weight: 600 !important;
+    font-size: 1.1rem !important;
+    margin-top: 16px !important;
+  }
+}
+
+// Modern Action Sheet Styles
+.action-sheet-wrapper {
+  --background: white;
+  --border-radius: 24px 24px 0 0;
+  border-radius: 24px 24px 0 0 !important;
+  
+  .action-sheet-container {
+    padding: 24px !important;
+  }
+  
+  .action-sheet-title {
+    color: #1e293b !important;
+    font-weight: 800 !important;
+    font-size: 1.3rem !important;
+  }
+  
+  .action-sheet-sub-title {
+    color: #64748b !important;
+    font-weight: 500 !important;
+    margin-top: 8px !important;
+  }
+  
+  .action-sheet-button {
+    --background: #f8fafc;
+    --color: #1e293b;
+    --border-radius: 16px;
+    margin: 8px 0 !important;
+    font-weight: 600 !important;
+    border-radius: 16px !important;
+    
+    &.action-sheet-destructive {
+      --background: rgba(239, 68, 68, 0.1);
+      --color: #ef4444;
+    }
+    
+    &.action-sheet-cancel {
+      --background: #e2e8f0;
+      --color: #64748b;
+      margin-top: 16px !important;
+    }
+  }
 }

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, of } from 'rxjs';
-import { map, tap, catchError, switchMap } from 'rxjs/operators';
+import { map, tap, catchError, switchMap, timeout } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 import { AuthService } from './auth.service';
 
@@ -24,7 +24,20 @@ export interface UserProfile {
   allergens?: any[]; // Add this for the profile page
   mealPlans?: any[]; // Add this for the profile page
   dietaryRestrictions?: string[];
+  dietaryPreferences?: string[];
   cuisinePreferences?: string[];
+  healthInfo?: {
+    weight?: number;
+    height?: number;
+    activityLevel?: string;
+    age?: number;
+  };
+  nutritionGoals?: {
+    dailyCalories?: number;
+    protein?: number;
+    carbohydrates?: number;
+    fat?: number;
+  };
   preferredMealTimes?: {
     breakfast?: string;
     lunch?: string;
@@ -58,10 +71,25 @@ export class UserService {
     private http: HttpClient,
     private authService: AuthService
   ) {
-    // Load user profile when auth state changes
+    // Load user profile when auth state changes, but don't block the app
     this.authService.currentUser$.subscribe(user => {
       if (user) {
-        this.loadUserProfile().subscribe();
+        // Load profile in background with timeout
+        this.loadUserProfile().pipe(
+          timeout(5000), // 5 second timeout
+          catchError(error => {
+            console.warn('User profile loading failed, using auth service data:', error);
+            // Fallback to auth service user data
+            const fallbackProfile: UserProfile = {
+              uid: user.id,
+              email: user.email,
+              displayName: user.name || user.displayName || 'User',
+              role: user.role
+            };
+            this.currentUserProfileSubject.next(fallbackProfile);
+            return of(fallbackProfile);
+          })
+        ).subscribe();
       } else {
         this.currentUserProfileSubject.next(null);
       }
@@ -172,7 +200,7 @@ export class UserService {
     }).pipe(
       tap(() => {
         this.currentUserProfileSubject.next(null);
-        this.authService.logout().subscribe();
+        this.authService.logout();
       }),
       catchError(error => {
         console.error('Error deleting account:', error);

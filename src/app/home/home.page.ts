@@ -410,28 +410,40 @@ export class HomePage implements OnInit, OnDestroy {
     // Sample featured karenderias data
     this.featuredKarenderias = [
       {
+        id: 'mock-1',
         name: "Lola Rosa's Kitchen",
         address: "123 Main St, Quezon City",
         location: { latitude: 14.6760, longitude: 121.0437 },
         rating: 4.8,
         priceRange: 'Budget',
-        cuisine: ['Filipino', 'Traditional']
+        cuisine: ['Filipino', 'Traditional'],
+        isOpen: true,
+        deliveryTime: '20-30 min',
+        deliveryFee: 25
       },
       {
+        id: 'mock-2',
         name: "Tita Neng's Lutong Bahay",
         address: "456 Food Ave, Manila",
         location: { latitude: 14.5995, longitude: 120.9842 },
         rating: 4.6,
         priceRange: 'Budget',
-        cuisine: ['Filipino', 'Home-cooked']
+        cuisine: ['Filipino', 'Home-cooked'],
+        isOpen: true,
+        deliveryTime: '25-35 min',
+        deliveryFee: 30
       },
       {
+        id: 'mock-3',
         name: "Kuya Jun's BBQ House",
         address: "789 Grill St, Makati",
         location: { latitude: 14.5547, longitude: 121.0244 },
         rating: 4.7,
         priceRange: 'Moderate',
-        cuisine: ['BBQ', 'Grilled']
+        cuisine: ['BBQ', 'Grilled'],
+        isOpen: false,
+        deliveryTime: '30-40 min',
+        deliveryFee: 35
       }
     ];
   }
@@ -487,19 +499,18 @@ export class HomePage implements OnInit, OnDestroy {
     });
     await loading.present();
 
-    this.authService.logout().subscribe({
-      next: (response) => {
-        console.log('Logout successful:', response);
-        loading.dismiss();
-        this.router.navigate(['/login']);
-      },
-      error: (error) => {
-        console.error('Logout error:', error);
-        loading.dismiss();
-        // Even if logout fails on server, clear local data and redirect
-        this.router.navigate(['/login']);
-      }
-    });
+    try {
+      // Call logout method (it returns void)
+      this.authService.logout();
+      console.log('Logout successful');
+      loading.dismiss();
+      this.router.navigate(['/login']);
+    } catch (error: any) {
+      console.error('Logout error:', error);
+      loading.dismiss();
+      // Even if logout fails on server, clear local data and redirect
+      this.router.navigate(['/login']);
+    }
   }
 
   goToApplicationPage() {
@@ -566,5 +577,57 @@ export class HomePage implements OnInit, OnDestroy {
 
   viewSuggestedKarenderias() {
     this.router.navigate(['/suggested-karenderias']);
+  }
+
+  openNutritionEngine() {
+    this.router.navigate(['/nutrition-engine']);
+  }
+
+  openAllergenProfile() {
+    this.router.navigate(['/allergen-profile']);
+  }
+
+  async viewKarenderiaMenu(karenderia: any) {
+    console.log('🍽️ Viewing menu for karenderia:', karenderia.name);
+    
+    if (!karenderia.id) {
+      console.error('❌ Karenderia ID is missing');
+      await this.showToast('Unable to view menu - karenderia information incomplete');
+      return;
+    }
+
+    try {
+      // Navigate to karenderia detail page with the karenderia data
+      await this.router.navigate(['/karenderia-detail', karenderia.id], {
+        state: { karenderia: karenderia }
+      });
+      
+      console.log('✅ Successfully navigated to karenderia detail page');
+    } catch (error) {
+      console.error('❌ Error navigating to karenderia detail:', error);
+      await this.showToast('Unable to view menu at this time');
+    }
+  }
+
+  async browseKarenderiaMenus() {
+    console.log('🍽️ Browse Karenderia Menus clicked');
+    
+    try {
+      // Navigate to dedicated karenderias browse page
+      console.log('🏪 Navigating to karenderias browse page');
+      
+      const success = await this.router.navigateByUrl('/karenderias-browse');
+      
+      if (success) {
+        console.log('✅ Successfully navigated to karenderias browse page');
+        await this.showToast('Browse all available karenderias!');
+      } else {
+        console.error('❌ Failed to navigate to karenderias browse page');
+        await this.showToast('Unable to load karenderias list at this time');
+      }
+    } catch (error) {
+      console.error('❌ Error navigating to karenderias browse page:', error);
+      await this.showToast('Unable to browse karenderias at this time');
+    }
   }
 }

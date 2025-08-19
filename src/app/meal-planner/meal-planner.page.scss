@@ -1,62 +1,426 @@
-.meal-planner-content {
-  --background: #f5f5f5;
-}
-
-.meal-planner-container {
-  padding: 16px;
-  max-width: 600px;
-  margin: 0 auto;
-}
-
-.meal-planner-card {
-  margin-bottom: 20px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  border-radius: 12px;
-  overflow: hidden;
-}
-
-.meal-planner-card ion-card-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+// Modern Meal Planner Styles - 2025 Design System
+.modern-meal-content {
+  --backg.welcome-section {
   text-align: center;
+  
+  // Mobile: Compact spacing
+  @media (max-width: 767px) {
+    margin-bottom: 20px;
+    
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #1e293b;
+      margin: 0 0 8px 0;
+      letter-spacing: -0.02em;
+    }
+    
+    p {
+      font-size: 0.85rem;
+      color: #64748b;
+      margin: 0 0 16px 0;
+      line-height: 1.5;
+    }
+  }
+  
+  // Tablet: Medium spacing
+  @media (min-width: 768px) and (max-width: 1023px) {
+    margin-bottom: 26px;
+    
+    h1 {
+      font-size: 1.75rem;
+      font-weight: 800;
+      color: #1e293b;
+      margin: 0 0 10px 0;
+      letter-spacing: -0.02em;
+    }
+    
+    p {
+      font-size: 0.95rem;
+      color: #64748b;
+      margin: 0 0 18px 0;
+      line-height: 1.5;
+    }
+  }
+  
+  // Desktop: Full spacing
+  @media (min-width: 1024px) {
+    margin-bottom: 32px;
+    
+    h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #1e293b;
+      margin: 0 0 12px 0;
+      letter-spacing: -0.02em;
+    }
+    
+    p {
+      font-size: 1rem;
+      color: #64748b;
+      margin: 0 0 20px 0;
+      line-height: 1.5;
+    }
+  }
+}
+
+// Modern Meal Content
+.modern-meal-content {
+  --background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+}
+
+.modern-meal-header {
+  .gradient-meal-toolbar {
+    --background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #d946ef 100%);
+    --color: white;
+    --border-width: 0;
+    padding: 12px 0;
+    box-shadow: 0 4px 20px rgba(99, 102, 241, 0.3);
+  }
+}
+
+.modern-meal-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 800;
+  color: white;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  
+  // Mobile: Smaller title
+  @media (max-width: 767px) {
+    font-size: 1.1rem;
+    gap: 8px;
+    
+    ion-icon {
+      font-size: 1.3rem;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+    }
+  }
+  
+  // Tablet: Medium title
+  @media (min-width: 768px) and (max-width: 1023px) {
+    font-size: 1.25rem;
+    gap: 10px;
+    
+    ion-icon {
+      font-size: 1.45rem;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+    }
+  }
+  
+  // Desktop: Full title
+  @media (min-width: 1024px) {
+    font-size: 1.4rem;
+    gap: 12px;
+    
+    ion-icon {
+      font-size: 1.6rem;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+    }
+  }
+}
+
+.modern-back-btn {
+  --color: white;
+  --background: rgba(255, 255, 255, 0.1);
+  --border-radius: 12px;
+  margin: 0 8px;
+  backdrop-filter: blur(10px);
+}
+
+.modern-meal-container {
+  max-width: 700px;
+  margin: 0 auto;
+  
+  // Mobile: Compact padding
+  @media (max-width: 767px) {
+    padding: 16px 12px;
+  }
+  
+  // Tablet: Medium padding
+  @media (min-width: 768px) and (max-width: 1023px) {
+    padding: 20px 16px;
+  }
+  
+  // Desktop: Full padding
+  @media (min-width: 1024px) {
+    padding: 24px 20px;
+  }
+}
+
+.welcome-section {
+  text-align: center;
+  margin-bottom: 32px;
+  
+  h1 {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #1e293b;
+    margin: 0 0 8px 0;
+    letter-spacing: -0.02em;
+  }
+  
+  p {
+    font-size: 1.1rem;
+    color: #64748b;
+    margin: 0;
+    font-weight: 500;
+  }
+}
+
+.modern-meal-planner-card {
+  border-radius: 24px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  background: white;
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+
+.modern-card-header {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #d946ef 100%);
+  color: white;
+  padding: 32px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 30% 20%, rgba(255,255,255,0.2) 0%, transparent 50%);
+    pointer-events: none;
+  }
+  
+  .header-content {
+    flex: 1;
+    
+    h2 {
+      font-size: 1.8rem;
+      font-weight: 800;
+      margin: 0 0 8px 0;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    
+    p {
+      font-size: 1rem;
+      opacity: 0.9;
+      margin: 0;
+      font-weight: 500;
+    }
+  }
+  
+  .header-decoration {
+    ion-icon {
+      font-size: 3rem;
+      opacity: 0.3;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+    }
+  }
+}
+
+.modern-card-content {
+  padding: 32px 24px;
+}
+
+.modern-meal-item {
+  display: flex;
+  align-items: center;
+  background: #f8fafc;
+  border-radius: 20px;
   padding: 20px;
-}
-
-.meal-planner-card ion-card-title {
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin-bottom: 8px;
-}
-
-.meal-planner-card ion-card-subtitle {
-  font-size: 1rem;
-  opacity: 0.9;
-  font-weight: 400;
-}
-
-.meal-item {
   margin-bottom: 16px;
-  --border-radius: 8px;
-  --background: #fff;
-  --color: #333;
-  --padding-start: 16px;
-  --padding-end: 16px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border: 2px solid transparent;
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    border-radius: 0 4px 4px 0;
+  }
+  
+  &.breakfast-item {
+    &::before {
+      background: linear-gradient(135deg, #f59e0b, #f97316);
+    }
+  }
+  
+  &.lunch-item {
+    &::before {
+      background: linear-gradient(135deg, #10b981, #059669);
+    }
+  }
+  
+  &.dinner-item {
+    &::before {
+      background: linear-gradient(135deg, #8b5cf6, #a855f7);
+    }
+  }
+  
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+    border-color: #e2e8f0;
+  }
 }
 
-.meal-item ion-icon {
-  font-size: 1.5rem;
-  margin-right: 12px;
+.meal-icon-container {
+  width: 60px;
+  height: 60px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 20px;
+  flex-shrink: 0;
+  
+  ion-icon {
+    font-size: 28px;
+  }
+  
+  &.breakfast-icon {
+    background: linear-gradient(135deg, #f59e0b, #f97316);
+  }
+  
+  &.lunch-icon {
+    background: linear-gradient(135deg, #10b981, #059669);
+  }
+  
+  &.dinner-icon {
+    background: linear-gradient(135deg, #8b5cf6, #a855f7);
+  }
 }
 
-.meal-item ion-label {
-  font-weight: 500;
-  color: #333;
+.meal-content {
+  flex: 1;
+  
+  .meal-label {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 8px;
+    display: block;
+  }
+  
+  .modern-select {
+    --background: white;
+    --border-radius: 12px;
+    --color: #475569;
+    --placeholder-color: #94a3b8;
+    font-size: 1rem;
+    font-weight: 500;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 12px 16px;
+    
+    &:focus {
+      border-color: #6366f1;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+  }
 }
 
-.meal-item ion-select {
-  font-size: 1rem;
-  --placeholder-color: #999;
+.modern-button-container {
+  margin-top: 32px;
+}
+
+.modern-save-button {
+  --background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  --color: white;
+  --border-radius: 16px;
+  --box-shadow: 0 8px 24px rgba(99, 102, 241, 0.4);
+  height: 56px;
+  font-weight: 700;
+  font-size: 1.1rem;
+  
+  &:hover {
+    --background: linear-gradient(135deg, #5856eb, #7c3aed);
+    transform: translateY(-2px);
+    --box-shadow: 0 12px 32px rgba(99, 102, 241, 0.5);
+  }
+  
+  &:disabled {
+    opacity: 0.6;
+    transform: none;
+  }
+  
+  ion-icon {
+    font-size: 20px;
+  }
+}
+
+.modern-loading-card {
+  background: white;
+  border-radius: 24px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  
+  .loading-content {
+    padding: 48px 24px;
+    text-align: center;
+    
+    ion-spinner {
+      width: 40px;
+      height: 40px;
+      margin-bottom: 16px;
+    }
+    
+    h3 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #1e293b;
+      margin: 0 0 8px 0;
+    }
+    
+    p {
+      color: #64748b;
+      font-size: 1rem;
+      margin: 0;
+      font-weight: 500;
+    }
+  }
+}
+
+// Animation Classes
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-slide-up {
+  animation: slideInUp 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-out;
 }
 
 .button-container {
@@ -147,4 +511,5 @@
   to {
     opacity: 1;
   }
+}
 }

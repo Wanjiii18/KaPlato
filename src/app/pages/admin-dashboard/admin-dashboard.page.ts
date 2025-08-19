@@ -2,11 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { 
-  IonContent, IonHeader, IonTitle, IonToolbar, IonButtons, IonButton,
-  IonIcon, IonCard, IonCardContent, IonChip, IonSegment, IonSegmentButton,
-  IonLabel, AlertController, ToastController
-} from '@ionic/angular/standalone';
+import { IonicModule, AlertController, ToastController } from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import { 
   logOutOutline, shieldCheckmark, analyticsOutline, documentTextOutline,
@@ -21,11 +17,20 @@ import {
 
 import { AuthService, User } from '../../services/auth.service';
 import { AdminService } from '../../services/admin.service';
+import { LoggerService } from '../../services/logger.service';
 
 @Component({
   selector: 'app-admin-dashboard',
   templateUrl: './admin-dashboard.page.html',
-  styleUrls: ['./admin-dashboard.page.scss']
+  styleUrls: ['./admin-dashboard.page.scss'],
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    CommonModule, 
+    FormsModule, 
+    IonicModule
+  ]
 })
 export class AdminDashboardPage implements OnInit, OnDestroy {
   currentUser: User | null = null;
@@ -43,6 +48,7 @@ export class AdminDashboardPage implements OnInit, OnDestroy {
   constructor(
     private authService: AuthService,
     private adminService: AdminService,
+    private logger: LoggerService,
     private router: Router,
     private alertCtrl: AlertController,
     private toastCtrl: ToastController
@@ -86,13 +92,18 @@ export class AdminDashboardPage implements OnInit, OnDestroy {
     });
   }
 
-  ngOnInit() {
+  async ngOnInit() {
     this.currentUser = this.authService.getCurrentUser();
     this.updateTime();
     this.timeInterval = setInterval(() => this.updateTime(), 1000);
     
-    this.loadDashboardData();
-    this.loadRecentApplications();
+    // Load critical data first
+    await this.loadDashboardData();
+    
+    // Load secondary data after a delay to improve initial load time
+    setTimeout(() => {
+      this.loadRecentApplications();
+    }, 500);
   }
 
   ngOnDestroy() {
@@ -358,7 +369,6 @@ export class AdminDashboardPage implements OnInit, OnDestroy {
   }
 
   logout() {
-    this.authService.logout();
-    this.router.navigate(['/login']);
+    this.authService.logoutAndRedirect();
   }
 }

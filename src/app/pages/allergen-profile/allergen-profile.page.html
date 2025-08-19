@@ -1,0 +1,319 @@
+<ion-header [translucent]="true" class="allergen-header">
+  <ion-toolbar class="gradient-allergen-toolbar">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/nutrition-engine" color="light"></ion-back-button>
+    </ion-buttons>
+    <ion-title>
+      <div class="allergen-title">
+        <ion-icon name="shield" color="light"></ion-icon>
+        <span>Allergen Profile</span>
+      </div>
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button fill="clear" (click)="saveSettings()" color="light">
+        <ion-icon name="save" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="allergen-content">
+  <div class="allergen-container">
+    
+    <!-- Profile Summary Card -->
+    <ion-card class="summary-card">
+      <ion-card-content>
+        <div class="summary-grid">
+          <div class="summary-item">
+            <div class="summary-number">{{ getSelectedCount() }}</div>
+            <div class="summary-label">Active Allergens</div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-number">{{ getSevereAllergensCount() }}</div>
+            <div class="summary-label">Severe Reactions</div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-number">{{ userSettings.dietary_restrictions.length }}</div>
+            <div class="summary-label">Dietary Preferences</div>
+          </div>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Alert Settings -->
+    <ion-card class="settings-card">
+      <ion-card-header>
+        <ion-card-title>
+          <ion-icon name="warning" color="warning"></ion-icon>
+          Alert Settings
+        </ion-card-title>
+      </ion-card-header>
+      
+      <ion-card-content>
+        <ion-list>
+          <ion-item>
+            <ion-label>
+              <h3>Auto-Scan Meals</h3>
+              <p>Automatically check for allergens when viewing meals</p>
+            </ion-label>
+            <ion-toggle [(ngModel)]="userSettings.auto_scan" slot="end"></ion-toggle>
+          </ion-item>
+          
+          <ion-item>
+            <ion-label>
+              <h3>Alert Level</h3>
+              <p>How prominently to display allergen warnings</p>
+            </ion-label>
+            <ion-select [(ngModel)]="userSettings.alert_level" interface="popover">
+              <ion-select-option value="low">Low</ion-select-option>
+              <ion-select-option value="medium">Medium</ion-select-option>
+              <ion-select-option value="high">High</ion-select-option>
+            </ion-select>
+          </ion-item>
+        </ion-list>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Common Allergens -->
+    <ion-card class="allergens-card">
+      <ion-card-header>
+        <ion-card-title>
+          <ion-icon name="medkit" color="danger"></ion-icon>
+          Food Allergens
+        </ion-card-title>
+      </ion-card-header>
+      
+      <ion-card-content>
+        <p class="section-description">
+          Select the allergens you need to monitor. Tap to enable/disable, and adjust severity levels.
+        </p>
+        
+        <div class="allergens-by-category">
+          <div *ngFor="let category of ['Nuts', 'Seafood', 'Animal Products', 'Grains', 'Legumes', 'Seeds', 'Additives']" 
+               class="category-section">
+            <h4 class="category-header">
+              <ion-icon [name]="getCategoryIcon(category)" [color]="'primary'"></ion-icon>
+              {{ category }}
+            </h4>
+            
+            <ion-grid>
+              <ion-row>
+                <ion-col size="12" size-md="6" *ngFor="let allergen of getAllergensByCategory(category)">
+                  <div class="allergen-item" [ngClass]="{ 'selected': isAllergenSelected(allergen.name) }">
+                    <div class="allergen-header" (click)="toggleAllergen(allergen.name)">
+                      <div class="allergen-info">
+                        <h3>{{ allergen.name }}</h3>
+                        <p>{{ allergen.description }}</p>
+                      </div>
+                      <ion-checkbox 
+                        [checked]="isAllergenSelected(allergen.name)"
+                        (ionChange)="toggleAllergen(allergen.name)">
+                      </ion-checkbox>
+                    </div>
+                    
+                    <div *ngIf="isAllergenSelected(allergen.name)" class="severity-controls">
+                      <div class="severity-label">Reaction Severity:</div>
+                      <div class="severity-buttons">
+                        <ion-button 
+                          size="small" 
+                          fill="outline"
+                          [color]="getSeverity(allergen.name) === 'mild' ? 'primary' : 'light'"
+                          (click)="updateSeverity(allergen.name, 'mild')">
+                          Mild
+                        </ion-button>
+                        <ion-button 
+                          size="small" 
+                          fill="outline"
+                          [color]="getSeverity(allergen.name) === 'moderate' ? 'warning' : 'light'"
+                          (click)="updateSeverity(allergen.name, 'moderate')">
+                          Moderate
+                        </ion-button>
+                        <ion-button 
+                          size="small" 
+                          fill="outline"
+                          [color]="getSeverity(allergen.name) === 'severe' ? 'danger' : 'light'"
+                          (click)="updateSeverity(allergen.name, 'severe')">
+                          Severe
+                        </ion-button>
+                      </div>
+                    </div>
+                  </div>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+          </div>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Custom Allergens -->
+    <ion-card class="custom-allergens-card">
+      <ion-card-header>
+        <ion-card-title>
+          <ion-icon name="add" color="primary"></ion-icon>
+          Custom Allergens
+        </ion-card-title>
+      </ion-card-header>
+      
+      <ion-card-content>
+        <p class="section-description">
+          Add allergens not listed above that you need to monitor.
+        </p>
+        
+        <!-- Add Custom Allergen -->
+        <div class="add-custom">
+          <ion-item>
+            <ion-label position="stacked">Add Custom Allergen</ion-label>
+            <ion-input 
+              [(ngModel)]="newCustomAllergen" 
+              placeholder="e.g., Specific spice, medication, etc."
+              (keyup.enter)="addCustomAllergen()">
+            </ion-input>
+          </ion-item>
+          <ion-button 
+            expand="block" 
+            fill="outline" 
+            (click)="addCustomAllergen()"
+            [disabled]="!newCustomAllergen.trim()">
+            <ion-icon name="add" slot="start"></ion-icon>
+            Add Custom Allergen
+          </ion-button>
+        </div>
+        
+        <!-- Custom Allergens List -->
+        <div *ngIf="userSettings.custom_allergens.length > 0" class="custom-list">
+          <h4>Your Custom Allergens</h4>
+          <div class="custom-allergen-items">
+            <div *ngFor="let allergen of userSettings.custom_allergens" class="custom-allergen-item">
+              <div class="custom-allergen-info">
+                <h3>{{ allergen }}</h3>
+                <div class="severity-controls">
+                  <div class="severity-label">Severity:</div>
+                  <ion-chip [color]="getSeverityColor(getSeverity(allergen))">
+                    <ion-label>{{ getSeverity(allergen) | titlecase }}</ion-label>
+                  </ion-chip>
+                </div>
+              </div>
+              <ion-button 
+                fill="clear" 
+                color="danger" 
+                (click)="removeCustomAllergen(allergen)">
+                <ion-icon name="close" slot="icon-only"></ion-icon>
+              </ion-button>
+            </div>
+          </div>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Dietary Restrictions -->
+    <ion-card class="dietary-card">
+      <ion-card-header>
+        <ion-card-title>
+          <ion-icon name="leaf" color="success"></ion-icon>
+          Dietary Preferences
+        </ion-card-title>
+      </ion-card-header>
+      
+      <ion-card-content>
+        <p class="section-description">
+          Select your dietary preferences and restrictions to get better meal recommendations.
+        </p>
+        
+        <div class="dietary-options">
+          <ion-grid>
+            <ion-row>
+              <ion-col size="6" size-md="4" *ngFor="let option of dietaryOptions">
+                <div class="dietary-option" 
+                     [ngClass]="{ 'selected': isDietaryRestrictionSelected(option) }"
+                     (click)="toggleDietaryRestriction(option)">
+                  <ion-checkbox 
+                    [checked]="isDietaryRestrictionSelected(option)"
+                    (ionChange)="toggleDietaryRestriction(option)">
+                  </ion-checkbox>
+                  <span>{{ option }}</span>
+                </div>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Emergency Information -->
+    <ion-card class="emergency-card">
+      <ion-card-header>
+        <ion-card-title>
+          <ion-icon name="medkit" color="danger"></ion-icon>
+          Emergency Information
+        </ion-card-title>
+      </ion-card-header>
+      
+      <ion-card-content>
+        <p class="section-description">
+          Add emergency contact and medical information for severe allergic reactions.
+        </p>
+        
+        <div class="emergency-info">
+          <ion-item *ngIf="userSettings.emergency_contact" class="emergency-contact">
+            <ion-icon name="heart" slot="start" color="danger"></ion-icon>
+            <ion-label>
+              <h3>Emergency Contact</h3>
+              <p>{{ userSettings.emergency_contact }}</p>
+            </ion-label>
+          </ion-item>
+          
+          <ion-item *ngIf="userSettings.medical_notes" class="medical-notes">
+            <ion-icon name="information" slot="start" color="primary"></ion-icon>
+            <ion-label>
+              <h3>Medical Notes</h3>
+              <p>{{ userSettings.medical_notes }}</p>
+            </ion-label>
+          </ion-item>
+          
+          <ion-button 
+            expand="block" 
+            fill="outline" 
+            color="danger"
+            (click)="updateEmergencyInfo()">
+            <ion-icon name="medkit" slot="start"></ion-icon>
+            {{ userSettings.emergency_contact ? 'Update' : 'Add' }} Emergency Info
+          </ion-button>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Testing & Actions -->
+    <ion-card class="actions-card">
+      <ion-card-header>
+        <ion-card-title>
+          <ion-icon name="checkmark" color="success"></ion-icon>
+          Test & Actions
+        </ion-card-title>
+      </ion-card-header>
+      
+      <ion-card-content>
+        <div class="action-buttons">
+          <ion-button 
+            expand="block" 
+            fill="outline" 
+            color="primary"
+            (click)="testAllergenDetection()">
+            <ion-icon name="checkmark" slot="start"></ion-icon>
+            Test Allergen Detection
+          </ion-button>
+          
+          <ion-button 
+            expand="block" 
+            fill="solid" 
+            color="success"
+            (click)="saveSettings()">
+            <ion-icon name="save" slot="start"></ion-icon>
+            Save All Settings
+          </ion-button>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+  </div>
+</ion-content>

@@ -64,11 +64,11 @@
               "outputHashing": "all"
             },
             "development": {
-              "buildOptimizer": false,
-              "optimization": false,
+              "buildOptimizer": true,
+              "optimization": true,
               "vendorChunk": true,
               "extractLicenses": false,
-              "sourceMap": true,
+              "sourceMap": false,
               "namedChunks": true
             },
             "ci": {
@@ -84,10 +84,11 @@
               "buildTarget": "app:build:production"
             },
             "development": {
-              "buildTarget": "app:build:development"
+              "buildTarget": "app:build:development",
+              "hmr": true
             },
             "ci": {
-              "progress": false
+              "buildTarget": "app:build:ci"
             }
           },
           "defaultConfiguration": "development"

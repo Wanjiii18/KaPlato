@@ -1,0 +1,445 @@
+<ion-header [translucent]="true" class="nutrition-header">
+  <ion-toolbar class="gradient-nutrition-toolbar">
+    <ion-title>
+      <div class="nutrition-title">
+        <ion-icon name="nutrition" color="light"></ion-icon>
+        <span>Nutrition & Allergen Engine</span>
+      </div>
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button fill="clear" (click)="updateUserProfile()" color="light">
+        <ion-icon name="settings" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="nutrition-content">
+  <div class="nutrition-container">
+    
+    <!-- Segment Navigation -->
+    <ion-segment [(ngModel)]="selectedSegment" class="main-segment">
+      <ion-segment-button value="scanner">
+        <ion-icon name="search"></ion-icon>
+        <ion-label>Allergen Scanner</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="calculator">
+        <ion-icon name="calculator"></ion-icon>
+        <ion-label>Calorie Calculator</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="profile">
+        <ion-icon name="shield"></ion-icon>
+        <ion-label>My Profile</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+
+    <!-- Allergen Scanner Tab -->
+    <div *ngIf="selectedSegment === 'scanner'" class="scanner-tab animate-fade-in">
+      
+      <!-- User Allergen Alert Banner -->
+      <ion-card class="alert-banner" *ngIf="userProfile && userProfile.allergens.length > 0">
+        <ion-card-content>
+          <div class="alert-content">
+            <ion-icon name="shield" color="warning"></ion-icon>
+            <div class="alert-text">
+              <h3>Active Allergen Monitoring</h3>
+              <p>Watching for: {{ userProfile.allergens.join(', ') }}</p>
+            </div>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Search Bar -->
+      <ion-searchbar 
+        [(ngModel)]="searchQuery" 
+        placeholder="Search meals and dishes..."
+        class="custom-searchbar">
+      </ion-searchbar>
+
+      <!-- Sample Meals Grid -->
+      <div class="meals-grid">
+        <h3>Available Meals</h3>
+        <ion-grid>
+          <ion-row>
+            <ion-col size="12" size-md="6" *ngFor="let meal of searchMeals()">
+              <ion-card class="meal-card" (click)="scanMeal(meal)">
+                <div class="meal-image">
+                  <div class="meal-placeholder">
+                    <ion-icon name="restaurant"></ion-icon>
+                  </div>
+                </div>
+                <ion-card-content>
+                  <h3>{{ meal.name }}</h3>
+                  <p class="ingredients-list">
+                    <strong>Ingredients:</strong> {{ meal.ingredients.join(', ') }}
+                  </p>
+                  <ion-button fill="clear" size="small" color="primary">
+                    <ion-icon name="search" slot="start"></ion-icon>
+                    Analyze Meal
+                  </ion-button>
+                </ion-card-content>
+              </ion-card>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </div>
+
+      <!-- Analysis Results -->
+      <div class="analysis-results" *ngIf="scannedMeals.length > 0">
+        <h3>Analysis Results</h3>
+        
+        <ion-card *ngFor="let result of scannedMeals" class="result-card">
+          <ion-card-header>
+            <div class="result-header">
+              <ion-card-title>{{ result.dish_name }}</ion-card-title>
+              <div class="safety-indicator">
+                <ion-chip [color]="result.is_safe ? 'success' : 'danger'" class="safety-chip">
+                  <ion-icon [name]="result.is_safe ? 'checkmark' : 'warning'" slot="start"></ion-icon>
+                  <ion-label>{{ result.is_safe ? 'Safe' : 'Contains Allergens' }}</ion-label>
+                </ion-chip>
+              </div>
+            </div>
+          </ion-card-header>
+          
+          <ion-card-content>
+            <!-- Allergen Alerts -->
+            <div *ngIf="result.allergen_alerts.length > 0" class="allergen-alerts">
+              <h4>⚠️ Allergen Warnings</h4>
+              <div class="alerts-list">
+                <ion-chip 
+                  *ngFor="let alert of result.allergen_alerts" 
+                  [color]="getAllergenSeverityColor(alert.severity)"
+                  class="allergen-chip">
+                  <ion-icon name="warning" slot="start"></ion-icon>
+                  <ion-label>{{ alert.allergen }}</ion-label>
+                </ion-chip>
+              </div>
+              <p class="alert-details">
+                Found in: {{ getAllergenSources(result.allergen_alerts) }}
+              </p>
+            </div>
+
+            <!-- Nutrition Facts -->
+            <div class="nutrition-facts">
+              <h4>Nutrition Information</h4>
+              <ion-grid>
+                <ion-row>
+                  <ion-col size="6">
+                    <div class="nutrition-item">
+                      <span class="nutrition-label">Calories</span>
+                      <span class="nutrition-value">{{ formatCalories(result.nutrition_facts.calories) }}</span>
+                    </div>
+                  </ion-col>
+                  <ion-col size="6">
+                    <div class="nutrition-item">
+                      <span class="nutrition-label">Protein</span>
+                      <span class="nutrition-value">{{ formatNutritionValue(result.nutrition_facts.protein) }}</span>
+                    </div>
+                  </ion-col>
+                  <ion-col size="6">
+                    <div class="nutrition-item">
+                      <span class="nutrition-label">Carbs</span>
+                      <span class="nutrition-value">{{ formatNutritionValue(result.nutrition_facts.carbohydrates) }}</span>
+                    </div>
+                  </ion-col>
+                  <ion-col size="6">
+                    <div class="nutrition-item">
+                      <span class="nutrition-label">Fat</span>
+                      <span class="nutrition-value">{{ formatNutritionValue(result.nutrition_facts.fat) }}</span>
+                    </div>
+                  </ion-col>
+                </ion-row>
+              </ion-grid>
+            </div>
+
+            <!-- Health Score -->
+            <div class="health-score">
+              <h4>Health Score</h4>
+              <div class="score-display">
+                <div class="score-circle" [ngClass]="getHealthScoreColor(result.health_score)">
+                  <span class="score-number">{{ result.health_score }}</span>
+                  <ion-icon [name]="getHealthScoreIcon(result.health_score)"></ion-icon>
+                </div>
+                <div class="score-description">
+                  <p *ngIf="result.health_score >= 80">Excellent nutritional value!</p>
+                  <p *ngIf="result.health_score >= 60 && result.health_score < 80">Good nutritional balance</p>
+                  <p *ngIf="result.health_score < 60">Consider healthier alternatives</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Recommendations -->
+            <div *ngIf="result.recommendations.length > 0" class="recommendations">
+              <h4>Recommendations</h4>
+              <ul>
+                <li *ngFor="let rec of result.recommendations">{{ rec }}</li>
+              </ul>
+            </div>
+          </ion-card-content>
+        </ion-card>
+      </div>
+    </div>
+
+    <!-- Calorie Calculator Tab -->
+    <div *ngIf="selectedSegment === 'calculator'" class="calculator-tab animate-fade-in">
+      <ion-card class="calculator-card">
+        <ion-card-header>
+          <ion-card-title>
+            <ion-icon name="calculator" color="primary"></ion-icon>
+            Nutrition Calculator
+          </ion-card-title>
+        </ion-card-header>
+        
+        <ion-card-content>
+          <!-- Ingredient Input -->
+          <div class="ingredient-input">
+            <h3>Add Ingredients</h3>
+            
+            <div *ngFor="let ingredient of selectedIngredients; let i = index" class="ingredient-row">
+              <ion-item>
+                <ion-label position="stacked">Ingredient Name</ion-label>
+                <ion-input 
+                  [(ngModel)]="ingredient.name" 
+                  placeholder="e.g., Rice, Chicken, Vegetables"
+                  (ionInput)="calculateNutrition()">
+                </ion-input>
+              </ion-item>
+              
+              <ion-item>
+                <ion-label position="stacked">Quantity</ion-label>
+                <ion-input 
+                  type="number" 
+                  [(ngModel)]="ingredient.quantity" 
+                  placeholder="100"
+                  (ionInput)="calculateNutrition()">
+                </ion-input>
+              </ion-item>
+              
+              <ion-item>
+                <ion-label position="stacked">Unit</ion-label>
+                <ion-input 
+                  [(ngModel)]="ingredient.unit" 
+                  value="g" 
+                  readonly>
+                </ion-input>
+              </ion-item>
+              
+              <ion-button 
+                fill="clear" 
+                color="danger" 
+                (click)="removeIngredient(i)"
+                *ngIf="selectedIngredients.length > 1">
+                <ion-icon name="close" slot="icon-only"></ion-icon>
+              </ion-button>
+            </div>
+            
+            <ion-button 
+              fill="outline" 
+              expand="block" 
+              (click)="addIngredient()"
+              class="add-ingredient-btn">
+              <ion-icon name="add" slot="start"></ion-icon>
+              Add Ingredient
+            </ion-button>
+          </div>
+
+          <!-- Calculation Results -->
+          <div *ngIf="calculationResult" class="calculation-results">
+            <h3>Nutrition Summary</h3>
+            
+            <!-- Main Nutrition Panel -->
+            <div class="main-nutrition">
+              <div class="calorie-display">
+                <div class="calorie-number">{{ roundNumber(calculationResult.total_calories) }}</div>
+                <div class="calorie-label">CALORIES</div>
+              </div>
+              
+              <div class="macro-breakdown">
+                <div class="macro-item">
+                  <div class="macro-color protein"></div>
+                  <span>Protein: {{ formatNutritionValue(calculationResult.total_protein) }}</span>
+                </div>
+                <div class="macro-item">
+                  <div class="macro-color carbs"></div>
+                  <span>Carbs: {{ formatNutritionValue(calculationResult.total_carbs) }}</span>
+                </div>
+                <div class="macro-item">
+                  <div class="macro-color fat"></div>
+                  <span>Fat: {{ formatNutritionValue(calculationResult.total_fat) }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Detailed Nutrition -->
+            <div class="detailed-nutrition">
+              <h4>Detailed Breakdown</h4>
+              <ion-list>
+                <ion-item>
+                  <ion-label>
+                    <h3>Fiber</h3>
+                    <p>{{ formatNutritionValue(calculationResult.total_fiber) }}</p>
+                  </ion-label>
+                  <ion-progress-bar 
+                    [value]="calculationResult.daily_value_percentages.fiber / 100"
+                    color="success">
+                  </ion-progress-bar>
+                  <ion-text color="medium" slot="end">
+                    {{ formatPercentage(calculationResult.daily_value_percentages.fiber) }} DV
+                  </ion-text>
+                </ion-item>
+                
+                <ion-item>
+                  <ion-label>
+                    <h3>Sodium</h3>
+                    <p>{{ roundNumber(calculationResult.total_sodium) }}mg</p>
+                  </ion-label>
+                  <ion-progress-bar 
+                    [value]="calculationResult.daily_value_percentages.sodium / 100"
+                    [color]="calculationResult.daily_value_percentages.sodium > 100 ? 'danger' : 'warning'">
+                  </ion-progress-bar>
+                  <ion-text [color]="calculationResult.daily_value_percentages.sodium > 100 ? 'danger' : 'medium'" slot="end">
+                    {{ formatPercentage(calculationResult.daily_value_percentages.sodium) }} DV
+                  </ion-text>
+                </ion-item>
+                
+                <ion-item>
+                  <ion-label>
+                    <h3>Sugar</h3>
+                    <p>{{ formatNutritionValue(calculationResult.total_sugar) }}</p>
+                  </ion-label>
+                  <ion-progress-bar 
+                    [value]="calculationResult.daily_value_percentages.sugar / 100"
+                    [color]="calculationResult.daily_value_percentages.sugar > 100 ? 'danger' : 'primary'">
+                  </ion-progress-bar>
+                  <ion-text [color]="calculationResult.daily_value_percentages.sugar > 100 ? 'danger' : 'medium'" slot="end">
+                    {{ formatPercentage(calculationResult.daily_value_percentages.sugar) }} DV
+                  </ion-text>
+                </ion-item>
+              </ion-list>
+            </div>
+
+            <!-- Health Score -->
+            <div class="calculator-health-score">
+              <h4>Overall Health Score</h4>
+              <div class="score-display">
+                <div class="score-circle" [ngClass]="getHealthScoreColor(calculationResult.health_score)">
+                  <span class="score-number">{{ calculationResult.health_score }}</span>
+                </div>
+                <div class="score-text">
+                  <p *ngIf="calculationResult.health_score >= 80">Excellent nutritional composition!</p>
+                  <p *ngIf="calculationResult.health_score >= 60 && calculationResult.health_score < 80">Good nutritional balance</p>
+                  <p *ngIf="calculationResult.health_score < 60">Consider adding more nutritious ingredients</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    </div>
+
+    <!-- Profile Tab -->
+    <div *ngIf="selectedSegment === 'profile'" class="profile-tab animate-fade-in">
+      <ion-card class="profile-card">
+        <ion-card-header>
+          <ion-card-title>
+            <ion-icon name="shield" color="primary"></ion-icon>
+            Dietary Profile
+          </ion-card-title>
+        </ion-card-header>
+        
+        <ion-card-content>
+          <div *ngIf="userProfile" class="profile-content">
+            <!-- Current Allergens -->
+            <div class="allergen-list">
+              <h3>Monitored Allergens</h3>
+              <div class="allergen-chips">
+                <ion-chip *ngFor="let allergen of userProfile.allergens" color="danger">
+                  <ion-icon name="warning" slot="start"></ion-icon>
+                  <ion-label>{{ allergen | titlecase }}</ion-label>
+                </ion-chip>
+              </div>
+              <p *ngIf="userProfile.allergens.length === 0" class="no-allergens">
+                No allergens being monitored. Tap the settings button to add some.
+              </p>
+            </div>
+
+            <!-- Dietary Preferences -->
+            <div class="dietary-preferences">
+              <h3>Dietary Preferences</h3>
+              <div class="preference-chips">
+                <ion-chip *ngFor="let pref of userProfile.dietary_preferences" color="primary">
+                  <ion-icon name="checkmark" slot="start"></ion-icon>
+                  <ion-label>{{ pref | titlecase }}</ion-label>
+                </ion-chip>
+              </div>
+            </div>
+
+            <!-- Nutrition Goals -->
+            <div class="nutrition-goals">
+              <h3>Daily Nutrition Goals</h3>
+              <ion-list>
+                <ion-item>
+                  <ion-icon name="flame" slot="start" color="danger"></ion-icon>
+                  <ion-label>
+                    <h3>Calories</h3>
+                    <p>{{ userProfile.calorie_goal || 2000 }} kcal</p>
+                  </ion-label>
+                </ion-item>
+                
+                <ion-item>
+                  <ion-icon name="fitness" slot="start" color="primary"></ion-icon>
+                  <ion-label>
+                    <h3>Protein</h3>
+                    <p>{{ userProfile.protein_goal || 150 }}g</p>
+                  </ion-label>
+                </ion-item>
+                
+                <ion-item>
+                  <ion-icon name="leaf" slot="start" color="success"></ion-icon>
+                  <ion-label>
+                    <h3>Carbohydrates</h3>
+                    <p>{{ userProfile.carb_goal || 250 }}g</p>
+                  </ion-label>
+                </ion-item>
+                
+                <ion-item>
+                  <ion-icon name="nutrition" slot="start" color="warning"></ion-icon>
+                  <ion-label>
+                    <h3>Fat</h3>
+                    <p>{{ userProfile.fat_goal || 65 }}g</p>
+                  </ion-label>
+                </ion-item>
+              </ion-list>
+            </div>
+
+            <!-- Update Profile Button -->
+            <ion-button 
+              expand="block" 
+              fill="solid" 
+              color="primary" 
+              (click)="updateUserProfile()"
+              class="update-profile-btn">
+              <ion-icon name="settings" slot="start"></ion-icon>
+              Update Profile
+            </ion-button>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    </div>
+
+    <!-- Loading Indicator -->
+    <div *ngIf="isLoading" class="loading-overlay">
+      <ion-spinner name="crescent" color="primary"></ion-spinner>
+      <p>Analyzing meal...</p>
+    </div>
+
+  </div>
+
+  <!-- Floating Action Buttons -->
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button color="primary" (click)="navigateToAllergenProfile()">
+      <ion-icon name="shield"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+
+</ion-content>

@@ -1,174 +1,256 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>Manage Karenderia Locations</ion-title>
+<ion-header [translucent]="true" class="modern-location-header">
+  <ion-toolbar class="gradient-location-toolbar">
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/admin-dashboard"></ion-back-button>
+      <ion-back-button defaultHref="/admin-dashboard" color="light" class="modern-back-btn"></ion-back-button>
+    </ion-buttons>
+    <ion-title>
+      <div class="modern-location-title">
+        <ion-icon name="map" color="light"></ion-icon>
+        <span>Location Management</span>
+      </div>
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="refreshData()" fill="solid" color="light" class="modern-refresh-btn">
+        <ion-icon name="refresh" slot="start"></ion-icon>
+        Refresh
+      </ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <div class="location-management-container">
+<ion-content [fullscreen]="true" class="modern-location-content">
+  <div class="modern-location-container animate-fade-in">
     
-    <!-- Pending Applications -->
-    <div class="section">
-      <h2>
-        <ion-icon name="time-outline"></ion-icon>
-        Pending Location Setup
-      </h2>
-      <p>Karenderias that need their map location set</p>
-      
-      <div *ngIf="pendingKarenderias.length === 0" class="empty-state">
-        <ion-icon name="checkmark-circle-outline"></ion-icon>
-        <p>All approved karenderias have their locations set!</p>
+    <!-- Modern Pending Applications Section -->
+    <div class="modern-section pending-section">
+      <div class="section-header">
+        <div class="header-icon">
+          <ion-icon name="time" color="warning"></ion-icon>
+        </div>
+        <div class="header-content">
+          <h2>Pending Location Setup</h2>
+          <p>Karenderias requiring map coordinates configuration</p>
+        </div>
+        <div class="header-badge">
+          <ion-badge color="warning">{{pendingKarenderias.length}}</ion-badge>
+        </div>
       </div>
       
-      <ion-card *ngFor="let karenderia of pendingKarenderias" class="karenderia-card">
-        <ion-card-header>
-          <ion-card-title>{{karenderia.business_name}}</ion-card-title>
-          <ion-card-subtitle>{{karenderia.owner_name}} • {{karenderia.status}}</ion-card-subtitle>
-        </ion-card-header>
-        
-        <ion-card-content>
-          <div class="address-info">
-            <ion-icon name="location-outline"></ion-icon>
-            <div>
-              <p><strong>Address:</strong> {{karenderia.address}}</p>
-              <p><strong>City:</strong> {{karenderia.city}}</p>
-              <p><strong>Province:</strong> {{karenderia.province}}</p>
+      <div *ngIf="pendingKarenderias.length === 0" class="modern-empty-state">
+        <div class="empty-icon">
+          <ion-icon name="checkmark-circle" color="success"></ion-icon>
+        </div>
+        <h3>All locations configured!</h3>
+        <p>Every approved karenderia has their map location properly set</p>
+      </div>
+      
+      <div class="modern-karenderias-grid">
+        <ion-card *ngFor="let karenderia of pendingKarenderias" class="modern-karenderia-card pending-card">
+          <ion-card-header class="modern-card-header">
+            <div class="business-avatar">
+              <ion-icon name="restaurant" color="warning"></ion-icon>
             </div>
-          </div>
-          
-          <div class="location-status">
-            <ion-chip color="warning" *ngIf="!karenderia.latitude">
+            <div class="business-info">
+              <ion-card-title>{{karenderia.business_name}}</ion-card-title>
+              <ion-card-subtitle>{{karenderia.owner_name}} • {{karenderia.status}}</ion-card-subtitle>
+            </div>
+            <ion-chip color="warning" class="status-chip">
               <ion-icon name="warning"></ion-icon>
-              <ion-label>Location Not Set</ion-label>
+              <ion-label>Pending</ion-label>
             </ion-chip>
-            <ion-chip color="success" *ngIf="karenderia.latitude">
-              <ion-icon name="checkmark"></ion-icon>
-              <ion-label>Location Set</ion-label>
-            </ion-chip>
-          </div>
+          </ion-card-header>
           
-          <div class="card-actions">
-            <ion-button 
-              fill="outline" 
-              (click)="setKarenderiaLocation(karenderia)">
-              <ion-icon name="map" slot="start"></ion-icon>
-              Set Map Location
-            </ion-button>
-            <ion-button 
-              fill="outline" 
-              color="success"
-              (click)="approveKarenderia(karenderia)"
-              [disabled]="!karenderia.latitude">
-              <ion-icon name="checkmark" slot="start"></ion-icon>
-              Approve
-            </ion-button>
-          </div>
-        </ion-card-content>
-      </ion-card>
+          <ion-card-content>
+            <div class="address-section">
+              <div class="address-header">
+                <ion-icon name="location" color="primary"></ion-icon>
+                <h4>Business Address</h4>
+              </div>
+              <div class="address-details">
+                <p><strong>Address:</strong> {{karenderia.address}}</p>
+                <p><strong>City:</strong> {{karenderia.city}}</p>
+                <p><strong>Province:</strong> {{karenderia.province}}</p>
+              </div>
+            </div>
+            
+            <div class="location-status-section">
+              <ion-chip [color]="karenderia.latitude ? 'success' : 'warning'" class="location-chip">
+                <ion-icon [name]="karenderia.latitude ? 'checkmark' : 'warning'"></ion-icon>
+                <ion-label>{{karenderia.latitude ? 'Location Set' : 'Location Required'}}</ion-label>
+              </ion-chip>
+            </div>
+            
+            <div class="card-actions-grid">
+              <ion-button 
+                fill="solid" 
+                color="primary"
+                expand="block"
+                (click)="setKarenderiaLocation(karenderia)">
+                <ion-icon name="map" slot="start"></ion-icon>
+                Set Map Location
+              </ion-button>
+              <ion-button 
+                fill="solid" 
+                color="success"
+                expand="block"
+                (click)="approveKarenderia(karenderia)"
+                [disabled]="!karenderia.latitude">
+                <ion-icon name="checkmark" slot="start"></ion-icon>
+                Approve Business
+              </ion-button>
+            </div>
+          </ion-card-content>
+        </ion-card>
+      </div>
     </div>
 
-    <!-- Active Karenderias -->
-    <div class="section">
-      <h2>
-        <ion-icon name="restaurant-outline"></ion-icon>
-        Active Karenderias
-      </h2>
-      <p>Approved karenderias with locations set</p>
+    <!-- Modern Active Karenderias Section -->
+    <div class="modern-section active-section">
+      <div class="section-header">
+        <div class="header-icon">
+          <ion-icon name="restaurant" color="success"></ion-icon>
+        </div>
+        <div class="header-content">
+          <h2>Active Karenderias</h2>
+          <p>Approved businesses with configured locations</p>
+        </div>
+        <div class="header-badge">
+          <ion-badge color="success">{{activeKarenderias.length}}</ion-badge>
+        </div>
+      </div>
       
-      <ion-card *ngFor="let karenderia of activeKarenderias" class="karenderia-card">
-        <ion-card-header>
-          <ion-card-title>{{karenderia.business_name}}</ion-card-title>
-          <ion-card-subtitle>{{karenderia.owner_name}} • Active since {{karenderia.approved_at | date}}</ion-card-subtitle>
-        </ion-card-header>
-        
-        <ion-card-content>
-          <div class="location-coordinates">
-            <ion-chip color="success">
-              <ion-icon name="location"></ion-icon>
-              <ion-label>{{karenderia.latitude | number:'1.6-6'}}, {{karenderia.longitude | number:'1.6-6'}}</ion-label>
+      <div class="modern-karenderias-grid">
+        <ion-card *ngFor="let karenderia of activeKarenderias" class="modern-karenderia-card active-card">
+          <ion-card-header class="modern-card-header">
+            <div class="business-avatar">
+              <ion-icon name="restaurant" color="success"></ion-icon>
+            </div>
+            <div class="business-info">
+              <ion-card-title>{{karenderia.business_name}}</ion-card-title>
+              <ion-card-subtitle>{{karenderia.owner_name}} • Active since {{karenderia.approved_at | date}}</ion-card-subtitle>
+            </div>
+            <ion-chip color="success" class="status-chip">
+              <ion-icon name="checkmark-circle"></ion-icon>
+              <ion-label>Active</ion-label>
             </ion-chip>
-          </div>
+          </ion-card-header>
           
-          <div class="card-actions">
-            <ion-button 
-              fill="outline" 
-              (click)="editKarenderiaLocation(karenderia)">
-              <ion-icon name="pencil" slot="start"></ion-icon>
-              Edit Location
-            </ion-button>
-            <ion-button 
-              fill="outline" 
-              color="medium"
-              (click)="viewOnMap(karenderia)">
-              <ion-icon name="eye" slot="start"></ion-icon>
-              View on Map
-            </ion-button>
-          </div>
-        </ion-card-content>
-      </ion-card>
+          <ion-card-content>
+            <div class="coordinates-section">
+              <div class="coordinates-header">
+                <ion-icon name="compass" color="tertiary"></ion-icon>
+                <h4>Map Coordinates</h4>
+              </div>
+              <ion-chip color="tertiary" class="coordinates-chip">
+                <ion-icon name="location"></ion-icon>
+                <ion-label>{{karenderia.latitude | number:'1.6-6'}}, {{karenderia.longitude | number:'1.6-6'}}</ion-label>
+              </ion-chip>
+            </div>
+            
+            <div class="card-actions-grid">
+              <ion-button 
+                fill="outline" 
+                color="primary"
+                expand="block"
+                (click)="editKarenderiaLocation(karenderia)">
+                <ion-icon name="pencil" slot="start"></ion-icon>
+                Edit Location
+              </ion-button>
+              <ion-button 
+                fill="outline" 
+                color="tertiary"
+                expand="block"
+                (click)="viewOnMap(karenderia)">
+                <ion-icon name="eye" slot="start"></ion-icon>
+                View on Map
+              </ion-button>
+            </div>
+          </ion-card-content>
+        </ion-card>
+      </div>
     </div>
 
   </div>
 </ion-content>
 
-<!-- Location Setting Modal -->
-<ion-modal [isOpen]="isLocationModalOpen" (willDismiss)="closeLocationModal()">
+<!-- Modern Location Setting Modal -->
+<ion-modal [isOpen]="isLocationModalOpen" (willDismiss)="closeLocationModal()" class="modern-location-modal">
   <ng-template>
-    <ion-header>
-      <ion-toolbar>
-        <ion-title>Set Location: {{selectedKarenderia?.business_name}}</ion-title>
+    <ion-header class="modern-modal-header">
+      <ion-toolbar class="gradient-modal-toolbar">
+        <ion-title>
+          <div class="modal-title">
+            <ion-icon name="map" color="light"></ion-icon>
+            <span>Set Location: {{selectedKarenderia?.business_name}}</span>
+          </div>
+        </ion-title>
         <ion-buttons slot="end">
-          <ion-button (click)="closeLocationModal()">
+          <ion-button (click)="closeLocationModal()" fill="solid" color="light" class="modal-close-btn">
             <ion-icon name="close"></ion-icon>
           </ion-button>
         </ion-buttons>
       </ion-toolbar>
     </ion-header>
     
-    <ion-content>
-      <div class="modal-content">
+    <ion-content class="modern-modal-content">
+      <div class="modal-container">
         
-        <!-- Address Information -->
-        <div class="address-display">
-          <h3>Business Address</h3>
-          <p>{{selectedKarenderia?.address}}</p>
-          <p>{{selectedKarenderia?.city}}, {{selectedKarenderia?.province}}</p>
+        <!-- Modern Address Information -->
+        <div class="modern-address-display">
+          <div class="address-header">
+            <ion-icon name="business" color="primary"></ion-icon>
+            <h3>Business Address</h3>
+          </div>
+          <div class="address-content">
+            <p class="address-line">{{selectedKarenderia?.address}}</p>
+            <p class="location-line">{{selectedKarenderia?.city}}, {{selectedKarenderia?.province}}</p>
+          </div>
         </div>
         
-        <!-- Map Instructions -->
-        <div class="map-instructions">
-          <ion-icon name="information-circle-outline"></ion-icon>
-          <p>Search for the address below, then drag the red marker to the exact location of this karenderia.</p>
+        <!-- Modern Map Instructions -->
+        <div class="modern-map-instructions">
+          <ion-icon name="information-circle" color="tertiary"></ion-icon>
+          <p>Search for the address below, then drag the red marker to pinpoint the exact location of this karenderia.</p>
         </div>
         
-        <!-- Address Search -->
-        <div class="search-section">
-          <ion-item>
+        <!-- Modern Address Search -->
+        <div class="modern-search-section">
+          <ion-item class="search-item">
             <ion-input 
               [(ngModel)]="searchAddress"
-              placeholder="Search for the address..."
-              (keyup.enter)="searchLocation()">
+              label="Search Location"
+              labelPlacement="stacked"
+              placeholder="Enter address or landmark..."
+              (keyup.enter)="searchLocation()"
+              class="search-input">
             </ion-input>
             <ion-button 
               slot="end" 
-              fill="clear" 
-              (click)="searchLocation()">
+              fill="solid" 
+              color="primary"
+              (click)="searchLocation()"
+              class="search-btn">
               <ion-icon name="search"></ion-icon>
             </ion-button>
           </ion-item>
         </div>
         
-        <!-- Map Container -->
-        <div class="map-container" #adminMapContainer>
+        <!-- Modern Map Container -->
+        <div class="modern-map-container" #adminMapContainer>
+          <div class="map-placeholder" *ngIf="!mapLoaded">
+            <ion-spinner color="primary"></ion-spinner>
+            <p>Loading map...</p>
+          </div>
           <!-- Google Maps will be rendered here -->
         </div>
         
-        <!-- Current Location Display -->
-        <div class="coordinates-display" *ngIf="selectedLocation.lat && selectedLocation.lng">
-          <ion-chip color="success">
+        <!-- Modern Current Location Display -->
+        <div class="modern-coordinates-display" *ngIf="selectedLocation.lat && selectedLocation.lng">
+          <div class="coordinates-header">
+            <ion-icon name="compass" color="success"></ion-icon>
+            <h4>Selected Coordinates</h4>
+          </div>
+          <ion-chip color="success" class="coordinates-chip">
             <ion-icon name="location"></ion-icon>
             <ion-label>
               {{selectedLocation.lat | number:'1.6-6'}}, {{selectedLocation.lng | number:'1.6-6'}}
@@ -176,14 +258,26 @@
           </ion-chip>
         </div>
         
-        <!-- Action Buttons -->
-        <div class="modal-actions">
+        <!-- Modern Action Buttons -->
+        <div class="modern-modal-actions">
           <ion-button 
             expand="block" 
+            fill="outline"
+            color="medium"
+            (click)="closeLocationModal()"
+            class="cancel-btn">
+            <ion-icon name="close" slot="start"></ion-icon>
+            Cancel
+          </ion-button>
+          <ion-button 
+            expand="block" 
+            fill="solid"
+            color="success"
             (click)="saveLocation()"
-            [disabled]="!selectedLocation.lat || isSaving">
+            [disabled]="!selectedLocation.lat || isSaving"
+            class="save-btn">
             <ion-icon name="save" slot="start"></ion-icon>
-            {{isSaving ? 'Saving...' : 'Save Location'}}
+            {{isSaving ? 'Saving Location...' : 'Save Location'}}
           </ion-button>
         </div>
         

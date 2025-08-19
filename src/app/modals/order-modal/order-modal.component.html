@@ -1,203 +1,224 @@
-<ion-header [translucent]="true">
-  <ion-toolbar color="primary">
-    <ion-title>📱 Place Order</ion-title>
+<ion-header [translucent]="true" class="modern-order-header">
+  <ion-toolbar class="gradient-order-toolbar">
+    <ion-title>
+      <div class="modern-order-title">
+        <ion-icon name="restaurant" color="light"></ion-icon>
+        <span>Place Order</span>
+      </div>
+    </ion-title>
     <ion-buttons slot="end">
-      <ion-button (click)="closeModal()">
+      <ion-button (click)="closeModal()" fill="clear" color="light" class="modern-close-btn">
         <ion-icon name="close"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <!-- Loading spinner -->
-  <div *ngIf="isLoading" class="loading-container">
-    <ion-spinner></ion-spinner>
-    <p>Loading menu items...</p>
+<ion-content [fullscreen]="true" class="modern-order-content">
+  <!-- Modern Loading spinner -->
+  <div *ngIf="isLoading" class="modern-loading-container animate-fade-in">
+    <ion-spinner name="crescent" color="primary"></ion-spinner>
+    <h3>Loading menu items...</h3>
+    <p>Finding the best Filipino dishes for you</p>
   </div>
 
-  <div *ngIf="!isLoading">
-    <!-- Tab Navigation -->
-    <ion-segment [(ngModel)]="activeTab">
-      <ion-segment-button value="menu">
-        <ion-label>Menu</ion-label>
-        <ion-icon name="restaurant"></ion-icon>
-      </ion-segment-button>
-      <ion-segment-button value="cart">
-        <ion-label>Cart ({{ getOrderItemsCount() }})</ion-label>
-        <ion-icon name="bag"></ion-icon>
-      </ion-segment-button>
-    </ion-segment>
+  <div *ngIf="!isLoading" class="animate-fade-in">
+    <!-- Modern Tab Navigation -->
+    <div class="modern-tab-container">
+      <ion-segment [(ngModel)]="activeTab" class="modern-order-segment">
+        <ion-segment-button value="menu" class="modern-tab-btn">
+          <ion-icon name="restaurant-outline"></ion-icon>
+          <ion-label>Menu</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="cart" class="modern-tab-btn">
+          <ion-icon name="bag-outline"></ion-icon>
+          <ion-label>Cart ({{ getOrderItemsCount() }})</ion-label>
+        </ion-segment-button>
+      </ion-segment>
+    </div>
 
     <!-- MENU TAB -->
-    <div *ngIf="activeTab === 'menu'" class="tab-content">
-      <!-- Search and Filter -->
-      <ion-toolbar>
+    <div *ngIf="activeTab === 'menu'" class="modern-tab-content animate-slide-up">
+      <!-- Modern Search and Filter -->
+      <div class="modern-search-section">
         <ion-searchbar 
           [(ngModel)]="searchTerm" 
           (ionInput)="onSearchChange()"
           placeholder="Search menu items..."
-          show-clear-button="focus">
+          show-clear-button="focus"
+          class="modern-search-bar">
         </ion-searchbar>
-      </ion-toolbar>
 
-      <!-- Category Filter -->
-      <ion-item>
-        <ion-label position="stacked">Category</ion-label>
-        <ion-select [(ngModel)]="selectedCategory" (ionChange)="onCategoryChange()" placeholder="All Categories">
-          <ion-select-option *ngFor="let category of categories" [value]="category">
-            {{ category | titlecase }}
-          </ion-select-option>
-        </ion-select>
-      </ion-item>
+        <!-- Modern Category Filter -->
+        <div class="modern-category-filter">
+          <ion-select 
+            [(ngModel)]="selectedCategory" 
+            (ionChange)="onCategoryChange()" 
+            placeholder="All Categories"
+            interface="popover"
+            class="modern-category-select">
+            <ion-select-option *ngFor="let category of categories" [value]="category">
+              {{ category | titlecase }}
+            </ion-select-option>
+          </ion-select>
+        </div>
+      </div>
 
-      <!-- Menu Items Grid -->
-      <ion-grid>
-        <ion-row>
-          <ion-col size="12" size-md="6" size-lg="4" *ngFor="let item of filteredItems">
-            <ion-card class="menu-item-card">
-              <img [src]="item.image || 'assets/images/placeholder-food.jpg'" 
-                   [alt]="item.name"
-                   (error)="onImageError($event)">
-              
-              <ion-card-header>
-                <ion-card-title>{{ item.name }}</ion-card-title>
-                <ion-card-subtitle>{{ formatPhp(item.price) }}</ion-card-subtitle>
-              </ion-card-header>
+      <!-- Modern Menu Items Grid -->
+      <div class="modern-menu-grid">
+        <div class="modern-menu-item" *ngFor="let item of filteredItems">
+          <div class="item-image-container">
+            <img [src]="item.image || 'assets/images/placeholder-food.jpg'" 
+                 [alt]="item.name"
+                 (error)="onImageError($event)">
+            <div class="image-overlay"></div>
+          </div>
+          
+          <div class="item-content">
+            <div class="item-header">
+              <h3>{{ item.name }}</h3>
+              <div class="price-tag">{{ formatPhp(item.price) }}</div>
+            </div>
+            
+            <p class="item-description">{{ item.description }}</p>
+            
+            <div class="item-chips">
+              <div class="prep-time-chip">
+                <ion-icon name="time-outline"></ion-icon>
+                <span>{{ item.preparationTime }} mins</span>
+              </div>
+              <div class="profit-chip">
+                <ion-icon name="trending-up-outline"></ion-icon>
+                <span>{{ formatPhp(calculateItemProfit(item)) }} profit</span>
+              </div>
+            </div>
 
-              <ion-card-content>
-                <p>{{ item.description }}</p>
-                <div class="item-details">
-                  <ion-chip color="primary" outline>
-                    <ion-icon name="time"></ion-icon>
-                    <ion-label>{{ item.preparationTime }} mins</ion-label>
-                  </ion-chip>
-                  <ion-chip color="success" outline>
-                    <ion-icon name="flash"></ion-icon>
-                    <ion-label>{{ formatPhp(calculateItemProfit(item)) }} profit</ion-label>
-                  </ion-chip>
-                </div>
+            <!-- Modern Quantity Controls -->
+            <div class="modern-quantity-controls" *ngIf="isItemInOrder(item.id)">
+              <ion-button fill="clear" color="danger" (click)="updateItemQuantity(getOrderItemIndex(item.id), getItemQuantityInOrder(item.id) - 1)" class="quantity-btn">
+                <ion-icon name="remove"></ion-icon>
+              </ion-button>
+              <span class="quantity-display">{{ getItemQuantityInOrder(item.id) }}</span>
+              <ion-button fill="clear" color="success" (click)="updateItemQuantity(getOrderItemIndex(item.id), getItemQuantityInOrder(item.id) + 1)" class="quantity-btn">
+                <ion-icon name="add"></ion-icon>
+              </ion-button>
+            </div>
 
-                <!-- Quantity Controls -->
-                <div class="quantity-controls" *ngIf="isItemInOrder(item.id)">
-                  <ion-button fill="clear" color="danger" (click)="updateItemQuantity(getOrderItemIndex(item.id), getItemQuantityInOrder(item.id) - 1)">
-                    <ion-icon name="remove"></ion-icon>
-                  </ion-button>
-                  <span class="quantity">{{ getItemQuantityInOrder(item.id) }}</span>
-                  <ion-button fill="clear" color="success" (click)="updateItemQuantity(getOrderItemIndex(item.id), getItemQuantityInOrder(item.id) + 1)">
-                    <ion-icon name="add"></ion-icon>
-                  </ion-button>
-                </div>
+            <!-- Modern Add to Order Button -->
+            <ion-button 
+              *ngIf="!isItemInOrder(item.id)"
+              expand="block" 
+              fill="solid" 
+              color="primary" 
+              (click)="addToOrder(item)"
+              class="modern-add-btn">
+              <ion-icon name="add-circle-outline" slot="start"></ion-icon>
+              Add to Order
+            </ion-button>
+          </div>
+        </div>
+      </div>
 
-                <!-- Add to Order Button -->
-                <ion-button 
-                  *ngIf="!isItemInOrder(item.id)"
-                  expand="block" 
-                  fill="solid" 
-                  color="primary" 
-                  (click)="addToOrder(item)">
-                  <ion-icon name="add" slot="start"></ion-icon>
-                  Add to Order
-                </ion-button>
-              </ion-card-content>
-            </ion-card>
-          </ion-col>
-        </ion-row>
-      </ion-grid>
-
-      <!-- No items message -->
-      <div *ngIf="filteredItems.length === 0" class="no-items">
-        <ion-icon name="restaurant" color="medium"></ion-icon>
+      <!-- Modern No items message -->
+      <div *ngIf="filteredItems.length === 0" class="modern-no-items">
+        <div class="empty-icon">
+          <ion-icon name="restaurant-outline"></ion-icon>
+        </div>
         <h3>No items found</h3>
         <p>Try adjusting your search or category filter</p>
       </div>
     </div>
 
     <!-- CART TAB -->
-    <div *ngIf="activeTab === 'cart'" class="tab-content">
-      <ion-list *ngIf="orderItems.length > 0">
-        <ion-item-sliding *ngFor="let orderItem of orderItems; let i = index">
-          <ion-item>
-            <ion-thumbnail slot="start">
-              <img [src]="orderItem.menuItem.image || 'assets/images/placeholder-food.jpg'" 
-                   [alt]="orderItem.menuItem.name">
-            </ion-thumbnail>
+    <div *ngIf="activeTab === 'cart'" class="modern-tab-content animate-slide-up">
+      <div *ngIf="orderItems.length > 0" class="modern-cart-items">
+        <div *ngFor="let orderItem of orderItems; let i = index" class="modern-cart-item">
+          <div class="cart-item-image">
+            <img [src]="orderItem.menuItem.image || 'assets/images/placeholder-food.jpg'" 
+                 [alt]="orderItem.menuItem.name">
+          </div>
+          
+          <div class="cart-item-content">
+            <div class="item-info">
+              <h4>{{ orderItem.menuItem.name }}</h4>
+              <p class="item-price">{{ formatPhp(orderItem.menuItem.price) }} each</p>
+            </div>
             
-            <ion-label>
-              <h2>{{ orderItem.menuItem.name }}</h2>
-              <p>{{ formatPhp(orderItem.menuItem.price) }} each</p>
-              <div class="quantity-controls">
-                <ion-button fill="clear" size="small" color="danger" (click)="updateItemQuantity(i, orderItem.quantity - 1)">
+            <div class="cart-item-controls">
+              <div class="modern-quantity-controls">
+                <ion-button fill="clear" size="small" color="danger" (click)="updateItemQuantity(i, orderItem.quantity - 1)" class="quantity-btn">
                   <ion-icon name="remove"></ion-icon>
                 </ion-button>
-                <span class="quantity">{{ orderItem.quantity }}</span>
-                <ion-button fill="clear" size="small" color="success" (click)="updateItemQuantity(i, orderItem.quantity + 1)">
+                <span class="quantity-display">{{ orderItem.quantity }}</span>
+                <ion-button fill="clear" size="small" color="success" (click)="updateItemQuantity(i, orderItem.quantity + 1)" class="quantity-btn">
                   <ion-icon name="add"></ion-icon>
                 </ion-button>
               </div>
-            </ion-label>
-            
-            <ion-note slot="end" color="primary">
-              <strong>{{ formatPhp(orderItem.subtotal) }}</strong>
-              <br>
-              <small>Profit: {{ formatPhp(orderItem.profit) }}</small>
-            </ion-note>
-          </ion-item>
+              
+              <div class="item-totals">
+                <div class="subtotal">{{ formatPhp(orderItem.subtotal) }}</div>
+                <div class="profit-info">Profit: {{ formatPhp(orderItem.profit) }}</div>
+              </div>
+              
+              <ion-button fill="clear" color="danger" (click)="removeFromOrder(i)" class="remove-btn">
+                <ion-icon name="trash-outline"></ion-icon>
+              </ion-button>
+            </div>
+          </div>
+        </div>
+      </div>
 
-          <ion-item-options side="end">
-            <ion-item-option color="danger" (click)="removeFromOrder(i)">
-              <ion-icon name="trash" slot="icon-only"></ion-icon>
-            </ion-item-option>
-          </ion-item-options>
-        </ion-item-sliding>
-      </ion-list>
-
-      <!-- Empty cart message -->
-      <div *ngIf="orderItems.length === 0" class="empty-cart">
-        <ion-icon name="bag-outline" color="medium"></ion-icon>
+      <!-- Modern Empty cart message -->
+      <div *ngIf="orderItems.length === 0" class="modern-empty-cart">
+        <div class="empty-icon">
+          <ion-icon name="bag-outline"></ion-icon>
+        </div>
         <h3>Your cart is empty</h3>
         <p>Add items from the menu to start your order</p>
-        <ion-button (click)="activeTab = 'menu'" fill="outline">
+        <ion-button (click)="activeTab = 'menu'" fill="outline" color="primary" class="browse-menu-btn">
+          <ion-icon name="restaurant-outline" slot="start"></ion-icon>
           Browse Menu
         </ion-button>
       </div>
 
-      <!-- Order Summary -->
-      <ion-card *ngIf="orderItems.length > 0" class="order-summary">
-        <ion-card-header>
-          <ion-card-title>Order Summary</ion-card-title>
-        </ion-card-header>
-        <ion-card-content>
-          <ion-item>
-            <ion-label>Subtotal</ion-label>
-            <ion-note slot="end">{{ formatPhp(subtotal) }}</ion-note>
-          </ion-item>
-          <ion-item>
-            <ion-label>Tax (12%)</ion-label>
-            <ion-note slot="end">{{ formatPhp(tax) }}</ion-note>
-          </ion-item>
-          <ion-item *ngIf="discount > 0">
-            <ion-label>Discount</ion-label>
-            <ion-note slot="end" color="success">-{{ formatPhp(discount) }}</ion-note>
-          </ion-item>
-          <ion-item class="total-row">
-            <ion-label><strong>Total</strong></ion-label>
-            <ion-note slot="end" color="primary"><strong>{{ formatPhp(totalAmount) }}</strong></ion-note>
-          </ion-item>
-          <ion-item>
-            <ion-label>Expected Profit</ion-label>
-            <ion-note slot="end" color="success"><strong>{{ formatPhp(totalProfit) }}</strong></ion-note>
-          </ion-item>
-        </ion-card-content>
-      </ion-card>
+      <!-- Modern Order Summary -->
+      <div *ngIf="orderItems.length > 0" class="modern-order-summary">
+        <div class="summary-header">
+          <h3>Order Summary</h3>
+        </div>
+        
+        <div class="summary-details">
+          <div class="summary-row">
+            <span>Subtotal</span>
+            <span>{{ formatPhp(subtotal) }}</span>
+          </div>
+          <div class="summary-row">
+            <span>Tax (12%)</span>
+            <span>{{ formatPhp(tax) }}</span>
+          </div>
+          <div class="summary-row" *ngIf="discount > 0">
+            <span>Discount</span>
+            <span class="discount-amount">-{{ formatPhp(discount) }}</span>
+          </div>
+          <div class="summary-row total-row">
+            <span>Total</span>
+            <span class="total-amount">{{ formatPhp(totalAmount) }}</span>
+          </div>
+          <div class="summary-row profit-row">
+            <span>Expected Profit</span>
+            <span class="profit-amount">{{ formatPhp(totalProfit) }}</span>
+          </div>
+        </div>
+      </div>
 
-      <!-- Action Buttons -->
-      <div *ngIf="orderItems.length > 0" class="cart-actions">
-        <ion-button expand="block" fill="outline" color="warning" (click)="clearOrder()">
+      <!-- Modern Action Buttons -->
+      <div *ngIf="orderItems.length > 0" class="modern-cart-actions">
+        <ion-button expand="block" fill="outline" color="warning" (click)="clearOrder()" class="clear-btn">
+          <ion-icon name="trash-outline" slot="start"></ion-icon>
           Clear Order
         </ion-button>
-        <ion-button expand="block" fill="solid" color="success" (click)="placeOrder()" [disabled]="isLoading">
-          <ion-icon name="checkmark-circle" slot="start"></ion-icon>
+        <ion-button expand="block" fill="solid" color="primary" (click)="placeOrder()" [disabled]="isLoading" class="place-order-btn">
+          <ion-icon name="checkmark-circle-outline" slot="start"></ion-icon>
           <span *ngIf="!isLoading">Place Order - {{ formatPhp(totalAmount) }}</span>
           <span *ngIf="isLoading">Processing...</span>
         </ion-button>

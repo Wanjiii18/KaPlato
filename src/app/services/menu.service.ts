@@ -20,10 +20,11 @@ export class MenuService {
   orders$ = this.ordersSubject.asObservable();
 
   constructor(private http: HttpClient) {
-    this.loadCategories();
-    this.loadIngredients();
-    this.loadMenuItems();
-    this.loadOrders();
+    // Load data with error handling to prevent hanging
+    this.loadCategories().catch(err => console.warn('Categories loading failed:', err));
+    this.loadIngredients().catch(err => console.warn('Ingredients loading failed:', err));
+    this.loadMenuItems().catch(err => console.warn('Menu items loading failed:', err));
+    this.loadOrders().catch(err => console.warn('Orders loading failed:', err));
   }
 
   private getHeaders(): HttpHeaders {
@@ -248,17 +249,32 @@ export class MenuService {
   async getDailySales(date: Date): Promise<DailySales> {
     const params = { date: date.toISOString().split('T')[0] };
     
-    const response = await this.http.get<{ data: DailySales }>(`${this.apiUrl}/analytics/daily-sales`, {
-      headers: this.getHeaders(),
-      params
-    }).toPromise();
-    
-    return response?.data || {
-      date,
-      totalSales: 0,
-      totalOrders: 0,
-      popularItems: []
-    };
+    try {
+      const response = await Promise.race([
+        this.http.get<{ data: DailySales }>(`${this.apiUrl}/analytics/daily-sales`, {
+          headers: this.getHeaders(),
+          params
+        }).toPromise(),
+        new Promise<null>((_, reject) => 
+          setTimeout(() => reject(new Error('Daily sales API timeout')), 5000)
+        )
+      ]);
+      
+      return response?.data || {
+        date,
+        totalSales: 0,
+        totalOrders: 0,
+        popularItems: []
+      };
+    } catch (error) {
+      console.warn('Failed to load daily sales, using default:', error);
+      return {
+        date,
+        totalSales: 0,
+        totalOrders: 0,
+        popularItems: []
+      };
+    }
   }
 
   // Get low stock ingredients
@@ -269,5 +285,72 @@ export class MenuService {
         observer.next(lowStock);
       });
     });
+  }
+
+  // Get detailed menu item information
+  async getMenuItemDetails(id: string): Promise<any> {
+    try {
+      const response = await this.http.get<{ data: any }>(`${this.apiUrl}/menu-items/${id}/details`, {
+        headers: this.getHeaders()
+      }).toPromise();
+      
+      return response?.data;
+    } catch (error) {
+      console.error('Error loading menu item details:', error);
+      throw error;
+    }
+  }
+
+  // Submit review for a menu item
+  async submitReview(menuItemId: string, rating: number, review?: string): Promise<void> {
+    try {
+      await this.http.post(`${this.apiUrl}/menu-items/${menuItemId}/reviews`, {
+        rating,
+        review: review || ''
+      }, {
+        headers: this.getHeaders()
+      }).toPromise();
+    } catch (error) {
+      console.error('Error submitting review:', error);
+      throw error;
+    }
+  }
+
+  // Search menu items with filters
+  async searchMenuItems(query: string, filters?: {
+    category?: string;
+    priceMin?: number;
+    priceMax?: number;
+    calories?: number;
+    allergens?: string[];
+    dietary?: string[];
+    karenderia?: string;
+  }): Promise<any[]> {
+    try {
+      const params: any = { query };
+      
+      if (filters) {
+        Object.keys(filters).forEach(key => {
+          const value = (filters as any)[key];
+          if (value !== undefined && value !== null) {
+            if (Array.isArray(value)) {
+              params[key] = value.join(',');
+            } else {
+              params[key] = value.toString();
+            }
+          }
+        });
+      }
+
+      const response = await this.http.get<{ data: any[] }>(`${this.apiUrl}/menu-items/search`, {
+        headers: this.getHeaders(),
+        params
+      }).toPromise();
+      
+      return response?.data || [];
+    } catch (error) {
+      console.error('Error searching menu items:', error);
+      throw error;
+    }
   }
 }

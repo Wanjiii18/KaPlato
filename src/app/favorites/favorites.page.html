@@ -1,0 +1,134 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>My Favorites</ion-title>
+    <ion-buttons slot="end" *ngIf="favorites.length > 0">
+      <ion-button (click)="clearAllFavorites()">
+        <ion-icon name="trash-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <!-- Search and Filter Section -->
+  <div class="search-filter-section" *ngIf="favorites.length > 0">
+    <ion-searchbar [(ngModel)]="searchQuery" 
+                   (ionInput)="onSearchChange()"
+                   placeholder="Search favorites..."
+                   show-clear-button="focus">
+    </ion-searchbar>
+    
+    <ion-segment [(ngModel)]="selectedFilter" (ionChange)="onFilterChange()">
+      <ion-segment-button value="all">
+        <ion-label>All</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="recent">
+        <ion-label>Recent</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="price-low">
+        <ion-label>Price ↑</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="price-high">
+        <ion-label>Price ↓</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="alphabetical">
+        <ion-label>A-Z</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Loading your favorites...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading && favorites.length === 0" class="empty-state">
+    <ion-icon name="heart-outline" class="empty-icon"></ion-icon>
+    <h2>No Favorites Yet</h2>
+    <p>Start exploring meals and add your favorites by tapping the heart icon!</p>
+    <ion-button routerLink="/tabs/home" fill="outline">
+      <ion-icon name="search-outline" slot="start"></ion-icon>
+      Discover Meals
+    </ion-button>
+  </div>
+
+  <!-- Favorites List -->
+  <div *ngIf="!loading && filteredFavorites.length > 0" class="favorites-list">
+    <div class="results-count" *ngIf="searchQuery">
+      Found {{ filteredFavorites.length }} result{{ filteredFavorites.length !== 1 ? 's' : '' }}
+    </div>
+
+    <ion-card *ngFor="let favorite of filteredFavorites; trackBy: trackByFavoriteId" 
+              class="favorite-card">
+      <div class="card-content" (click)="goToMealDetails(favorite)">
+        <div class="image-container">
+          <img [src]="favorite.menuItemImage || 'assets/images/default-food.jpg'" 
+               [alt]="favorite.menuItemName"
+               class="meal-image">
+          <div class="price-badge">₱{{ favorite.menuItemPrice }}</div>
+        </div>
+        
+        <div class="meal-info">
+          <h2>{{ favorite.menuItemName }}</h2>
+          <div class="karenderia-info" (click)="$event.stopPropagation(); goToKarenderia(favorite)">
+            <ion-icon name="storefront-outline"></ion-icon>
+            <span>{{ favorite.karenderiaName }}</span>
+            <ion-icon name="chevron-forward-outline"></ion-icon>
+          </div>
+          <div class="favorite-meta">
+            <span class="added-time">
+              <ion-icon name="heart"></ion-icon>
+              Added {{ getTimeAgo(favorite.addedAt) }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-actions">
+        <ion-button fill="clear" 
+                    size="small" 
+                    color="danger"
+                    (click)="removeFromFavorites(favorite)">
+          <ion-icon name="heart-dislike-outline" slot="start"></ion-icon>
+          Remove
+        </ion-button>
+        
+        <ion-button fill="solid" 
+                    size="small" 
+                    color="primary"
+                    (click)="addToCart(favorite)">
+          <ion-icon name="bag-add-outline" slot="start"></ion-icon>
+          Add to Cart
+        </ion-button>
+      </div>
+    </ion-card>
+  </div>
+
+  <!-- No Search Results -->
+  <div *ngIf="!loading && searchQuery && filteredFavorites.length === 0 && favorites.length > 0" 
+       class="no-results">
+    <ion-icon name="search-outline" class="no-results-icon"></ion-icon>
+    <h3>No Results Found</h3>
+    <p>Try adjusting your search or filter criteria</p>
+    <ion-button fill="clear" (click)="searchQuery = ''; onSearchChange()">
+      Clear Search
+    </ion-button>
+  </div>
+
+  <!-- Quick Actions FAB -->
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed" *ngIf="favorites.length > 0">
+    <ion-fab-button color="primary">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+    <ion-fab-list side="top">
+      <ion-fab-button routerLink="/tabs/home" color="secondary">
+        <ion-icon name="search-outline"></ion-icon>
+      </ion-fab-button>
+      <ion-fab-button routerLink="/meal-history" color="tertiary">
+        <ion-icon name="time-outline"></ion-icon>
+      </ion-fab-button>
+    </ion-fab-list>
+  </ion-fab>
+</ion-content>

@@ -1,0 +1,26 @@
+<svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Circle with Gradient -->
+  <circle cx="60" cy="60" r="56" fill="url(#gradient)" stroke="url(#strokeGradient)" stroke-width="8"/>
+  
+  <!-- Main Logo Text -->
+  <text x="60" y="45" font-family="Arial, sans-serif" font-size="18" font-weight="bold" text-anchor="middle" fill="white">Ka</text>
+  <text x="60" y="70" font-family="Arial, sans-serif" font-size="18" font-weight="bold" text-anchor="middle" fill="white">Plato</text>
+  
+  <!-- Food Icon -->
+  <circle cx="60" cy="85" r="3" fill="white" opacity="0.8"/>
+  <circle cx="52" cy="85" r="2" fill="white" opacity="0.6"/>
+  <circle cx="68" cy="85" r="2" fill="white" opacity="0.6"/>
+  
+  <!-- Gradient Definitions -->
+  <defs>
+    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6366f1;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#8b5cf6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#d946ef;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="strokeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.3" />
+      <stop offset="100%" style="stop-color:#ffffff;stop-opacity:0.1" />
+    </linearGradient>
+  </defs>
+</svg>

@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 import { 
   IonContent, IonHeader, IonTitle, IonToolbar, IonButtons, IonButton,
   IonIcon, IonCard, IonCardContent, IonChip, IonSegment, IonSegmentButton,
-  IonLabel, AlertController, ToastController
+  IonLabel, IonBadge, AlertController, ToastController
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { 
@@ -32,7 +32,7 @@ import { AdminService } from '../../services/admin.service';
     FormsModule,
     IonContent, IonHeader, IonTitle, IonToolbar, IonButtons, IonButton,
     IonIcon, IonCard, IonCardContent, IonChip, IonSegment, IonSegmentButton,
-    IonLabel
+    IonLabel, IonBadge
   ]
 })
 export class AdminDashboardPage implements OnInit, OnDestroy {
@@ -366,7 +366,6 @@ export class AdminDashboardPage implements OnInit, OnDestroy {
   }
 
   logout() {
-    this.authService.logout();
-    this.router.navigate(['/login']);
+    this.authService.logoutAndRedirect();
   }
 }

@@ -1,94 +1,159 @@
-<ion-header [translucent]="true">
-  <ion-toolbar color="primary">
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="/karenderia-dashboard"></ion-back-button>
-    </ion-buttons>
-    <ion-title>Point of Sale</ion-title>
-    <ion-buttons slot="end">
-      <ion-button (click)="showDetailedAnalytics()" fill="clear">
-        <ion-icon name="analytics-outline"></ion-icon>
-        Analytics
-      </ion-button>
-      <ion-button (click)="showOrderHistory()">
-        <ion-icon name="time-outline"></ion-icon>
-        History
-      </ion-button>
-    </ion-buttons>
-  </ion-toolbar>
-</ion-header>
+<div class="modern-header">
+  <ion-header [translucent]="true">
+    <ion-toolbar class="gradient-toolbar">
+      <ion-buttons slot="start">
+        <ion-button class="modern-back-btn" fill="clear" defaultHref="/karenderia-dashboard">
+          <ion-icon name="arrow-back"></ion-icon>
+        </ion-button>
+      </ion-buttons>
+      <ion-title class="page-title">
+        <ion-icon name="calculator"></ion-icon>
+        Point of Sale
+      </ion-title>
+      <ion-buttons slot="end">
+        <ion-button class="header-action-btn" (click)="showDetailedAnalytics()" fill="clear">
+          <ion-icon name="analytics"></ion-icon>
+        </ion-button>
+        <ion-button class="header-action-btn" (click)="showOrderHistory()" fill="clear">
+          <ion-icon name="time"></ion-icon>
+        </ion-button>
+        <ion-button class="header-action-btn" (click)="showSettings()" fill="clear">
+          <ion-icon name="settings"></ion-icon>
+        </ion-button>
+      </ion-buttons>
+    </ion-toolbar>
+  </ion-header>
+</div>
 
-<ion-content [fullscreen]="true" class="pos-content">
+<ion-content [fullscreen]="true" class="modern-content">
   <div class="pos-container">
     
-    <!-- Quick Analytics Bar -->
-    <div class="analytics-bar" *ngIf="todaysAnalytics">
+    <!-- Modern Analytics Bar -->
+    <div class="modern-analytics-bar" *ngIf="todaysAnalytics">
       <div class="analytics-card">
-        <div class="metric">
-          <span class="value">{{ formatPhp(todaysAnalytics.totalSales) }}</span>
-          <span class="label">Today's Sales</span>
+        <div class="metric sales">
+          <div class="metric-icon">
+            <ion-icon name="cash"></ion-icon>
+          </div>
+          <div class="metric-content">
+            <span class="value">{{ formatPhp(todaysAnalytics.totalSales) }}</span>
+            <span class="label">Today's Sales</span>
+          </div>
         </div>
-        <div class="metric">
-          <span class="value">{{ todaysAnalytics.totalOrders }}</span>
-          <span class="label">Orders</span>
+        <div class="metric orders">
+          <div class="metric-icon">
+            <ion-icon name="receipt"></ion-icon>
+          </div>
+          <div class="metric-content">
+            <span class="value">{{ todaysAnalytics.totalOrders }}</span>
+            <span class="label">Orders</span>
+          </div>
         </div>
-        <div class="metric">
-          <span class="value">{{ formatPhp(todaysAnalytics.totalProfit) }}</span>
-          <span class="label">Profit</span>
+        <div class="metric profit">
+          <div class="metric-icon">
+            <ion-icon name="trending-up"></ion-icon>
+          </div>
+          <div class="metric-content">
+            <span class="value">{{ formatPhp(todaysAnalytics.totalProfit) }}</span>
+            <span class="label">Profit</span>
+          </div>
         </div>
         <div class="metric seasonal">
-          <span class="value">{{ getCurrentSeason() | titlecase }}</span>
-          <span class="label">Season</span>
+          <div class="metric-icon">
+            <ion-icon name="calendar"></ion-icon>
+          </div>
+          <div class="metric-content">
+            <span class="value">{{ getCurrentSeason() | titlecase }}</span>
+            <span class="label">Season</span>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- Left Side: Categories and Menu -->
-    <div class="menu-section">
+    <!-- Modern Menu Section -->
+    <div class="modern-menu-section">
       
-      <!-- Categories -->
-      <div class="categories-section">
-        <h3>Choose Category</h3>
+      <!-- Modern Categories -->
+      <div class="modern-categories-section">
+        <div class="section-header">
+          <h3>Choose Category</h3>
+          <p>Select a category to view available items</p>
+        </div>
         <div class="categories-grid">
           <div 
             *ngFor="let category of categories" 
-            class="category-item"
+            class="category-card"
             [class.active]="selectedCategory === category.id"
             (click)="selectCategory(category.id)">
-            <ion-icon [name]="category.icon"></ion-icon>
-            <span>{{ category.name }}</span>
+            <div class="category-icon">
+              <ion-icon [name]="category.icon"></ion-icon>
+            </div>
+            <div class="category-info">
+              <span class="category-name">{{ category.name }}</span>
+              <span class="category-count">{{ getCategoryItemCount(category.id) }} items</span>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- Menu Items -->
-      <div class="menu-items-section">
+      <!-- Modern Menu Items -->
+      <div class="modern-menu-items-section">
         <div class="section-header">
-          <h3>{{ getSelectedCategoryName() }} Menu</h3>
-          <span class="item-count">{{ getFilteredMenuItems().length }} items</span>
+          <div class="header-info">
+            <h3>{{ getSelectedCategoryName() }} Menu</h3>
+            <span class="item-count">{{ getFilteredMenuItems().length }} available items</span>
+          </div>
+          <div class="header-actions">
+            <ion-button fill="outline" size="small" (click)="searchItems()">
+              <ion-icon name="search" slot="start"></ion-icon>
+              Search
+            </ion-button>
+          </div>
         </div>
         
         <div class="menu-items-grid">
           <div 
             *ngFor="let item of getFilteredMenuItems()" 
-            class="menu-item-card"
+            class="modern-menu-item-card"
             (click)="addToOrder(item)">
-            <div class="item-image">
+            <div class="item-image-container">
               <img [src]="item.image" [alt]="item.name" (error)="handleImageError($event)">
-              <div class="item-badge" *ngIf="item.isPopular">
-                <ion-icon name="star"></ion-icon>
+              <div class="item-badges">
+                <ion-chip *ngIf="item.isPopular" color="warning" class="popular-badge">
+                  <ion-icon name="star" slot="start"></ion-icon>
+                  Popular
+                </ion-chip>
+                <ion-chip *ngIf="item.name.includes('Thai')" color="danger" class="spicy-badge">
+                  <ion-icon name="flame" slot="start"></ion-icon>
+                  Spicy
+                </ion-chip>
               </div>
             </div>
-            <div class="item-info">
-              <h4>{{ item.name }}</h4>
-              <p class="item-price">{{ formatPhp(item.price) }}</p>
-              <div class="item-tags">
-                <span class="spicy-tag" *ngIf="item.name.includes('Thai')">
-                  <ion-icon name="flame"></ion-icon>
-                  Spicy Level
-                </span>
-                <span class="time-tag">{{ item.preparationTime }} min</span>
+            <div class="item-content">
+              <div class="item-header">
+                <h4 class="item-name">{{ item.name }}</h4>
+                <span class="item-price">{{ formatPhp(item.price) }}</span>
               </div>
-              <button class="add-to-billing-btn">Add to Billing</button>
+              <div class="item-details">
+                <div class="item-meta">
+                  <span class="prep-time">
+                    <ion-icon name="time"></ion-icon>
+                    {{ item.preparationTime }} min
+                  </span>
+                  <span class="availability" [class.low-stock]="(item.stock || 0) < 10">
+                    <ion-icon name="cube"></ion-icon>
+                    {{ item.stock || 'In Stock' }}
+                  </span>
+                </div>
+              </div>
+              <ion-button 
+                expand="block" 
+                fill="solid" 
+                class="add-to-order-btn"
+                [disabled]="item.stock === 0">
+                <ion-icon name="add" slot="start"></ion-icon>
+                {{ item.stock === 0 ? 'Out of Stock' : 'Add to Order' }}
+              </ion-button>
             </div>
           </div>
         </div>

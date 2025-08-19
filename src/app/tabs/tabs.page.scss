@@ -1,0 +1,63 @@
+// Tab container styling
+ion-tabs {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+ion-router-outlet {
+  flex: 1;
+  overflow: hidden; // Let the inner content handle scrolling
+  position: relative;
+}
+
+.mobile-tab-bar {
+  --background: #ffffff;
+  --border: 1px solid rgba(0, 0, 0, 0.1);
+  --color: #6c757d;
+  --color-selected: #2dd36f;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+  height: 65px;
+  padding-bottom: env(safe-area-inset-bottom);
+  flex-shrink: 0;
+  position: relative;
+  z-index: 10;
+}
+
+ion-tab-button {
+  --color: #6c757d;
+  --color-selected: #2dd36f;
+  --ripple-color: rgba(45, 211, 111, 0.2);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 8px 0;
+}
+
+ion-tab-button ion-icon {
+  font-size: 22px;
+  margin-bottom: 2px;
+}
+
+ion-tab-button ion-label {
+  font-size: 11px;
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+ion-tab-button.tab-selected {
+  --color: #2dd36f;
+}
+
+ion-tab-button.tab-selected ion-icon {
+  transform: scale(1.1);
+  transition: transform 0.2s ease;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .mobile-tab-bar {
+    --background: #1e1e1e;
+    --border: 1px solid rgba(255, 255, 255, 0.1);
+    --color: #a0a0a0;
+  }
+}

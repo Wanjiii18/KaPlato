@@ -1,0 +1,158 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-button fill="clear" color="light" (click)="goBack()">
+        <ion-icon name="arrow-back" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title color="light">{{ karenderia?.name || 'Karenderia Menu' }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button fill="clear" color="light" (click)="callKarenderia()" *ngIf="karenderia?.contactNumber">
+        <ion-icon name="call" slot="icon-only"></ion-icon>
+      </ion-button>
+      <ion-button fill="clear" color="light" (click)="viewCart()" *ngIf="cart.length > 0">
+        <ion-icon name="bag" slot="icon-only"></ion-icon>
+        <ion-badge color="danger" class="cart-badge">{{ cart.length }}</ion-badge>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="karenderia-detail-content">
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <ion-spinner name="crescent" color="primary"></ion-spinner>
+    <p>Loading menu...</p>
+  </div>
+
+  <!-- Karenderia Info Header -->
+  <div *ngIf="!isLoading && karenderia" class="karenderia-header">
+    <div class="header-content">
+      <div class="karenderia-info">
+        <h1>{{ karenderia.name }}</h1>
+        <p class="address">
+          <ion-icon name="location-outline" color="primary"></ion-icon>
+          {{ karenderia.address }}
+        </p>
+        <div class="karenderia-meta">
+          <div class="rating">
+            <ion-icon name="star" color="warning"></ion-icon>
+            <span>{{ karenderia.rating || '4.5' }} Rating</span>
+          </div>
+          <div class="status" [class.open]="karenderia.isOpen" [class.closed]="!karenderia.isOpen">
+            <ion-icon [name]="karenderia.isOpen ? 'radio-button-on' : 'radio-button-off'" 
+                      [color]="karenderia.isOpen ? 'success' : 'medium'"></ion-icon>
+            <span>{{ karenderia.isOpen ? 'Open Now' : 'Closed' }}</span>
+          </div>
+        </div>
+        <p class="description" *ngIf="karenderia.description">{{ karenderia.description }}</p>
+        <div class="cuisine-tags">
+          <ion-chip *ngFor="let cuisine of karenderia.cuisine" color="primary" outline="true">
+            <ion-label>{{ cuisine }}</ion-label>
+          </ion-chip>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Category Filter -->
+  <div *ngIf="!isLoading" class="category-section">
+    <div class="category-header">
+      <h2>Menu Categories</h2>
+    </div>
+    <div class="category-filters">
+      <ion-chip 
+        *ngFor="let category of categories" 
+        [class.active]="selectedCategory === category"
+        (click)="setCategory(category)"
+        class="category-chip">
+        <ion-label>{{ category === 'all' ? 'All Items' : category }}</ion-label>
+      </ion-chip>
+    </div>
+  </div>
+
+  <!-- Menu Items -->
+  <div *ngIf="!isLoading" class="menu-section">
+    <div class="menu-header">
+      <h3>{{ selectedCategory === 'all' ? 'All Menu Items' : selectedCategory }}</h3>
+      <p>{{ filteredMenuItems.length }} items available</p>
+    </div>
+
+    <div class="menu-items">
+      <ion-card 
+        *ngFor="let item of filteredMenuItems" 
+        class="menu-item-card"
+        [class.unavailable]="!item.available">
+        <div class="menu-item-content">
+          <div class="item-image" *ngIf="item.image">
+            <img [src]="item.image" [alt]="item.name" />
+          </div>
+          <div class="item-details">
+            <div class="item-header">
+              <h4>{{ item.name }}</h4>
+              <div class="price">₱{{ item.price }}</div>
+            </div>
+            <p class="description">{{ item.description }}</p>
+            <div class="item-meta">
+              <span class="category">{{ item.category }}</span>
+              <span class="spicy-level" *ngIf="item.spicyLevel && item.spicyLevel !== 'None'">
+                <ion-icon name="flame" color="danger"></ion-icon>
+                {{ item.spicyLevel }}
+              </span>
+              <span class="availability" [class.available]="item.available" [class.unavailable]="!item.available">
+                {{ item.available ? 'Available' : 'Unavailable' }}
+              </span>
+            </div>
+          </div>
+          <div class="item-actions">
+            <div class="quantity-controls" *ngIf="getItemQuantityInCart(item) > 0">
+              <ion-button 
+                fill="clear" 
+                size="small" 
+                color="primary"
+                (click)="removeFromCart(item)">
+                <ion-icon name="remove" slot="icon-only"></ion-icon>
+              </ion-button>
+              <span class="quantity">{{ getItemQuantityInCart(item) }}</span>
+              <ion-button 
+                fill="clear" 
+                size="small" 
+                color="primary"
+                (click)="addToCart(item)">
+                <ion-icon name="add" slot="icon-only"></ion-icon>
+              </ion-button>
+            </div>
+            <ion-button 
+              *ngIf="getItemQuantityInCart(item) === 0"
+              fill="solid" 
+              size="small" 
+              color="primary"
+              [disabled]="!item.available"
+              (click)="addToCart(item)">
+              <ion-icon name="add" slot="start"></ion-icon>
+              Add to Cart
+            </ion-button>
+          </div>
+        </div>
+      </ion-card>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && filteredMenuItems.length === 0" class="empty-state">
+    <ion-icon name="restaurant-outline" color="medium"></ion-icon>
+    <h3>No menu items found</h3>
+    <p>No items available in this category</p>
+  </div>
+
+  <!-- Cart Summary Fab -->
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed" *ngIf="cart.length > 0">
+    <ion-fab-button color="success" (click)="viewCart()">
+      <ion-icon name="bag"></ion-icon>
+      <div class="cart-summary">
+        <div class="cart-count">{{ cart.length }}</div>
+        <div class="cart-total">₱{{ cartTotal }}</div>
+      </div>
+    </ion-fab-button>
+  </ion-fab>
+</ion-content>

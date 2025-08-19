@@ -1,64 +1,620 @@
-.login-container {
+/* Modern KaPlato Login Styles */
+
+// Modern Auth Header
+.modern-auth-header {
+  .gradient-auth-toolbar {
+    --background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #d946ef 100%);
+    --color: white;
+    position: relative;
+    
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, 
+        rgba(99, 102, 241, 0.9) 0%, 
+        rgba(139, 92, 246, 0.9) 50%, 
+        rgba(217, 70, 239, 0.9) 100%);
+      backdrop-filter: blur(10px);
+      z-index: -1;
+    }
+
+    ion-title {
+      .modern-auth-title {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        font-weight: 600;
+        
+        ion-icon {
+          font-size: 1.5rem;
+        }
+      }
+    }
+  }
+}
+
+// Modern Auth Content
+.modern-auth-content {
+  --background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+  
+  .modern-auth-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    
+    // Mobile: Stack vertically
+    @media (max-width: 767px) {
+      flex-direction: column;
+    }
+    
+    // Tablet: Side by side with adjusted proportions
+    @media (min-width: 768px) and (max-width: 1023px) {
+      flex-direction: row;
+      align-items: stretch;
+    }
+    
+    // Desktop: Side by side
+    @media (min-width: 1024px) {
+      flex-direction: row;
+      align-items: center;
+    }
+  }
+}
+
+// Modern Logo Section
+.modern-logo-section {
+  flex: 1;
   display: flex;
-  flex-direction: column;
-  height: 100%;
+  align-items: center;
   justify-content: center;
-  max-width: 400px;
-  margin: 0 auto;
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #d946ef 100%);
+  position: relative;
+  
+  // Mobile: Smaller height, focused content
+  @media (max-width: 767px) {
+    min-height: 35vh;
+    padding: 1rem;
+  }
+  
+  // Tablet: Medium height
+  @media (min-width: 768px) and (max-width: 1023px) {
+    min-height: 100vh;
+    flex: 0.8;
+  }
+  
+  // Desktop: Full height
+  @media (min-width: 1024px) {
+    min-height: 100vh;
+    flex: 1;
+  }
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="20" cy="20" r="1" fill="white" opacity="0.1"/><circle cx="80" cy="80" r="1" fill="white" opacity="0.1"/><circle cx="40" cy="60" r="0.5" fill="white" opacity="0.05"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+    pointer-events: none;
+  }
+  
+  .logo-container {
+    text-align: center;
+    z-index: 1;
+    
+    // Mobile: Compact layout
+    @media (max-width: 767px) {
+      padding: 1rem;
+    }
+    
+    // Tablet: Medium spacing
+    @media (min-width: 768px) and (max-width: 1023px) {
+      padding: 1.5rem;
+    }
+    
+    // Desktop: Full spacing
+    @media (min-width: 1024px) {
+      padding: 2rem;
+    }
+    
+    .app-logo {
+      margin-bottom: 1.5rem;
+      filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.3));
+      animation: logoFloat 3s ease-in-out infinite;
+      
+      // Mobile: Smaller logo
+      @media (max-width: 767px) {
+        width: 80px;
+        height: 80px;
+        margin-bottom: 1rem;
+      }
+      
+      // Tablet: Medium logo
+      @media (min-width: 768px) and (max-width: 1023px) {
+        width: 100px;
+        height: 100px;
+        margin-bottom: 1.25rem;
+      }
+      
+      // Desktop: Full size logo
+      @media (min-width: 1024px) {
+        width: 120px;
+        height: 120px;
+        margin-bottom: 1.5rem;
+      }
+    }
+    
+    .app-name {
+      margin: 0 0 0.5rem 0;
+      font-weight: 800;
+      color: white;
+      text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      letter-spacing: -0.02em;
+      
+      // Mobile: Smaller text
+      @media (max-width: 767px) {
+        font-size: 1.8rem;
+      }
+      
+      // Tablet: Medium text
+      @media (min-width: 768px) and (max-width: 1023px) {
+        font-size: 2.2rem;
+      }
+      
+      // Desktop: Full size text
+      @media (min-width: 1024px) {
+        font-size: 2.5rem;
+      }
+    }
+    
+    .app-tagline {
+      margin: 0;
+      color: rgba(255, 255, 255, 0.9);
+      font-weight: 500;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+      
+      // Mobile: Smaller tagline
+      @media (max-width: 767px) {
+        font-size: 0.9rem;
+      }
+      
+      // Tablet: Medium tagline
+      @media (min-width: 768px) and (max-width: 1023px) {
+        font-size: 1rem;
+      }
+      
+      // Desktop: Full size tagline
+      @media (min-width: 1024px) {
+        font-size: 1.1rem;
+      }
+    }
+  }
 }
 
-.logo-container {
+// Modern Auth Card
+.modern-auth-card {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  // Mobile: Full width with comfortable padding
+  @media (max-width: 767px) {
+    padding: 1.5rem 1rem;
+    min-height: 65vh;
+  }
+  
+  // Tablet: Balanced spacing
+  @media (min-width: 768px) and (max-width: 1023px) {
+    padding: 2rem 1.5rem;
+    flex: 1.2;
+  }
+  
+  // Desktop: Full spacing
+  @media (min-width: 1024px) {
+    padding: 4rem 2rem;
+    flex: 1;
+  }
+  
+  .auth-card-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    
+    h2 {
+      margin: 0 0 0.5rem 0;
+      font-weight: 700;
+      background: linear-gradient(135deg, #1e293b, #475569);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      
+      // Mobile: Smaller heading
+      @media (max-width: 767px) {
+        font-size: 1.4rem;
+      }
+      
+      // Tablet: Medium heading
+      @media (min-width: 768px) and (max-width: 1023px) {
+        font-size: 1.6rem;
+      }
+      
+      // Desktop: Full size heading
+      @media (min-width: 1024px) {
+        font-size: 1.8rem;
+      }
+    }
+    
+    p {
+      margin: 0;
+      color: #64748b;
+      font-weight: 500;
+      
+      // Mobile: Smaller text
+      @media (max-width: 767px) {
+        font-size: 0.9rem;
+      }
+      
+      // Tablet & Desktop: Standard size
+      @media (min-width: 768px) {
+        font-size: 1rem;
+      }
+    }
+  }
+  
+  .auth-form-container {
+    width: 100%;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    animation: slideInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    
+    // Mobile: Compact layout
+    @media (max-width: 767px) {
+      max-width: 100%;
+      padding: 1.25rem;
+      border-radius: 16px;
+      margin: 0;
+    }
+    
+    // Tablet: Medium layout
+    @media (min-width: 768px) and (max-width: 1023px) {
+      max-width: 380px;
+      padding: 1.75rem;
+      border-radius: 18px;
+    }
+    
+    // Desktop: Full layout
+    @media (min-width: 1024px) {
+      max-width: 400px;
+      padding: 2rem;
+      border-radius: 20px;
+    }
+  }
+}
+
+// Modern Form Styles
+.modern-form-group {
+  // Mobile: Tighter spacing
+  @media (max-width: 767px) {
+    margin-bottom: 1.25rem;
+  }
+  
+  // Tablet & Desktop: Standard spacing
+  @media (min-width: 768px) {
+    margin-bottom: 1.5rem;
+  }
+  
+  .modern-input-item {
+    --background: #f8fafc;
+    --border-radius: 12px;
+    --border-color: #e2e8f0;
+    --highlight-color-focused: #6366f1;
+    --color: #1e293b;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    
+    // Mobile: Smaller padding and touch-friendly
+    @media (max-width: 767px) {
+      --min-height: 48px;
+      --padding-top: 12px;
+      --padding-bottom: 12px;
+    }
+    
+    // Tablet: Medium padding
+    @media (min-width: 768px) and (max-width: 1023px) {
+      --min-height: 52px;
+    }
+    
+    // Desktop: Full padding
+    @media (min-width: 1024px) {
+      --min-height: 56px;
+    }
+    
+    &.ion-focused {
+      --border-color: #6366f1;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+      transform: translateY(-2px);
+    }
+    
+    .input-icon {
+      color: #6366f1;
+      margin-right: 12px;
+      
+      // Mobile: Smaller icons
+      @media (max-width: 767px) {
+        font-size: 1.1rem;
+        margin-right: 10px;
+      }
+      
+      // Tablet & Desktop: Standard size
+      @media (min-width: 768px) {
+        font-size: 1.2rem;
+        margin-right: 12px;
+      }
+    }
+    
+    .password-toggle {
+      --color: #6366f1;
+      
+      // Mobile: Larger touch target
+      @media (max-width: 767px) {
+        --min-width: 44px;
+        --min-height: 44px;
+        margin-right: 4px;
+      }
+      
+      // Tablet & Desktop: Standard size
+      @media (min-width: 768px) {
+        margin-right: 8px;
+      }
+    }
+    
+    ion-label {
+      --color: #64748b;
+      font-weight: 500;
+      
+      // Mobile: Slightly smaller label
+      @media (max-width: 767px) {
+        font-size: 0.9rem;
+      }
+    }
+    
+    ion-input {
+      --color: #1e293b;
+      font-weight: 500;
+      
+      // Mobile: Comfortable text size
+      @media (max-width: 767px) {
+        font-size: 16px; // Prevents zoom on iOS
+      }
+    }
+  }
+  
+  .modern-error-message {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+    color: #ef4444;
+    font-weight: 500;
+    
+    // Mobile: Smaller error text
+    @media (max-width: 767px) {
+      font-size: 0.75rem;
+      gap: 6px;
+    }
+    
+    // Tablet & Desktop: Standard size
+    @media (min-width: 768px) {
+      font-size: 0.8rem;
+      gap: 8px;
+    }
+    
+    .error-icon {
+      flex-shrink: 0;
+      
+      // Mobile: Smaller error icon
+      @media (max-width: 767px) {
+        font-size: 0.9rem;
+      }
+      
+      // Tablet & Desktop: Standard size
+      @media (min-width: 768px) {
+        font-size: 1rem;
+      }
+    }
+  }
+}
+
+// Modern Buttons
+.modern-primary-btn {
+  --background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  --background-hover: linear-gradient(135deg, #5855eb, #7c3aed);
+  --color: white;
+  --border-radius: 12px;
+  --box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
+  font-weight: 600;
+  margin-top: 1rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  // Mobile: Touch-friendly size
+  @media (max-width: 767px) {
+    height: 48px;
+    font-size: 0.95rem;
+    --border-radius: 10px;
+  }
+  
+  // Tablet: Medium size
+  @media (min-width: 768px) and (max-width: 1023px) {
+    height: 50px;
+    font-size: 0.98rem;
+  }
+  
+  // Desktop: Full size
+  @media (min-width: 1024px) {
+    height: 52px;
+    font-size: 1rem;
+  }
+  
+  &:hover {
+    transform: translateY(-2px);
+    --box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
+  }
+  
+  &:disabled {
+    opacity: 0.6;
+    transform: none;
+  }
+  
+  .btn-spinner {
+    margin-right: 8px;
+  }
+}
+
+.modern-link-btn {
+  --color: #6366f1;
+  --background: transparent;
+  font-weight: 600;
+  
+  // Mobile: Larger touch target
+  @media (max-width: 767px) {
+    font-size: 0.85rem;
+    --min-height: 44px;
+  }
+  
+  // Tablet & Desktop: Standard size
+  @media (min-width: 768px) {
+    font-size: 0.9rem;
+  }
+  
+  &:hover {
+    --background: rgba(99, 102, 241, 0.1);
+  }
+}
+
+// Modern Error Alert
+.modern-error-alert {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 12px;
+  padding: 1rem;
+  margin: 1rem 0;
+  color: #dc2626;
+  font-size: 0.9rem;
+  font-weight: 500;
+  
+  .alert-icon {
+    font-size: 1.2rem;
+    flex-shrink: 0;
+  }
+}
+
+// Modern Auth Footer
+.modern-auth-footer {
   text-align: center;
-  margin-bottom: 2rem;
+  border-top: 1px solid #e2e8f0;
+  
+  // Mobile: Compact footer
+  @media (max-width: 767px) {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+  }
+  
+  // Tablet & Desktop: Standard spacing
+  @media (min-width: 768px) {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+  }
+  
+  .auth-link-text {
+    margin: 0 0 0.5rem 0;
+    color: #64748b;
+    font-weight: 500;
+    
+    // Mobile: Smaller text
+    @media (max-width: 767px) {
+      font-size: 0.8rem;
+      margin-bottom: 0.375rem;
+    }
+    
+    // Tablet & Desktop: Standard size
+    @media (min-width: 768px) {
+      font-size: 0.9rem;
+      margin-bottom: 0.5rem;
+    }
+  }
 }
 
-.logo-container ion-icon {
-  font-size: 4rem;
-  margin-bottom: 1rem;
+// Animations
+@keyframes logoFloat {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
 }
 
-.logo-container h1 {
-  color: var(--ion-color-primary);
-  margin-bottom: 0.5rem;
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.logo-container p {
-  color: var(--ion-color-medium);
-  margin-bottom: 0;
-}
-
-.input-item {
-  margin-bottom: 1rem;
-  --background: var(--ion-color-light);
-  --border-radius: 8px;
-}
-
-.error-message {
-  color: var(--ion-color-danger);
-  font-size: 0.875rem;
-  margin-top: 0.25rem;
-  margin-bottom: 1rem;
-  padding-left: 16px;
-}
-
-.login-button {
-  margin-top: 1.5rem;
-  --border-radius: 8px;
-  height: 48px;
-}
-
-.register-link {
-  text-align: center;
-  margin-top: 2rem;
-}
-
-.register-link p {
-  color: var(--ion-color-medium);
-  margin: 0;
-}
-
-.register-link ion-button {
-  --color: var(--ion-color-primary);
-  margin: 0;
-  padding: 0;
+// Dark mode support
+@media (prefers-color-scheme: dark) {
+  .modern-auth-content {
+    --background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+  }
+  
+  .modern-auth-card {
+    .auth-form-container {
+      background: #1e293b;
+      border-color: rgba(255, 255, 255, 0.1);
+      
+      h2 {
+        color: #f1f5f9;
+      }
+      
+      p {
+        color: #cbd5e1;
+      }
+    }
+  }
+  
+  .modern-form-group {
+    .modern-input-item {
+      --background: #334155;
+      --border-color: rgba(255, 255, 255, 0.1);
+      --color: #f1f5f9;
+      
+      ion-label {
+        --color: #cbd5e1;
+      }
+    }
+  }
+  
+  .modern-error-alert {
+    background: #7f1d1d;
+    border-color: #dc2626;
+    color: #fecaca;
+  }
 }

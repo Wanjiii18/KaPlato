@@ -1,5 +1,5 @@
 <ion-header [translucent]="true" class="modern-header">
-  <ion-toolbar color="primary">
+  <ion-toolbar class="gradient-toolbar">
     <ion-title>
       <div class="header-title">
         <ion-icon name="restaurant" color="light"></ion-icon>
@@ -7,12 +7,12 @@
       </div>
     </ion-title>
     <ion-buttons slot="end">
-      <ion-button (click)="goToProfile()" fill="clear">
+      <ion-button (click)="goToProfile()" fill="clear" class="profile-btn">
         <ion-avatar slot="icon-only" class="profile-avatar">
           <ion-icon name="person-circle" color="light"></ion-icon>
         </ion-avatar>
       </ion-button>
-      <ion-button (click)="logout()" fill="clear" color="light">
+      <ion-button (click)="logout()" fill="clear" color="light" class="logout-btn">
         <ion-icon name="log-out-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
@@ -27,135 +27,240 @@
   </div>
 
   <!-- Main content when user is authenticated -->
-  <div *ngIf="!isLoading && currentUser" class="dashboard-content">
+  <div *ngIf="!isLoading && currentUser" class="dashboard-content animate-fade-in">
     
     <!-- Welcome Header -->
-    <div class="welcome-header">
-      <h1>Hello, {{ currentUser.name || 'Food Lover' }}! 👋</h1>
-      <p>What would you like to eat today?</p>
+    <div class="welcome-header animate-slide-up">
+      <div class="welcome-content">
+        <h1>Hello, {{ currentUser.name || 'Food Lover' }}! 👋</h1>
+        <p>Discover amazing Filipino cuisine around you</p>
+        <div class="location-indicator">
+          <ion-icon name="location-outline"></ion-icon>
+          <span>Current Location</span>
+        </div>
+      </div>
+      <div class="header-decoration">
+        <ion-icon name="restaurant-outline"></ion-icon>
+      </div>
     </div>
 
     <!-- Enhanced Search Bar -->
     <div class="search-section">
       <ion-searchbar 
         [(ngModel)]="searchQuery" 
-        placeholder="Search for restaurants, dishes, or cuisine..."
+        placeholder="Search restaurants, dishes, or cuisine..."
         mode="ios"
         class="enhanced-searchbar">
         <ion-icon name="search-outline" slot="start"></ion-icon>
       </ion-searchbar>
-    </div>
-
-    <!-- Main Feature Cards - Highlighted -->
-    <div class="main-features-section">
-      <h2 class="section-title">Discover & Plan</h2>
       
-      <!-- Find Nearby Karenderias - Large Card -->
-      <ion-card button (click)="navigateToMap()" class="feature-card nearby-card">
-        <div class="card-background">
-          <ion-icon name="location-outline" class="bg-icon"></ion-icon>
-        </div>
-        <ion-card-content>
-          <div class="feature-content">
-            <div class="feature-icon">
-              <ion-icon name="map" color="light"></ion-icon>
-            </div>
-            <div class="feature-text">
-              <h3>Find Nearby Karenderias</h3>
-              <p>Discover authentic Filipino food around you</p>
-              <div class="feature-badge">
-                <ion-icon name="star" color="warning"></ion-icon>
-                <span>Most Popular</span>
-              </div>
-            </div>
-          </div>
-        </ion-card-content>
-      </ion-card>
-
-      <!-- Meal Planner - Large Card -->
-      <ion-card button (click)="openMealPlanner()" class="feature-card planner-card">
-        <div class="card-background">
-          <ion-icon name="calendar-outline" class="bg-icon"></ion-icon>
-        </div>
-        <ion-card-content>
-          <div class="feature-content">
-            <div class="feature-icon">
-              <ion-icon name="calendar" color="light"></ion-icon>
-            </div>
-            <div class="feature-text">
-              <h3>Smart Meal Planner</h3>
-              <p>Plan your daily meals with nutrition insights</p>
-              <div class="feature-badge">
-                <ion-icon name="nutrition" color="success"></ion-icon>
-                <span>Healthy Choice</span>
-              </div>
-            </div>
-          </div>
-        </ion-card-content>
-      </ion-card>
+      <!-- Quick Filter Chips -->
+      <div class="filter-chips">
+        <ion-chip class="filter-chip active">
+          <ion-icon name="fast-food-outline"></ion-icon>
+          <ion-label>All</ion-label>
+        </ion-chip>
+        <ion-chip class="filter-chip">
+          <ion-icon name="star-outline"></ion-icon>
+          <ion-label>Popular</ion-label>
+        </ion-chip>
+        <ion-chip class="filter-chip">
+          <ion-icon name="location-outline"></ion-icon>
+          <ion-label>Nearby</ion-label>
+        </ion-chip>
+        <ion-chip class="filter-chip">
+          <ion-icon name="time-outline"></ion-icon>
+          <ion-label>Open Now</ion-label>
+        </ion-chip>
+      </div>
     </div>
 
-    <!-- Quick Access Grid -->
-    <div class="quick-access-section">
-      <h2 class="section-title">Quick Access</h2>
-      <div class="quick-grid">
-        <ion-card button (click)="viewSuggestedKarenderias()" class="quick-card suggested">
+    <!-- Main Feature Cards - Redesigned -->
+    <div class="main-features-section animate-slide-up">
+      <h2 class="section-title">Explore & Discover</h2>
+      
+      <div class="features-grid">
+        <!-- Find Nearby Karenderias - Hero Card -->
+        <ion-card button (click)="navigateToMap()" class="feature-card hero-card">
+          <div class="card-overlay"></div>
+          <div class="card-background nearby-bg">
+            <ion-icon name="map-outline" class="bg-icon"></ion-icon>
+          </div>
           <ion-card-content>
-            <div class="quick-icon">
-              <ion-icon name="star" color="light"></ion-icon>
+            <div class="feature-content">
+              <div class="feature-icon nearby-icon">
+                <ion-icon name="location" color="light"></ion-icon>
+              </div>
+              <div class="feature-text">
+                <h3>Find Nearby</h3>
+                <p>Discover authentic Filipino food around you</p>
+                <div class="feature-stats">
+                  <span>50+ Karenderias</span>
+                  <div class="stat-divider"></div>
+                  <span>2km radius</span>
+                </div>
+              </div>
+            </div>
+          </ion-card-content>
+        </ion-card>
+
+        <!-- Meal Planner Card -->
+        <ion-card button (click)="openMealPlanner()" class="feature-card planner-card">
+          <div class="card-overlay"></div>
+          <div class="card-background planner-bg">
+            <ion-icon name="calendar-outline" class="bg-icon"></ion-icon>
+          </div>
+          <ion-card-content>
+            <div class="feature-content">
+              <div class="feature-icon planner-icon">
+                <ion-icon name="calendar" color="light"></ion-icon>
+              </div>
+              <div class="feature-text">
+                <h3>Meal Planner</h3>
+                <p>Plan your daily meals with nutrition insights</p>
+                <div class="feature-badge health-badge">
+                  <ion-icon name="leaf-outline" color="success"></ion-icon>
+                  <span>Healthy Choice</span>
+                </div>
+              </div>
+            </div>
+          </ion-card-content>
+        </ion-card>
+
+        <!-- Browse Menus Card -->
+        <ion-card button (click)="browseKarenderiaMenus()" class="feature-card browse-card">
+          <div class="card-overlay"></div>
+          <div class="card-background browse-bg">
+            <ion-icon name="storefront-outline" class="bg-icon"></ion-icon>
+          </div>
+          <ion-card-content>
+            <div class="feature-content">
+              <div class="feature-icon browse-icon">
+                <ion-icon name="storefront" color="light"></ion-icon>
+              </div>
+              <div class="feature-text">
+                <h3>Browse Karenderias</h3>
+                <p>Discover nearby restaurants & their menus</p>
+                <div class="feature-badge food-badge">
+                  <ion-icon name="storefront-outline" color="warning"></ion-icon>
+                  <span>Find Restaurants</span>
+                </div>
+              </div>
+            </div>
+          </ion-card-content>
+        </ion-card>
+      </div>
+    </div>
+
+    <!-- Quick Access Grid - Redesigned -->
+    <div class="quick-access-section">
+      <h2 class="section-title">Quick Actions</h2>
+      <div class="quick-grid">
+        <ion-card button (click)="viewSuggestedKarenderias()" class="quick-card recommended">
+          <ion-card-content>
+            <div class="quick-icon-container">
+              <div class="quick-icon recommended-icon">
+                <ion-icon name="star" color="light"></ion-icon>
+              </div>
             </div>
             <h4>Recommended</h4>
+            <p>For you</p>
           </ion-card-content>
         </ion-card>
 
         <ion-card button class="quick-card favorites">
           <ion-card-content>
-            <div class="quick-icon">
-              <ion-icon name="heart" color="light"></ion-icon>
+            <div class="quick-icon-container">
+              <div class="quick-icon favorites-icon">
+                <ion-icon name="heart" color="light"></ion-icon>
+              </div>
             </div>
             <h4>Favorites</h4>
+            <p>Your saved</p>
           </ion-card-content>
         </ion-card>
 
         <ion-card button class="quick-card history">
           <ion-card-content>
-            <div class="quick-icon">
-              <ion-icon name="time" color="light"></ion-icon>
+            <div class="quick-icon-container">
+              <div class="quick-icon history-icon">
+                <ion-icon name="time" color="light"></ion-icon>
+              </div>
             </div>
             <h4>Order History</h4>
+            <p>Past orders</p>
           </ion-card-content>
         </ion-card>
 
         <ion-card button class="quick-card promotions">
           <ion-card-content>
-            <div class="quick-icon">
-              <ion-icon name="pricetag" color="light"></ion-icon>
+            <div class="quick-icon-container">
+              <div class="quick-icon promotions-icon">
+                <ion-icon name="pricetag" color="light"></ion-icon>
+              </div>
             </div>
             <h4>Promotions</h4>
+            <p>Save more</p>
+          </ion-card-content>
+        </ion-card>
+
+        <ion-card button (click)="browseKarenderiaMenus()" class="quick-card browse-menu">
+          <ion-card-content>
+            <div class="quick-icon-container">
+              <div class="quick-icon browse-menu-icon">
+                <ion-icon name="storefront" color="light"></ion-icon>
+              </div>
+            </div>
+            <h4>Browse Karenderias</h4>
+            <p>Find restaurants</p>
+          </ion-card-content>
+        </ion-card>
+
+        <ion-card button (click)="openNutritionEngine()" class="quick-card nutrition">
+          <ion-card-content>
+            <div class="quick-icon-container">
+              <div class="quick-icon nutrition-icon">
+                <ion-icon name="nutrition" color="light"></ion-icon>
+              </div>
+            </div>
+            <h4>Nutrition</h4>
+            <p>Health tracker</p>
+          </ion-card-content>
+        </ion-card>
+
+        <ion-card button (click)="openAllergenProfile()" class="quick-card allergen">
+          <ion-card-content>
+            <div class="quick-icon-container">
+              <div class="quick-icon allergen-icon">
+                <ion-icon name="shield-checkmark" color="light"></ion-icon>
+              </div>
+            </div>
+            <h4>Allergens</h4>
+            <p>Safe eating</p>
           </ion-card-content>
         </ion-card>
       </div>
     </div>
 
-    <!-- Featured Restaurants - Enhanced and Bigger -->
+    <!-- Featured Restaurants - Enhanced Design -->
     <div class="featured-section">
       <div class="section-header">
         <h2 class="section-title">Popular Karenderias</h2>
-        <ion-button fill="clear" size="small" color="primary">
+        <ion-button fill="clear" size="small" color="primary" class="view-all-btn" (click)="navigateToMap()">
           <span>View All</span>
           <ion-icon name="chevron-forward-outline" slot="end"></ion-icon>
         </ion-button>
       </div>
 
-      <div class="restaurants-grid">
-        <div class="restaurant-card-large" *ngFor="let restaurant of featuredKarenderias">
+      <div class="restaurants-scroll">
+        <div class="restaurant-card-modern" *ngFor="let restaurant of featuredKarenderias">
           <div class="restaurant-image-container">
             <div class="restaurant-image">
               <ion-icon name="storefront" size="large"></ion-icon>
+              <div class="image-overlay"></div>
             </div>
             <div class="restaurant-status" [class.open]="restaurant.isOpen">
-              <ion-icon name="radio-button-on" color="success" *ngIf="restaurant.isOpen"></ion-icon>
-              <ion-icon name="radio-button-off" color="medium" *ngIf="!restaurant.isOpen"></ion-icon>
+              <div class="status-indicator" [class.open]="restaurant.isOpen"></div>
               {{ restaurant.isOpen ? 'Open' : 'Closed' }}
             </div>
             <div class="rating-badge">
@@ -165,7 +270,10 @@
           </div>
           <div class="restaurant-details">
             <h3>{{ restaurant.name || 'Local Karenderia' }}</h3>
-            <p class="cuisine-type">{{ restaurant.cuisine || 'Filipino Cuisine' }}</p>
+            <p class="cuisine-type">
+              <ion-icon name="restaurant-outline"></ion-icon>
+              {{ restaurant.cuisine || 'Filipino Cuisine' }}
+            </p>
             <div class="restaurant-meta">
               <div class="delivery-info">
                 <ion-icon name="bicycle-outline" color="primary"></ion-icon>
@@ -173,9 +281,13 @@
               </div>
               <div class="price-info">
                 <span class="price-range">{{ restaurant.priceRange || '₱₱' }}</span>
-                <span class="delivery-fee">₱{{ restaurant.deliveryFee || '25' }} delivery</span>
+                <span class="delivery-fee">₱{{ restaurant.deliveryFee || '25' }}</span>
               </div>
             </div>
+            <ion-button fill="solid" size="small" color="primary" class="order-btn" (click)="viewKarenderiaMenu(restaurant)">
+              <ion-icon name="add-outline" slot="start"></ion-icon>
+              Order Now
+            </ion-button>
           </div>
         </div>
       </div>
@@ -190,7 +302,11 @@
         </ion-button>
       </div>
       <div class="map-container">
-        <app-map></app-map>
+        <!-- Map component temporarily disabled -->
+        <div style="padding: 20px; text-align: center; color: #666;">
+          <ion-icon name="map-outline" size="large"></ion-icon>
+          <p>Map functionality is being updated</p>
+        </div>
       </div>
     </div>
 

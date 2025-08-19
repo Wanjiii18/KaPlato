@@ -1,53 +1,114 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="/home"></ion-back-button>
-    </ion-buttons>
-    <ion-title>Karenderia Application</ion-title>
-  </ion-toolbar>
-</ion-header>
+<div class="modern-header">
+  <ion-header [translucent]="true">
+    <ion-toolbar class="gradient-toolbar">
+      <ion-buttons slot="start">
+        <ion-button class="modern-back-btn" fill="clear" defaultHref="/home">
+          <ion-icon name="arrow-back"></ion-icon>
+        </ion-button>
+      </ion-buttons>
+      <ion-title class="page-title">
+        <ion-icon name="storefront"></ion-icon>
+        Karenderia Application
+      </ion-title>
+      <ion-buttons slot="end">
+        <ion-button class="header-action-btn" fill="clear" (click)="showHelp()">
+          <ion-icon name="help-circle"></ion-icon>
+        </ion-button>
+      </ion-buttons>
+    </ion-toolbar>
+  </ion-header>
+</div>
 
-<ion-content [fullscreen]="true" class="ion-padding">
-  <div class="application-container">
+<ion-content [fullscreen]="true" class="modern-content">
+  <div class="page-container">
     
-    <!-- Existing Applications Section -->
-    <div *ngIf="existingApplications.length > 0" class="existing-applications">
-      <h2>Your Applications</h2>
-      <ion-card *ngFor="let application of existingApplications" (click)="showApplicationDetails(application)">
-        <ion-card-header>
-          <ion-card-title>
-            <div class="application-status">
-              <span>{{ application.businessName }}</span>
-              <ion-badge [color]="getStatusColor(application.applicationStatus)">
-                <ion-icon [name]="getStatusIcon(application.applicationStatus)" slot="start"></ion-icon>
-                {{ application.applicationStatus | titlecase }}
-              </ion-badge>
+    <!-- Modern Page Header -->
+    <div class="modern-page-header">
+      <div class="header-content">
+        <div class="header-icon">
+          <ion-icon name="restaurant"></ion-icon>
+        </div>
+        <div class="header-text">
+          <h1>Karenderia Application</h1>
+          <p>Register your food business and join our platform to reach more customers</p>
+        </div>
+      </div>
+    </div>
+    <!-- Modern Existing Applications Section -->
+    <div *ngIf="existingApplications.length > 0" class="modern-existing-applications">
+      <div class="section-header">
+        <h2>Your Applications</h2>
+        <p>Track the status of your submitted applications</p>
+      </div>
+      
+      <div class="applications-grid">
+        <div *ngFor="let application of existingApplications" 
+             class="application-card" 
+             (click)="showApplicationDetails(application)">
+          <div class="application-header">
+            <div class="business-info">
+              <h3>{{ application.businessName }}</h3>
+              <p>{{ application.cuisine.join(', ') || 'Filipino Cuisine' }}</p>
             </div>
-          </ion-card-title>
-          <ion-card-subtitle>Submitted: {{ application.submittedAt.toLocaleDateString() }}</ion-card-subtitle>
-        </ion-card-header>
-      </ion-card>
+            <ion-chip [color]="getStatusColor(application.applicationStatus)" class="status-chip">
+              <ion-icon [name]="getStatusIcon(application.applicationStatus)" slot="start"></ion-icon>
+              {{ application.applicationStatus | titlecase }}
+            </ion-chip>
+          </div>
+          
+          <div class="application-details">
+            <div class="detail-item">
+              <ion-icon name="calendar"></ion-icon>
+              <span>Submitted: {{ application.submittedAt.toLocaleDateString() }}</span>
+            </div>
+            <div class="detail-item">
+              <ion-icon name="location"></ion-icon>
+              <span>{{ application.businessAddress }}</span>
+            </div>
+          </div>
+          
+          <div class="application-actions">
+            <ion-button fill="clear" size="small">
+              <ion-icon name="eye" slot="start"></ion-icon>
+              View Details
+            </ion-button>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!-- Application Form -->
-    <div class="form-section">
+    <!-- Modern Application Form -->
+    <div class="modern-form-section">
       <div class="form-header">
-        <ion-icon name="storefront-outline" size="large" color="primary"></ion-icon>
-        <h1>Submit New Application</h1>
-        <p>Fill out the form below to register your karenderia</p>
+        <div class="form-icon">
+          <ion-icon name="document-text"></ion-icon>
+        </div>
+        <div class="form-title">
+          <h2>Submit New Application</h2>
+          <p>Complete all required fields to register your karenderia with our platform</p>
+        </div>
       </div>
 
-      <form #applicationForm="ngForm" (ngSubmit)="onSubmitApplication(applicationForm)">
+      <form #applicationForm="ngForm" novalidate class="modern-form">
         
-        <!-- Business Information -->
-        <div class="section-header">
-          <h3><ion-icon name="business-outline"></ion-icon> Business Information</h3>
-        </div>
+        <!-- Modern Business Information Section -->
+        <div class="form-section">
+          <div class="section-header">
+            <div class="section-icon">
+              <ion-icon name="business"></ion-icon>
+            </div>
+            <div class="section-title">
+              <h3>Business Information</h3>
+              <p>Basic details about your karenderia business</p>
+            </div>
+          </div>
 
-        <ion-item class="input-item">
-          <ion-label position="floating">Business Name *</ion-label>
-          <ion-input
-            type="text"
+          <div class="form-fields">
+            <div class="field-group">
+              <ion-item class="modern-input-item">
+                <ion-label position="floating">Business Name *</ion-label>
+                <ion-input
+                  type="text"
             name="businessName"
             [(ngModel)]="applicationData.businessName"
             required
@@ -230,21 +291,23 @@
         </div>
 
         <!-- Submit Button -->
-        <ion-button
-          expand="block"
-          type="submit"
-          [disabled]="!applicationForm.valid || !businessPermitFile || isLoading"
-          class="submit-button">
-          <ion-spinner name="crescent" *ngIf="isLoading"></ion-spinner>
-          <span *ngIf="!isLoading">Submit Application</span>
-        </ion-button>
+        <div class="submit-section">
+          <ion-button
+            expand="block"
+            (click)="onSubmitApplication(applicationForm)"
+            [disabled]="!applicationForm.valid || !businessPermitFile || isLoading"
+            class="submit-button">
+            <ion-spinner name="crescent" *ngIf="isLoading"></ion-spinner>
+            <span *ngIf="!isLoading">Submit Application</span>
+          </ion-button>
 
-        <!-- Error Message -->
-        <div class="error-message" *ngIf="errorMessage">
-          {{ errorMessage }}
+          <!-- Error Message -->
+          <div class="error-message" *ngIf="errorMessage">
+            {{ errorMessage }}
+          </div>
         </div>
 
-      </form>
+      <!-- </form> -->
     </div>
   </div>
-</ion-content>
+<!-- </ion-content> -->

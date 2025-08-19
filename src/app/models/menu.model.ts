@@ -22,6 +22,7 @@ export interface MenuItem {
   isAvailable: boolean;
   isPopular: boolean;
   allergens: string[];
+  stock?: number; // Add stock property for inventory tracking
   nutritionalInfo?: {
     calories: number;
     protein: number;

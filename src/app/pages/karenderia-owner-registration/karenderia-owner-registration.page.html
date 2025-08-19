@@ -1,95 +1,148 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>Register as Karenderia Owner</ion-title>
+<ion-header [translucent]="true" class="modern-owner-header">
+  <ion-toolbar class="gradient-owner-toolbar">
+    <ion-title>
+      <div class="modern-owner-title">
+        <ion-icon name="restaurant" color="light"></ion-icon>
+        <span>Karenderia Owner Registration</span>
+      </div>
+    </ion-title>
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/"></ion-back-button>
+      <ion-back-button defaultHref="/" color="light" class="modern-back-btn"></ion-back-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <div class="registration-container">
+<ion-content [fullscreen]="true" class="modern-owner-content">
+  <div class="modern-registration-container animate-fade-in">
     
-    <!-- Step Indicator -->
-    <div class="step-indicator">
-      <div class="step" [class.active]="currentStep === 1" [class.completed]="currentStep > 1">
-        <div class="step-number">1</div>
-        <div class="step-label">Account</div>
+    <!-- Modern Step Indicator -->
+    <div class="modern-step-indicator animate-slide-up">
+      <div class="step-track">
+        <div class="step-progress" [style.width.%]="(currentStep / 4) * 100"></div>
       </div>
-      <div class="step-line" [class.completed]="currentStep > 1"></div>
-      <div class="step" [class.active]="currentStep === 2" [class.completed]="currentStep > 2">
-        <div class="step-number">2</div>
-        <div class="step-label">Business</div>
-      </div>
-      <div class="step-line" [class.completed]="currentStep > 2"></div>
-      <div class="step" [class.active]="currentStep === 3" [class.completed]="currentStep > 3">
-        <div class="step-number">3</div>
-        <div class="step-label">Location</div>
+      <div class="steps-container">
+        <div class="modern-step" [class.active]="currentStep === 1" [class.completed]="currentStep > 1">
+          <div class="step-circle">
+            <ion-icon name="person-add" *ngIf="currentStep === 1"></ion-icon>
+            <ion-icon name="checkmark" *ngIf="currentStep > 1"></ion-icon>
+            <span *ngIf="currentStep < 1">1</span>
+          </div>
+          <div class="step-info">
+            <span class="step-title">Account</span>
+            <span class="step-subtitle">Personal Info</span>
+          </div>
+        </div>
+        
+        <div class="modern-step" [class.active]="currentStep === 2" [class.completed]="currentStep > 2">
+          <div class="step-circle">
+            <ion-icon name="business" *ngIf="currentStep === 2"></ion-icon>
+            <ion-icon name="checkmark" *ngIf="currentStep > 2"></ion-icon>
+            <span *ngIf="currentStep < 2">2</span>
+          </div>
+          <div class="step-info">
+            <span class="step-title">Business</span>
+            <span class="step-subtitle">Restaurant Details</span>
+          </div>
+        </div>
+        
+        <div class="modern-step" [class.active]="currentStep === 3" [class.completed]="currentStep > 3">
+          <div class="step-circle">
+            <ion-icon name="location" *ngIf="currentStep === 3"></ion-icon>
+            <ion-icon name="checkmark" *ngIf="currentStep > 3"></ion-icon>
+            <span *ngIf="currentStep < 3">3</span>
+          </div>
+          <div class="step-info">
+            <span class="step-title">Location</span>
+            <span class="step-subtitle">Address & Map</span>
+          </div>
+        </div>
+        
+        <div class="modern-step" [class.active]="currentStep === 4" [class.completed]="currentStep > 4">
+          <div class="step-circle">
+            <ion-icon name="checkmark-circle" *ngIf="currentStep >= 4"></ion-icon>
+            <span *ngIf="currentStep < 4">4</span>
+          </div>
+          <div class="step-info">
+            <span class="step-title">Complete</span>
+            <span class="step-subtitle">All Done!</span>
+          </div>
+        </div>
       </div>
     </div>
 
     <!-- Step 1: Account Registration -->
-    <div *ngIf="currentStep === 1" class="step-content">
-      <div class="step-header">
-        <ion-icon name="person-add-outline" class="step-icon"></ion-icon>
-        <h2>Create Your Account</h2>
-        <p>First, let's create your karenderia owner account</p>
-      </div>
-
-      <form [formGroup]="accountForm" (ngSubmit)="nextStep()">
-        <ion-item>
-          <ion-input 
-            formControlName="name"
-            label="Full Name *"
-            labelPlacement="stacked"
-            placeholder="Enter your full name"
-            [class.error]="accountForm.get('name')?.invalid && accountForm.get('name')?.touched">
-          </ion-input>
-        </ion-item>
-
-        <ion-item>
-          <ion-input 
-            formControlName="email"
-            label="Email Address *"
-            labelPlacement="stacked"
-            placeholder="your@email.com"
-            type="email"
-            [class.error]="accountForm.get('email')?.invalid && accountForm.get('email')?.touched">
-          </ion-input>
-        </ion-item>
-
-        <ion-item>
-          <ion-input 
-            formControlName="password"
-            label="Password *"
-            labelPlacement="stacked"
-            placeholder="Minimum 8 characters"
-            type="password"
-            [class.error]="accountForm.get('password')?.invalid && accountForm.get('password')?.touched">
-          </ion-input>
-        </ion-item>
-
-        <ion-item>
-          <ion-input 
-            formControlName="password_confirmation"
-            label="Confirm Password *"
-            labelPlacement="stacked"
-            placeholder="Re-enter your password"
-            type="password"
-            [class.error]="accountForm.get('password_confirmation')?.invalid && accountForm.get('password_confirmation')?.touched">
-          </ion-input>
-        </ion-item>
-
-        <div class="form-actions">
-          <ion-button 
-            expand="block" 
-            type="submit" 
-            [disabled]="!accountForm.valid || isLoading">
-            <ion-icon name="arrow-forward" slot="end"></ion-icon>
-            Continue to Business Details
-          </ion-button>
+    <div *ngIf="currentStep === 1" class="modern-step-content animate-slide-up">
+      <div class="modern-step-card">
+        <div class="modern-step-header">
+          <div class="icon-circle">
+            <ion-icon name="person-add" color="primary"></ion-icon>
+          </div>
+          <h2>Create Your Account</h2>
+          <p>Set up your karenderia owner credentials</p>
         </div>
-      </form>
+
+        <form [formGroup]="accountForm" (ngSubmit)="nextStep()" class="modern-form">
+          <div class="modern-input-group">
+            <ion-item class="modern-item">
+              <ion-input 
+                formControlName="name"
+                label="Full Name *"
+                labelPlacement="stacked"
+                placeholder="Enter your full name"
+                class="modern-input"
+                [class.error]="accountForm.get('name')?.invalid && accountForm.get('name')?.touched">
+              </ion-input>
+            </ion-item>
+
+            <ion-item class="modern-item">
+              <ion-input 
+                formControlName="email"
+                label="Email Address *"
+                labelPlacement="stacked"
+                placeholder="your@email.com"
+                type="email"
+                class="modern-input"
+                [class.error]="accountForm.get('email')?.invalid && accountForm.get('email')?.touched">
+              </ion-input>
+            </ion-item>
+
+            <ion-item class="modern-item">
+              <ion-input 
+                formControlName="password"
+                label="Password *"
+                labelPlacement="stacked"
+                placeholder="Minimum 8 characters"
+                type="password"
+                class="modern-input"
+                [class.error]="accountForm.get('password')?.invalid && accountForm.get('password')?.touched">
+              </ion-input>
+            </ion-item>
+
+            <ion-item class="modern-item">
+              <ion-input 
+                formControlName="password_confirmation"
+                label="Confirm Password *"
+                labelPlacement="stacked"
+                placeholder="Re-enter your password"
+                type="password"
+                class="modern-input"
+                [class.error]="accountForm.get('password_confirmation')?.invalid && accountForm.get('password_confirmation')?.touched">
+              </ion-input>
+            </ion-item>
+          </div>
+
+          <div class="modern-form-actions">
+            <ion-button 
+              expand="block" 
+              type="submit" 
+              class="modern-primary-btn"
+              [disabled]="!accountForm.valid || isLoading">
+              <ion-icon name="arrow-forward" slot="end"></ion-icon>
+              Continue to Business Details
+            </ion-button>
+          </div>
+        </form>
+      </div>
     </div>
 
     <!-- Step 2: Business Information -->

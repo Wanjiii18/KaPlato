@@ -447,4 +447,17 @@ export class KarenderiaOrdersPosPage implements OnInit {
     const category = this.categories.find(c => c.id === this.selectedCategory);
     return category ? category.name : '';
   }
+
+  // Add missing methods
+  showSettings() {
+    console.log('Show settings');
+  }
+
+  getCategoryItemCount(categoryId: string): number {
+    return this.menuItems.filter(item => item.category === categoryId).length;
+  }
+
+  searchItems() {
+    console.log('Search items');
+  }
 }

@@ -34,10 +34,19 @@ export class LoginPage implements OnInit {
   }
 
   private redirectBasedOnRole(user: any) {
-    if (user?.role === 'admin') {
-      this.router.navigate(['/admin-dashboard']);
-    } else {
-      this.router.navigate(['/home']);
+    console.log('Redirecting user with role:', user?.role);
+    
+    switch (user?.role) {
+      case 'admin':
+        this.router.navigate(['/admin-dashboard']);
+        break;
+      case 'karenderia_owner':
+        this.router.navigate(['/karenderia-dashboard']);
+        break;
+      case 'customer':
+      default:
+        this.router.navigate(['/home']);
+        break;
     }
   }
 

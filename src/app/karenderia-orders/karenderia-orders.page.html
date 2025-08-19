@@ -1,13 +1,279 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>karenderia-orders</ion-title>
+<ion-header [translucent]="true" class="modern-menu-header">
+  <ion-toolbar class="gradient-menu-toolbar">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/karenderia-dashboard" color="light" class="modern-back-btn"></ion-back-button>
+    </ion-buttons>
+    <ion-title>
+      <div class="modern-menu-title">
+        <ion-icon name="receipt" color="light"></ion-icon>
+        <span>Order Management</span>
+      </div>
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="refreshOrders()" fill="solid" color="light" class="modern-refresh-btn">
+        <ion-icon name="refresh" slot="start"></ion-icon>
+        Refresh
+      </ion-button>
+      <ion-button (click)="showFilters()" fill="outline" color="light" class="modern-filter-btn">
+        <ion-icon name="filter" slot="start"></ion-icon>
+        Filter
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">karenderia-orders</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content [fullscreen]="true" class="modern-menu-content">
+  <div class="modern-menu-container animate-fade-in">
+    <!-- Modern Page Header -->
+    <div class="modern-page-header">
+      <div class="header-content">
+        <div class="header-icon">
+          <ion-icon name="restaurant"></ion-icon>
+        </div>
+        <div class="header-text">
+          <h1>Order Management</h1>
+          <p>Monitor and manage incoming orders for your karenderia</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Order Stats Section -->
+    <div class="modern-stats-section">
+      <div class="stats-grid">
+        <div class="stat-card pending">
+          <div class="stat-icon">
+            <ion-icon name="time"></ion-icon>
+          </div>
+          <div class="stat-content">
+            <h3>{{ pendingOrders || 0 }}</h3>
+            <p>Pending Orders</p>
+          </div>
+        </div>
+        
+        <div class="stat-card confirmed">
+          <div class="stat-icon">
+            <ion-icon name="checkmark-circle"></ion-icon>
+          </div>
+          <div class="stat-content">
+            <h3>{{ confirmedOrders || 0 }}</h3>
+            <p>Confirmed</p>
+          </div>
+        </div>
+        
+        <div class="stat-card preparing">
+          <div class="stat-icon">
+            <ion-icon name="restaurant"></ion-icon>
+          </div>
+          <div class="stat-content">
+            <h3>{{ preparingOrders || 0 }}</h3>
+            <p>Preparing</p>
+          </div>
+        </div>
+        
+        <div class="stat-card ready">
+          <div class="stat-icon">
+            <ion-icon name="bag-check"></ion-icon>
+          </div>
+          <div class="stat-content">
+            <h3>{{ readyOrders || 0 }}</h3>
+            <p>Ready</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filter Section -->
+    <div class="modern-filter-section">
+      <div class="filter-card">
+        <div class="filter-header">
+          <h3>Filter Orders</h3>
+        </div>
+        <div class="filter-controls">
+          <ion-segment [(ngModel)]="selectedStatus" (ionChange)="filterOrders()">
+            <ion-segment-button value="all">
+              <ion-label>All Orders</ion-label>
+            </ion-segment-button>
+            <ion-segment-button value="pending">
+              <ion-label>Pending</ion-label>
+            </ion-segment-button>
+            <ion-segment-button value="confirmed">
+              <ion-label>Confirmed</ion-label>
+            </ion-segment-button>
+            <ion-segment-button value="preparing">
+              <ion-label>Preparing</ion-label>
+            </ion-segment-button>
+            <ion-segment-button value="ready">
+              <ion-label>Ready</ion-label>
+            </ion-segment-button>
+          </ion-segment>
+        </div>
+      </div>
+    </div>
+
+    <!-- Orders List Section -->
+    <div class="modern-orders-section">
+      <!-- Loading State -->
+      <div *ngIf="isLoading" class="modern-loading-section">
+        <div class="loading-card">
+          <div class="loading-animation">
+            <ion-spinner name="circular" class="loading-spinner"></ion-spinner>
+          </div>
+          <h3>Loading Orders</h3>
+          <p>Fetching the latest order information...</p>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div *ngIf="!isLoading && orders.length === 0" class="modern-empty-state">
+        <div class="empty-icon">
+          <ion-icon name="receipt"></ion-icon>
+        </div>
+        <h3>No Orders Found</h3>
+        <p>There are currently no orders matching your selected filters. New orders will appear here automatically.</p>
+        <div class="empty-actions">
+          <ion-button fill="outline" (click)="refreshOrders()">
+            <ion-icon name="refresh" slot="start"></ion-icon>
+            Refresh Orders
+          </ion-button>
+        </div>
+      </div>
+
+      <!-- Orders Grid -->
+      <div *ngIf="!isLoading && orders.length > 0" class="orders-container">
+        <div class="orders-header">
+          <div class="orders-info">
+            <h3>Current Orders</h3>
+            <p>{{ filteredOrders.length }} orders found</p>
+          </div>
+          <div class="orders-actions">
+            <ion-button fill="outline" size="small" (click)="exportOrders()">
+              <ion-icon name="download" slot="start"></ion-icon>
+              Export
+            </ion-button>
+          </div>
+        </div>
+        
+        <div class="orders-grid">
+          <div *ngFor="let order of filteredOrders; trackBy: trackByOrderId" class="order-card">
+            <div class="order-header">
+              <div class="order-info">
+                <h4 class="order-number">Order #{{ order.id }}</h4>
+                <p class="order-time">{{ order.createdAt | date:'short' }}</p>
+              </div>
+              <div class="order-status">
+                <ion-chip [color]="getStatusColor(order.status)" class="status-chip">
+                  <ion-icon [name]="getStatusIcon(order.status)" slot="start"></ion-icon>
+                  {{ order.status | titlecase }}
+                </ion-chip>
+              </div>
+            </div>
+            
+            <div class="order-customer">
+              <div class="customer-info">
+                <ion-icon name="person" class="customer-icon"></ion-icon>
+                <div class="customer-details">
+                  <h5>{{ order.customerName }}</h5>
+                  <p>{{ order.customerPhone }}</p>
+                </div>
+              </div>
+              <div class="order-type">
+                <ion-chip [color]="order.orderType === 'delivery' ? 'success' : 'primary'" outline>
+                  <ion-icon [name]="order.orderType === 'delivery' ? 'bicycle' : 'bag'" slot="start"></ion-icon>
+                  {{ order.orderType | titlecase }}
+                </ion-chip>
+              </div>
+            </div>
+            
+            <div class="order-items">
+              <h6>Order Items</h6>
+              <div class="items-list">
+                <div *ngFor="let item of order.items" class="item-row">
+                  <span class="item-name">{{ item.name }}</span>
+                  <span class="item-quantity">x{{ item.quantity }}</span>
+                  <span class="item-price">₱{{ item.price }}</span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="order-total">
+              <div class="total-breakdown">
+                <div class="total-row">
+                  <span>Subtotal:</span>
+                  <span>₱{{ order.subtotal }}</span>
+                </div>
+                <div class="total-row" *ngIf="order.deliveryFee">
+                  <span>Delivery Fee:</span>
+                  <span>₱{{ order.deliveryFee }}</span>
+                </div>
+                <div class="total-row final">
+                  <span>Total:</span>
+                  <span>₱{{ order.total }}</span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="order-actions">
+              <ion-button 
+                *ngIf="order.status === 'pending'" 
+                fill="solid" 
+                color="success" 
+                size="small"
+                (click)="confirmOrder(order)">
+                <ion-icon name="checkmark" slot="start"></ion-icon>
+                Confirm
+              </ion-button>
+              
+              <ion-button 
+                *ngIf="order.status === 'confirmed'" 
+                fill="solid" 
+                color="warning" 
+                size="small"
+                (click)="startPreparing(order)">
+                <ion-icon name="restaurant" slot="start"></ion-icon>
+                Start Preparing
+              </ion-button>
+              
+              <ion-button 
+                *ngIf="order.status === 'preparing'" 
+                fill="solid" 
+                color="primary" 
+                size="small"
+                (click)="markAsReady(order)">
+                <ion-icon name="bag-check" slot="start"></ion-icon>
+                Mark Ready
+              </ion-button>
+              
+              <ion-button 
+                *ngIf="order.status === 'ready'" 
+                fill="solid" 
+                color="tertiary" 
+                size="small"
+                (click)="completeOrder(order)">
+                <ion-icon name="checkmark-done" slot="start"></ion-icon>
+                Complete
+              </ion-button>
+              
+              <ion-button 
+                fill="outline" 
+                color="medium" 
+                size="small"
+                (click)="viewOrderDetails(order)">
+                <ion-icon name="eye" slot="start"></ion-icon>
+                View Details
+              </ion-button>
+              
+              <ion-button 
+                fill="clear" 
+                color="danger" 
+                size="small"
+                (click)="cancelOrder(order)">
+                <ion-icon name="close" slot="start"></ion-icon>
+                Cancel
+              </ion-button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </ion-content>

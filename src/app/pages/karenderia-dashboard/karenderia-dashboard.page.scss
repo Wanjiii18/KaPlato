@@ -1,317 +1,741 @@
-.dashboard-container {
-  padding: 20px;
-  max-width: 800px;
-  margin: 0 auto;
-}
-
-// Loading State
-.loading-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 60px 20px;
-  text-align: center;
-  
-  ion-spinner {
-    margin-bottom: 20px;
-  }
-  
-  p {
-    color: var(--ion-color-medium);
-    font-size: 1rem;
-  }
-}
-
-// No Application State
-.no-application {
-  text-align: center;
-  padding: 60px 20px;
-  
-  .empty-icon {
-    font-size: 64px;
-    color: var(--ion-color-medium);
-    margin-bottom: 20px;
-  }
-  
-  h2 {
-    color: var(--ion-color-dark);
-    margin-bottom: 10px;
-  }
-  
-  p {
-    color: var(--ion-color-medium);
-    margin-bottom: 30px;
-    line-height: 1.5;
-  }
-}
-
-// Status Card
-.status-card {
-  margin-bottom: 20px;
-  padding: 20px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, var(--ion-color-primary-tint), var(--ion-color-primary));
-  color: white;
-  
-  .status-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 15px;
+// Modern Karenderia Dashboard Styles
+// Gradient Header
+.modern-dashboard-header {
+  .gradient-dashboard-toolbar {
+    --background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #d946ef 100%);
+    --color: white;
+    --border-color: transparent;
     
-    .status-badge {
+    .modern-dashboard-title {
       display: flex;
       align-items: center;
-      gap: 8px;
-      padding: 8px 16px;
-      border-radius: 20px;
-      font-weight: 600;
-      font-size: 0.9rem;
-      
-      &.status-pending {
-        background-color: rgba(255, 193, 7, 0.2);
-        color: #ffc107;
-        border: 1px solid rgba(255, 193, 7, 0.3);
-      }
-      
-      &.status-active {
-        background-color: rgba(40, 167, 69, 0.2);
-        color: #28a745;
-        border: 1px solid rgba(40, 167, 69, 0.3);
-      }
-      
-      &.status-inactive {
-        background-color: rgba(220, 53, 69, 0.2);
-        color: #dc3545;
-        border: 1px solid rgba(220, 53, 69, 0.3);
-      }
+      gap: 12px;
+      font-weight: 800;
+      font-size: 1.3rem;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.2);
       
       ion-icon {
-        font-size: 16px;
+        font-size: 1.8rem;
+        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
       }
     }
     
-    .application-date {
-      font-size: 0.8rem;
-      opacity: 0.8;
+    .modern-refresh-btn {
+      --background: rgba(255, 255, 255, 0.1);
+      --border-radius: 12px;
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+      
+      &:hover {
+        --background: rgba(255, 255, 255, 0.2);
+        transform: rotate(180deg);
+      }
+    }
+  }
+}
+
+// Modern Content Container
+.modern-dashboard-content {
+  --background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+}
+
+.modern-dashboard-container {
+  padding: 24px 16px;
+  max-width: 1200px;
+  margin: 0 auto;
+  min-height: 100vh;
+}
+
+// Enhanced Dashboard Styles
+.enhanced-dashboard {
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+    margin-bottom: 32px;
+    
+    .stat-card {
+      margin: 0;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      overflow: hidden;
+      transition: all 0.3s ease;
+      
+      &:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+      }
+      
+      &.sales {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+      }
+      
+      &.orders {
+        background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+        color: white;
+      }
+      
+      &.inventory {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        color: white;
+      }
+      
+      &.menu {
+        background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+        color: white;
+      }
+      
+      ion-card-content {
+        padding: 24px;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        
+        .stat-icon {
+          ion-icon {
+            font-size: 3rem;
+            opacity: 0.9;
+          }
+        }
+        
+        .stat-content {
+          flex: 1;
+          
+          h2 {
+            font-size: 2rem;
+            font-weight: 800;
+            margin: 0 0 8px 0;
+            line-height: 1;
+          }
+          
+          p {
+            font-size: 1rem;
+            margin: 0 0 12px 0;
+            opacity: 0.9;
+            font-weight: 600;
+          }
+          
+          .trend {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            
+            &.success {
+              color: #d1fae5;
+            }
+            
+            &.danger {
+              color: #fecaca;
+            }
+          }
+          
+          .sub-stat {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            font-weight: 500;
+          }
+          
+          .action-link {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: underline;
+            
+            &:hover {
+              color: white;
+            }
+          }
+          
+          .progress-bar {
+            margin-top: 8px;
+            
+            ion-progress-bar {
+              --progress-background: rgba(255, 255, 255, 0.9);
+              --background: rgba(255, 255, 255, 0.3);
+              height: 6px;
+              border-radius: 3px;
+            }
+          }
+        }
+      }
     }
   }
   
-  .status-message {
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    background-color: rgba(255, 255, 255, 0.1);
-    padding: 15px;
-    border-radius: 8px;
+  .quick-actions-grid {
+    margin-bottom: 32px;
     
-    ion-icon {
-      font-size: 20px;
-      margin-top: 2px;
-      opacity: 0.8;
+    h3 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #1e293b;
+      margin: 0 0 20px 0;
+      text-align: center;
+    }
+    
+    .action-card {
+      background: white;
+      border-radius: 16px;
+      padding: 24px 16px;
+      text-align: center;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      transition: all 0.3s ease;
+      cursor: pointer;
+      height: 140px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      
+      &:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+      }
+      
+      .action-icon {
+        margin-bottom: 12px;
+        
+        ion-icon {
+          font-size: 2.5rem;
+        }
+      }
+      
+      h4 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin: 0 0 8px 0;
+      }
+      
+      p {
+        font-size: 0.9rem;
+        color: #64748b;
+        margin: 0;
+        line-height: 1.3;
+      }
+    }
+  }
+  
+  .business-info-card {
+    margin: 0 0 32px 0;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    
+    .card-header-with-status {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      
+      ion-card-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #1e293b;
+      }
+      
+      .status-chip {
+        font-weight: 600;
+      }
+    }
+    
+    .business-details {
+      margin-bottom: 24px;
+      
+      .detail-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 12px;
+        
+        ion-icon {
+          font-size: 1.2rem;
+          flex-shrink: 0;
+        }
+        
+        span {
+          color: #374151;
+          font-weight: 500;
+        }
+      }
+    }
+    
+    .action-buttons {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+  }
+}
+
+// Modern Loading State
+.modern-loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 60vh;
+  
+  .loading-card {
+    background: white;
+    border-radius: 24px;
+    padding: 48px 32px;
+    text-align: center;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    max-width: 400px;
+    width: 100%;
+    
+    ion-spinner {
+      width: 48px;
+      height: 48px;
+      margin-bottom: 24px;
+    }
+    
+    h3 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #1e293b;
+      margin: 0 0 12px 0;
     }
     
     p {
+      color: #64748b;
+      font-size: 1rem;
       margin: 0;
-      line-height: 1.4;
-      font-size: 0.95rem;
+      font-weight: 500;
     }
   }
 }
 
-// Karenderia Info Cards
-.karenderia-info {
-  ion-card {
-    margin-bottom: 16px;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+// Modern No Application State
+.modern-no-application {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 70vh;
+  
+  .empty-state-card {
+    background: white;
+    border-radius: 24px;
+    padding: 48px 32px;
+    text-align: center;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    max-width: 500px;
+    width: 100%;
     
-    ion-card-header {
-      ion-card-title {
+    .empty-icon-circle {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 32px;
+      border: 3px solid rgba(99, 102, 241, 0.2);
+      
+      ion-icon {
+        font-size: 3.5rem;
+        color: #6366f1;
+      }
+    }
+    
+    h2 {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: #1e293b;
+      margin: 0 0 16px 0;
+      background: linear-gradient(135deg, #1e293b, #475569);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    p {
+      color: #64748b;
+      font-size: 1.1rem;
+      margin: 0 0 32px 0;
+      line-height: 1.6;
+      font-weight: 500;
+    }
+    
+    .benefits-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-bottom: 40px;
+      text-align: left;
+      
+      .benefit-item {
         display: flex;
         align-items: center;
-        gap: 10px;
-        color: var(--ion-color-primary);
-        font-size: 1.1rem;
+        gap: 12px;
         
         ion-icon {
-          font-size: 24px;
+          font-size: 1.3rem;
+          flex-shrink: 0;
+        }
+        
+        span {
+          color: #374151;
+          font-weight: 600;
+          font-size: 1rem;
+        }
+      }
+    }
+    
+    .modern-register-btn {
+      --background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      --color: white;
+      --border-radius: 16px;
+      --padding-top: 16px;
+      --padding-bottom: 16px;
+      height: 56px;
+      font-weight: 700;
+      font-size: 1.1rem;
+      margin: 0;
+      box-shadow: 0 8px 24px rgba(99, 102, 241, 0.3);
+      transition: all 0.3s ease;
+      
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 32px rgba(99, 102, 241, 0.4);
+      }
+      
+      ion-icon {
+        font-size: 1.3rem;
+      }
+    }
+  }
+}
+
+// Modern Status Section
+.modern-status-section {
+  margin-bottom: 32px;
+  
+  .status-overview-card {
+    background: white;
+    border-radius: 24px;
+    padding: 32px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    
+    .status-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 24px;
+      
+      .status-badge-container {
+        flex: 1;
+        
+        .status-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          padding: 12px 20px;
+          border-radius: 16px;
+          font-weight: 700;
+          font-size: 1rem;
+          margin-bottom: 12px;
+          transition: all 0.3s ease;
+          
+          ion-icon {
+            font-size: 1.2rem;
+          }
+          
+          &.status-pending {
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.1), rgba(251, 146, 60, 0.1));
+            color: #f59e0b;
+            border: 2px solid rgba(249, 115, 22, 0.2);
+          }
+          
+          &.status-approved {
+            background: linear-gradient(135deg, rgba(5, 150, 105, 0.1), rgba(16, 185, 129, 0.1));
+            color: #059669;
+            border: 2px solid rgba(5, 150, 105, 0.2);
+          }
+          
+          &.status-active {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(74, 222, 128, 0.1));
+            color: #16a34a;
+            border: 2px solid rgba(34, 197, 94, 0.2);
+          }
+          
+          &.status-rejected {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(248, 113, 113, 0.1));
+            color: #ef4444;
+            border: 2px solid rgba(239, 68, 68, 0.2);
+          }
+        }
+        
+        .status-date {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          color: #64748b;
+          font-size: 0.9rem;
+          font-weight: 500;
+          
+          ion-icon {
+            font-size: 1rem;
+          }
+        }
+      }
+      
+      .business-avatar {
+        width: 64px;
+        height: 64px;
+        border-radius: 16px;
+        background: linear-gradient(135deg, #6366f1, #8b5cf6);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 8px 24px rgba(99, 102, 241, 0.3);
+        
+        ion-icon {
+          font-size: 2rem;
+          color: white;
+        }
+      }
+    }
+    
+    .status-message-card {
+      background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+      border-radius: 16px;
+      padding: 24px;
+      display: flex;
+      gap: 16px;
+      border: 2px solid #e2e8f0;
+      
+      .message-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        
+        ion-icon {
+          font-size: 1.5rem;
+          color: #6366f1;
+        }
+      }
+      
+      .message-content {
+        flex: 1;
+        
+        h4 {
+          font-size: 1.2rem;
+          font-weight: 700;
+          color: #1e293b;
+          margin: 0 0 8px 0;
+        }
+        
+        p {
+          color: #64748b;
+          margin: 0;
+          line-height: 1.5;
+          font-weight: 500;
         }
       }
     }
   }
 }
 
-// Info Rows
-.info-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 12px;
+// Business Information Cards
+.modern-business-info {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 32px;
   
-  ion-icon {
-    font-size: 18px;
-    color: var(--ion-color-primary);
-    min-width: 18px;
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
   }
   
-  span {
-    flex: 1;
-    color: var(--ion-color-dark);
-  }
-}
-
-.description {
-  margin-top: 15px;
-  padding-top: 15px;
-  border-top: 1px solid var(--ion-color-light);
-  
-  p {
-    margin: 0;
-    line-height: 1.5;
-    color: var(--ion-color-medium);
-  }
-}
-
-// Map Container
-.map-container {
-  height: 200px;
-  width: 100%;
-  border-radius: 8px;
-  border: 2px solid var(--ion-color-light);
-  margin-bottom: 10px;
-  background-color: var(--ion-color-light-tint);
-  
-  // Fallback content
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--ion-color-medium);
-  
-  &::before {
-    content: "Loading map...";
-  }
-}
-
-.coordinates {
-  text-align: center;
-  
-  ion-chip {
-    --background: var(--ion-color-primary-tint);
-    --color: var(--ion-color-primary-shade);
-  }
-}
-
-// Operating Details
-.operating-details {
-  .detail-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 12px;
+  .info-card {
+    background: white;
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    transition: all 0.3s ease;
     
-    .label {
-      font-weight: 600;
-      color: var(--ion-color-dark);
-      min-width: 120px;
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
     }
     
-    .value {
-      color: var(--ion-color-medium);
-      text-align: right;
-    }
-    
-    .days-chips {
+    .card-header {
       display: flex;
-      flex-wrap: wrap;
-      gap: 4px;
-      justify-content: flex-end;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
       
-      ion-chip {
-        --background: var(--ion-color-primary-tint);
-        --color: var(--ion-color-primary-shade);
-        font-size: 0.8rem;
-        height: 24px;
+      .header-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        
+        ion-icon {
+          font-size: 1.5rem;
+          color: #6366f1;
+        }
+      }
+      
+      h3 {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin: 0;
+      }
+    }
+    
+    .info-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      
+      .info-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        
+        ion-icon {
+          font-size: 1.1rem;
+          color: #6366f1;
+          width: 20px;
+        }
+        
+        span {
+          color: #374151;
+          font-weight: 500;
+          flex: 1;
+        }
       }
     }
   }
 }
 
-// Payment Methods
-.payment-methods {
-  .payment-method {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 12px 0;
-    border-bottom: 1px solid var(--ion-color-light);
+// Quick Actions Section
+.modern-actions-section {
+  .actions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
     
-    &:last-child {
-      border-bottom: none;
-    }
-    
-    &.enabled {
-      ion-icon {
-        color: var(--ion-color-success);
+    .action-card {
+      background: white;
+      border-radius: 16px;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+      border: 2px solid transparent;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      
+      &:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+        border-color: #6366f1;
       }
-    }
-    
-    ion-icon {
-      font-size: 20px;
-      color: var(--ion-color-medium);
-      margin-right: 12px;
-    }
-    
-    span {
-      flex: 1;
-      color: var(--ion-color-dark);
+      
+      .action-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #6366f1, #8b5cf6);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 16px;
+        
+        ion-icon {
+          font-size: 1.8rem;
+          color: white;
+        }
+      }
+      
+      .action-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 8px;
+      }
+      
+      .action-subtitle {
+        font-size: 0.9rem;
+        color: #64748b;
+        font-weight: 500;
+      }
     }
   }
 }
 
-// Action Buttons
-.action-buttons {
-  margin-top: 30px;
-  
-  ion-button {
-    margin-bottom: 12px;
-    
-    &:last-child {
-      margin-bottom: 0;
-    }
+// Animation Classes
+.animate-fade-in {
+  animation: fadeIn 0.6s ease-out;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.6s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { 
+    opacity: 0; 
+    transform: translateY(30px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
   }
 }
 
 // Responsive Design
 @media (max-width: 768px) {
-  .dashboard-container {
-    padding: 15px;
+  .modern-dashboard-container {
+    padding: 16px 12px;
   }
   
-  .status-card {
+  .modern-no-application .empty-state-card,
+  .modern-loading-container .loading-card {
+    padding: 32px 24px;
+  }
+  
+  .modern-status-section .status-overview-card {
+    padding: 24px 20px;
+    
     .status-header {
       flex-direction: column;
-      align-items: flex-start;
-      gap: 10px;
-    }
-  }
-  
-  .operating-details {
-    .detail-row {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 5px;
+      gap: 20px;
       
-      .value,
-      .days-chips {
-        align-self: flex-start;
-        justify-content: flex-start;
+      .business-avatar {
+        align-self: center;
       }
     }
   }
   
-  .map-container {
-    height: 180px;
+  .modern-actions-section .actions-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }

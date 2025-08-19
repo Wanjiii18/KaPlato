@@ -8,6 +8,7 @@
     --background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     --color: white;
     --border-width: 0;
+    z-index: 1003; // Ensure header is always on top
   }
 }
 
@@ -89,9 +90,9 @@
   }
 }
 
-// Map Container
+// Map Container - Full height with overlay list
 .map-container {
-  height: calc(100vh - 200px);
+  height: calc(100vh - 180px); // Slightly more room for map visibility
   margin: 0;
   position: relative;
   z-index: 1;
@@ -132,22 +133,30 @@
   }
 }
 
-// Karenderias List
-.karenderias-list {
+.karenderias-list-wrapper {
   position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1002;
+  padding-top: 60px;
+}
+
+// Karenderias List - Always visible at bottom
+.karenderias-list {
+  position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
   background: white;
   border-radius: 20px 20px 0 0;
   box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
-  transform: translateY(100%);
+  transform: translateY(calc(100% - 120px)); // Show a preview at bottom
   transition: transform 0.3s ease;
-  z-index: 1002;
-  max-height: 70vh;
-  
+  max-height: calc(70vh - 60px);
+
   &.show {
-    transform: translateY(0);
+    transform: translateY(0); // Full expansion
   }
 }
 
@@ -155,14 +164,38 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px 20px 10px;
+  padding: 12px 20px 10px;
   border-bottom: 1px solid #f0f0f0;
+  cursor: pointer;
+  position: relative;
+  
+  // Drag indicator handle
+  &::before {
+    content: '';
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 4px;
+    background: #ccc;
+    border-radius: 2px;
+  }
   
   h3 {
     margin: 0;
     font-size: 1.2rem;
     font-weight: 700;
     color: #2c3e50;
+    text-align: center;
+    flex: 1;
+  }
+
+  .close-button {
+    --color: #2c3e50;
+    --icon-size: 20px;
+    margin-left: auto;
+    font-size: 1.2rem;
   }
 }
 

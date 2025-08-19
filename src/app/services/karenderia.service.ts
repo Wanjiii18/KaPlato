@@ -30,6 +30,34 @@ export interface SimpleKarenderia {
   menu?: MenuItem[];
 }
 
+// Backend API response interface
+export interface KarenderiaApiResponse {
+  id: number;
+  name: string;
+  description: string;
+  address: string;
+  latitude: number;
+  longitude: number;
+  distance?: number;
+  rating: number;
+  isOpen: boolean;
+  cuisine: string;
+  priceRange: string;
+  imageUrl?: string;
+  deliveryTime: string;
+  deliveryFee: number;
+  status: string;
+  phone?: string;
+  email?: string;
+  operating_hours?: any;
+  accepts_cash?: boolean;
+  accepts_online_payment?: boolean;
+  menu_items_count?: number;
+  owner?: string;
+  delivery_time_minutes?: number;
+  average_rating?: number;
+}
+
 export interface Karenderia {
   id?: string;
   name: string;
@@ -48,7 +76,17 @@ export interface Karenderia {
   createdAt?: Date;
   updatedAt?: Date;
   distance?: number;
+  // Backend API properties
+  latitude?: number;
+  longitude?: number;
+  status?: string;
+  delivery_time_minutes?: number;
+  average_rating?: number;
+  isOpen?: boolean;
+  deliveryTime?: string;
+  deliveryFee?: number;
 }
+
 
 @Injectable({
   providedIn: 'root'
@@ -68,10 +106,34 @@ export class KarenderiaService {
 
   // Get all karenderias
   getAllKarenderias(): Observable<Karenderia[]> {
-    return this.http.get<{ data: Karenderia[] }>(`${this.apiUrl}/karenderias`, { 
+    return this.http.get<{ data: KarenderiaApiResponse[] }>(`${this.apiUrl}/karenderias`, { 
       headers: this.getHeaders() 
     }).pipe(
-      map(response => response.data)
+      map(response => response.data.map(k => ({
+        id: k.id.toString(),
+        name: k.name,
+        address: k.address,
+        location: {
+          latitude: k.latitude,
+          longitude: k.longitude
+        },
+        description: k.description,
+        rating: k.rating || k.average_rating || 4.0,
+        priceRange: 'Moderate' as 'Budget' | 'Moderate' | 'Expensive',
+        cuisine: [k.cuisine || 'Filipino'],
+        contactNumber: k.phone,
+        imageUrl: k.imageUrl,
+        distance: k.distance,
+        // Backend properties
+        latitude: k.latitude,
+        longitude: k.longitude,
+        status: k.status,
+        delivery_time_minutes: k.delivery_time_minutes,
+        average_rating: k.average_rating,
+        isOpen: k.isOpen,
+        deliveryTime: k.deliveryTime,
+        deliveryFee: k.deliveryFee
+      })))
     );
   }
 
@@ -83,18 +145,34 @@ export class KarenderiaService {
       radius: radiusInMeters.toString()
     };
 
-    return this.http.get<{ data: Karenderia[] }>(`${this.apiUrl}/karenderias/nearby`, { 
+    return this.http.get<{ data: KarenderiaApiResponse[] }>(`${this.apiUrl}/karenderias/nearby`, { 
       headers: this.getHeaders(),
       params 
     }).pipe(
-      map(response => response.data.map(karenderia => ({
-        ...karenderia,
-        distance: this.calculateDistance(
-          userLat, 
-          userLng, 
-          karenderia.location.latitude, 
-          karenderia.location.longitude
-        )
+      map(response => response.data.map(k => ({
+        id: k.id.toString(),
+        name: k.name,
+        address: k.address,
+        location: {
+          latitude: k.latitude,
+          longitude: k.longitude
+        },
+        description: k.description,
+        rating: k.rating || k.average_rating || 4.0,
+        priceRange: 'Moderate' as 'Budget' | 'Moderate' | 'Expensive',
+        cuisine: [k.cuisine || 'Filipino'],
+        contactNumber: k.phone,
+        imageUrl: k.imageUrl,
+        distance: k.distance,
+        // Backend properties
+        latitude: k.latitude,
+        longitude: k.longitude,
+        status: k.status,
+        delivery_time_minutes: k.delivery_time_minutes,
+        average_rating: k.average_rating,
+        isOpen: k.isOpen,
+        deliveryTime: k.deliveryTime,
+        deliveryFee: k.deliveryFee
       })))
     );
   }
@@ -145,6 +223,61 @@ export class KarenderiaService {
     }).pipe(
       map(response => response.data)
     );
+  }
+
+  // Get menu items for a specific karenderia
+  getMenuItemsForKarenderia(karenderiaId: string): Observable<MenuItem[]> {
+    console.log('🔍 Fetching menu items for karenderia:', karenderiaId);
+    
+    const params = { karenderia: karenderiaId };
+    
+    return this.http.get<{ data: any[] }>(`${this.apiUrl}/menu-items/search`, { 
+      headers: this.getHeaders(),
+      params 
+    }).pipe(
+      map(response => {
+        console.log('📋 Backend response:', response);
+        
+        if (!response.data || response.data.length === 0) {
+          console.log('⚠️ No menu items found for karenderia:', karenderiaId);
+          return [];
+        }
+
+        // Transform backend data to MenuItem interface
+        return response.data.map(item => ({
+          id: item.id?.toString(),
+          name: item.name,
+          description: item.description || 'Delicious Filipino dish',
+          price: parseFloat(item.price) || 0,
+          ingredients: item.ingredients || [],
+          allergens: item.allergens || [],
+          category: this.mapBackendCategory(item.category),
+          isAvailable: item.available !== false,
+          imageUrl: item.image || 'assets/images/food-placeholder.jpg'
+        }));
+      })
+    );
+  }
+
+  // Helper method to map backend categories to MenuItem categories
+  private mapBackendCategory(backendCategory: string): MenuItem['category'] {
+    const categoryMap: { [key: string]: MenuItem['category'] } = {
+      'main_course': 'Main Dish',
+      'main': 'Main Dish',
+      'appetizer': 'Appetizer',
+      'appetizers': 'Appetizer',
+      'dessert': 'Dessert',
+      'desserts': 'Dessert',
+      'beverage': 'Beverage',
+      'beverages': 'Beverage',
+      'drink': 'Beverage',
+      'drinks': 'Beverage',
+      'side': 'Side Dish',
+      'sides': 'Side Dish',
+      'side_dish': 'Side Dish'
+    };
+
+    return categoryMap[backendCategory?.toLowerCase()] || 'Main Dish';
   }
 
   // Calculate distance between two points using Haversine formula (returns meters)

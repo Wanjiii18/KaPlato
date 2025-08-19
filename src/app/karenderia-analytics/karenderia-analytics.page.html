@@ -1,139 +1,244 @@
-<ion-header [translucent]="true">
-  <ion-toolbar color="primary">
+<ion-header [translucent]="true" class="modern-header">
+  <ion-toolbar class="gradient-toolbar">
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/karenderia-dashboard"></ion-back-button>
+      <ion-back-button defaultHref="/karenderia-dashboard" color="light" class="modern-back-btn"></ion-back-button>
     </ion-buttons>
-    <ion-title>Business Analytics</ion-title>
+    <ion-title>
+      <div class="page-title">
+        <ion-icon name="analytics" color="light"></ion-icon>
+        <span>Business Analytics</span>
+      </div>
+    </ion-title>
     <ion-buttons slot="end">
-      <ion-button (click)="openOrderModal()" fill="solid" color="success" size="small">
+      <ion-button (click)="openOrderModal()" fill="solid" color="light" size="small" class="header-action-btn">
         <ion-icon name="bag" slot="start"></ion-icon>
         Order
       </ion-button>
-      <ion-button routerLink="/order-details" fill="clear">
-        <ion-icon name="list"></ion-icon>
-        Orders
+      <ion-button routerLink="/order-details" fill="clear" color="light" class="header-action-btn">
+        <ion-icon name="list" slot="icon-only"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true" class="analytics-content">
-  <div class="analytics-container">
+<ion-content [fullscreen]="true" class="modern-content">
+  <div class="page-container">
     
-    <!-- Period Selector -->
-    <div class="period-selector">
-      <ion-segment [(ngModel)]="selectedPeriod" (ionChange)="onPeriodChange()">
-        <ion-segment-button value="daily">
+    <!-- Modern Page Header -->
+    <div class="modern-page-header">
+      <div class="header-content">
+        <div class="header-icon">
+          <ion-icon name="bar-chart"></ion-icon>
+        </div>
+        <div class="header-text">
+          <h1>Business Analytics Dashboard</h1>
+          <p>Track your karenderia's performance and growth metrics</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modern Period Selector -->
+    <div class="modern-period-section">
+      <ion-segment [(ngModel)]="selectedPeriod" (ionChange)="onPeriodChange()" class="modern-segment">
+        <ion-segment-button value="daily" class="segment-btn">
           <ion-label>Daily</ion-label>
         </ion-segment-button>
-        <ion-segment-button value="weekly">
+        <ion-segment-button value="weekly" class="segment-btn">
           <ion-label>Weekly</ion-label>
         </ion-segment-button>
-        <ion-segment-button value="monthly">
+        <ion-segment-button value="monthly" class="segment-btn">
           <ion-label>Monthly</ion-label>
         </ion-segment-button>
       </ion-segment>
     </div>
-
-    <!-- Key Metrics -->
-    <div class="metrics-grid" *ngIf="getSelectedAnalytics()">
-      <div class="metric-card sales">
-        <div class="metric-icon">
-          <ion-icon name="trending-up"></ion-icon>
-        </div>
-        <div class="metric-content">
-          <div class="metric-value">{{ formatPhp(getSelectedAnalytics()!.totalSales) }}</div>
-          <div class="metric-label">Total Sales</div>
-        </div>
-      </div>
-
-      <div class="metric-card orders">
-        <div class="metric-icon">
-          <ion-icon name="receipt"></ion-icon>
-        </div>
-        <div class="metric-content">
-          <div class="metric-value">{{ getSelectedAnalytics()!.totalOrders }}</div>
-          <div class="metric-label">Orders</div>
-        </div>
-      </div>
-
-      <div class="metric-card profit">
-        <div class="metric-icon">
-          <ion-icon name="cash"></ion-icon>
-        </div>
-        <div class="metric-content">
-          <div class="metric-value">{{ formatPhp(getSelectedAnalytics()!.totalProfit) }}</div>
-          <div class="metric-label">Profit ({{ getProfitMarginPercentage().toFixed(1) }}%)</div>
-        </div>
-      </div>
-
-      <div class="metric-card average">
-        <div class="metric-icon">
-          <ion-icon name="calculator"></ion-icon>
-        </div>
-        <div class="metric-content">
-          <div class="metric-value">{{ formatPhp(getSelectedAnalytics()!.averageOrderValue) }}</div>
-          <div class="metric-label">Avg Order</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Seasonal Context -->
-    <div class="seasonal-section">
-      <ion-card>
-        <ion-card-header>
-          <ion-card-title>
-            <ion-icon [name]="getSeasonIcon(currentSeason)"></ion-icon>
-            {{ currentSeason | titlecase }} Season Analytics
-          </ion-card-title>
-        </ion-card-header>
-        <ion-card-content>
-          <div class="seasonal-recommendations">
-            <h4>🎯 Business Recommendations:</h4>
-            <ul>
-              <li *ngFor="let recommendation of seasonalRecommendations">
-                {{ recommendation }}
-              </li>
-            </ul>
+    <!-- Modern Analytics Content -->
+    <div *ngIf="getSelectedAnalytics()" class="modern-analytics-content">
+      
+      <!-- Modern Key Metrics Grid -->
+      <div class="modern-metrics-grid">
+        <div class="metric-card sales">
+          <div class="metric-header">
+            <div class="metric-icon sales-icon">
+              <ion-icon name="trending-up"></ion-icon>
+            </div>
+            <div class="metric-label">Total Sales</div>
           </div>
-        </ion-card-content>
-      </ion-card>
-    </div>
+          <div class="metric-value">{{ formatPhp(getSelectedAnalytics()!.totalSales) }}</div>
+          <div class="metric-change positive">
+            <ion-icon name="arrow-up"></ion-icon>
+            <span>+12% from last period</span>
+          </div>
+        </div>
 
-    <!-- Top Selling Items -->
-    <div class="top-items-section" *ngIf="topItemsData.length > 0">
-      <ion-card>
-        <ion-card-header>
-          <ion-card-title>🏆 Top Selling Items</ion-card-title>
-        </ion-card-header>
-        <ion-card-content>
-          <div class="top-items-list">
-            <div *ngFor="let item of topItemsData; let i = index" class="top-item">
-              <div class="item-rank">{{ i + 1 }}</div>
-              <div class="item-info">
-                <div class="item-name">{{ item.menuItemName }}</div>
-                <div class="item-stats">
-                  <span class="quantity">{{ item.quantitySold }} sold</span>
-                  <span class="revenue">{{ formatPhp(item.revenue) }}</span>
-                  <span class="profit" [style.color]="'green'">+{{ formatPhp(item.profit) }}</span>
+        <div class="metric-card orders">
+          <div class="metric-header">
+            <div class="metric-icon orders-icon">
+              <ion-icon name="receipt"></ion-icon>
+            </div>
+            <div class="metric-label">Total Orders</div>
+          </div>
+          <div class="metric-value">{{ getSelectedAnalytics()!.totalOrders }}</div>
+          <div class="metric-change positive">
+            <ion-icon name="arrow-up"></ion-icon>
+            <span>+8% from last period</span>
+          </div>
+        </div>
+
+        <div class="metric-card profit">
+          <div class="metric-header">
+            <div class="metric-icon profit-icon">
+              <ion-icon name="cash"></ion-icon>
+            </div>
+            <div class="metric-label">Net Profit</div>
+          </div>
+          <div class="metric-value">{{ formatPhp(getSelectedAnalytics()!.totalProfit) }}</div>
+          <div class="metric-change positive">
+            <ion-icon name="arrow-up"></ion-icon>
+            <span>{{ getProfitMarginPercentage().toFixed(1) }}% margin</span>
+          </div>
+        </div>
+
+        <div class="metric-card average">
+          <div class="metric-header">
+            <div class="metric-icon average-icon">
+              <ion-icon name="calculator"></ion-icon>
+            </div>
+            <div class="metric-label">Avg Order Value</div>
+          </div>
+          <div class="metric-value">{{ formatPhp(getSelectedAnalytics()!.averageOrderValue) }}</div>
+          <div class="metric-change neutral">
+            <ion-icon name="remove"></ion-icon>
+            <span>No change</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modern Seasonal Section -->
+      <div class="modern-seasonal-section">
+        <div class="section-card">
+          <div class="section-header">
+            <div class="header-info">
+              <div class="header-icon">
+                <ion-icon [name]="getSeasonIcon(currentSeason)" color="tertiary"></ion-icon>
+              </div>
+              <div class="header-text">
+                <h2>{{ currentSeason | titlecase }} Season Insights</h2>
+                <p>Smart recommendations for your business</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="section-content">
+            <div class="recommendations-grid">
+              <div *ngFor="let recommendation of seasonalRecommendations; let i = index" class="recommendation-item">
+                <div class="recommendation-icon">
+                  <ion-icon [name]="getRecommendationIcon(i)"></ion-icon>
+                </div>
+                <div class="recommendation-text">{{ recommendation }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modern Top Items Section -->
+      <div class="modern-top-items-section" *ngIf="topItemsData.length > 0">
+        <div class="section-card">
+          <div class="section-header">
+            <div class="header-info">
+              <div class="header-icon">
+                <ion-icon name="trophy" color="warning"></ion-icon>
+              </div>
+              <div class="header-text">
+                <h2>Top Performing Items</h2>
+                <p>Your best-selling menu items this {{ selectedPeriod }}</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="section-content">
+            <div class="top-items-list">
+              <div *ngFor="let item of topItemsData; let i = index" class="top-item-card">
+                <div class="item-rank">
+                  <span class="rank-number">{{ i + 1 }}</span>
+                  <ion-icon *ngIf="i === 0" name="trophy" color="warning"></ion-icon>
+                  <ion-icon *ngIf="i === 1" name="medal" color="medium"></ion-icon>
+                  <ion-icon *ngIf="i === 2" name="ribbon" color="tertiary"></ion-icon>
+                </div>
+                <div class="item-details">
+                  <h3 class="item-name">{{ item.menuItemName }}</h3>
+                  <div class="item-metrics">
+                    <div class="metric-item">
+                      <span class="metric-label">Sold:</span>
+                      <span class="metric-value">{{ item.quantitySold }}</span>
+                    </div>
+                    <div class="metric-item">
+                      <span class="metric-label">Revenue:</span>
+                      <span class="metric-value revenue">{{ formatPhp(item.revenue) }}</span>
+                    </div>
+                    <div class="metric-item">
+                      <span class="metric-label">Profit:</span>
+                      <span class="metric-value profit">{{ formatPhp(item.profit) }}</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="item-progress">
+                  <div class="progress-bar">
+                    <div class="progress-fill" [style.width.%]="(item.quantitySold / topItemsData[0].quantitySold) * 100"></div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </ion-card-content>
-      </ion-card>
+        </div>
+      </div>
+
+      <!-- Modern Quick Actions -->
+      <div class="modern-actions-section">
+        <div class="actions-grid">
+          <ion-button 
+            expand="block" 
+            routerLink="/order-details" 
+            fill="solid"
+            color="primary"
+            class="action-btn">
+            <ion-icon name="list" slot="start"></ion-icon>
+            View All Orders
+          </ion-button>
+          
+          <ion-button 
+            expand="block" 
+            routerLink="/karenderia-orders-pos" 
+            fill="solid"
+            color="success"
+            class="action-btn">
+            <ion-icon name="add" slot="start"></ion-icon>
+            Create New Order
+          </ion-button>
+
+          <ion-button 
+            expand="block" 
+            routerLink="/karenderia-menu" 
+            fill="outline"
+            color="tertiary"
+            class="action-btn">
+            <ion-icon name="restaurant" slot="start"></ion-icon>
+            Manage Menu
+          </ion-button>
+        </div>
+      </div>
     </div>
 
-    <!-- Quick Actions -->
-    <div class="actions-section">
-      <ion-button expand="block" routerLink="/order-details" color="primary">
-        <ion-icon name="list" slot="start"></ion-icon>
-        View All Orders
-      </ion-button>
-      
-      <ion-button expand="block" routerLink="/karenderia-orders-pos" color="success">
+    <!-- Modern Empty State -->
+    <div *ngIf="!getSelectedAnalytics()" class="modern-empty-state">
+      <div class="empty-icon">
+        <ion-icon name="bar-chart" size="large"></ion-icon>
+      </div>
+      <h3>No Analytics Data Available</h3>
+      <p>Start taking orders to see your business analytics and insights here.</p>
+      <ion-button routerLink="/karenderia-orders-pos" color="primary" fill="solid">
         <ion-icon name="add" slot="start"></ion-icon>
-        New Order
+        Create Your First Order
       </ion-button>
     </div>
 

@@ -15,10 +15,10 @@ const routes: Routes = [
     path: 'menu',
     loadChildren: () => import('../karenderia-menu/karenderia-menu.module').then(m => m.KarenderiaMenuPageModule)
   },
-  {
-    path: 'inventory',
-    loadChildren: () => import('../karenderia-inventory/karenderia-inventory.module').then(m => m.KarenderiaInventoryPageModule)
-  },
+  // {
+  //   path: 'inventory',
+  //   loadChildren: () => import('../karenderia-inventory/karenderia-inventory.module').then(m => m.KarenderiaInventoryPageModule)
+  // },
   {
     path: 'pos',
     loadChildren: () => import('../karenderia-orders-pos/karenderia-orders-pos.module').then(m => m.KarenderiaOrdersPosPageModule)

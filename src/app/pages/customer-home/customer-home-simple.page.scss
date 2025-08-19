@@ -1,0 +1,377 @@
+// Modern Home Dashboard Styles - Full Replacement
+ion-header {
+  --background: transparent;
+  box-shadow: none;
+  
+  &.modern-header {
+    position: relative;
+    overflow: hidden;
+    
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, #2dd36f 0%, #0d9488 100%);
+      opacity: 0.95;
+      z-index: -1;
+    }
+  }
+}
+
+.gradient-toolbar {
+  --background: transparent;
+  --color: white;
+  --border-color: transparent;
+  
+  .header-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    
+    ion-icon {
+      font-size: 24px;
+    }
+  }
+}
+
+ion-content.modern-dashboard {
+  --background: #f8fafc;
+  --padding-start: 0;
+  --padding-end: 0;
+  --padding-top: 0;
+}
+
+.dashboard-content {
+  padding: 20px;
+  
+  @media (max-width: 768px) {
+    padding: 16px;
+  }
+}
+
+// Welcome Header Section
+.welcome-header {
+  background: linear-gradient(135deg, #2dd36f 0%, #0d9488 100%);
+  border-radius: 20px;
+  padding: 24px;
+  margin-bottom: 24px;
+  color: white;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(45, 211, 111, 0.3);
+  
+  .welcome-content {
+    position: relative;
+    z-index: 2;
+    
+    h1 {
+      font-size: 28px;
+      font-weight: 700;
+      margin: 0 0 8px 0;
+      line-height: 1.2;
+    }
+    
+    p {
+      font-size: 16px;
+      opacity: 0.9;
+      margin: 0 0 16px 0;
+    }
+    
+    .location-indicator {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 14px;
+      opacity: 0.8;
+      
+      ion-icon {
+        font-size: 16px;
+      }
+    }
+  }
+  
+  .header-decoration {
+    position: absolute;
+    top: -20px;
+    right: -20px;
+    opacity: 0.1;
+    
+    ion-icon {
+      font-size: 120px;
+    }
+  }
+}
+
+// Quick Access Section  
+.quick-access-section {
+  margin-bottom: 32px;
+  
+  .section-header {
+    margin-bottom: 20px;
+    
+    h2 {
+      font-size: 24px;
+      font-weight: 700;
+      color: #1e293b;
+      margin: 0 0 4px 0;
+    }
+    
+    p {
+      font-size: 16px;
+      color: #64748b;
+      margin: 0;
+    }
+  }
+  
+  .quick-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+    
+    @media (min-width: 640px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+}
+
+.quick-card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: none;
+  margin: 0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+  }
+  
+  ion-card-content {
+    padding: 20px;
+    
+    .card-content {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      
+      .card-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        background: rgba(45, 211, 111, 0.1);
+        
+        ion-icon {
+          font-size: 24px;
+        }
+      }
+      
+      .card-info {
+        flex: 1;
+        
+        h3 {
+          font-size: 18px;
+          font-weight: 600;
+          color: #1e293b;
+          margin: 0 0 4px 0;
+        }
+        
+        p {
+          font-size: 14px;
+          color: #64748b;
+          margin: 0;
+        }
+      }
+      
+      .arrow-icon {
+        font-size: 20px;
+        color: #94a3b8;
+      }
+    }
+  }
+}
+
+// Featured Section
+.featured-section {
+  .section-header {
+    margin-bottom: 20px;
+    
+    h2 {
+      font-size: 24px;
+      font-weight: 700;
+      color: #1e293b;
+      margin: 0 0 4px 0;
+    }
+    
+    p {
+      font-size: 16px;
+      color: #64748b;
+      margin: 0;
+    }
+  }
+  
+  .featured-scroll {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+    
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+    }
+  }
+}
+
+.featured-card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: none;
+  margin: 0;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+  }
+  
+  .featured-image {
+    position: relative;
+    height: 160px;
+    overflow: hidden;
+    
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s ease;
+    }
+    
+    .rating-badge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 6px 10px;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 14px;
+      font-weight: 600;
+      
+      ion-icon {
+        font-size: 16px;
+      }
+    }
+  }
+  
+  ion-card-content {
+    padding: 20px;
+    
+    h4 {
+      font-size: 18px;
+      font-weight: 600;
+      color: #1e293b;
+      margin: 0 0 8px 0;
+    }
+    
+    p {
+      font-size: 14px;
+      color: #64748b;
+      margin: 0 0 12px 0;
+    }
+    
+    .restaurant-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      
+      .distance {
+        font-size: 14px;
+        color: #2dd36f;
+        font-weight: 600;
+      }
+      
+      .delivery-time {
+        font-size: 14px;
+        color: #64748b;
+      }
+    }
+  }
+  
+  &:hover .featured-image img {
+    transform: scale(1.05);
+  }
+}
+
+// Search Section
+.search-section {
+  margin-bottom: 32px;
+  
+  .modern-searchbar {
+    --background: white;
+    --border-radius: 16px;
+    --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    --placeholder-color: #64748b;
+    --color: #1e293b;
+    --icon-color: #2dd36f;
+    
+    margin: 0;
+    padding: 0;
+  }
+}
+
+// Animations
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.animate-slide-up {
+  animation: slideUp 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+// Modern Card Base
+.modern-card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: none;
+  margin: 0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  }
+}

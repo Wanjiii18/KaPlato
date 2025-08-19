@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
+import { AlertController } from '@ionic/angular';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import { map, tap, catchError } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
@@ -63,7 +65,7 @@ export class AuthService {
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
 
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient, private router: Router, private alertController: AlertController) {
     this.checkStoredAuth();
   }
 
@@ -127,27 +129,51 @@ export class AuthService {
       );
   }
 
-  logout(): Observable<any> {
-    const token = localStorage.getItem('auth_token');
-    
-    // Always clear local storage first
+  logout(): void {
+    // Clear local storage immediately for instant logout feeling
     localStorage.removeItem('auth_token');
     localStorage.removeItem('user_data');
     this.currentUserSubject.next(null);
 
+    // Optional: Notify server in background (don't wait for response)
+    const token = localStorage.getItem('auth_token');
     if (token) {
-      return this.http.post(`${this.apiUrl}/auth/logout`, {}, {
+      this.http.post(`${this.apiUrl}/auth/logout`, {}, {
         headers: { Authorization: `Bearer ${token}` }
-      }).pipe(
-        catchError(error => {
-          console.error('Logout error:', error);
-          // Even if server logout fails, we've already cleared local data
-          return of({ success: true, message: 'Logged out locally' });
-        })
-      );
+      }).subscribe({
+        next: () => console.log('Server logout successful'),
+        error: () => console.log('Server logout failed (already logged out locally)')
+      });
     }
+  }
 
-    return of({ success: true, message: 'Already logged out' });
+  // Simple logout with navigation - use this in components
+  async logoutAndRedirect(): Promise<void> {
+    this.logout();
+    await this.router.navigate(['/login'], { replaceUrl: true });
+  }
+
+  // Logout with simple confirmation
+  async logoutWithConfirmation(): Promise<void> {
+    const alert = await this.alertController.create({
+      header: 'Logout',
+      message: 'Are you sure you want to logout?',
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel'
+        },
+        {
+          text: 'Logout',
+          role: 'confirm',
+          handler: () => {
+            this.logoutAndRedirect();
+          }
+        }
+      ]
+    });
+
+    await alert.present();
   }
 
   isAuthenticated(): boolean {

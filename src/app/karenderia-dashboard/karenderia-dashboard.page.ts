@@ -17,6 +17,7 @@ export class KarenderiaDashboardPage implements OnInit {
   menuItemsCount = 0;
   pendingOrdersCount = 0;
   totalRevenue = 0;
+  isLoading = true;
 
   constructor(
     private router: Router,
@@ -24,29 +25,84 @@ export class KarenderiaDashboardPage implements OnInit {
     private authService: AuthService
   ) { }
 
-  ngOnInit() {
-    this.loadDashboardData();
+  async ngOnInit() {
+    this.isLoading = true;
+    try {
+      await this.loadDashboardData();
+    } catch (error) {
+      console.error('Error loading dashboard data:', error);
+      // Continue with empty/default data instead of hanging
+    } finally {
+      this.isLoading = false;
+    }
   }
 
   async loadDashboardData() {
-    // Load today's sales
-    this.todaysSales = await this.menuService.getDailySales(new Date());
-    
-    // Load recent orders
-    this.menuService.orders$.subscribe(orders => {
-      this.recentOrders = orders.slice(0, 5);
-      this.pendingOrdersCount = orders.filter(o => o.status === 'pending').length;
-    });
+    try {
+      // Load today's sales with timeout
+      const salesPromise = Promise.race([
+        this.menuService.getDailySales(new Date()),
+        new Promise<null>((_, reject) => 
+          setTimeout(() => reject(new Error('Sales data timeout')), 3000)
+        )
+      ]);
+      
+      this.todaysSales = await salesPromise.catch(() => ({
+        date: new Date(),
+        totalSales: 0,
+        totalOrders: 0,
+        popularItems: []
+      }));
+      
+      // Load recent orders with timeout
+      const ordersSubscription = this.menuService.orders$.subscribe(orders => {
+        this.recentOrders = orders.slice(0, 5);
+        this.pendingOrdersCount = orders.filter(o => o.status === 'pending').length;
+      });
+      
+      // Auto-unsubscribe after 5 seconds if no data
+      setTimeout(() => {
+        if (this.recentOrders.length === 0) {
+          ordersSubscription.unsubscribe();
+        }
+      }, 5000);
 
-    // Load low stock items
-    this.menuService.getLowStockIngredients().subscribe(items => {
-      this.lowStockItems = items;
-    });
+      // Load low stock items with timeout
+      const stockSubscription = this.menuService.getLowStockIngredients().subscribe(items => {
+        this.lowStockItems = items;
+      });
+      
+      // Auto-unsubscribe after 5 seconds if no data
+      setTimeout(() => {
+        if (this.lowStockItems.length === 0) {
+          stockSubscription.unsubscribe();
+        }
+      }, 5000);
 
-    // Load menu items count
-    this.menuService.menuItems$.subscribe(items => {
-      this.menuItemsCount = items.length;
-    });
+      // Load menu items count with timeout
+      const itemsSubscription = this.menuService.menuItems$.subscribe(items => {
+        this.menuItemsCount = items.length;
+      });
+      
+      // Auto-unsubscribe after 5 seconds if no data
+      setTimeout(() => {
+        itemsSubscription.unsubscribe();
+      }, 5000);
+      
+    } catch (error) {
+      console.error('Dashboard data loading error:', error);
+      // Set default values so the page doesn't hang
+      this.todaysSales = {
+        date: new Date(),
+        totalSales: 0,
+        totalOrders: 0,
+        popularItems: []
+      };
+      this.recentOrders = [];
+      this.lowStockItems = [];
+      this.menuItemsCount = 0;
+      this.pendingOrdersCount = 0;
+    }
   }
 
   navigateToMenu() {
@@ -86,7 +142,6 @@ export class KarenderiaDashboardPage implements OnInit {
   }
 
   logout() {
-    this.authService.logout();
-    this.router.navigate(['/login']);
+    this.authService.logoutAndRedirect();
   }
 }
