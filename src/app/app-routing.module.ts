@@ -18,11 +18,6 @@ const routes: Routes = [
     pathMatch: 'full'
   },
   {
-    path: 'tabs',
-    loadChildren: () => import('./tabs/tabs.module').then(m => m.TabsPageModule)
-    // Temporarily disabled for UI testing: canActivate: [AuthGuard, CustomerGuard]
-  },
-  {
     path: 'role-redirect',
     loadComponent: () => import('./components/role-redirect.component').then(m => m.RoleRedirectComponent)
   },
@@ -122,11 +117,6 @@ const routes: Routes = [
   {
     path: 'meal-history',
     loadComponent: () => import('./meal-history/meal-history.page').then(m => m.MealHistoryPage),
-    canActivate: [AuthGuard, CustomerGuard]
-  },
-  {
-    path: 'nutrition-engine',
-    loadComponent: () => import('./pages/nutrition-engine/nutrition-engine.page').then(m => m.NutritionEnginePage),
     canActivate: [AuthGuard, CustomerGuard]
   },
   {
