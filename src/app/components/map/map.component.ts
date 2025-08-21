@@ -290,19 +290,33 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     }
 
     const loading = await this.loadingController.create({
-      message: 'Getting directions...'
+      message: 'Getting directions...',
+      cssClass: 'loading-accessible', // Add custom CSS class for accessibility
+      backdropDismiss: false, // Prevent backdrop dismiss to avoid aria-hidden conflicts
+      keyboardClose: false // Prevent keyboard close to maintain focus control
     });
-    await loading.present();
-
+    
     try {
+      await loading.present();
+      
+      // Fix aria-hidden issues on the loading element
+      setTimeout(() => {
+        const loadingElement = document.querySelector('ion-loading');
+        if (loadingElement) {
+          loadingElement.removeAttribute('aria-hidden');
+          loadingElement.setAttribute('aria-live', 'polite');
+          loadingElement.setAttribute('aria-describedby', 'loading-message');
+        }
+      }, 50);
+
       this.clearRoute();
-      this.displayTurnByTurnRoute(karenderia); // Changed from displaySimpleRoute
+      this.displayTurnByTurnRoute(karenderia);
       this.showToast(`Route to ${karenderia.name} displayed`, 'success');
     } catch (error) {
       console.error('Direction error:', error);
       this.showToast('Error getting directions', 'danger');
     } finally {
-      loading.dismiss();
+      await loading.dismiss();
     }
   }
 
@@ -320,15 +334,40 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       addWaypoints: false,
       draggableWaypoints: false,
       fitSelectedRoutes: true,
-      show: false, // Hide the default instructions panel
+      show: true, // Show the instructions panel (changed from false)
+      router: (L.Routing as any).osrmv1({
+        serviceUrl: 'https://router.project-osrm.org/route/v1', // Use official OSRM server
+        profile: 'driving', // Use driving profile
+        suppressDemoServerWarning: true // Suppress the demo server warning
+      }),
       lineOptions: {
         styles: [{ color: '#007bff', opacity: 0.8, weight: 6 }],
         extendToWaypoints: true,
         missingRouteTolerance: 100
       },
       // Disable default markers
-      createMarker: () => null
+      createMarker: () => null,
+      // Fix accessibility issues
+      containerClassName: 'leaflet-routing-container-accessible',
+      // Add proper ARIA attributes
+      summaryTemplate: '<h2 role="heading" aria-level="2">{name}</h2><h3 role="heading" aria-level="3">{distance}, {time}</h3>'
     }).addTo(this.map);
+
+    // Fix aria-hidden issues by ensuring the routing container is properly accessible
+    setTimeout(() => {
+      const routingContainer = document.querySelector('.leaflet-routing-container');
+      if (routingContainer) {
+        routingContainer.removeAttribute('aria-hidden');
+        routingContainer.setAttribute('role', 'dialog');
+        routingContainer.setAttribute('aria-label', `Directions to ${karenderia.name}`);
+        
+        // Fix any nested elements that might have focus issues
+        const focusableElements = routingContainer.querySelectorAll('button, a, input, [tabindex]');
+        focusableElements.forEach((element) => {
+          element.removeAttribute('aria-hidden');
+        });
+      }
+    }, 100);
 
     // Store the routing control to remove it later
     this.currentRoute = routingControl;

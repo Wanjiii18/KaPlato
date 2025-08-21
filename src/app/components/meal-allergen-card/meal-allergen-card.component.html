@@ -1,0 +1,150 @@
+<ion-card class="meal-allergen-card">
+  <ion-card-header>
+    <ion-card-title>{{ meal?.name || 'Unknown Meal' }}</ion-card-title>
+    <ion-card-subtitle *ngIf="meal?.restaurant">{{ meal.restaurant }}</ion-card-subtitle>
+  </ion-card-header>
+
+  <ion-card-content>
+    <!-- Safety Status Banner -->
+    <div class="safety-banner" [ngClass]="'safety-' + (safetyAnalysis?.riskLevel || 'unknown')">
+      <ion-icon [name]="getRiskLevelIcon()" [color]="getRiskLevelColor()"></ion-icon>
+      <span class="safety-text">
+        <ng-container *ngIf="safetyAnalysis?.isSafe; else notSafe">
+          ✅ Safe for your allergies
+        </ng-container>
+        <ng-template #notSafe>
+          <ng-container [ngSwitch]="safetyAnalysis?.riskLevel">
+            <span *ngSwitchCase="'high'">🚨 HIGH RISK - Avoid this meal</span>
+            <span *ngSwitchCase="'medium'">⚠️ MEDIUM RISK - Use caution</span>
+            <span *ngSwitchDefault>⚠️ Contains allergens</span>
+          </ng-container>
+        </ng-template>
+      </span>
+    </div>
+
+    <!-- Allergen Warnings -->
+    <div *ngIf="safetyAnalysis?.warnings?.length" class="allergen-warnings">
+      <h4>⚠️ Allergen Warnings</h4>
+      <div *ngFor="let warning of safetyAnalysis.warnings" 
+           class="warning-item" 
+           [ngClass]="'severity-' + warning.severity">
+        <div class="warning-header">
+          <ion-icon [name]="getSeverityIcon(warning.severity)" 
+                   [color]="getSeverityColor(warning.severity)"></ion-icon>
+          <strong>{{ warning.allergen }}</strong>
+          <ion-badge [color]="getSeverityColor(warning.severity)" class="severity-badge">
+            {{ warning.severity }}
+          </ion-badge>
+        </div>
+        <p class="warning-message">{{ warning.message }}</p>
+        <div class="found-in" *ngIf="warning.foundIn?.length">
+          <small>Found in: 
+            <span *ngFor="let ingredient of warning.foundIn; let last = last">
+              <ion-chip color="danger" outline="true">{{ ingredient }}</ion-chip>
+              <span *ngIf="!last">, </span>
+            </span>
+          </small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Safe Alternatives -->
+    <div *ngIf="safetyAnalysis?.safeAlternatives?.length" class="safe-alternatives">
+      <h4>💡 Safe Alternatives</h4>
+      <ul>
+        <li *ngFor="let alternative of safetyAnalysis.safeAlternatives">
+          {{ alternative }}
+        </li>
+      </ul>
+    </div>
+
+    <!-- Meal Information -->
+    <div class="meal-info" *ngIf="showDetails">
+      <!-- Price and Rating -->
+      <div class="meal-meta" *ngIf="meal?.price || meal?.rating">
+        <ion-chip color="primary" *ngIf="meal?.price">
+          <ion-icon name="pricetag-outline"></ion-icon>
+          <ion-label>₱{{ meal.price }}</ion-label>
+        </ion-chip>
+        <ion-chip color="success" *ngIf="meal?.rating">
+          <ion-icon name="star"></ion-icon>
+          <ion-label>{{ meal.rating }}</ion-label>
+        </ion-chip>
+      </div>
+
+      <!-- Ingredients Toggle -->
+      <div class="ingredients-section">
+        <ion-button 
+          fill="clear" 
+          size="small" 
+          (click)="toggleIngredients()"
+          class="ingredients-toggle">
+          <ion-icon name="{{ showIngredients ? 'chevron-up' : 'chevron-down' }}" slot="start"></ion-icon>
+          {{ showIngredients ? 'Hide' : 'Show' }} Ingredients
+        </ion-button>
+
+        <!-- Ingredients List -->
+        <div *ngIf="showIngredients" class="ingredients-list">
+          <div class="ingredients-header">
+            <h5>🥘 Ingredients</h5>
+          </div>
+          <div class="ingredients-grid">
+            <ion-chip 
+              *ngFor="let ingredient of meal?.ingredients" 
+              class="ingredient-chip"
+              [color]="getIngredientColor(ingredient)">
+              {{ ingredient }}
+            </ion-chip>
+          </div>
+        </div>
+      </div>
+
+      <!-- Detected Allergens in Ingredients -->
+      <div *ngIf="showIngredients && safetyAnalysis?.warnings?.length" class="allergen-detection">
+        <h5>🔍 Allergen Detection</h5>
+        <div *ngFor="let warning of safetyAnalysis.warnings" class="detected-allergen">
+          <ion-badge [color]="getAllergenBadgeColor(warning.allergen)">
+            {{ warning.allergen }}
+          </ion-badge>
+          <small> detected in: {{ warning.foundIn.join(', ') }}</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons" *ngIf="showDetails">
+      <ion-button 
+        *ngIf="safetyAnalysis?.isSafe" 
+        fill="solid" 
+        color="success" 
+        size="small">
+        <ion-icon name="checkmark-circle" slot="start"></ion-icon>
+        Safe to Order
+      </ion-button>
+      
+      <ion-button 
+        *ngIf="!safetyAnalysis?.isSafe && safetyAnalysis?.riskLevel !== 'high'" 
+        fill="outline" 
+        color="warning" 
+        size="small">
+        <ion-icon name="warning-outline" slot="start"></ion-icon>
+        Order with Caution
+      </ion-button>
+      
+      <ion-button 
+        *ngIf="safetyAnalysis?.riskLevel === 'high'" 
+        fill="solid" 
+        color="danger" 
+        size="small" 
+        disabled>
+        <ion-icon name="close-circle" slot="start"></ion-icon>
+        Not Recommended
+      </ion-button>
+
+      <ion-button fill="clear" size="small" color="medium">
+        <ion-icon name="information-circle-outline" slot="start"></ion-icon>
+        More Info
+      </ion-button>
+    </div>
+  </ion-card-content>
+</ion-card>

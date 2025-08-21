@@ -281,6 +281,30 @@ export class KarenderiaDetailPage implements OnInit {
     console.log(`🔍 Filtered menu items for category "${this.selectedCategory}":`, this.filteredMenuItems.length);
   }
 
+  async viewMealDetails(menuItem: any) {
+    console.log('🍽️ Viewing meal details for:', menuItem.name);
+    
+    try {
+      // Navigate to meal details page with menu item data
+      await this.router.navigate(['/meal-details', menuItem.id], {
+        state: { 
+          menuItem: menuItem,
+          karenderia: this.karenderia 
+        }
+      });
+      
+      console.log('✅ Successfully navigated to meal details page');
+    } catch (error) {
+      console.error('❌ Error navigating to meal details:', error);
+      const toast = await this.toastController.create({
+        message: 'Unable to view meal details at this time',
+        duration: 2000,
+        color: 'danger'
+      });
+      await toast.present();
+    }
+  }
+
   async addToCart(menuItem: any) {
     if (!menuItem.available) {
       const toast = await this.toastController.create({

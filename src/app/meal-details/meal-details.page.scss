@@ -409,6 +409,254 @@
   }
 }
 
+// Enhanced nutrition and allergen styling
+.nutrition-card, .allergen-card {
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    
+    h3 {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--ion-color-dark);
+    }
+  }
+}
+
+.loading-nutrition {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  
+  p {
+    margin-top: 8px;
+    color: var(--ion-color-medium);
+    font-size: 14px;
+  }
+}
+
+.nutrition-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  
+  .nutrition-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 12px;
+    background: var(--ion-color-light);
+    border-radius: 8px;
+    text-align: center;
+    
+    &.highlight {
+      background: linear-gradient(135deg, var(--ion-color-primary-tint), var(--ion-color-primary));
+      color: white;
+      
+      .label, .value {
+        color: white;
+      }
+    }
+    
+    ion-icon {
+      font-size: 20px;
+      margin-bottom: 4px;
+    }
+    
+    .label {
+      font-size: 12px;
+      color: var(--ion-color-medium);
+      font-weight: 500;
+      margin-bottom: 2px;
+    }
+    
+    .value {
+      font-size: 16px;
+      font-weight: bold;
+      color: var(--ion-color-dark);
+    }
+  }
+}
+
+.detailed-nutrition {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--ion-color-light);
+  
+  .nutrition-section {
+    h4 {
+      margin: 0 0 12px 0;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--ion-color-dark);
+    }
+  }
+  
+  .nutrition-detail-grid {
+    display: grid;
+    gap: 8px;
+    
+    .nutrition-detail {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      gap: 8px;
+      padding: 8px 12px;
+      background: var(--ion-color-light);
+      border-radius: 6px;
+      align-items: center;
+      
+      .nutrient-name {
+        font-size: 14px;
+        color: var(--ion-color-dark);
+      }
+      
+      .nutrient-value {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--ion-color-primary);
+      }
+      
+      .nutrient-percent {
+        font-size: 12px;
+        color: var(--ion-color-medium);
+        text-align: right;
+      }
+    }
+  }
+}
+
+.api-credit {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--ion-color-light);
+  
+  small {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--ion-color-medium);
+    font-size: 12px;
+    
+    ion-icon {
+      font-size: 14px;
+    }
+  }
+}
+
+.allergen-card {
+  .safety-warnings {
+    margin-bottom: 16px;
+    
+    .warning-title {
+      margin: 0 0 8px 0;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--ion-color-danger);
+    }
+    
+    .warnings-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      
+      ion-chip {
+        --background: var(--ion-color-danger-tint);
+        --color: var(--ion-color-danger-shade);
+        font-weight: 600;
+        
+        ion-icon {
+          margin-right: 4px;
+        }
+      }
+    }
+  }
+  
+  .general-allergens {
+    margin-bottom: 16px;
+    
+    h4 {
+      margin: 0 0 8px 0;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--ion-color-warning);
+    }
+    
+    .tags-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      
+      ion-chip {
+        --background: var(--ion-color-warning-tint);
+        --color: var(--ion-color-warning-shade);
+        
+        ion-icon {
+          margin-right: 4px;
+        }
+      }
+    }
+  }
+  
+  .safety-recommendations {
+    h4 {
+      margin: 0 0 8px 0;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--ion-color-success);
+    }
+    
+    .recommendations-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      
+      li {
+        padding: 6px 0;
+        font-size: 14px;
+        color: var(--ion-color-dark);
+        border-bottom: 1px solid var(--ion-color-light);
+        
+        &:last-child {
+          border-bottom: none;
+        }
+        
+        &:before {
+          content: "✓ ";
+          color: var(--ion-color-success);
+          font-weight: bold;
+        }
+      }
+    }
+  }
+  
+  .no-allergen-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    text-align: center;
+    
+    ion-icon {
+      font-size: 32px;
+      margin-bottom: 8px;
+    }
+    
+    p {
+      margin: 0;
+      font-size: 14px;
+      color: var(--ion-color-medium);
+      line-height: 1.4;
+    }
+  }
+}
+
 // Dark mode support
 @media (prefers-color-scheme: dark) {
   .info-cards .info-card,
@@ -421,5 +669,25 @@
   .add-to-cart-section {
     background: var(--ion-color-dark);
     border-top-color: var(--ion-color-medium);
+  }
+  
+  .nutrition-grid .nutrition-item {
+    background: var(--ion-color-step-100);
+    
+    .label {
+      color: var(--ion-color-medium);
+    }
+    
+    .value {
+      color: var(--ion-color-light);
+    }
+  }
+  
+  .detailed-nutrition .nutrition-detail-grid .nutrition-detail {
+    background: var(--ion-color-step-100);
+    
+    .nutrient-name {
+      color: var(--ion-color-light);
+    }
   }
 }

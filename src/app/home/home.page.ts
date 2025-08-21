@@ -70,8 +70,16 @@ export class HomePage implements OnInit, OnDestroy {
     }
   }
 
-  navigateToMap() {
-    this.router.navigate(['/map-view']);
+  async navigateToMap() {
+    try {
+      console.log('🗺️ Navigating to map view...');
+      
+      const success = await this.router.navigateByUrl('/map-view');
+      
+    } catch (error) {
+      console.error('❌ Error navigating to map-view:', error);
+      await this.showToast('Navigation error - please try again');
+    }
   }
 
   toggleMap() {

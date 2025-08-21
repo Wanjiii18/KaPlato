@@ -733,6 +733,10 @@
     &.nutrition-bg {
       background: radial-gradient(circle, rgba(16, 185, 129, 0.3) 0%, transparent 70%);
     }
+    
+    &.allergen-bg {
+      background: radial-gradient(circle, rgba(220, 38, 38, 0.3) 0%, transparent 70%);
+    }
   }
   
   ion-card-content {
@@ -776,6 +780,10 @@
     
     &.nutrition-icon {
       background: linear-gradient(135deg, rgba(16, 185, 129, 0.8), rgba(5, 150, 105, 0.8));
+    }
+    
+    &.allergen-icon {
+      background: linear-gradient(135deg, rgba(220, 38, 38, 0.8), rgba(185, 28, 28, 0.8));
     }
   }
   
@@ -851,6 +859,10 @@
   
   &.nutrition-card {
     background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  }
+  
+  &.allergen-card {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
   }
   
   .feature-tag {

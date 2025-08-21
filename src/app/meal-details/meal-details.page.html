@@ -61,36 +61,121 @@
 
     <!-- Nutrition & Info Cards -->
     <div class="info-cards">
-      <!-- Nutrition Card -->
-      <div class="info-card" *ngIf="menuItem.calories">
-        <h3>Nutrition Information</h3>
-        <div class="nutrition-grid">
-          <div class="nutrition-item">
+      <!-- Enhanced Nutrition Card with Spoonacular Data -->
+      <div class="info-card nutrition-card">
+        <div class="card-header">
+          <h3>
+            <ion-icon name="nutrition-outline"></ion-icon>
+            Nutrition Information
+          </h3>
+          <ion-button fill="clear" (click)="toggleNutritionDetails()" *ngIf="nutritionData">
+            <ion-icon [name]="showNutritionDetails ? 'chevron-up' : 'chevron-down'"></ion-icon>
+          </ion-button>
+        </div>
+
+        <!-- Loading state -->
+        <div *ngIf="loadingNutrition" class="loading-nutrition">
+          <ion-spinner name="crescent" color="primary"></ion-spinner>
+          <p>Loading nutrition data...</p>
+        </div>
+
+        <!-- Basic nutrition info -->
+        <div class="nutrition-grid" *ngIf="!loadingNutrition">
+          <div class="nutrition-item highlight">
+            <ion-icon name="flash" [color]="getNutritionColor('calories')"></ion-icon>
             <span class="label">Calories</span>
-            <span class="value">{{ menuItem.calories }}</span>
+            <span class="value">{{ (nutritionData?.calories || menuItem.calories || 0) | number }}</span>
           </div>
-          <div class="nutrition-item" *ngIf="menuItem.protein">
+          <div class="nutrition-item" *ngIf="nutritionData?.protein || menuItem.protein">
+            <ion-icon name="fitness" [color]="getNutritionColor('protein')"></ion-icon>
             <span class="label">Protein</span>
-            <span class="value">{{ menuItem.protein }}g</span>
+            <span class="value">{{ parseNutrientValueSafe(nutritionData?.protein) || menuItem.protein || 0 }}g</span>
           </div>
-          <div class="nutrition-item" *ngIf="menuItem.carbs">
+          <div class="nutrition-item" *ngIf="nutritionData?.carbs || menuItem.carbs">
+            <ion-icon name="leaf" [color]="getNutritionColor('carbs')"></ion-icon>
             <span class="label">Carbs</span>
-            <span class="value">{{ menuItem.carbs }}g</span>
+            <span class="value">{{ parseNutrientValueSafe(nutritionData?.carbs) || menuItem.carbs || 0 }}g</span>
           </div>
-          <div class="nutrition-item" *ngIf="menuItem.fat">
+          <div class="nutrition-item" *ngIf="nutritionData?.fat || menuItem.fat">
+            <ion-icon name="water" [color]="getNutritionColor('fat')"></ion-icon>
             <span class="label">Fat</span>
-            <span class="value">{{ menuItem.fat }}g</span>
+            <span class="value">{{ parseNutrientValueSafe(nutritionData?.fat) || menuItem.fat || 0 }}g</span>
           </div>
+        </div>
+
+        <!-- Detailed nutrition info (collapsible) -->
+        <div *ngIf="showNutritionDetails && nutritionData && !loadingNutrition" class="detailed-nutrition">
+          <div class="nutrition-section">
+            <h4>Detailed Breakdown</h4>
+            <div class="nutrition-detail-grid">
+              <div class="nutrition-detail" *ngFor="let nutrient of nutritionData.nutrients?.slice(0, 8)">
+                <span class="nutrient-name">{{ nutrient.name }}</span>
+                <span class="nutrient-value">{{ nutrient.amount }}{{ nutrient.unit }}</span>
+                <span class="nutrient-percent" *ngIf="nutrient.percentOfDailyNeeds">
+                  {{ nutrient.percentOfDailyNeeds | number:'1.0-1' }}% DV
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Powered by Spoonacular notice -->
+        <div class="api-credit" *ngIf="nutritionData">
+          <small>
+            <ion-icon name="information-circle-outline"></ion-icon>
+            Nutrition data powered by Spoonacular API
+          </small>
         </div>
       </div>
 
-      <!-- Allergens Card -->
-      <div class="info-card" *ngIf="menuItem.allergens && menuItem.allergens.length > 0">
-        <h3>Allergen Information</h3>
-        <div class="tags-container">
-          <ion-chip *ngFor="let allergen of menuItem.allergens" color="warning">
-            <ion-label>{{ allergen }}</ion-label>
+      <!-- Enhanced Allergen Safety Card -->
+      <div class="info-card allergen-card" *ngIf="allergenAnalysis || (menuItem.allergens && menuItem.allergens.length > 0)">
+        <div class="card-header">
+          <h3>
+            <ion-icon [name]="getSafetyLevelIcon()" [color]="getSafetyLevelColor()"></ion-icon>
+            Allergen Safety Analysis
+          </h3>
+          <ion-chip [color]="getSafetyLevelColor()">
+            <ion-label>{{ allergenAnalysis?.safetyLevel?.toUpperCase() || 'UNKNOWN' }}</ion-label>
           </ion-chip>
+        </div>
+
+        <!-- Safety warnings -->
+        <div *ngIf="hasAllergenWarnings()" class="safety-warnings">
+          <h4 class="warning-title">⚠️ Allergen Warnings</h4>
+          <div class="warnings-list">
+            <ion-chip *ngFor="let warning of allergenAnalysis?.warnings" color="danger">
+              <ion-icon name="warning"></ion-icon>
+              <ion-label>{{ warning }}</ion-label>
+            </ion-chip>
+          </div>
+        </div>
+
+        <!-- General allergens (fallback) -->
+        <div *ngIf="shouldShowGeneralAllergens()" class="general-allergens">
+          <h4>Contains Allergens:</h4>
+          <div class="tags-container">
+            <ion-chip *ngFor="let allergen of menuItem.allergens" color="warning">
+              <ion-icon name="alert-circle"></ion-icon>
+              <ion-label>{{ allergen }}</ion-label>
+            </ion-chip>
+          </div>
+        </div>
+
+        <!-- Safety recommendations -->
+        <div *ngIf="hasAllergenRecommendations()" class="safety-recommendations">
+          <h4>Recommendations:</h4>
+          <ul class="recommendations-list">
+            <li *ngFor="let recommendation of allergenAnalysis?.recommendations">
+              {{ recommendation }}
+            </li>
+          </ul>
+        </div>
+
+        <!-- No allergen info available -->
+        <div *ngIf="!allergenAnalysis && (!menuItem.allergens || menuItem.allergens.length === 0)" class="no-allergen-info">
+          <ion-icon name="help-circle" color="medium"></ion-icon>
+          <p>No allergen information available. Please check with the restaurant if you have specific allergies.</p>
         </div>
       </div>
 

@@ -6,6 +6,9 @@ import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { FavoritesService } from '../services/favorites.service';
 import { MenuService } from '../services/menu.service';
+import { SpoonacularService, SpoonacularNutrition } from '../services/spoonacular.service';
+import { AllergenDetectionService } from '../services/allergen-detection.service';
+import { UserService } from '../services/user.service';
 
 export interface MenuItemDetails {
   id: string;
@@ -62,6 +65,17 @@ export class MealDetailsPage implements OnInit, OnDestroy {
   userReview = '';
   showReviewForm = false;
 
+  // New properties for nutrition and allergen analysis
+  nutritionData: SpoonacularNutrition | null = null;
+  allergenAnalysis: {
+    warnings: string[];
+    safetyLevel: 'safe' | 'caution' | 'danger';
+    recommendations: string[];
+  } | null = null;
+  userAllergens: string[] = [];
+  showNutritionDetails = false;
+  loadingNutrition = false;
+
   private subscriptions: Subscription[] = [];
 
   constructor(
@@ -71,7 +85,10 @@ export class MealDetailsPage implements OnInit, OnDestroy {
     private menuService: MenuService,
     private alertController: AlertController,
     private loadingController: LoadingController,
-    private toastController: ToastController
+    private toastController: ToastController,
+    private spoonacularService: SpoonacularService,
+    private allergenService: AllergenDetectionService,
+    private userService: UserService
   ) {}
 
   async ngOnInit() {
@@ -79,6 +96,8 @@ export class MealDetailsPage implements OnInit, OnDestroy {
     if (menuItemId) {
       await this.loadMenuItemDetails(menuItemId);
       this.checkIfFavorite(menuItemId);
+      await this.loadUserAllergens();
+      await this.loadNutritionAndAllergenData();
     }
   }
 
@@ -245,6 +264,132 @@ export class MealDetailsPage implements OnInit, OnDestroy {
 
   goBack() {
     this.navController.back();
+  }
+
+  // New methods for nutrition and allergen analysis
+  async loadUserAllergens() {
+    try {
+      const profile = await this.userService.getCurrentUserProfile();
+      if (profile?.allergens) {
+        this.userAllergens = profile.allergens.map(a => a.name);
+      }
+    } catch (error) {
+      console.error('Error loading user allergens:', error);
+    }
+  }
+
+  async loadNutritionAndAllergenData() {
+    if (!this.menuItem?.name) return;
+    
+    this.loadingNutrition = true;
+    try {
+      // Search for the recipe using the meal name
+      const searchResults = await this.spoonacularService.searchRecipes(this.menuItem.name, undefined, undefined, undefined, 1).toPromise();
+      
+      if (searchResults && searchResults.results.length > 0) {
+        const recipe = searchResults.results[0];
+        
+        // Get detailed analysis
+        const analysis = await this.spoonacularService.getMealAnalysisWithAllergens(recipe.id, this.userAllergens).toPromise();
+        
+        if (analysis) {
+          this.nutritionData = analysis.nutrition;
+          this.allergenAnalysis = {
+            warnings: analysis.allergenWarnings,
+            safetyLevel: analysis.safetyLevel,
+            recommendations: analysis.recommendations
+          };
+          
+          // Update the menu item with nutrition data if not already present
+          if (!this.menuItem.calories && this.nutritionData) {
+            this.menuItem.calories = this.nutritionData.calories;
+            this.menuItem.protein = this.parseNutrientValue(this.nutritionData.protein);
+            this.menuItem.carbs = this.parseNutrientValue(this.nutritionData.carbs);
+            this.menuItem.fat = this.parseNutrientValue(this.nutritionData.fat);
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error loading nutrition data:', error);
+      // Fallback to basic allergen analysis using local detection
+      if (this.menuItem.ingredients) {
+        const localAnalysis = this.allergenService.analyzeMealSafety(this.menuItem.ingredients, this.menuItem.name);
+        this.allergenAnalysis = {
+          warnings: localAnalysis.warnings.map(w => w.allergen),
+          safetyLevel: localAnalysis.riskLevel === 'low' ? 'safe' : localAnalysis.riskLevel === 'medium' ? 'caution' : 'danger',
+          recommendations: localAnalysis.safeAlternatives || ['Check ingredients carefully']
+        };
+      }
+    } finally {
+      this.loadingNutrition = false;
+    }
+  }
+
+  toggleNutritionDetails() {
+    this.showNutritionDetails = !this.showNutritionDetails;
+  }
+
+  getNutritionColor(nutrientName: string): string {
+    switch (nutrientName.toLowerCase()) {
+      case 'calories': return 'warning';
+      case 'protein': return 'success';
+      case 'carbs': return 'primary';
+      case 'fat': return 'tertiary';
+      case 'fiber': return 'success';
+      case 'sodium': return 'danger';
+      case 'sugar': return 'warning';
+      default: return 'medium';
+    }
+  }
+
+  getSafetyLevelColor(): string {
+    if (!this.allergenAnalysis) return 'medium';
+    
+    switch (this.allergenAnalysis.safetyLevel) {
+      case 'safe': return 'success';
+      case 'caution': return 'warning';
+      case 'danger': return 'danger';
+      default: return 'medium';
+    }
+  }
+
+  getSafetyLevelIcon(): string {
+    if (!this.allergenAnalysis) return 'help-circle';
+    
+    switch (this.allergenAnalysis.safetyLevel) {
+      case 'safe': return 'checkmark-circle';
+      case 'caution': return 'warning';
+      case 'danger': return 'close-circle';
+      default: return 'help-circle';
+    }
+  }
+
+  // Helper methods for template null safety
+  hasAllergenWarnings(): boolean {
+    return !!(this.allergenAnalysis?.warnings && this.allergenAnalysis.warnings.length > 0);
+  }
+
+  hasAllergenRecommendations(): boolean {
+    return !!(this.allergenAnalysis?.recommendations && this.allergenAnalysis.recommendations.length > 0);
+  }
+
+  shouldShowGeneralAllergens(): boolean {
+    const hasMenuAllergens = !!(this.menuItem?.allergens && this.menuItem.allergens.length > 0);
+    const hasNoWarnings = !this.allergenAnalysis?.warnings || this.allergenAnalysis.warnings.length === 0;
+    return hasMenuAllergens && hasNoWarnings;
+  }
+
+  private parseNutrientValue(nutrientString: string): number {
+    if (!nutrientString) return 0;
+    const match = nutrientString.match(/\d+\.?\d*/);
+    return match ? parseFloat(match[0]) : 0;
+  }
+
+  // Public method for template use
+  parseNutrientValueSafe(nutrientString: string | undefined): number {
+    if (!nutrientString) return 0;
+    const match = nutrientString.match(/\d+\.?\d*/);
+    return match ? parseFloat(match[0]) : 0;
   }
 
   private async showToast(message: string) {

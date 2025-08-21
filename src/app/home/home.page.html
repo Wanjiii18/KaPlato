@@ -172,6 +172,29 @@
             </div>
           </ion-card-content>
         </ion-card>
+
+        <!-- NEW: Allergen Profile Card -->
+        <ion-card button (click)="openAllergenProfile()" class="feature-card allergen-card">
+          <div class="card-overlay"></div>
+          <div class="card-background allergen-bg">
+            <ion-icon name="shield-checkmark-outline" class="bg-icon"></ion-icon>
+          </div>
+          <ion-card-content>
+            <div class="feature-content">
+              <div class="feature-icon allergen-icon">
+                <ion-icon name="shield-checkmark" color="light"></ion-icon>
+              </div>
+              <div class="feature-text">
+                <h3>Allergen Safety</h3>
+                <p>Set up your allergy profile for safe dining</p>
+                <div class="feature-badge allergen-badge">
+                  <ion-icon name="warning-outline" color="warning"></ion-icon>
+                  <span>Food Safety</span>
+                </div>
+              </div>
+            </div>
+          </ion-card-content>
+        </ion-card>
       </div>
     </div>
 

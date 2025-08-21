@@ -1,0 +1,399 @@
+// Allergen Profile Page Styles
+.allergen-header {
+  ion-toolbar {
+    --background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+    --color: white;
+    
+    ion-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+      
+      .title-icon {
+        font-size: 1.4rem;
+      }
+    }
+  }
+}
+
+.allergen-content {
+  --background: #f8f9fa;
+  padding: 16px;
+}
+
+// Welcome Section
+.profile-header {
+  margin-bottom: 20px;
+  
+  .welcome-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 16px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    
+    .welcome-content {
+      text-align: center;
+      padding: 8px 0;
+      
+      .welcome-icon {
+        font-size: 3rem;
+        margin-bottom: 12px;
+        opacity: 0.9;
+      }
+      
+      h2 {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 8px;
+      }
+      
+      p {
+        font-size: 0.95rem;
+        opacity: 0.9;
+        line-height: 1.4;
+        margin: 0;
+      }
+    }
+  }
+}
+
+// Section Headers
+.section-header {
+  margin-bottom: 16px;
+  
+  h3 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #2c3e50;
+    font-weight: 600;
+    font-size: 1.2rem;
+    margin-bottom: 6px;
+    
+    ion-icon {
+      font-size: 1.3rem;
+      color: #3498db;
+    }
+  }
+  
+  p {
+    color: #6c757d;
+    font-size: 0.9rem;
+    margin: 0;
+    line-height: 1.4;
+  }
+}
+
+// Allergens Section
+.allergens-section {
+  margin-bottom: 24px;
+  
+  .allergens-card {
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    
+    .allergens-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      
+      .allergen-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 12px;
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+        background: white;
+        
+        &.selected {
+          border-color: #e74c3c;
+          background: #fff5f5;
+          box-shadow: 0 2px 8px rgba(231, 76, 60, 0.2);
+        }
+        
+        &:hover {
+          border-color: #3498db;
+          box-shadow: 0 2px 8px rgba(52, 152, 219, 0.15);
+        }
+        
+        .allergen-checkbox {
+          margin-top: 2px;
+          --size: 20px;
+          --checkmark-color: white;
+          --border-color: #e74c3c;
+          --background-checked: #e74c3c;
+        }
+        
+        .allergen-info {
+          flex: 1;
+          
+          .allergen-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 4px;
+            
+            .allergen-name {
+              font-weight: 600;
+              color: #2c3e50;
+              font-size: 1rem;
+            }
+            
+            .severity-badge {
+              font-size: 0.75rem;
+              height: 22px;
+              display: flex;
+              align-items: center;
+              gap: 4px;
+              
+              ion-icon {
+                font-size: 0.8rem;
+              }
+            }
+          }
+          
+          .allergen-description {
+            color: #6c757d;
+            font-size: 0.85rem;
+            line-height: 1.4;
+            margin: 0;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Custom Allergen Section
+.custom-section {
+  margin-bottom: 24px;
+  
+  .custom-card {
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    
+    .custom-input-container {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      
+      .custom-input {
+        flex: 1;
+        --border-radius: 8px;
+        --border-color: #dee2e6;
+        --highlight-color: #3498db;
+        
+        ion-input {
+          --padding-start: 12px;
+          --padding-end: 12px;
+        }
+      }
+      
+      ion-button {
+        height: 44px;
+        border-radius: 8px;
+        
+        ion-icon {
+          font-size: 1.1rem;
+        }
+      }
+    }
+  }
+}
+
+// Selected Allergens Section
+.selected-section {
+  margin-bottom: 24px;
+  
+  .selected-card {
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    background: #fff3cd;
+    border-left: 4px solid #ffc107;
+    
+    .selected-allergens {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      
+      .selected-allergen-chip {
+        height: 32px;
+        font-size: 0.9rem;
+        border-radius: 16px;
+        
+        ion-icon {
+          font-size: 1rem;
+          
+          &.remove-icon {
+            cursor: pointer;
+            margin-left: 4px;
+            
+            &:hover {
+              color: #c0392b;
+            }
+          }
+        }
+        
+        ion-label {
+          font-weight: 500;
+        }
+      }
+    }
+  }
+}
+
+// Action Section
+.action-section {
+  margin-bottom: 24px;
+  
+  ion-button {
+    margin-bottom: 12px;
+    height: 48px;
+    border-radius: 12px;
+    font-weight: 500;
+    
+    ion-icon {
+      font-size: 1.2rem;
+    }
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+}
+
+// Info Section
+.info-section {
+  margin-bottom: 24px;
+  
+  .info-card {
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    background: #e8f4f8;
+    border-left: 4px solid #3498db;
+    
+    .info-content {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      
+      ion-icon {
+        font-size: 2rem;
+        margin-top: 4px;
+        flex-shrink: 0;
+      }
+      
+      .info-text {
+        flex: 1;
+        
+        h4 {
+          color: #2c3e50;
+          font-weight: 600;
+          margin-bottom: 8px;
+          font-size: 1rem;
+        }
+        
+        ul {
+          margin: 0;
+          padding-left: 16px;
+          
+          li {
+            color: #34495e;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-bottom: 4px;
+            
+            &:last-child {
+              margin-bottom: 0;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+// Loading Overlay
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  color: white;
+  
+  ion-spinner {
+    --color: white;
+    margin-bottom: 16px;
+  }
+  
+  p {
+    font-size: 1rem;
+    margin: 0;
+  }
+}
+
+// Responsive Design
+@media (min-width: 768px) {
+  .allergen-content {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  .allergens-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  
+  .custom-input-container {
+    max-width: 500px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .allergens-grid {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+}
+
+// Accessibility
+@media (prefers-reduced-motion: reduce) {
+  .allergen-item {
+    transition: none;
+  }
+}
+
+@media (prefers-contrast: high) {
+  .allergen-item {
+    border-width: 3px;
+    
+    &.selected {
+      border-color: #000;
+      background: #fff;
+    }
+  }
+  
+  .section-header h3 {
+    color: #000;
+  }
+}
+
+// Focus states
+.allergen-item:focus-within {
+  outline: 2px solid #3498db;
+  outline-offset: 2px;
+}
+
+ion-button:focus {
+  outline: 2px solid var(--ion-color-primary);
+  outline-offset: 2px;
+}

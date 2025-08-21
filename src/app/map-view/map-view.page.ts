@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef  } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewChild, ElementRef  } from '@angular/core';
 import { Router } from '@angular/router';
 import { ToastController, LoadingController } from '@ionic/angular';
 import { KarenderiaService } from '../services/karenderia.service';
@@ -11,7 +11,7 @@ import { Location } from '@angular/common';
   styleUrls: ['./map-view.page.scss'],
   standalone: false,
 })
-export class MapViewPage implements OnInit {
+export class MapViewPage implements OnInit, AfterViewInit {
   @ViewChild('listWrapper', { read: ElementRef }) listWrapper!: ElementRef;
 
   searchQuery = '';
@@ -47,6 +47,12 @@ export class MapViewPage implements OnInit {
     
     this.loadKarenderias();
     this.getCurrentLocation();
+    // DON'T call addSwipeGesture() here - moved to ngAfterViewInit()
+  }
+
+  ngAfterViewInit() {
+    // Only access DOM elements after the view is initialized
+    console.log('🗺️ View initialized, setting up gestures...');
     this.addSwipeGesture();
     
     // Debug info after a short delay to ensure data is loaded

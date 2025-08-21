@@ -363,20 +363,63 @@ export class SpoonacularService {
     if (!recipe.glutenFree) allergens.push('gluten');
     if (!recipe.vegan) allergens.push('animal products');
     
-    // Check ingredients for common allergens
+    // Check ingredients for common allergens including Filipino terms
     recipe.extendedIngredients?.forEach(ing => {
       const name = ing.name.toLowerCase();
-      if (name.includes('peanut')) allergens.push('peanuts');
-      if (name.includes('tree nut') || name.includes('almond') || name.includes('walnut')) {
+      
+      // Peanuts (including Filipino terms)
+      if (name.includes('peanut') || name.includes('mani') || name.includes('kare-kare')) {
+        allergens.push('peanuts');
+      }
+      
+      // Tree nuts
+      if (name.includes('tree nut') || name.includes('almond') || name.includes('walnut') || 
+          name.includes('cashew') || name.includes('coconut')) {
         allergens.push('tree nuts');
       }
-      if (name.includes('shellfish') || name.includes('shrimp') || name.includes('crab')) {
+      
+      // Shellfish (including Filipino terms)
+      if (name.includes('shellfish') || name.includes('shrimp') || name.includes('crab') ||
+          name.includes('hipon') || name.includes('alimango') || name.includes('talaba') ||
+          name.includes('sugpo') || name.includes('bagoong')) {
         allergens.push('shellfish');
       }
-      if (name.includes('fish') && !name.includes('shellfish')) allergens.push('fish');
-      if (name.includes('egg')) allergens.push('eggs');
-      if (name.includes('soy')) allergens.push('soy');
-      if (name.includes('sesame')) allergens.push('sesame');
+      
+      // Fish (including Filipino terms)
+      if ((name.includes('fish') && !name.includes('shellfish')) || 
+          name.includes('isda') || name.includes('bangus') || name.includes('tilapia') ||
+          name.includes('patis') || name.includes('fish sauce')) {
+        allergens.push('fish');
+      }
+      
+      // Eggs (including Filipino terms)
+      if (name.includes('egg') || name.includes('itlog') || name.includes('balut')) {
+        allergens.push('eggs');
+      }
+      
+      // Soy (including Filipino terms)
+      if (name.includes('soy') || name.includes('tofu') || name.includes('tokwa') ||
+          name.includes('taho') || name.includes('toyo') || name.includes('soy sauce')) {
+        allergens.push('soy');
+      }
+      
+      // Dairy (including Filipino terms)
+      if (name.includes('milk') || name.includes('cheese') || name.includes('butter') ||
+          name.includes('gatas') || name.includes('keso') || name.includes('mantikilya') ||
+          name.includes('kesong puti')) {
+        allergens.push('dairy');
+      }
+      
+      // Wheat (including Filipino terms)
+      if (name.includes('wheat') || name.includes('flour') || name.includes('bread') ||
+          name.includes('harina') || name.includes('tinapay')) {
+        allergens.push('wheat');
+      }
+      
+      // Sesame
+      if (name.includes('sesame') || name.includes('linga')) {
+        allergens.push('sesame');
+      }
     });
     
     return [...new Set(allergens)];
@@ -580,6 +623,96 @@ export class SpoonacularService {
     
     // Fallback to search common ingredients
     return this.searchIngredients('chicken,rice,garlic,onion,tomato', limit);
+  }
+
+  /**
+   * Get comprehensive meal analysis including nutrition, allergens, and calories
+   */
+  getMealAnalysisWithAllergens(recipeId: number, userAllergens: string[] = []): Observable<{
+    recipe: SpoonacularRecipe;
+    nutrition: SpoonacularNutrition;
+    allergenWarnings: string[];
+    safetyLevel: 'safe' | 'caution' | 'danger';
+    recommendations: string[];
+  }> {
+    return forkJoin({
+      recipe: this.getRecipeDetails(recipeId),
+      nutrition: this.getRecipeNutrition(recipeId)
+    }).pipe(
+      map(({ recipe, nutrition }) => {
+        // Extract allergens from recipe
+        const recipeAllergens = this.extractAllergens(recipe);
+        
+        // Find matching allergens with user's allergens
+        const allergenWarnings = userAllergens.filter(userAllergen => 
+          recipeAllergens.some(recipeAllergen => 
+            recipeAllergen.toLowerCase().includes(userAllergen.toLowerCase()) ||
+            userAllergen.toLowerCase().includes(recipeAllergen.toLowerCase())
+          )
+        );
+        
+        // Determine safety level
+        let safetyLevel: 'safe' | 'caution' | 'danger' = 'safe';
+        if (allergenWarnings.length > 0) {
+          safetyLevel = 'danger';
+        } else if (recipeAllergens.length > 0 && userAllergens.length > 0) {
+          safetyLevel = 'caution';
+        }
+        
+        // Generate recommendations
+        const recommendations: string[] = [];
+        if (allergenWarnings.length > 0) {
+          recommendations.push(`⚠️ Contains allergens: ${allergenWarnings.join(', ')}`);
+          recommendations.push('🚫 Not recommended for consumption');
+          recommendations.push('💡 Consider asking for ingredient substitutions');
+        } else if (safetyLevel === 'caution') {
+          recommendations.push('⚠️ Contains other allergens, but none that match your profile');
+          recommendations.push('✅ Should be safe for you to consume');
+        } else {
+          recommendations.push('✅ No known allergens detected');
+          recommendations.push('🟢 Safe for your allergen profile');
+        }
+        
+        return {
+          recipe,
+          nutrition,
+          allergenWarnings,
+          safetyLevel,
+          recommendations
+        };
+      }),
+      catchError(error => {
+        console.error('Error getting meal analysis:', error);
+        throw error;
+      })
+    );
+  }
+
+  /**
+   * Search for Filipino recipes with allergen filtering
+   */
+  searchFilipinoRecipesWithAllergens(query: string = '', userAllergens: string[] = []): Observable<SpoonacularMenuItem[]> {
+    const filipinoQuery = query ? `${query} filipino` : 'adobo sisig kare-kare lumpia lechon';
+    
+    // Convert user allergens to Spoonacular intolerances format
+    const intolerances = userAllergens.map(allergen => {
+      switch (allergen.toLowerCase()) {
+        case 'dairy': return 'dairy';
+        case 'eggs': return 'egg';
+        case 'fish': return 'seafood';
+        case 'shellfish': return 'shellfish';
+        case 'tree nuts': return 'tree nut';
+        case 'peanuts': return 'peanut';
+        case 'soy': return 'soy';
+        case 'wheat': return 'gluten';
+        case 'sesame': return 'sesame';
+        default: return allergen;
+      }
+    }).join(',');
+    
+    return this.searchRecipes(filipinoQuery, 'asian', undefined, intolerances, 20).pipe(
+      map(response => response.results.map(recipe => this.convertRecipeToMenuItem(recipe)))
+    );
   }
 
   testApi(): Observable<any> {

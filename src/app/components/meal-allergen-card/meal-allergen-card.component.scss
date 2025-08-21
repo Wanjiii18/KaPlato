@@ -1,0 +1,327 @@
+.meal-allergen-card {
+  margin: 16px 0;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+
+  ion-card-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    
+    ion-card-title {
+      font-weight: 600;
+      font-size: 1.1rem;
+    }
+    
+    ion-card-subtitle {
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 0.9rem;
+    }
+  }
+
+  ion-card-content {
+    padding: 16px;
+  }
+}
+
+// Safety Banner Styling
+.safety-banner {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  font-weight: 500;
+  
+  ion-icon {
+    margin-right: 8px;
+    font-size: 1.2rem;
+  }
+  
+  &.safety-low {
+    background: #d4edda;
+    border: 1px solid #c3e6cb;
+    color: #155724;
+  }
+  
+  &.safety-medium {
+    background: #fff3cd;
+    border: 1px solid #ffeaa7;
+    color: #856404;
+  }
+  
+  &.safety-high {
+    background: #f8d7da;
+    border: 1px solid #f5c6cb;
+    color: #721c24;
+  }
+  
+  &.safety-unknown {
+    background: #e2e3e5;
+    border: 1px solid #d6d8db;
+    color: #383d41;
+  }
+}
+
+// Allergen Warnings
+.allergen-warnings {
+  margin-bottom: 16px;
+  
+  h4 {
+    color: #dc3545;
+    font-size: 1rem;
+    margin-bottom: 12px;
+    font-weight: 600;
+  }
+  
+  .warning-item {
+    background: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 8px;
+    
+    &.severity-severe {
+      border-left: 4px solid #dc3545;
+      background: #fff5f5;
+    }
+    
+    &.severity-moderate {
+      border-left: 4px solid #ffc107;
+      background: #fffbf0;
+    }
+    
+    &.severity-mild {
+      border-left: 4px solid #007bff;
+      background: #f8f9ff;
+    }
+    
+    .warning-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+      
+      ion-icon {
+        font-size: 1.1rem;
+      }
+      
+      strong {
+        flex: 1;
+        font-size: 0.95rem;
+      }
+      
+      .severity-badge {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+      }
+    }
+    
+    .warning-message {
+      font-size: 0.9rem;
+      margin: 6px 0;
+      line-height: 1.4;
+    }
+    
+    .found-in {
+      margin-top: 8px;
+      
+      small {
+        color: #6c757d;
+        font-size: 0.8rem;
+      }
+      
+      ion-chip {
+        font-size: 0.75rem;
+        height: 24px;
+        margin: 2px;
+      }
+    }
+  }
+}
+
+// Safe Alternatives
+.safe-alternatives {
+  background: #e7f9e7;
+  border: 1px solid #c3e6cb;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 16px;
+  
+  h4 {
+    color: #155724;
+    font-size: 0.95rem;
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
+  
+  ul {
+    margin: 0;
+    padding-left: 16px;
+    
+    li {
+      font-size: 0.9rem;
+      color: #155724;
+      margin-bottom: 4px;
+      line-height: 1.4;
+    }
+  }
+}
+
+// Meal Information
+.meal-info {
+  .meal-meta {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+    
+    ion-chip {
+      height: 28px;
+      font-size: 0.8rem;
+      
+      ion-icon {
+        font-size: 0.9rem;
+      }
+    }
+  }
+}
+
+// Ingredients Section
+.ingredients-section {
+  margin-top: 12px;
+  
+  .ingredients-toggle {
+    --color: #007bff;
+    font-size: 0.9rem;
+    margin: 0 0 8px 0;
+    
+    ion-icon {
+      font-size: 1rem;
+    }
+  }
+  
+  .ingredients-list {
+    .ingredients-header {
+      h5 {
+        color: #495057;
+        font-size: 0.95rem;
+        margin-bottom: 8px;
+        font-weight: 600;
+      }
+    }
+    
+    .ingredients-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      
+      .ingredient-chip {
+        font-size: 0.8rem;
+        height: 28px;
+        border-radius: 14px;
+      }
+    }
+  }
+}
+
+// Allergen Detection
+.allergen-detection {
+  margin-top: 12px;
+  background: #fff3cd;
+  border: 1px solid #ffeaa7;
+  border-radius: 6px;
+  padding: 10px;
+  
+  h5 {
+    color: #856404;
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
+  
+  .detected-allergen {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+    
+    ion-badge {
+      font-size: 0.7rem;
+    }
+    
+    small {
+      color: #856404;
+      font-size: 0.8rem;
+    }
+  }
+}
+
+// Action Buttons
+.action-buttons {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+  
+  ion-button {
+    flex: 1;
+    min-width: 120px;
+    height: 36px;
+    font-size: 0.85rem;
+    
+    ion-icon {
+      font-size: 1rem;
+    }
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .meal-allergen-card {
+    margin: 12px 8px;
+    
+    ion-card-content {
+      padding: 12px;
+    }
+  }
+  
+  .action-buttons {
+    ion-button {
+      flex-basis: 100%;
+      margin-bottom: 6px;
+    }
+  }
+  
+  .ingredients-grid {
+    .ingredient-chip {
+      font-size: 0.75rem;
+      height: 26px;
+    }
+  }
+}
+
+// Accessibility
+.meal-allergen-card {
+  &:focus-within {
+    outline: 2px solid #007bff;
+    outline-offset: 2px;
+  }
+}
+
+ion-button:focus {
+  outline: 2px solid var(--ion-color-primary);
+  outline-offset: 2px;
+}
+
+// High contrast mode support
+@media (prefers-contrast: high) {
+  .safety-banner {
+    border-width: 2px;
+    font-weight: 600;
+  }
+  
+  .warning-item {
+    border-width: 2px;
+  }
+}

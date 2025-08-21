@@ -1,0 +1,192 @@
+<ion-header class="allergen-header">
+  <ion-toolbar>
+    <ion-title>
+      <ion-icon name="shield-checkmark-outline" class="title-icon"></ion-icon>
+      Allergen Profile
+    </ion-title>
+    <ion-buttons slot="start">
+      <ion-back-button (click)="goBack()" default-href="/home"></ion-back-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="allergen-content">
+  <!-- Header Section -->
+  <div class="profile-header">
+    <ion-card class="welcome-card">
+      <ion-card-content>
+        <div class="welcome-content">
+          <ion-icon name="restaurant-outline" class="welcome-icon"></ion-icon>
+          <h2>Safe Dining Setup</h2>
+          <p>Register your food allergies to get personalized meal recommendations and safety warnings.</p>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+  <!-- Common Allergens Section -->
+  <div class="allergens-section">
+    <div class="section-header">
+      <h3>
+        <ion-icon name="warning-outline"></ion-icon>
+        Common Food Allergens
+      </h3>
+      <p>Select all allergens that affect you. We'll check Filipino meals for these ingredients.</p>
+    </div>
+
+    <ion-card class="allergens-card">
+      <ion-card-content>
+        <div class="allergens-grid">
+          <div 
+            *ngFor="let allergen of commonAllergens" 
+            class="allergen-item"
+            [class.selected]="isAllergenSelected(allergen.name)">
+            
+            <ion-checkbox 
+              [(ngModel)]="allergen.checked"
+              [checked]="isAllergenSelected(allergen.name)"
+              (ionChange)="onAllergenToggle(allergen, $event)"
+              class="allergen-checkbox">
+            </ion-checkbox>
+            
+            <div class="allergen-info">
+              <div class="allergen-header">
+                <span class="allergen-name">{{ allergen.name }}</span>
+                <ion-badge 
+                  [color]="getSeverityColor(allergen.severity)" 
+                  class="severity-badge">
+                  <ion-icon [name]="getSeverityIcon(allergen.severity)"></ion-icon>
+                  {{ allergen.severity }}
+                </ion-badge>
+              </div>
+              <p class="allergen-description">{{ allergen.description }}</p>
+            </div>
+          </div>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+  <!-- Custom Allergens Section -->
+  <div class="custom-section">
+    <div class="section-header">
+      <h3>
+        <ion-icon name="add-circle-outline"></ion-icon>
+        Add Custom Allergen
+      </h3>
+      <p>Don't see your allergen? Add it here.</p>
+    </div>
+
+    <ion-card class="custom-card">
+      <ion-card-content>
+        <div class="custom-input-container">
+          <ion-item class="custom-input">
+            <ion-input
+              [(ngModel)]="customAllergen"
+              placeholder="Enter allergen name (e.g., MSG, artificial colors)"
+              clearInput="true">
+            </ion-input>
+          </ion-item>
+          <ion-button 
+            (click)="addCustomAllergen()" 
+            fill="solid" 
+            color="primary"
+            [disabled]="!customAllergen.trim()">
+            <ion-icon name="add" slot="start"></ion-icon>
+            Add
+          </ion-button>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+  <!-- Selected Allergens Review -->
+  <div class="selected-section" *ngIf="selectedAllergens.size > 0">
+    <div class="section-header">
+      <h3>
+        <ion-icon name="list-outline"></ion-icon>
+        Your Selected Allergens ({{ selectedAllergens.size }})
+      </h3>
+      <p>Review your allergen list before saving.</p>
+    </div>
+
+    <ion-card class="selected-card">
+      <ion-card-content>
+        <div class="selected-allergens">
+          <ion-chip 
+            *ngFor="let allergen of selectedAllergens" 
+            color="danger" 
+            class="selected-allergen-chip">
+            <ion-icon name="warning"></ion-icon>
+            <ion-label>{{ allergen }}</ion-label>
+            <ion-icon 
+              name="close-circle" 
+              (click)="removeAllergen(allergen)"
+              class="remove-icon">
+            </ion-icon>
+          </ion-chip>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+  <!-- Action Buttons -->
+  <div class="action-section">
+    <ion-button 
+      expand="block" 
+      color="success" 
+      size="large"
+      (click)="saveAllergenProfile()"
+      [disabled]="selectedAllergens.size === 0">
+      <ion-icon name="shield-checkmark" slot="start"></ion-icon>
+      Save Allergen Profile
+    </ion-button>
+
+    <ion-button 
+      expand="block" 
+      fill="outline" 
+      color="primary" 
+      size="large"
+      (click)="testMealDetection()"
+      [disabled]="selectedAllergens.size === 0">
+      <ion-icon name="flask-outline" slot="start"></ion-icon>
+      Test Meal Detection
+    </ion-button>
+
+    <ion-button 
+      expand="block" 
+      fill="clear" 
+      color="medium" 
+      size="large"
+      (click)="goToMealDiscovery()">
+      <ion-icon name="search-outline" slot="start"></ion-icon>
+      Browse Safe Meals
+    </ion-button>
+  </div>
+
+  <!-- Info Section -->
+  <div class="info-section">
+    <ion-card class="info-card">
+      <ion-card-content>
+        <div class="info-content">
+          <ion-icon name="information-circle-outline" color="primary"></ion-icon>
+          <div class="info-text">
+            <h4>How It Works</h4>
+            <ul>
+              <li>We scan meal ingredients for your registered allergens</li>
+              <li>Get instant safety warnings when browsing menus</li>
+              <li>See personalized recommendations for safe meals</li>
+              <li>Filipino ingredients like bagoong, patis, and tokwa are included</li>
+            </ul>
+          </div>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" *ngIf="isLoading">
+    <ion-spinner name="circular"></ion-spinner>
+    <p>Saving your allergen profile...</p>
+  </div>
+</ion-content>

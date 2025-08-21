@@ -84,10 +84,14 @@
         class="menu-item-card"
         [class.unavailable]="!item.available">
         <div class="menu-item-content">
-          <div class="item-image" *ngIf="item.image">
+          <div class="item-image" *ngIf="item.image" (click)="viewMealDetails(item)">
             <img [src]="item.image" [alt]="item.name" />
+            <div class="view-details-overlay">
+              <ion-icon name="eye-outline" color="light"></ion-icon>
+              <span>View Details</span>
+            </div>
           </div>
-          <div class="item-details">
+          <div class="item-details" (click)="viewMealDetails(item)">
             <div class="item-header">
               <h4>{{ item.name }}</h4>
               <div class="price">₱{{ item.price }}</div>
@@ -102,6 +106,16 @@
               <span class="availability" [class.available]="item.available" [class.unavailable]="!item.available">
                 {{ item.available ? 'Available' : 'Unavailable' }}
               </span>
+            </div>
+            <div class="item-actions-row">
+              <ion-button 
+                fill="outline" 
+                size="small" 
+                color="secondary"
+                (click)="viewMealDetails(item); $event.stopPropagation()">
+                <ion-icon name="information-circle-outline" slot="start"></ion-icon>
+                Details
+              </ion-button>
             </div>
           </div>
           <div class="item-actions">
