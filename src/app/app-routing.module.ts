@@ -128,6 +128,11 @@ const routes: Routes = [
     path: 'nutrition-demo',
     loadComponent: () => import('./nutrition-demo/nutrition-demo.page').then(m => m.NutritionDemoPage)
     // No auth guard for demo purposes - accessible to all users
+  },
+  {
+    path: 'meals-browse',
+    loadComponent: () => import('./meals-browse/meals-browse.page').then(m => m.MealsBrowsePage),
+    canActivate: [AuthGuard, CustomerGuard]
   }
 ];
 

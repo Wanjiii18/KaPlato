@@ -25,7 +25,7 @@
     <!-- Allergen Warnings -->
     <div *ngIf="safetyAnalysis?.warnings?.length" class="allergen-warnings">
       <h4>⚠️ Allergen Warnings</h4>
-      <div *ngFor="let warning of safetyAnalysis.warnings" 
+      <div *ngFor="let warning of safetyAnalysis?.warnings" 
            class="warning-item" 
            [ngClass]="'severity-' + warning.severity">
         <div class="warning-header">
@@ -52,7 +52,7 @@
     <div *ngIf="safetyAnalysis?.safeAlternatives?.length" class="safe-alternatives">
       <h4>💡 Safe Alternatives</h4>
       <ul>
-        <li *ngFor="let alternative of safetyAnalysis.safeAlternatives">
+        <li *ngFor="let alternative of safetyAnalysis?.safeAlternatives">
           {{ alternative }}
         </li>
       </ul>
@@ -102,7 +102,7 @@
       <!-- Detected Allergens in Ingredients -->
       <div *ngIf="showIngredients && safetyAnalysis?.warnings?.length" class="allergen-detection">
         <h5>🔍 Allergen Detection</h5>
-        <div *ngFor="let warning of safetyAnalysis.warnings" class="detected-allergen">
+        <div *ngFor="let warning of safetyAnalysis?.warnings" class="detected-allergen">
           <ion-badge [color]="getAllergenBadgeColor(warning.allergen)">
             {{ warning.allergen }}
           </ion-badge>

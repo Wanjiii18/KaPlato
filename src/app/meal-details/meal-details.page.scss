@@ -12,682 +12,393 @@
 }
 
 .meal-details-container {
-  padding-bottom: 120px; // Space for floating cart button
+  padding-bottom: 80px;
 }
 
-.hero-image-container {
+/* Compact Info Cards Grid */
+.info-cards-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  padding: 0 20px;
+  margin-top: 20px;
+}
+
+.info-card {
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  border: 1px solid var(--ion-color-light);
+
+  h3 {
+    margin: 0 0 16px 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--ion-color-dark);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    ion-icon {
+      color: var(--ion-color-primary);
+    }
+  }
+}
+
+/* Compact Hero Section */
+.hero-section {
   position: relative;
-  width: 100%;
-  height: 250px;
+  height: 280px;
   overflow: hidden;
-  
+  border-radius: 0 0 24px 24px;
+
   .hero-image {
     width: 100%;
     height: 100%;
     object-fit: cover;
   }
-  
-  .price-badge {
+
+  .hero-overlay {
     position: absolute;
-    top: 16px;
-    right: 16px;
-    background: var(--ion-color-primary);
-    color: white;
-    padding: 8px 16px;
-    border-radius: 20px;
-    font-weight: bold;
-    font-size: 18px;
-  }
-}
-
-.basic-info {
-  padding: 20px;
-  
-  h1 {
-    margin: 0 0 8px 0;
-    font-size: 24px;
-    font-weight: bold;
-    color: var(--ion-color-dark);
-  }
-  
-  .description {
-    color: var(--ion-color-medium);
-    font-size: 16px;
-    line-height: 1.5;
-    margin-bottom: 16px;
-  }
-  
-  .rating-container {
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(transparent, rgba(0,0,0,0.7));
+    padding: 24px 20px;
     display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 20px;
-    
-    .stars {
-      display: flex;
-      gap: 2px;
-      
-      .star-icon {
-        color: var(--ion-color-warning);
-        font-size: 16px;
-      }
-    }
-    
-    .rating-text {
-      font-weight: bold;
-      color: var(--ion-color-dark);
-    }
-    
-    .review-count {
-      color: var(--ion-color-medium);
-      font-size: 14px;
-    }
-  }
-  
-  .karenderia-info {
-    display: flex;
-    align-items: center;
+    flex-direction: column;
     gap: 12px;
-    padding: 16px;
-    background: var(--ion-color-light);
-    border-radius: 12px;
-    cursor: pointer;
-    transition: background 0.2s;
-    
-    &:hover {
-      background: var(--ion-color-light-shade);
-    }
-    
-    ion-icon:first-child {
-      color: var(--ion-color-primary);
-      font-size: 24px;
-    }
-    
-    div {
-      flex: 1;
-      
-      h3 {
-        margin: 0;
-        font-size: 16px;
-        font-weight: 600;
-        color: var(--ion-color-dark);
-      }
-      
-      p {
-        margin: 4px 0 0 0;
-        font-size: 14px;
-        color: var(--ion-color-medium);
-      }
-    }
-    
-    ion-icon:last-child {
-      color: var(--ion-color-medium);
-      font-size: 20px;
-    }
-  }
-}
 
-.info-cards {
-  padding: 0 20px;
-  
-  .info-card {
-    background: white;
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 16px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    
-    h3 {
-      margin: 0 0 16px 0;
-      font-size: 18px;
-      font-weight: 600;
-      color: var(--ion-color-dark);
+    .meal-title {
+      color: white;
+      font-size: 24px;
+      font-weight: bold;
+      margin: 0;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.5);
     }
-    
-    .nutrition-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      
-      .nutrition-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        
-        .label {
-          font-size: 14px;
-          color: var(--ion-color-medium);
-        }
-        
-        .value {
-          font-weight: bold;
-          color: var(--ion-color-dark);
-        }
-      }
-    }
-    
-    .tags-container {
+
+    .quick-stats {
       display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-    
-    .ingredients-list {
-      font-size: 16px;
-      line-height: 1.6;
-      color: var(--ion-color-dark);
-    }
-    
-    .prep-details {
-      display: flex;
-      flex-direction: column;
       gap: 12px;
+      align-self: flex-end;
+      margin-top: auto;
       
-      .prep-item {
+      .stat-item {
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 4px;
+        background: rgba(255,255,255,0.9);
+        padding: 6px 10px;
+        border-radius: 16px;
+        font-size: 12px;
+        font-weight: 500;
         
         ion-icon {
-          color: var(--ion-color-primary);
-          font-size: 20px;
-        }
-        
-        span {
-          color: var(--ion-color-dark);
+          font-size: 14px;
         }
       }
     }
   }
 }
 
-.customization-section {
-  padding: 20px;
-  background: white;
-  margin: 16px 20px;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  
-  h3 {
-    margin: 0 0 20px 0;
-    font-size: 18px;
-    font-weight: 600;
-    color: var(--ion-color-dark);
-  }
-  
-  .quantity-selector {
-    margin-bottom: 24px;
-    
-    label {
-      display: block;
-      margin-bottom: 12px;
-      font-weight: 500;
-      color: var(--ion-color-dark);
-    }
-    
-    .quantity-controls {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      
-      .quantity-value {
-        font-size: 18px;
-        font-weight: bold;
-        min-width: 30px;
-        text-align: center;
-      }
-    }
-  }
-  
-  .spiciness-selector {
-    margin-bottom: 24px;
-    
-    label {
-      display: block;
-      margin-bottom: 12px;
-      font-weight: 500;
-      color: var(--ion-color-dark);
-    }
-  }
-  
-  .special-instructions {
-    label {
-      display: block;
-      margin-bottom: 12px;
-      font-weight: 500;
-      color: var(--ion-color-dark);
-    }
-  }
-}
-
-.reviews-section {
-  padding: 20px;
-  background: white;
-  margin: 16px 20px;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  
-  .reviews-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    
-    h3 {
-      margin: 0;
-      font-size: 18px;
-      font-weight: 600;
-      color: var(--ion-color-dark);
-    }
-  }
-  
-  .review-form {
-    padding: 16px;
-    background: var(--ion-color-light);
-    border-radius: 8px;
-    margin-bottom: 20px;
-    
-    h4 {
-      margin: 0 0 16px 0;
-      font-size: 16px;
-      color: var(--ion-color-dark);
-    }
-    
-    .rating-input {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 16px;
-      
-      span {
-        font-weight: 500;
-        color: var(--ion-color-dark);
-      }
-      
-      .rating-stars {
-        display: flex;
-      }
-    }
-    
-    .review-actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 8px;
-      margin-top: 16px;
-    }
-  }
-  
-  .reviews-list {
-    .review-item {
-      padding: 16px 0;
-      border-bottom: 1px solid var(--ion-color-light);
-      
-      &:last-child {
-        border-bottom: none;
-      }
-      
-      .review-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        margin-bottom: 12px;
-        
-        .reviewer-info {
-          display: flex;
-          gap: 12px;
-          
-          .reviewer-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            object-fit: cover;
-          }
-          
-          h4 {
-            margin: 0;
-            font-size: 16px;
-            font-weight: 600;
-            color: var(--ion-color-dark);
-          }
-          
-          .review-stars {
-            display: flex;
-            gap: 2px;
-            margin-top: 4px;
-            
-            .star-icon {
-              color: var(--ion-color-warning);
-              font-size: 14px;
-              
-              &.small {
-                font-size: 12px;
-              }
-            }
-          }
-        }
-        
-        .review-date {
-          font-size: 12px;
-          color: var(--ion-color-medium);
-        }
-      }
-      
-      .review-comment {
-        font-size: 14px;
-        line-height: 1.5;
-        color: var(--ion-color-dark);
-        margin: 8px 0 12px 52px;
-      }
-      
-      .review-actions {
-        margin-left: 52px;
-      }
-    }
-  }
-}
-
-.add-to-cart-section {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 16px 20px;
-  background: white;
-  border-top: 1px solid var(--ion-color-light);
-  z-index: 1000;
-  
-  ion-button {
-    --border-radius: 12px;
-    height: 50px;
-    font-weight: 600;
-    
-    .cart-total {
-      margin-left: auto;
-      font-size: 18px;
-      font-weight: bold;
-    }
-  }
-}
-
-// Enhanced nutrition and allergen styling
-.nutrition-card, .allergen-card {
-  .card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 16px;
-    
-    h3 {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin: 0;
-      font-size: 18px;
-      font-weight: 600;
-      color: var(--ion-color-dark);
-    }
-  }
-}
-
-.loading-nutrition {
+/* Quick Action Buttons */
+.quick-actions {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 20px;
-  
-  p {
-    margin-top: 8px;
-    color: var(--ion-color-medium);
-    font-size: 14px;
+  gap: 8px;
+  padding: 16px 20px 0;
+
+  ion-button {
+    flex: 1;
+    height: 36px;
+    font-size: 13px;
+
+    ion-icon {
+      font-size: 16px;
+    }
   }
 }
 
-.nutrition-grid {
+/* Nutrition Grid - Compact Layout */
+.nutrition-grid-compact {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 12px;
   
   .nutrition-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 12px;
-    background: var(--ion-color-light);
-    border-radius: 8px;
     text-align: center;
+    padding: 12px 8px;
+    background: var(--ion-color-light);
+    border-radius: 12px;
     
-    &.highlight {
-      background: linear-gradient(135deg, var(--ion-color-primary-tint), var(--ion-color-primary));
-      color: white;
-      
-      .label, .value {
-        color: white;
-      }
-    }
-    
-    ion-icon {
+    .nutrition-value {
       font-size: 20px;
+      font-weight: bold;
+      color: var(--ion-color-primary);
       margin-bottom: 4px;
     }
     
-    .label {
+    .nutrition-label {
       font-size: 12px;
       color: var(--ion-color-medium);
-      font-weight: 500;
-      margin-bottom: 2px;
-    }
-    
-    .value {
-      font-size: 16px;
-      font-weight: bold;
-      color: var(--ion-color-dark);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
   }
 }
 
-.detailed-nutrition {
-  margin-top: 16px;
-  padding-top: 16px;
-  border-top: 1px solid var(--ion-color-light);
-  
-  .nutrition-section {
-    h4 {
-      margin: 0 0 12px 0;
-      font-size: 16px;
-      font-weight: 600;
-      color: var(--ion-color-dark);
+/* Safety Warnings - Compact */
+.safety-warnings-compact {
+  .safety-level {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-weight: 500;
+
+    &.safe {
+      background: var(--ion-color-success-tint);
+      color: var(--ion-color-success-shade);
+    }
+
+    &.caution {
+      background: var(--ion-color-warning-tint);
+      color: var(--ion-color-warning-shade);
+    }
+
+    &.danger {
+      background: var(--ion-color-danger-tint);
+      color: var(--ion-color-danger-shade);
     }
   }
-  
-  .nutrition-detail-grid {
-    display: grid;
-    gap: 8px;
+
+  .warnings-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
     
-    .nutrition-detail {
-      display: grid;
-      grid-template-columns: 1fr auto auto;
-      gap: 8px;
-      padding: 8px 12px;
-      background: var(--ion-color-light);
-      border-radius: 6px;
-      align-items: center;
+    ion-chip {
+      height: 28px;
+      font-size: 11px;
       
-      .nutrient-name {
+      ion-icon {
         font-size: 14px;
-        color: var(--ion-color-dark);
+        margin-right: 4px;
       }
-      
-      .nutrient-value {
+    }
+  }
+}
+
+/* Allergen Tags */
+.tags-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  ion-chip {
+    height: 32px;
+  }
+}
+
+/* Reviews Section */
+.review-item {
+  padding: 16px 0;
+  border-bottom: 1px solid var(--ion-color-light);
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  .review-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+
+    .reviewer-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .reviewer-info {
+      flex: 1;
+
+      .reviewer-name {
+        font-weight: 500;
         font-size: 14px;
-        font-weight: 600;
-        color: var(--ion-color-primary);
+        margin: 0;
       }
-      
-      .nutrient-percent {
+
+      .review-date {
         font-size: 12px;
         color: var(--ion-color-medium);
-        text-align: right;
       }
     }
-  }
-}
 
-.api-credit {
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px solid var(--ion-color-light);
-  
-  small {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    color: var(--ion-color-medium);
-    font-size: 12px;
-    
-    ion-icon {
-      font-size: 14px;
-    }
-  }
-}
+    .review-rating {
+      display: flex;
+      gap: 2px;
 
-.allergen-card {
-  .safety-warnings {
-    margin-bottom: 16px;
-    
-    .warning-title {
-      margin: 0 0 8px 0;
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--ion-color-danger);
-    }
-    
-    .warnings-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      
-      ion-chip {
-        --background: var(--ion-color-danger-tint);
-        --color: var(--ion-color-danger-shade);
-        font-weight: 600;
-        
-        ion-icon {
-          margin-right: 4px;
-        }
-      }
-    }
-  }
-  
-  .general-allergens {
-    margin-bottom: 16px;
-    
-    h4 {
-      margin: 0 0 8px 0;
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--ion-color-warning);
-    }
-    
-    .tags-container {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      
-      ion-chip {
-        --background: var(--ion-color-warning-tint);
-        --color: var(--ion-color-warning-shade);
-        
-        ion-icon {
-          margin-right: 4px;
-        }
-      }
-    }
-  }
-  
-  .safety-recommendations {
-    h4 {
-      margin: 0 0 8px 0;
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--ion-color-success);
-    }
-    
-    .recommendations-list {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-      
-      li {
-        padding: 6px 0;
+      ion-icon {
         font-size: 14px;
-        color: var(--ion-color-dark);
-        border-bottom: 1px solid var(--ion-color-light);
-        
-        &:last-child {
-          border-bottom: none;
-        }
-        
-        &:before {
-          content: "✓ ";
-          color: var(--ion-color-success);
-          font-weight: bold;
-        }
       }
     }
   }
-  
-  .no-allergen-info {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 20px;
-    text-align: center;
-    
-    ion-icon {
-      font-size: 32px;
+
+  .review-content {
+    font-size: 14px;
+    line-height: 1.4;
+    color: var(--ion-color-dark);
+  }
+}
+
+/* Order Section */
+.order-section {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  padding: 16px 20px;
+  border-top: 1px solid var(--ion-color-light);
+  box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
+
+  .visit-karenderia-btn {
+    width: 100%;
+    height: 48px;
+    font-size: 16px;
+    font-weight: 600;
+  }
+}
+
+/* Review Form */
+.review-form {
+  background: var(--ion-color-light);
+  padding: 16px;
+  border-radius: 12px;
+  margin-top: 16px;
+
+  .rating-selector {
+    margin-bottom: 12px;
+
+    label {
+      display: block;
+      font-weight: 500;
       margin-bottom: 8px;
+      color: var(--ion-color-dark);
     }
-    
-    p {
-      margin: 0;
-      font-size: 14px;
-      color: var(--ion-color-medium);
-      line-height: 1.4;
+
+    .star-rating {
+      display: flex;
+      gap: 4px;
+
+      ion-button {
+        --padding-start: 4px;
+        --padding-end: 4px;
+        width: 36px;
+        height: 36px;
+      }
+    }
+  }
+
+  .review-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+
+    ion-button {
+      flex: 1;
     }
   }
 }
 
-// Dark mode support
+/* Prep Details */
+.prep-details {
+  display: flex;
+  gap: 16px;
+
+  .prep-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    padding: 12px;
+    background: var(--ion-color-light);
+    border-radius: 8px;
+
+    ion-icon {
+      color: var(--ion-color-primary);
+    }
+
+    span {
+      font-weight: 500;
+      font-size: 14px;
+    }
+  }
+}
+
+/* Responsive Design */
+@media (min-width: 768px) {
+  .info-cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    padding: 0 32px;
+  }
+
+  .hero-section {
+    height: 320px;
+  }
+
+  .quick-actions {
+    padding: 20px 32px 0;
+  }
+
+  .order-section {
+    position: relative;
+    background: transparent;
+    box-shadow: none;
+    border-top: none;
+    padding: 20px 32px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .meal-details-container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .info-cards-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Dark Theme Support */
 @media (prefers-color-scheme: dark) {
-  .info-cards .info-card,
-  .customization-section,
-  .reviews-section {
-    background: var(--ion-color-dark);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  .info-card {
+    background: var(--ion-color-step-50);
+    border-color: var(--ion-color-step-150);
   }
-  
-  .add-to-cart-section {
-    background: var(--ion-color-dark);
-    border-top-color: var(--ion-color-medium);
+
+  .hero-overlay {
+    background: linear-gradient(transparent, rgba(0,0,0,0.8));
   }
-  
-  .nutrition-grid .nutrition-item {
-    background: var(--ion-color-step-100);
-    
-    .label {
-      color: var(--ion-color-medium);
-    }
-    
-    .value {
-      color: var(--ion-color-light);
-    }
-  }
-  
-  .detailed-nutrition .nutrition-detail-grid .nutrition-detail {
-    background: var(--ion-color-step-100);
-    
-    .nutrient-name {
-      color: var(--ion-color-light);
-    }
+
+  .order-section {
+    background: var(--ion-color-step-50);
+    border-color: var(--ion-color-step-150);
   }
 }

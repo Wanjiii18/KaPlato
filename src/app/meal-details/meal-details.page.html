@@ -5,8 +5,11 @@
         <ion-icon name="chevron-back"></ion-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title>Meal Details</ion-title>
+    <ion-title>{{ menuItem?.name || 'Meal Details' }}</ion-title>
     <ion-buttons slot="end">
+      <ion-button (click)="shareMenu()" fill="clear">
+        <ion-icon name="share-outline"></ion-icon>
+      </ion-button>
       <ion-button (click)="toggleFavorite()">
         <ion-icon [name]="isFavorite ? 'heart' : 'heart-outline'" 
                   [color]="isFavorite ? 'danger' : 'medium'"></ion-icon>
@@ -22,129 +25,135 @@
   </div>
 
   <div *ngIf="!loading && menuItem" class="meal-details-container">
-    <!-- Hero Image -->
-    <div class="hero-image-container">
-      <img [src]="menuItem.image || 'assets/images/default-food.jpg'" 
-           [alt]="menuItem.name"
-           class="hero-image">
-      <div class="price-badge">
-        ₱{{ menuItem.price }}
+    <!-- Compact Hero Section -->
+    <div class="hero-section">
+      <div class="hero-image-container">
+        <img [src]="menuItem.image || 'assets/images/default-food.jpg'" 
+             [alt]="menuItem.name"
+             class="hero-image">
+        <div class="hero-overlay">
+          <div class="price-badge">
+            ₱{{ menuItem.price }}
+          </div>
+          <div class="quick-stats">
+            <div class="stat-item" *ngIf="nutritionData?.calories || menuItem.calories">
+              <ion-icon name="flash"></ion-icon>
+              <span>{{ nutritionData?.calories || menuItem.calories }}cal</span>
+            </div>
+            <div class="stat-item" *ngIf="menuItem.average_rating">
+              <ion-icon name="star"></ion-icon>
+              <span>{{ menuItem.average_rating | number:'1.1-1' }}</span>
+            </div>
+            <div class="stat-item" *ngIf="getSafetyLevelColor()">
+              <ion-icon [name]="getSafetyLevelIcon()" [color]="getSafetyLevelColor()"></ion-icon>
+              <span>{{ allergenAnalysis?.safetyLevel || 'Check' }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Basic Info -->
+      <div class="basic-info">
+        <h1>{{ menuItem.name }}</h1>
+        <p class="description">{{ menuItem.description }}</p>
+        
+        <!-- Karenderia Info -->
+        <div class="karenderia-info" (click)="goToKarenderia()">
+          <ion-icon name="storefront-outline"></ion-icon>
+          <div class="karenderia-details">
+            <h3>{{ menuItem.karenderia_name }}</h3>
+            <p *ngIf="menuItem.karenderia_address">{{ menuItem.karenderia_address }}</p>
+          </div>
+          <ion-icon name="chevron-forward-outline"></ion-icon>
+        </div>
       </div>
     </div>
 
-    <!-- Basic Info -->
-    <div class="basic-info">
-      <h1>{{ menuItem.name }}</h1>
-      <p class="description">{{ menuItem.description }}</p>
+    <!-- Quick Action Buttons -->
+    <div class="quick-actions">
+      <ion-button expand="block" fill="solid" color="primary" (click)="goToKarenderia()">
+        <ion-icon name="location-outline" slot="start"></ion-icon>
+        Visit Karenderia - ₱{{ menuItem.price }}
+      </ion-button>
       
-      <!-- Rating and Reviews -->
-      <div class="rating-container" *ngIf="menuItem.average_rating">
-        <div class="stars">
-          <ion-icon *ngFor="let star of getRatingStars(menuItem.average_rating)" 
-                    [name]="star" 
-                    class="star-icon"></ion-icon>
-        </div>
-        <span class="rating-text">{{ menuItem.average_rating | number:'1.1-1' }}</span>
-        <span class="review-count">({{ menuItem.total_reviews }} reviews)</span>
-      </div>
-
-      <!-- Karenderia Info -->
-      <div class="karenderia-info" (click)="goToKarenderia()">
-        <ion-icon name="storefront-outline"></ion-icon>
-        <div>
-          <h3>{{ menuItem.karenderia_name }}</h3>
-          <p *ngIf="menuItem.karenderia_address">{{ menuItem.karenderia_address }}</p>
-        </div>
-        <ion-icon name="chevron-forward-outline"></ion-icon>
+      <div class="secondary-actions">
+        <ion-button fill="outline" size="small" (click)="toggleNutritionDetails()">
+          <ion-icon name="nutrition-outline" slot="start"></ion-icon>
+          Nutrition
+        </ion-button>
+        <ion-button fill="outline" size="small" (click)="viewSimilarMeals()">
+          <ion-icon name="restaurant-outline" slot="start"></ion-icon>
+          Similar
+        </ion-button>
+        <ion-button fill="outline" size="small" (click)="viewReviews()" *ngIf="menuItem && menuItem.total_reviews && menuItem.total_reviews > 0">
+          <ion-icon name="chatbubbles-outline" slot="start"></ion-icon>
+          Reviews ({{ menuItem.total_reviews }})
+        </ion-button>
       </div>
     </div>
 
-    <!-- Nutrition & Info Cards -->
-    <div class="info-cards">
-      <!-- Enhanced Nutrition Card with Spoonacular Data -->
-      <div class="info-card nutrition-card">
+    <!-- Compact Info Cards -->
+    <div class="info-cards-grid">
+      
+      <!-- Nutrition Card -->
+      <div class="info-card nutrition-card" *ngIf="!loadingNutrition">
         <div class="card-header">
           <h3>
             <ion-icon name="nutrition-outline"></ion-icon>
-            Nutrition Information
+            Nutrition
           </h3>
-          <ion-button fill="clear" (click)="toggleNutritionDetails()" *ngIf="nutritionData">
+          <ion-button fill="clear" size="small" (click)="toggleNutritionDetails()">
             <ion-icon [name]="showNutritionDetails ? 'chevron-up' : 'chevron-down'"></ion-icon>
           </ion-button>
         </div>
 
-        <!-- Loading state -->
-        <div *ngIf="loadingNutrition" class="loading-nutrition">
-          <ion-spinner name="crescent" color="primary"></ion-spinner>
-          <p>Loading nutrition data...</p>
-        </div>
-
-        <!-- Basic nutrition info -->
-        <div class="nutrition-grid" *ngIf="!loadingNutrition">
-          <div class="nutrition-item highlight">
-            <ion-icon name="flash" [color]="getNutritionColor('calories')"></ion-icon>
-            <span class="label">Calories</span>
-            <span class="value">{{ (nutritionData?.calories || menuItem.calories || 0) | number }}</span>
+        <!-- Compact nutrition grid -->
+        <div class="nutrition-grid-compact">
+          <div class="nutrition-item">
+            <div class="nutrition-value">{{ nutritionData?.calories || menuItem.calories || 0 }}</div>
+            <div class="nutrition-label">Calories</div>
           </div>
           <div class="nutrition-item" *ngIf="nutritionData?.protein || menuItem.protein">
-            <ion-icon name="fitness" [color]="getNutritionColor('protein')"></ion-icon>
-            <span class="label">Protein</span>
-            <span class="value">{{ parseNutrientValueSafe(nutritionData?.protein) || menuItem.protein || 0 }}g</span>
+            <div class="nutrition-value">{{ parseNutrientValueSafe(nutritionData?.protein) || menuItem.protein || 0 }}g</div>
+            <div class="nutrition-label">Protein</div>
           </div>
           <div class="nutrition-item" *ngIf="nutritionData?.carbs || menuItem.carbs">
-            <ion-icon name="leaf" [color]="getNutritionColor('carbs')"></ion-icon>
-            <span class="label">Carbs</span>
-            <span class="value">{{ parseNutrientValueSafe(nutritionData?.carbs) || menuItem.carbs || 0 }}g</span>
+            <div class="nutrition-value">{{ parseNutrientValueSafe(nutritionData?.carbs) || menuItem.carbs || 0 }}g</div>
+            <div class="nutrition-label">Carbs</div>
           </div>
           <div class="nutrition-item" *ngIf="nutritionData?.fat || menuItem.fat">
-            <ion-icon name="water" [color]="getNutritionColor('fat')"></ion-icon>
-            <span class="label">Fat</span>
-            <span class="value">{{ parseNutrientValueSafe(nutritionData?.fat) || menuItem.fat || 0 }}g</span>
+            <div class="nutrition-value">{{ parseNutrientValueSafe(nutritionData?.fat) || menuItem.fat || 0 }}g</div>
+            <div class="nutrition-label">Fat</div>
           </div>
         </div>
 
-        <!-- Detailed nutrition info (collapsible) -->
-        <div *ngIf="showNutritionDetails && nutritionData && !loadingNutrition" class="detailed-nutrition">
-          <div class="nutrition-section">
-            <h4>Detailed Breakdown</h4>
-            <div class="nutrition-detail-grid">
-              <div class="nutrition-detail" *ngFor="let nutrient of nutritionData.nutrients?.slice(0, 8)">
-                <span class="nutrient-name">{{ nutrient.name }}</span>
-                <span class="nutrient-value">{{ nutrient.amount }}{{ nutrient.unit }}</span>
-                <span class="nutrient-percent" *ngIf="nutrient.percentOfDailyNeeds">
-                  {{ nutrient.percentOfDailyNeeds | number:'1.0-1' }}% DV
-                </span>
-              </div>
+        <!-- Detailed nutrition (collapsible) -->
+        <div *ngIf="showNutritionDetails && nutritionData" class="detailed-nutrition">
+          <div class="nutrition-detail-grid">
+            <div class="nutrition-detail" *ngFor="let nutrient of nutritionData.nutrients?.slice(0, 6)">
+              <span class="nutrient-name">{{ nutrient.name }}</span>
+              <span class="nutrient-value">{{ nutrient.amount }}{{ nutrient.unit }}</span>
             </div>
           </div>
         </div>
-
-        <!-- Powered by Spoonacular notice -->
-        <div class="api-credit" *ngIf="nutritionData">
-          <small>
-            <ion-icon name="information-circle-outline"></ion-icon>
-            Nutrition data powered by Spoonacular API
-          </small>
-        </div>
       </div>
 
-      <!-- Enhanced Allergen Safety Card -->
+      <!-- Allergen Safety Card -->
       <div class="info-card allergen-card" *ngIf="allergenAnalysis || (menuItem.allergens && menuItem.allergens.length > 0)">
         <div class="card-header">
           <h3>
             <ion-icon [name]="getSafetyLevelIcon()" [color]="getSafetyLevelColor()"></ion-icon>
-            Allergen Safety Analysis
+            Allergen Safety
           </h3>
-          <ion-chip [color]="getSafetyLevelColor()">
+          <ion-chip [color]="getSafetyLevelColor()" size="small">
             <ion-label>{{ allergenAnalysis?.safetyLevel?.toUpperCase() || 'UNKNOWN' }}</ion-label>
           </ion-chip>
         </div>
 
-        <!-- Safety warnings -->
-        <div *ngIf="hasAllergenWarnings()" class="safety-warnings">
-          <h4 class="warning-title">⚠️ Allergen Warnings</h4>
+        <!-- Compact warnings -->
+        <div *ngIf="hasAllergenWarnings()" class="safety-warnings-compact">
           <div class="warnings-list">
-            <ion-chip *ngFor="let warning of allergenAnalysis?.warnings" color="danger">
+            <ion-chip *ngFor="let warning of allergenAnalysis?.warnings" color="danger" size="small">
               <ion-icon name="warning"></ion-icon>
               <ion-label>{{ warning }}</ion-label>
             </ion-chip>
@@ -205,50 +214,13 @@
         <div class="prep-details">
           <div *ngIf="menuItem.preparation_time" class="prep-item">
             <ion-icon name="time-outline"></ion-icon>
-            <span>{{ formatTime(menuItem.preparation_time) }}</span>
+            <span>{{ formatTime(menuItem.preparation_time || 0) }}</span>
           </div>
           <div *ngIf="menuItem.spiciness_level" class="prep-item">
             <ion-icon name="flame-outline"></ion-icon>
             <span>Spiciness Level: {{ menuItem.spiciness_level }}/5</span>
           </div>
         </div>
-      </div>
-    </div>
-
-    <!-- Customization Options -->
-    <div class="customization-section">
-      <h3>Customize Your Order</h3>
-      
-      <!-- Quantity Selector -->
-      <div class="quantity-selector">
-        <label>Quantity</label>
-        <div class="quantity-controls">
-          <ion-button fill="outline" size="small" (click)="decrementQuantity()">
-            <ion-icon name="remove"></ion-icon>
-          </ion-button>
-          <span class="quantity-value">{{ quantity }}</span>
-          <ion-button fill="outline" size="small" (click)="incrementQuantity()">
-            <ion-icon name="add"></ion-icon>
-          </ion-button>
-        </div>
-      </div>
-
-      <!-- Spiciness Level -->
-      <div class="spiciness-selector" *ngIf="menuItem.spiciness_level">
-        <label>Spiciness Level</label>
-        <ion-range min="1" max="5" [(ngModel)]="selectedSpiciness" 
-                   color="danger" snaps="true">
-          <ion-label slot="start">Mild</ion-label>
-          <ion-label slot="end">Spicy</ion-label>
-        </ion-range>
-      </div>
-
-      <!-- Special Instructions -->
-      <div class="special-instructions">
-        <label>Special Instructions</label>
-        <ion-textarea [(ngModel)]="specialInstructions" 
-                      placeholder="Any special requests or modifications..."
-                      rows="3"></ion-textarea>
       </div>
     </div>
 
@@ -319,19 +291,7 @@
                   fill="clear" 
                   expand="block"
                   (click)="showAllReviews = true">
-        Show All Reviews ({{ menuItem.reviews.length }})
-      </ion-button>
-    </div>
-
-    <!-- Add to Cart Button -->
-    <div class="add-to-cart-section">
-      <ion-button expand="block" 
-                  size="large" 
-                  (click)="addToCart()"
-                  [disabled]="!menuItem.available">
-        <ion-icon name="bag-add-outline" slot="start"></ion-icon>
-        {{ menuItem.available ? 'Add to Cart' : 'Not Available' }}
-        <span class="cart-total">₱{{ (menuItem.price * quantity) | number:'1.2-2' }}</span>
+        Show All Reviews
       </ion-button>
     </div>
   </div>

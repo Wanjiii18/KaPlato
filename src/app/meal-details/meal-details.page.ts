@@ -57,9 +57,6 @@ export class MealDetailsPage implements OnInit, OnDestroy {
   loading = true;
   isFavorite = false;
   favoriteId: string | null = null;
-  quantity = 1;
-  selectedSpiciness = 1;
-  specialInstructions = '';
   showAllReviews = false;
   userRating = 0;
   userReview = '';
@@ -123,6 +120,81 @@ export class MealDetailsPage implements OnInit, OnDestroy {
     this.favoriteId = this.favoritesService.getFavoriteId(menuItemId);
   }
 
+  async shareMenu() {
+    if (!this.menuItem) return;
+    
+    try {
+      const shareData = {
+        title: this.menuItem.name,
+        text: `Check out ${this.menuItem.name} from ${this.menuItem.karenderia_name} - ₱${this.menuItem.price}`,
+        url: window.location.href
+      };
+      
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        // Fallback for browsers that don't support Web Share API
+        await navigator.clipboard.writeText(`${shareData.text} - ${shareData.url}`);
+        const toast = await this.toastController.create({
+          message: 'Link copied to clipboard!',
+          duration: 2000,
+          position: 'bottom'
+        });
+        await toast.present();
+      }
+    } catch (error) {
+      console.error('Error sharing:', error);
+    }
+  }
+
+  async viewSimilarMeals() {
+    if (!this.menuItem) return;
+    
+    try {
+      // Navigate to filtered meals based on category or karenderia
+      this.navController.navigateForward(`/meals-browse`, {
+        queryParams: {
+          category: this.menuItem.category,
+          karenderia: this.menuItem.karenderia_id
+        }
+      });
+    } catch (error) {
+      console.error('Error navigating to similar meals:', error);
+    }
+  }
+
+  async viewReviews() {
+    if (!this.menuItem || !this.menuItem.reviews) return;
+    
+    const alert = await this.alertController.create({
+      header: `Reviews for ${this.menuItem.name}`,
+      message: this.getReviewsPreview(),
+      buttons: [
+        {
+          text: 'Close',
+          role: 'cancel'
+        },
+        {
+          text: 'Write Review',
+          handler: () => {
+            this.showReviewForm = true;
+          }
+        }
+      ]
+    });
+    
+    await alert.present();
+  }
+
+  private getReviewsPreview(): string {
+    if (!this.menuItem?.reviews) return 'No reviews yet.';
+    
+    return this.menuItem.reviews
+      .slice(0, 3)
+      .map(review => `⭐ ${review.rating}/5 - ${review.comment}`)
+      .join('\n\n');
+  }
+
   async toggleFavorite() {
     if (!this.menuItem) return;
 
@@ -144,36 +216,6 @@ export class MealDetailsPage implements OnInit, OnDestroy {
     } catch (error) {
       console.error('Error toggling favorite:', error);
       await this.showErrorToast('Failed to update favorites');
-    } finally {
-      await loading.dismiss();
-    }
-  }
-
-  async addToCart() {
-    if (!this.menuItem) return;
-
-    const loading = await this.loadingController.create({
-      message: 'Adding to cart...'
-    });
-    await loading.present();
-
-    try {
-      const orderData = {
-        menuItemId: this.menuItem.id,
-        karenderiaId: this.menuItem.karenderia_id,
-        quantity: this.quantity,
-        spiciness: this.selectedSpiciness,
-        specialInstructions: this.specialInstructions
-      };
-
-      // Assuming you have a cart service
-      // await this.cartService.addToCart(orderData);
-      
-      await this.showToast(`Added ${this.quantity} ${this.menuItem.name} to cart`);
-      
-    } catch (error) {
-      console.error('Error adding to cart:', error);
-      await this.showErrorToast('Failed to add to cart');
     } finally {
       await loading.dismiss();
     }
@@ -229,16 +271,6 @@ export class MealDetailsPage implements OnInit, OnDestroy {
 
   setUserRating(rating: number) {
     this.userRating = rating;
-  }
-
-  incrementQuantity() {
-    this.quantity++;
-  }
-
-  decrementQuantity() {
-    if (this.quantity > 1) {
-      this.quantity--;
-    }
   }
 
   getVisibleReviews(): Review[] {

@@ -1,0 +1,159 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)="goBack()">
+        <ion-icon name="chevron-back"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Browse Meals</ion-title>
+    <ion-buttons slot="end">
+      <ion-button fill="clear" (click)="toggleFilters()">
+        <ion-icon name="filter-outline"></ion-icon>
+        <ion-badge color="primary" *ngIf="filterStats && filterStats.filteredMeals !== filterStats.totalMeals">
+          {{ filterStats.filteredMeals }}
+        </ion-badge>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Loading delicious meals...</p>
+  </div>
+
+  <!-- Filter Panel -->
+  <div *ngIf="showFilters" class="filter-panel">
+    <app-meal-filter
+      [currentFilters]="currentFilters"
+      [showDistanceFilter]="true"
+      (filtersChanged)="onFiltersChanged($event)"
+      (presetsApplied)="onPresetApplied($event)">
+    </app-meal-filter>
+    
+    <div class="filter-actions">
+      <ion-button fill="outline" expand="block" (click)="clearAllFilters()">
+        <ion-icon name="refresh-outline" slot="start"></ion-icon>
+        Clear All Filters
+      </ion-button>
+    </div>
+  </div>
+
+  <!-- Results Summary -->
+  <div *ngIf="!isLoading && filterStats" class="results-summary">
+    <div class="summary-stats">
+      <div class="stat-item">
+        <span class="stat-number">{{ filterStats.filteredMeals }}</span>
+        <span class="stat-label">Meals Found</span>
+      </div>
+      <div class="stat-item" *ngIf="filterStats.averagePrice > 0">
+        <span class="stat-number">₱{{ filterStats.averagePrice }}</span>
+        <span class="stat-label">Avg Price</span>
+      </div>
+      <div class="stat-item" *ngIf="filterStats.averageCalories > 0">
+        <span class="stat-number">{{ filterStats.averageCalories }}</span>
+        <span class="stat-label">Avg Calories</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Meals Grid -->
+  <div *ngIf="!isLoading" class="meals-container">
+    <!-- No results -->
+    <div *ngIf="filteredMeals.length === 0" class="empty-state">
+      <ion-icon name="restaurant-outline" color="medium"></ion-icon>
+      <h3>No meals found</h3>
+      <p>Try adjusting your filters or search criteria</p>
+      <ion-button fill="outline" (click)="clearAllFilters()">
+        <ion-icon name="refresh-outline" slot="start"></ion-icon>
+        Reset Filters
+      </ion-button>
+    </div>
+
+    <!-- Meals Grid -->
+    <div class="meals-grid" *ngIf="filteredMeals.length > 0">
+      <ion-card 
+        *ngFor="let meal of filteredMeals; trackBy: trackByMealId" 
+        class="meal-card"
+        (click)="viewMealDetails(meal)">
+        
+        <div class="meal-image-container">
+          <img [src]="meal.image || 'assets/images/default-food.jpg'" 
+               [alt]="meal.name"
+               class="meal-image">
+          <div class="meal-badges">
+            <ion-chip color="primary" size="small" class="price-chip">
+              <ion-label>₱{{ meal.price }}</ion-label>
+            </ion-chip>
+            <ion-chip 
+              *ngIf="meal.spicyLevel && meal.spicyLevel !== 'none'" 
+              [color]="getSpicyColor(meal.spicyLevel)" 
+              size="small"
+              class="spicy-chip">
+              <ion-icon [name]="getSpicyIcon(meal.spicyLevel)"></ion-icon>
+            </ion-chip>
+            <ion-chip color="success" size="small" *ngIf="meal.isVegetarian" class="diet-chip">
+              <ion-icon name="leaf-outline"></ion-icon>
+            </ion-chip>
+          </div>
+        </div>
+
+        <ion-card-content>
+          <div class="meal-header">
+            <h3>{{ meal.name }}</h3>
+            <div class="rating" *ngIf="meal.average_rating">
+              <ion-icon name="star" color="warning"></ion-icon>
+              <span>{{ meal.average_rating | number:'1.1-1' }}</span>
+            </div>
+          </div>
+          
+          <p class="meal-description">{{ meal.description }}</p>
+          
+          <div class="meal-meta">
+            <div class="karenderia-info">
+              <ion-icon name="storefront-outline" color="medium"></ion-icon>
+              <span>{{ meal.karenderia_name }}</span>
+            </div>
+            
+            <div class="nutrition-info">
+              <div class="nutrition-item" *ngIf="meal.calories">
+                <ion-icon name="flash-outline" color="warning"></ion-icon>
+                <span>{{ meal.calories }}cal</span>
+              </div>
+              <div class="nutrition-item" *ngIf="meal.protein">
+                <ion-icon name="fitness-outline" color="primary"></ion-icon>
+                <span>{{ meal.protein }}g protein</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Allergen warnings -->
+          <div class="allergen-warnings" *ngIf="meal.allergens && meal.allergens.length > 0">
+            <div class="warning-label">
+              <ion-icon name="warning-outline" color="warning"></ion-icon>
+              <span>Contains:</span>
+            </div>
+            <div class="allergen-chips">
+              <ion-chip 
+                *ngFor="let allergen of meal.allergens" 
+                color="warning" 
+                size="small"
+                outline="true">
+                <ion-label>{{ allergen }}</ion-label>
+              </ion-chip>
+            </div>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    </div>
+  </div>
+
+  <!-- Floating Action Button -->
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button color="primary" (click)="toggleFilters()">
+      <ion-icon name="filter"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+</ion-content>

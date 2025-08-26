@@ -639,6 +639,27 @@ export class HomePage implements OnInit, OnDestroy {
     }
   }
 
+  async browseMeals() {
+    console.log('🍽️ Browse Meals clicked');
+    
+    try {
+      console.log('🔍 Navigating to meals browse page');
+      
+      const success = await this.router.navigateByUrl('/meals-browse');
+      
+      if (success) {
+        console.log('✅ Successfully navigated to meals browse page');
+        await this.showToast('Filter meals by your preferences!');
+      } else {
+        console.error('❌ Failed to navigate to meals browse page');
+        await this.showToast('Unable to load meals at this time');
+      }
+    } catch (error) {
+      console.error('❌ Error navigating to meals browse page:', error);
+      await this.showToast('Unable to browse meals at this time');
+    }
+  }
+
   async openNutritionDemo() {
     console.log('🍎 Nutrition Demo clicked');
     

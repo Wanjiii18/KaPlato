@@ -150,6 +150,29 @@
           </ion-card-content>
         </ion-card>
 
+        <!-- Browse Meals Card -->
+        <ion-card button (click)="browseMeals()" class="feature-card meals-card">
+          <div class="card-overlay"></div>
+          <div class="card-background meals-bg">
+            <ion-icon name="restaurant-outline" class="bg-icon"></ion-icon>
+          </div>
+          <ion-card-content>
+            <div class="feature-content">
+              <div class="feature-icon meals-icon">
+                <ion-icon name="restaurant" color="light"></ion-icon>
+              </div>
+              <div class="feature-text">
+                <h3>Browse Meals</h3>
+                <p>Filter meals by allergies, calories & budget</p>
+                <div class="feature-badge meals-badge">
+                  <ion-icon name="filter-outline" color="tertiary"></ion-icon>
+                  <span>Smart Filters</span>
+                </div>
+              </div>
+            </div>
+          </ion-card-content>
+        </ion-card>
+
         <!-- NEW: Nutrition Demo Card -->
         <ion-card button (click)="openNutritionDemo()" class="feature-card nutrition-card">
           <div class="card-overlay"></div>
