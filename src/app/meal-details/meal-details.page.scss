@@ -402,3 +402,83 @@
     border-color: var(--ion-color-step-150);
   }
 }
+
+// Enhanced ingredients display
+.ingredients-list {
+  .ingredients-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  .ingredient-chip {
+    --background: var(--ion-color-success-tint);
+    --color: var(--ion-color-success-shade);
+    margin: 0;
+    font-size: 0.85rem;
+    border: 1px solid var(--ion-color-success);
+    
+    ion-icon {
+      font-size: 0.9rem;
+      color: var(--ion-color-success);
+    }
+  }
+}
+
+.no-ingredients {
+  text-align: center;
+  padding: 24px 20px;
+  background: var(--ion-color-light);
+  border-radius: 12px;
+  margin-top: 8px;
+  border: 1px solid var(--ion-color-step-200);
+
+  ion-icon {
+    font-size: 2.5rem;
+    margin-bottom: 12px;
+    display: block;
+    color: var(--ion-color-medium);
+  }
+
+  p {
+    margin: 0 0 20px 0;
+    line-height: 1.5;
+    font-size: 0.9rem;
+    color: var(--ion-color-medium);
+  }
+
+  ion-button {
+    --border-radius: 20px;
+    --color: var(--ion-color-primary);
+    --border-color: var(--ion-color-primary);
+  }
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+
+  h3 {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--ion-color-dark);
+
+    ion-icon {
+      font-size: 1.2rem;
+      color: var(--ion-color-primary);
+    }
+  }
+
+  ion-chip {
+    --background: var(--ion-color-primary);
+    --color: white;
+    font-weight: 600;
+  }
+}

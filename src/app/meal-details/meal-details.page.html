@@ -199,12 +199,37 @@
       </div>
 
       <!-- Ingredients -->
-      <div class="info-card" *ngIf="menuItem.ingredients && menuItem.ingredients.length > 0">
-        <h3>Ingredients</h3>
-        <div class="ingredients-list">
-          <span *ngFor="let ingredient of menuItem.ingredients; let last = last">
-            {{ ingredient }}<span *ngIf="!last">, </span>
-          </span>
+      <div class="info-card">
+        <div class="card-header">
+          <h3>
+            <ion-icon name="restaurant-outline"></ion-icon>
+            Ingredients
+          </h3>
+          <ion-chip color="medium" size="small" *ngIf="getIngredientsList().length > 0">
+            <ion-label>{{ getIngredientsList().length }} items</ion-label>
+          </ion-chip>
+        </div>
+        
+        <!-- Ingredients List -->
+        <div class="ingredients-list" *ngIf="getIngredientsList().length > 0">
+          <div class="ingredients-grid">
+            <ion-chip *ngFor="let ingredient of getIngredientsList()" 
+                      color="light" 
+                      class="ingredient-chip">
+              <ion-icon name="leaf-outline" slot="start"></ion-icon>
+              <ion-label>{{ ingredient }}</ion-label>
+            </ion-chip>
+          </div>
+        </div>
+        
+        <!-- No Ingredients Message -->
+        <div class="no-ingredients" *ngIf="getIngredientsList().length === 0">
+          <ion-icon name="help-circle" color="medium"></ion-icon>
+          <p>Ingredient information not available. Please ask the karenderia for details about this dish.</p>
+          <ion-button fill="outline" size="small" (click)="goToKarenderia()">
+            <ion-icon name="call-outline" slot="start"></ion-icon>
+            Contact Karenderia
+          </ion-button>
         </div>
       </div>
 

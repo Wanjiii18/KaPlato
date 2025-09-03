@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule, NavController, LoadingController, ToastController } from '@ionic/angular';
 import { ActivatedRoute } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { MealFilterComponent } from '../components/meal-filter/meal-filter.component';
 import { MealFilterService, MealFilterOptions, FilterStats } from '../services/meal-filter.service';
 import { MenuService } from '../services/menu.service';
@@ -14,13 +15,14 @@ import { MenuService } from '../services/menu.service';
   standalone: true,
   imports: [IonicModule, CommonModule, FormsModule, MealFilterComponent]
 })
-export class MealsBrowsePage implements OnInit {
+export class MealsBrowsePage implements OnInit, OnDestroy {
   allMeals: any[] = [];
   filteredMeals: any[] = [];
   isLoading = true;
   showFilters = false;
   currentFilters: MealFilterOptions = {};
   filterStats: FilterStats | null = null;
+  private menuItemsSubscription: Subscription | null = null;
   
   // Sample meal data (replace with actual API calls)
   sampleMeals = [
@@ -150,6 +152,28 @@ export class MealsBrowsePage implements OnInit {
     this.checkQueryParams();
   }
 
+  async ionViewWillEnter() {
+    // Refresh data every time the user enters this page
+    await this.refreshMeals();
+  }
+
+  async refreshMeals() {
+    // Force reload from backend to get the latest menu items
+    await this.menuService.loadMenuItems();
+  }
+
+  async doRefresh(event: any) {
+    try {
+      await this.refreshMeals();
+      await this.showToast('Meals refreshed!');
+    } catch (error) {
+      console.error('Error refreshing meals:', error);
+      await this.showToast('Failed to refresh meals');
+    } finally {
+      event.target.complete();
+    }
+  }
+
   private checkQueryParams() {
     this.route.queryParams.subscribe(params => {
       if (params['category']) {
@@ -168,18 +192,75 @@ export class MealsBrowsePage implements OnInit {
   async loadMeals() {
     this.isLoading = true;
     try {
-      // For demo purposes, use sample data
-      // In production, replace with: this.allMeals = await this.menuService.getAllMenuItems();
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate loading
+      // Unsubscribe from previous subscription if exists
+      if (this.menuItemsSubscription) {
+        this.menuItemsSubscription.unsubscribe();
+      }
+      
+      // Subscribe to real menu items from the backend
+      this.menuItemsSubscription = this.menuService.menuItems$.subscribe(menuItems => {
+        console.log('Loaded menu items from backend:', menuItems);
+        this.allMeals = menuItems.map(item => ({
+          id: item.id,
+          name: item.name,
+          description: item.description,
+          price: item.price,
+          calories: item.nutritionalInfo?.calories || 0,
+          protein: item.nutritionalInfo?.protein || 0,
+          carbs: item.nutritionalInfo?.carbs || 0,
+          fat: item.nutritionalInfo?.fat || 0,
+          image: item.image,
+          karenderia_name: (item as any).karenderia_name || 'Unknown Karenderia',
+          karenderia_id: (item as any).karenderia_id || '',
+          category: item.category,
+          spicyLevel: this.mapSpiciness((item as any).spiciness_level),
+          isVegetarian: item.allergens?.length === 0 || false,
+          isVegan: false, // Would need dietary tags from backend
+          allergens: item.allergens || [],
+          ingredients: item.ingredients?.map(ing => ing.ingredientName) || [],
+          average_rating: (item as any).average_rating || 0,
+          total_reviews: (item as any).total_reviews || 0,
+          available: item.isAvailable !== false
+        }));
+        
+        // If no real data is available yet, use sample data as fallback
+        if (this.allMeals.length === 0) {
+          console.log('No menu items from backend, using sample data');
+          this.allMeals = [...this.sampleMeals];
+        }
+        
+        this.filteredMeals = [...this.allMeals];
+        this.updateFilterStats();
+        this.isLoading = false;
+      });
+      
+      // Force reload menu items from backend
+      await this.menuService.loadMenuItems();
+      
+    } catch (error) {
+      console.error('Error loading meals:', error);
+      // Fallback to sample data if backend fails
       this.allMeals = [...this.sampleMeals];
       this.filteredMeals = [...this.allMeals];
       this.updateFilterStats();
-    } catch (error) {
-      console.error('Error loading meals:', error);
-      await this.showToast('Failed to load meals');
+      await this.showToast('Failed to load meals from server, showing sample data');
     } finally {
       this.isLoading = false;
     }
+  }
+
+  ngOnDestroy() {
+    if (this.menuItemsSubscription) {
+      this.menuItemsSubscription.unsubscribe();
+    }
+  }
+
+  private mapSpiciness(level: number | undefined): string {
+    if (!level) return 'none';
+    if (level <= 1) return 'none';
+    if (level <= 2) return 'mild';
+    if (level <= 4) return 'medium';
+    return 'hot';
   }
 
   async onFiltersChanged(filters: MealFilterOptions) {

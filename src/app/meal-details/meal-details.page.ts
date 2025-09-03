@@ -105,7 +105,54 @@ export class MealDetailsPage implements OnInit, OnDestroy {
   async loadMenuItemDetails(id: string) {
     this.loading = true;
     try {
+      // First try to get detailed item from API
       this.menuItem = await this.menuService.getMenuItemDetails(id);
+      console.log('=== DEBUGGING INGREDIENTS ===');
+      console.log('Menu item from API:', this.menuItem);
+      console.log('Ingredients field:', this.menuItem?.ingredients);
+      console.log('Ingredients type:', typeof this.menuItem?.ingredients);
+      console.log('Is ingredients array?', Array.isArray(this.menuItem?.ingredients));
+      
+      // Check all properties of the menu item
+      if (this.menuItem) {
+        console.log('All menu item properties:', Object.keys(this.menuItem));
+        console.log('Full menu item object:', JSON.stringify(this.menuItem, null, 2));
+      }
+      
+      // Always try to get ingredients from the main menu items list as well
+      this.menuService.menuItems$.subscribe(menuItems => {
+        const foundItem = menuItems.find(item => item.id === id);
+        if (foundItem) {
+          console.log('Found item from menu list:', foundItem);
+          console.log('Menu list item ingredients:', foundItem.ingredients);
+          
+          // Merge the detailed info with ingredients from menu list
+          if (this.menuItem) {
+            // If API doesn't have ingredients but menu list does, use menu list ingredients
+            if ((!this.menuItem.ingredients || this.menuItem.ingredients.length === 0) && foundItem.ingredients) {
+              this.menuItem.ingredients = foundItem.ingredients.map(ing => ing.ingredientName);
+              console.log('Updated ingredients from menu list:', this.menuItem.ingredients);
+            }
+            
+            // Also merge other missing fields using type assertion for extended properties
+            const extendedMenuItem = this.menuItem as any;
+            const extendedFoundItem = foundItem as any;
+            
+            if (!extendedMenuItem.karenderia_name && extendedFoundItem.karenderia_name) {
+              extendedMenuItem.karenderia_name = extendedFoundItem.karenderia_name;
+            }
+            if (!extendedMenuItem.karenderia_id && extendedFoundItem.karenderia_id) {
+              extendedMenuItem.karenderia_id = extendedFoundItem.karenderia_id;
+            }
+          }
+        } else {
+          console.log('No matching item found in menu items list for id:', id);
+        }
+      });
+      
+      // Force reload menu items to ensure we have the latest data
+      await this.menuService.loadMenuItems();
+      
     } catch (error) {
       console.error('Error loading menu item:', error);
       await this.showErrorToast('Failed to load meal details');
@@ -441,5 +488,69 @@ export class MealDetailsPage implements OnInit, OnDestroy {
       color: 'danger'
     });
     await toast.present();
+  }
+
+  getIngredientsList(): string[] {
+    console.log('=== getIngredientsList() called ===');
+    if (!this.menuItem) {
+      console.log('No menu item available');
+      return [];
+    }
+    
+    console.log('Menu item ingredients field:', this.menuItem.ingredients);
+    console.log('Type of ingredients:', typeof this.menuItem.ingredients);
+    console.log('Is ingredients array?', Array.isArray(this.menuItem.ingredients));
+    console.log('Ingredients length:', this.menuItem.ingredients?.length);
+    
+    // Handle different ingredient formats from backend
+    let ingredients: string[] = [];
+    
+    // Check if ingredients exist and is an array (Laravel casts it as array)
+    if (this.menuItem.ingredients && Array.isArray(this.menuItem.ingredients)) {
+      console.log('Processing ingredients array:', this.menuItem.ingredients);
+      ingredients = this.menuItem.ingredients.filter((ing: any) => {
+        if (typeof ing === 'string') {
+          return ing.trim().length > 0;
+        }
+        // If it's an object with ingredientName property
+        if (ing && typeof ing === 'object' && ing.ingredientName) {
+          return ing.ingredientName.trim().length > 0;
+        }
+        // If it's an object with name property
+        if (ing && typeof ing === 'object' && ing.name) {
+          return ing.name.trim().length > 0;
+        }
+        return false;
+      }).map((ing: any) => {
+        if (typeof ing === 'string') {
+          return ing;
+        }
+        if (ing && typeof ing === 'object' && ing.ingredientName) {
+          return ing.ingredientName;
+        }
+        if (ing && typeof ing === 'object' && ing.name) {
+          return ing.name;
+        }
+        return '';
+      });
+    }
+    
+    // If ingredients is a string (comma-separated) - fallback
+    else if (typeof this.menuItem.ingredients === 'string') {
+      console.log('Processing ingredients string:', this.menuItem.ingredients);
+      ingredients = (this.menuItem.ingredients as string)
+        .split(',')
+        .map((ing: string) => ing.trim())
+        .filter((ing: string) => ing.length > 0);
+    }
+    
+    else {
+      console.log('Ingredients is null, undefined, or unknown type');
+    }
+    
+    console.log('Final processed ingredients:', ingredients);
+    
+    // Remove duplicates and return
+    return [...new Set(ingredients)];
   }
 }

@@ -35,10 +35,16 @@ export class MenuService {
 
   private getHeaders(): HttpHeaders {
     const token = localStorage.getItem('auth_token');
-    return new HttpHeaders({
-      'Content-Type': 'application/json',
-      'Authorization': token ? `Bearer ${token}` : ''
-    });
+    const headers: any = {
+      'Content-Type': 'application/json'
+    };
+    
+    // Only add authorization header if we have a token
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    
+    return new HttpHeaders(headers);
   }
 
   // Format PHP currency
@@ -53,20 +59,30 @@ export class MenuService {
   // MENU ITEMS
   async loadMenuItems(): Promise<void> {
     try {
+      console.log('Loading menu items from API...');
       const response = await this.http.get<{ data: any[] }>(`${this.apiUrl}/menu-items`, {
         headers: this.getHeaders()
       }).toPromise();
       
-      // Map backend field names to frontend field names
-      const mappedItems: MenuItem[] = (response?.data || []).map(item => ({
-        ...item,
-        isAvailable: item.is_available !== undefined ? item.is_available : item.isAvailable,
-        isPopular: item.is_popular !== undefined ? item.is_popular : item.isPopular,
-        preparationTime: item.preparation_time !== undefined ? item.preparation_time : item.preparationTime,
-        createdAt: item.created_at ? new Date(item.created_at) : item.createdAt,
-        updatedAt: item.updated_at ? new Date(item.updated_at) : item.updatedAt
-      }));
+      console.log('Raw API response:', response);
+      console.log('Menu items from API:', response?.data);
       
+      // Map backend field names to frontend field names
+      const mappedItems: MenuItem[] = (response?.data || []).map(item => {
+        console.log('Processing menu item:', item);
+        console.log('Item ingredients:', item.ingredients);
+        
+        return {
+          ...item,
+          isAvailable: item.is_available !== undefined ? item.is_available : item.isAvailable,
+          isPopular: item.is_popular !== undefined ? item.is_popular : item.isPopular,
+          preparationTime: item.preparation_time !== undefined ? item.preparation_time : item.preparationTime,
+          createdAt: item.created_at ? new Date(item.created_at) : item.createdAt,
+          updatedAt: item.updated_at ? new Date(item.updated_at) : item.updatedAt
+        };
+      });
+      
+      console.log('Mapped menu items:', mappedItems);
       this.menuItemsSubject.next(mappedItems);
     } catch (error) {
       console.error('Error loading menu items:', error);
@@ -74,6 +90,8 @@ export class MenuService {
   }
 
   async addMenuItem(menuItem: Partial<MenuItem>): Promise<string> {
+    console.log('🔵 [MenuService] Adding menu item:', menuItem);
+    
     // Map frontend field names to backend field names
     const backendMenuItem: any = { ...menuItem };
     
@@ -102,12 +120,24 @@ export class MenuService {
       delete backendMenuItem.updatedAt;
     }
     
-    const response = await this.http.post<{ data: { id: string } }>(`${this.apiUrl}/menu-items`, backendMenuItem, {
-      headers: this.getHeaders()
-    }).toPromise();
+    console.log('🔵 [MenuService] Sending to backend:', backendMenuItem);
+    console.log('🔵 [MenuService] API URL:', `${this.apiUrl}/menu-items`);
+    console.log('🔵 [MenuService] Headers:', this.getHeaders());
     
-    this.loadMenuItems();
-    return response?.data.id || '';
+    try {
+      const response = await this.http.post<{ data: { id: string } }>(`${this.apiUrl}/menu-items`, backendMenuItem, {
+        headers: this.getHeaders()
+      }).toPromise();
+      
+      console.log('✅ [MenuService] Success response:', response);
+      this.loadMenuItems();
+      return response?.data.id || '';
+    } catch (error: any) {
+      console.error('❌ [MenuService] Error adding menu item:', error);
+      console.error('❌ [MenuService] Error status:', error?.status);
+      console.error('❌ [MenuService] Error response:', error?.error);
+      throw error;
+    }
   }
 
   async updateMenuItem(id: string, updates: Partial<MenuItem>): Promise<void> {
@@ -296,11 +326,12 @@ export class MenuService {
   // Get detailed menu item information
   async getMenuItemDetails(id: string): Promise<any> {
     try {
-      const response = await this.http.get<{ data: any }>(`${this.apiUrl}/menu-items/${id}/details`, {
+      const response = await this.http.get<any>(`${this.apiUrl}/menu-items/${id}`, {
         headers: this.getHeaders()
       }).toPromise();
       
-      return response?.data;
+      // The backend returns the menu item directly, not wrapped in data
+      return response;
     } catch (error) {
       console.error('Error loading menu item details:', error);
       throw error;
