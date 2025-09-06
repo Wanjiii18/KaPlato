@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 
 interface OrderItem {
   name: string;
@@ -30,7 +31,9 @@ export class KarenderiaOrdersPage implements OnInit {
   orders: Order[] = [];
   filteredOrders: Order[] = [];
   selectedStatus: string = 'all';
+  selectedTab: string = 'active';
   isLoading: boolean = false;
+  searchTerm: string = '';
   
   // Order statistics
   pendingOrders: number = 0;
@@ -38,24 +41,45 @@ export class KarenderiaOrdersPage implements OnInit {
   preparingOrders: number = 0;
   readyOrders: number = 0;
 
-  constructor() { }
+  constructor(private router: Router) { }
 
   ngOnInit() {
     this.loadOrders();
   }
 
   // Navigation methods
-  goBack() {
-    window.history.back();
+  navigateTo(page: string) {
+    this.router.navigate([`/${page}`]);
+  }
+
+  logout() {
+    // Implement logout logic
+    console.log('Logging out...');
+    this.router.navigate(['/login']);
+  }
+
+  selectTab(tab: string) {
+    this.selectedTab = tab;
+    this.filterOrders();
+  }
+
+  filterByStatus(status: string) {
+    this.selectedStatus = status;
+    this.filterOrders();
   }
 
   refreshOrders() {
     this.loadOrders();
   }
 
-  showFilters() {
-    // Implement filter modal
-    console.log('Show filters');
+  onSearchChange(event: any) {
+    this.searchTerm = event.detail.value;
+    this.filterOrders();
+  }
+
+  setStatusFilter(status: string) {
+    this.selectedStatus = status;
+    this.filterOrders();
   }
 
   // Order management methods
@@ -79,6 +103,79 @@ export class KarenderiaOrdersPage implements OnInit {
           deliveryFee: 30,
           total: 250,
           createdAt: new Date()
+        },
+        {
+          id: '002',
+          customerName: 'Maria Santos',
+          customerPhone: '+63 917 123 4567',
+          orderType: 'pickup',
+          status: 'confirmed',
+          items: [
+            { name: 'Sisig Rice', quantity: 1, price: 95 },
+            { name: 'Halo-halo', quantity: 1, price: 65 }
+          ],
+          subtotal: 160,
+          total: 160,
+          createdAt: new Date(Date.now() - 30 * 60 * 1000)
+        },
+        {
+          id: '003',
+          customerName: 'Pedro Reyes',
+          customerPhone: '+63 920 987 6543',
+          orderType: 'delivery',
+          status: 'preparing',
+          items: [
+            { name: 'Lechon Kawali', quantity: 1, price: 120 },
+            { name: 'Garlic Rice', quantity: 2, price: 45 },
+            { name: 'Soda', quantity: 2, price: 30 }
+          ],
+          subtotal: 240,
+          deliveryFee: 35,
+          total: 275,
+          createdAt: new Date(Date.now() - 45 * 60 * 1000)
+        },
+        {
+          id: '004',
+          customerName: 'Ana Lopez',
+          customerPhone: '+63 918 555 1234',
+          orderType: 'pickup',
+          status: 'ready',
+          items: [
+            { name: 'Kare-kare', quantity: 1, price: 130 },
+            { name: 'Rice', quantity: 1, price: 25 }
+          ],
+          subtotal: 155,
+          total: 155,
+          createdAt: new Date(Date.now() - 60 * 60 * 1000)
+        },
+        {
+          id: '005',
+          customerName: 'Carlos Rivera',
+          customerPhone: '+63 915 444 5678',
+          orderType: 'delivery',
+          status: 'completed',
+          items: [
+            { name: 'Longganisa Rice', quantity: 2, price: 75 },
+            { name: 'Coffee', quantity: 2, price: 35 }
+          ],
+          subtotal: 220,
+          deliveryFee: 25,
+          total: 245,
+          createdAt: new Date(Date.now() - 120 * 60 * 1000)
+        },
+        {
+          id: '006',
+          customerName: 'Rosa Martinez',
+          customerPhone: '+63 919 333 7890',
+          orderType: 'pickup',
+          status: 'completed',
+          items: [
+            { name: 'Pancit Canton', quantity: 1, price: 80 },
+            { name: 'Lumpia', quantity: 5, price: 50 }
+          ],
+          subtotal: 130,
+          total: 130,
+          createdAt: new Date(Date.now() - 180 * 60 * 1000)
         }
       ];
       
@@ -89,11 +186,37 @@ export class KarenderiaOrdersPage implements OnInit {
   }
 
   filterOrders() {
-    if (this.selectedStatus === 'all') {
-      this.filteredOrders = [...this.orders];
-    } else {
-      this.filteredOrders = this.orders.filter(order => order.status === this.selectedStatus);
+    let filtered = [...this.orders];
+    
+    // Filter by tab (active vs history)
+    if (this.selectedTab === 'active') {
+      filtered = filtered.filter(order => 
+        order.status === 'pending' || 
+        order.status === 'confirmed' || 
+        order.status === 'preparing' || 
+        order.status === 'ready'
+      );
+    } else if (this.selectedTab === 'history') {
+      filtered = filtered.filter(order => order.status === 'completed');
     }
+    
+    // Filter by status
+    if (this.selectedStatus !== 'all') {
+      filtered = filtered.filter(order => order.status === this.selectedStatus);
+    }
+    
+    // Filter by search term
+    if (this.searchTerm && this.searchTerm.trim() !== '') {
+      const searchLower = this.searchTerm.toLowerCase();
+      filtered = filtered.filter(order => 
+        order.id.toLowerCase().includes(searchLower) ||
+        order.customerName.toLowerCase().includes(searchLower) ||
+        order.customerPhone.includes(searchLower) ||
+        order.items.some(item => item.name.toLowerCase().includes(searchLower))
+      );
+    }
+    
+    this.filteredOrders = filtered;
   }
 
   updateOrderStats() {

@@ -35,16 +35,10 @@ export class MenuService {
 
   private getHeaders(): HttpHeaders {
     const token = localStorage.getItem('auth_token');
-    const headers: any = {
-      'Content-Type': 'application/json'
-    };
-    
-    // Only add authorization header if we have a token
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
-    }
-    
-    return new HttpHeaders(headers);
+    return new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': token ? `Bearer ${token}` : ''
+    });
   }
 
   // Format PHP currency
@@ -90,8 +84,6 @@ export class MenuService {
   }
 
   async addMenuItem(menuItem: Partial<MenuItem>): Promise<string> {
-    console.log('🔵 [MenuService] Adding menu item:', menuItem);
-    
     // Map frontend field names to backend field names
     const backendMenuItem: any = { ...menuItem };
     
@@ -120,24 +112,12 @@ export class MenuService {
       delete backendMenuItem.updatedAt;
     }
     
-    console.log('🔵 [MenuService] Sending to backend:', backendMenuItem);
-    console.log('🔵 [MenuService] API URL:', `${this.apiUrl}/menu-items`);
-    console.log('🔵 [MenuService] Headers:', this.getHeaders());
+    const response = await this.http.post<{ data: { id: string } }>(`${this.apiUrl}/menu-items`, backendMenuItem, {
+      headers: this.getHeaders()
+    }).toPromise();
     
-    try {
-      const response = await this.http.post<{ data: { id: string } }>(`${this.apiUrl}/menu-items`, backendMenuItem, {
-        headers: this.getHeaders()
-      }).toPromise();
-      
-      console.log('✅ [MenuService] Success response:', response);
-      this.loadMenuItems();
-      return response?.data.id || '';
-    } catch (error: any) {
-      console.error('❌ [MenuService] Error adding menu item:', error);
-      console.error('❌ [MenuService] Error status:', error?.status);
-      console.error('❌ [MenuService] Error response:', error?.error);
-      throw error;
-    }
+    this.loadMenuItems();
+    return response?.data.id || '';
   }
 
   async updateMenuItem(id: string, updates: Partial<MenuItem>): Promise<void> {

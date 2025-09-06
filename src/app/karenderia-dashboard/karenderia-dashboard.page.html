@@ -1,178 +1,265 @@
-<ion-header [translucent]="true" class="modern-menu-header">
-  <ion-toolbar class="gradient-menu-toolbar">
-    <ion-title>
-      <div class="modern-menu-title">
-        <ion-icon name="storefront" color="light"></ion-icon>
-        <span>Karenderia Dashboard</span>
+<div class="dashboard-layout">
+  <!-- Sidebar Navigation -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <div class="brand">
+        <div class="brand-icon">LR</div>
+        <div class="brand-info">
+          <h3>Lola Rosa's</h3>
+          <span>Kitchen</span>
+        </div>
       </div>
-    </ion-title>
-    <ion-buttons slot="end">
-      <ion-button (click)="logout()" fill="clear" color="light">
-        <ion-icon name="log-out-outline"></ion-icon>
-      </ion-button>
-    </ion-buttons>
-  </ion-toolbar>
-</ion-header>
+      <div class="owner-label">Owner Dashboard</div>
+    </div>
 
-<ion-content [fullscreen]="true" class="modern-menu-content">
-  <!-- Loading indicator -->
-  <div *ngIf="isLoading" class="loading-container">
-    <ion-spinner name="crescent" color="primary"></ion-spinner>
-    <p>Loading dashboard...</p>
+    <nav class="sidebar-nav">
+      <div class="nav-item active">
+        <ion-icon name="grid-outline"></ion-icon>
+        <span>Dashboard</span>
+      </div>
+      <div class="nav-item" (click)="navigateToMenu()">
+        <ion-icon name="restaurant-outline"></ion-icon>
+        <span>Menu Management</span>
+      </div>
+      <div class="nav-item" (click)="navigateToPos()">
+        <ion-icon name="calculator-outline"></ion-icon>
+        <span>POS System</span>
+      </div>
+      <div class="nav-item" (click)="navigateToOrders()">
+        <ion-icon name="receipt-outline"></ion-icon>
+        <span>Orders</span>
+      </div>
+      <div class="nav-item">
+        <ion-icon name="people-outline"></ion-icon>
+        <span>Customers</span>
+      </div>
+      <div class="nav-item">
+        <ion-icon name="settings-outline"></ion-icon>
+        <span>Settings</span>
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="nav-item" (click)="logout()">
+        <ion-icon name="log-out-outline"></ion-icon>
+        <span>Sign Out</span>
+      </div>
+    </div>
   </div>
 
-  <div *ngIf="!isLoading" class="modern-menu-container animate-fade-in">
-    
-    <!-- Stats Cards Row -->
-    <div class="stats-row">
-      <ion-card class="stat-card sales-card">
-        <ion-card-content>
-          <div class="stat-icon">
-            <ion-icon name="cash"></ion-icon>
-          </div>
-          <div class="stat-info">
-            <h2>{{ formatPhp(todaysSales?.totalSales || 0) }}</h2>
-            <p>Today's Sales</p>
-          </div>
-        </ion-card-content>
-      </ion-card>
-
-      <ion-card class="stat-card orders-card">
-        <ion-card-content>
-          <div class="stat-icon">
-            <ion-icon name="receipt"></ion-icon>
-          </div>
-          <div class="stat-info">
-            <h2>{{ todaysSales?.totalOrders || 0 }}</h2>
-            <p>Orders Today</p>
-          </div>
-        </ion-card-content>
-      </ion-card>
-
-      <ion-card class="stat-card pending-card">
-        <ion-card-content>
-          <div class="stat-icon">
-            <ion-icon name="time"></ion-icon>
-          </div>
-          <div class="stat-info">
-            <h2>{{ pendingOrdersCount }}</h2>
-            <p>Pending Orders</p>
-          </div>
-        </ion-card-content>
-      </ion-card>
-
-      <ion-card class="stat-card menu-card">
-        <ion-card-content>
-          <div class="stat-icon">
-            <ion-icon name="restaurant"></ion-icon>
-          </div>
-          <div class="stat-info">
-            <h2>{{ menuItemsCount }}</h2>
-            <p>Menu Items</p>
-          </div>
-        </ion-card-content>
-      </ion-card>
+  <!-- Main Content -->
+  <div class="main-content">
+    <!-- Top Header -->
+    <div class="top-header">
+      <div class="header-left">
+        <h1>Lola Rosa's Kitchen</h1>
+        <span class="header-subtitle">Owner Dashboard</span>
+      </div>
+      <div class="header-right">
+        <div class="date-selector">
+          <ion-icon name="calendar-outline"></ion-icon>
+          <span>Today</span>
+          <ion-icon name="chevron-down-outline"></ion-icon>
+        </div>
+        <ion-button fill="clear" class="view-storefront-btn">
+          <ion-icon name="eye-outline"></ion-icon>
+          View Storefront
+        </ion-button>
+      </div>
     </div>
 
-    <!-- Main Content Row -->
-    <div class="main-content-row">
-      
-      <!-- Quick Actions -->
-      <ion-card class="quick-actions-card">
-        <ion-card-header>
-          <ion-card-title>Quick Actions</ion-card-title>
-        </ion-card-header>
-        <ion-card-content>
-          <div class="action-buttons">
-            <ion-button expand="block" fill="solid" color="success" (click)="navigateToPos()">
-              <ion-icon name="calculator" slot="start"></ion-icon>
-              Point of Sale
-            </ion-button>
-            <ion-button expand="block" fill="outline" (click)="navigateToMenu()">
-              <ion-icon name="restaurant" slot="start"></ion-icon>
-              Manage Menu
-            </ion-button>
-            <ion-button expand="block" fill="outline" (click)="navigateToIngredients()">
-              <ion-icon name="nutrition" slot="start"></ion-icon>
-              Manage Ingredients
-            </ion-button>
-            <ion-button expand="block" fill="outline" (click)="navigateToOrders()">
-              <ion-icon name="receipt" slot="start"></ion-icon>
-              View Orders
-            </ion-button>
+    <!-- Content Area -->
+    <div class="content-area" *ngIf="!isLoading">
+      <!-- Top Metrics Cards -->
+      <div class="metrics-grid">
+        <div class="metric-card sales-card">
+          <div class="metric-icon">
+            <ion-icon name="wallet-outline"></ion-icon>
           </div>
-        </ion-card-content>
-      </ion-card>
-
-      <!-- Recent Orders -->
-      <ion-card class="recent-orders-card">
-        <ion-card-header>
-          <ion-card-title>Recent Orders</ion-card-title>
-        </ion-card-header>
-        <ion-card-content>
-          <div class="orders-list" *ngIf="recentOrders.length > 0">
-            <div class="order-item" *ngFor="let order of recentOrders">
-              <div class="order-info">
-                <h3>{{ order.customerName }}</h3>
-                <p>{{ formatPhp(order.totalAmount) }} • {{ order.items.length }} items</p>
-                <small>{{ order.createdAt | date:'short' }}</small>
-              </div>
-              <ion-badge [color]="getOrderStatusColor(order.status)">
-                {{ order.status | titlecase }}
-              </ion-badge>
-            </div>
-          </div>
-          <div *ngIf="recentOrders.length === 0" class="no-orders">
-            <ion-icon name="receipt-outline"></ion-icon>
-            <p>No recent orders</p>
-          </div>
-        </ion-card-content>
-      </ion-card>
-
-      <!-- Low Stock Alerts -->
-      <ion-card class="low-stock-card">
-        <ion-card-header>
-          <ion-card-title>Low Stock Alerts</ion-card-title>
-        </ion-card-header>
-        <ion-card-content>
-          <div class="stock-list" *ngIf="lowStockItems.length > 0">
-            <div class="stock-item" *ngFor="let item of lowStockItems">
-              <div class="stock-info">
-                <h4>{{ item.name }}</h4>
-                <p>{{ item.stock }} {{ item.unit }} remaining</p>
-                <small>Min: {{ item.minimumStock }} {{ item.unit }}</small>
-              </div>
-              <ion-badge color="warning">Low Stock</ion-badge>
-            </div>
-          </div>
-          <div *ngIf="lowStockItems.length === 0" class="no-alerts">
-            <ion-icon name="checkmark-circle-outline"></ion-icon>
-            <p>All items well stocked</p>
-          </div>
-        </ion-card-content>
-      </ion-card>
-
-    </div>
-
-    <!-- Popular Items -->
-    <ion-card class="popular-items-card" *ngIf="todaysSales && todaysSales.popularItems && todaysSales.popularItems.length > 0">
-      <ion-card-header>
-        <ion-card-title>Today's Popular Items</ion-card-title>
-      </ion-card-header>
-      <ion-card-content>
-        <div class="popular-items-grid">
-          <div class="popular-item" *ngFor="let item of todaysSales.popularItems.slice(0, 6)">
-            <div class="item-info">
-              <h4>{{ item.itemName }}</h4>
-              <p>{{ item.quantity }} orders • {{ formatPhp(item.revenue) }}</p>
-            </div>
-            <div class="item-rank">
-              <ion-icon name="trophy"></ion-icon>
+          <div class="metric-content">
+            <div class="metric-value">{{ formatPhp(todaysSales?.totalSales || 15420) }}</div>
+            <div class="metric-label">Total Sales</div>
+            <div class="metric-trend positive">
+              <span>+25% from yesterday</span>
             </div>
           </div>
         </div>
-      </ion-card-content>
-    </ion-card>
 
-  </div> <!-- End of !isLoading div -->
-</ion-content>
+        <div class="metric-card orders-card">
+          <div class="metric-icon">
+            <ion-icon name="receipt-outline"></ion-icon>
+          </div>
+          <div class="metric-content">
+            <div class="metric-value">{{ todaysSales?.totalOrders || 89 }}</div>
+            <div class="metric-label">Orders Processed</div>
+            <div class="metric-trend positive">
+              <span>+30 from yesterday</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="metric-card avg-order-card">
+          <div class="metric-icon">
+            <ion-icon name="trending-up-outline"></ion-icon>
+          </div>
+          <div class="metric-content">
+            <div class="metric-value">{{ formatPhp(avgOrderValue || 173) }}</div>
+            <div class="metric-label">Avg Order Value</div>
+            <div class="metric-trend positive">
+              <span>+1% from yesterday</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="metric-card rating-card">
+          <div class="metric-icon">
+            <ion-icon name="star-outline"></ion-icon>
+          </div>
+          <div class="metric-content">
+            <div class="metric-value">4.7</div>
+            <div class="metric-label">Customer Rating</div>
+            <div class="metric-trend positive">
+              <span>+0.2 from last week</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Content Grid -->
+      <div class="dashboard-grid">
+        <!-- Recent Orders -->
+        <div class="dashboard-card recent-orders">
+          <div class="card-header">
+            <h3>Recent Orders</h3>
+          </div>
+          <div class="card-content">
+            <div class="order-item" *ngFor="let order of displayOrders">
+              <div class="order-status-dot" [class]="order.status"></div>
+              <div class="order-info">
+                <div class="order-id">#ORD-{{ order.id.toString().padStart(3, '0') }}</div>
+                <div class="order-customer">{{ order.customerName }}</div>
+                <div class="order-items">{{ order.itemsText }}</div>
+              </div>
+              <div class="order-meta">
+                <div class="order-amount">{{ formatPhp(order.totalAmount) }}</div>
+                <div class="order-time">{{ order.timeAgo }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Order Status -->
+        <div class="dashboard-card order-status">
+          <div class="card-header">
+            <h3>Order Status</h3>
+          </div>
+          <div class="card-content">
+            <div class="status-item">
+              <div class="status-info">
+                <span class="status-label">Active</span>
+                <span class="status-count">12</span>
+              </div>
+            </div>
+            <div class="status-item">
+              <div class="status-info">
+                <span class="status-label">Completed</span>
+                <span class="status-count">77</span>
+              </div>
+            </div>
+            <div class="completion-rate">
+              <div class="completion-label">87% completion rate</div>
+              <div class="completion-bar">
+                <div class="completion-fill" style="width: 87%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Low Stock Alert -->
+        <div class="dashboard-card low-stock">
+          <div class="card-header">
+            <h3><ion-icon name="alert-circle-outline"></ion-icon> Low Stock Alert</h3>
+          </div>
+          <div class="card-content">
+            <div class="stock-item">
+              <div class="stock-info">
+                <span class="stock-name">Pork Belly</span>
+                <span class="stock-amount">2 kg left</span>
+              </div>
+              <div class="stock-status critical">Low</div>
+            </div>
+            <div class="stock-item">
+              <div class="stock-info">
+                <span class="stock-name">Tamarind</span>
+                <span class="stock-amount">1 pack left</span>
+              </div>
+              <div class="stock-status critical">Low</div>
+            </div>
+            <div class="stock-item">
+              <div class="stock-info">
+                <span class="stock-name">Rice</span>
+                <span class="stock-amount">5 kg left</span>
+              </div>
+              <div class="stock-status critical">Low</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Top Performing Meals -->
+        <div class="dashboard-card top-meals">
+          <div class="card-header">
+            <h3>Top Performing Meals</h3>
+          </div>
+          <div class="card-content">
+            <div class="meal-item">
+              <div class="meal-info">
+                <span class="meal-name">Adobong Manok</span>
+                <div class="meal-stats">
+                  <span class="meal-orders">Orders: 23</span>
+                  <span class="meal-revenue">Revenue: {{ formatPhp(6958) }}</span>
+                </div>
+                <div class="meal-trend">Trend: +4%</div>
+              </div>
+            </div>
+            <div class="meal-item">
+              <div class="meal-info">
+                <span class="meal-name">Sinigang na Baboy</span>
+                <div class="meal-stats">
+                  <span class="meal-orders">Orders: 18</span>
+                  <span class="meal-revenue">Revenue: {{ formatPhp(5770) }}</span>
+                </div>
+                <div class="meal-trend">Trend: +8%</div>
+              </div>
+            </div>
+            <div class="meal-item">
+              <div class="meal-info">
+                <span class="meal-name">Kare-Kare</span>
+                <div class="meal-stats">
+                  <span class="meal-orders">Orders: 15</span>
+                  <span class="meal-revenue">Revenue: {{ formatPhp(4800) }}</span>
+                </div>
+                <div class="meal-trend">Trend: +15%</div>
+              </div>
+            </div>
+            <div class="meal-item">
+              <div class="meal-info">
+                <span class="meal-name">Lechon Kawali</span>
+                <div class="meal-stats">
+                  <span class="meal-orders">Orders: 12</span>
+                  <span class="meal-revenue">Revenue: {{ formatPhp(4320) }}</span>
+                </div>
+                <div class="meal-trend">Trend: -3%</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="loading-container">
+      <ion-spinner name="crescent" color="primary"></ion-spinner>
+      <p>Loading dashboard...</p>
+    </div>
+  </div>
+</div>

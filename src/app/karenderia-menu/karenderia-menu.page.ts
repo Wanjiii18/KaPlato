@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { MenuService } from '../services/menu.service';
 import { OrderService } from '../services/order.service';
 import { SpoonacularService } from '../services/spoonacular.service';
@@ -8,7 +9,7 @@ import { AlertController, ToastController, ModalController } from '@ionic/angula
 @Component({
   selector: 'app-karenderia-menu',
   templateUrl: './karenderia-menu.page.html',
-  styleUrls: ['./karenderia-menu.page.scss'],
+  styleUrls: ['./karenderia-menu-new.page.scss'],
   standalone: false,
 })
 export class KarenderiaMenuPage implements OnInit {
@@ -109,6 +110,7 @@ export class KarenderiaMenuPage implements OnInit {
   showIngredientSelection = false;
 
   constructor(
+    private router: Router,
     private menuService: MenuService,
     private orderService: OrderService,
     private spoonacularService: SpoonacularService,
@@ -158,7 +160,11 @@ export class KarenderiaMenuPage implements OnInit {
     });
   }
 
-  filterByCategory() {
+  filterByCategory(category?: string) {
+    if (category) {
+      this.selectedCategory = category;
+    }
+    
     if (this.selectedCategory === 'all') {
       this.filteredMenuItems = this.menuItems;
     } else {
@@ -422,6 +428,45 @@ export class KarenderiaMenuPage implements OnInit {
     return this.menuService.formatPhp(amount);
   }
 
+  // Dashboard Statistics Methods
+  getAvailableItemsCount(): number {
+    return this.menuItems.filter(item => item.isAvailable).length;
+  }
+
+  getAveragePrice(): number {
+    if (this.menuItems.length === 0) return 0;
+    const total = this.menuItems.reduce((sum, item) => sum + item.price, 0);
+    return total / this.menuItems.length;
+  }
+
+  getAverageTime(): string {
+    if (this.menuItems.length === 0) return '0m';
+    const total = this.menuItems.reduce((sum, item) => sum + (item.preparationTime || 0), 0);
+    const average = Math.round(total / this.menuItems.length);
+    return `${average}m`;
+  }
+
+  // Item Cost and Profit Calculations
+  getItemCost(item: MenuItem): number {
+    if (!item.ingredients || item.ingredients.length === 0) return 0;
+    return item.ingredients.reduce((total, ing) => total + (ing.cost || 0), 0);
+  }
+
+  getItemProfit(item: MenuItem): number {
+    return item.price - this.getItemCost(item);
+  }
+
+  // Category Color Coding
+  getCategoryColor(category: string): string {
+    const colors: { [key: string]: string } = {
+      'appetizers': 'success',
+      'main': 'primary',
+      'desserts': 'warning',
+      'beverages': 'tertiary'
+    };
+    return colors[category] || 'medium';
+  }
+
   getDishTypes(): string[] {
     return Object.keys(this.commonIngredients);
   }
@@ -430,5 +475,64 @@ export class KarenderiaMenuPage implements OnInit {
     return dishType.split('-').map(word => 
       word.charAt(0).toUpperCase() + word.slice(1)
     ).join(' ');
+  }
+
+  // Helper method to get appropriate image for menu items
+  getItemImage(item: MenuItem): string {
+    // If item already has an image, use it
+    if (item.image && item.image !== 'assets/default-food.png') {
+      return item.image;
+    }
+
+    // Map dish names to your new images
+    const dishName = item.name?.toLowerCase() || '';
+    
+    if (dishName.includes('adobo') || dishName.includes('chicken adobo')) {
+      return 'assets/images/filipino-adobo-chicken-rice.png';
+    }
+    if (dishName.includes('kare-kare') || dishName.includes('kare kare')) {
+      return 'assets/images/filipino-kare-kare.png';
+    }
+    if (dishName.includes('lechon') || dishName.includes('kawali')) {
+      return 'assets/images/filipino-lechon-kawali.png';
+    }
+    if (dishName.includes('sinigang') || dishName.includes('baboy')) {
+      return 'assets/images/filipino-sinigang.png';
+    }
+    if (dishName.includes('halo-halo') || dishName.includes('dessert')) {
+      return 'assets/images/halo-halo-dessert.png';
+    }
+    if (dishName.includes('garlic rice') || dishName.includes('fried rice')) {
+      return 'assets/images/garlic-rice.png';
+    }
+    if (dishName.includes('rice') && !dishName.includes('fried')) {
+      return 'assets/images/plain-white-rice.png';
+    }
+    if (dishName.includes('tea') || dishName.includes('iced')) {
+      return 'assets/images/iced-tea.png';
+    }
+    
+    // Default fallback
+    return 'assets/images/placeholder-food.jpg';
+  }
+
+  // Navigation methods
+  navigateToDashboard() {
+    this.router.navigate(['/karenderia-dashboard']);
+  }
+
+  navigateToPos() {
+    this.router.navigate(['/karenderia-orders-pos']);
+  }
+
+  navigateToOrders() {
+    this.router.navigate(['/karenderia-orders']);
+  }
+
+  logout() {
+    // Clear any stored authentication data
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    this.router.navigate(['/login']);
   }
 }

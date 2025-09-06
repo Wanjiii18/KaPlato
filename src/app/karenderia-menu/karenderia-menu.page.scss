@@ -1,5 +1,5 @@
-// Modern Karenderia Menu Management Styles
-// Following the established modern gradient design system
+// Modern Menu Management Dashboard Styles
+// Professional card-based design system
 
 .modern-menu-header {
   .gradient-menu-toolbar {
@@ -67,7 +67,7 @@
 
 .modern-menu-container {
   padding: 24px 16px;
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
 }
 
@@ -91,6 +91,7 @@
         display: flex;
         align-items: center;
         gap: 16px;
+        justify-content: space-between;
         
         .header-icon {
           ion-icon {
@@ -169,6 +170,96 @@
     }
   }
   
+  // Tabs Section
+  .tabs-section {
+    background: white;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 24px;
+
+    .tabs-container {
+      display: flex;
+      background: #f8fafc;
+      border-radius: 10px;
+      padding: 4px;
+      margin-bottom: 0;
+
+      .tab-button {
+        flex: 1;
+        padding: 12px 20px;
+        border: none;
+        background: transparent;
+        border-radius: 8px;
+        font-weight: 500;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        color: #64748b;
+
+        &.active {
+          background: #6366f1;
+          color: white;
+          box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+        }
+
+        &:hover:not(.active) {
+          background: #e2e8f0;
+          color: #475569;
+        }
+      }
+    }
+  }
+
+  // Search and Filter Section
+  .search-filter-section {
+    background: white;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 24px;
+
+    .search-container {
+      margin-bottom: 16px;
+
+      ion-searchbar {
+        --background: #f8fafc;
+        --border-radius: 10px;
+        --box-shadow: none;
+        --color: #1e293b;
+        --placeholder-color: #64748b;
+        padding: 0;
+        
+        .searchbar-input {
+          font-size: 14px;
+        }
+      }
+    }
+
+    .filter-container {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+
+      ion-select {
+        --background: #f8fafc;
+        --border-radius: 10px;
+        --padding-start: 16px;
+        --padding-end: 16px;
+        --color: #1e293b;
+        font-size: 14px;
+        min-width: 160px;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        height: 44px;
+
+        &::part(icon) {
+          color: #6366f1;
+        }
+      }
+    }
+  }
+
   .input-group {
     display: grid;
     gap: 16px;
@@ -354,210 +445,231 @@
   }
 }
 
-// Categories Filter
-.categories-filter {
-  margin-bottom: 24px;
-  
-  ion-segment {
-    --background: white;
-    border-radius: 16px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-    border: 2px solid #f1f5f9;
-    overflow: hidden;
+// Menu Dashboard Section
+.menu-dashboard {
+  .filter-section {
+    margin-bottom: 32px;
     
-    ion-segment-button {
-      --color: #64748b;
-      --color-checked: white;
-      --background-checked: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-      --border-radius: 12px;
-      margin: 4px;
+    h3 {
+      margin: 0 0 16px 0;
+      font-size: 1.3rem;
       font-weight: 600;
+      color: #1e293b;
+    }
+    
+    .category-chips {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
       
-      ion-label {
-        font-size: 0.9rem;
+      ion-chip {
+        --background: white;
+        --color: #64748b;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 8px 16px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        
+        &:hover {
+          --background: #f8fafc;
+          transform: translateY(-1px);
+        }
+        
+        &.active {
+          --background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+          --color: white;
+          border-color: transparent;
+        }
+        
+        ion-icon {
+          margin-right: 6px;
+        }
       }
     }
   }
-}
-
-// Menu Items Grid
-.menu-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 24px;
   
-  .menu-item-card {
-    --background: white;
-    border-radius: 20px;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
-    overflow: hidden;
-    border: 2px solid transparent;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  .menu-items-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+    gap: 24px;
     
-    &:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
-      border-color: #6366f1;
-    }
-    
-    .item-image {
-      position: relative;
-      height: 180px;
+    .menu-item-card {
+      background: white;
+      border-radius: 16px;
       overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      border: 1px solid #e2e8f0;
+      transition: all 0.3s ease;
       
-      img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        transition: transform 0.3s ease;
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
       }
       
-      &:hover img {
-        transform: scale(1.05);
-      }
-      
-      .item-status {
-        position: absolute;
-        top: 12px;
-        right: 12px;
+      .card-image {
+        height: 200px;
+        overflow: hidden;
         
-        ion-badge {
-          --border-radius: 12px;
-          font-weight: 600;
-          font-size: 0.8rem;
-          padding: 6px 12px;
+        img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          transition: transform 0.3s ease;
         }
+        
+        &:hover img {
+          transform: scale(1.02);
+        }
+      }
+      
+      .card-content {
+        padding: 20px;
+        
+        .card-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          margin-bottom: 8px;
+          
+          .item-name {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1e293b;
+            line-height: 1.3;
+            flex: 1;
+          }
+          
+          .category-badge {
+            background: #f1f5f9;
+            color: #64748b;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            margin-left: 12px;
+          }
+        }
+        
+        .item-description {
+          color: #64748b;
+          font-size: 0.875rem;
+          line-height: 1.4;
+          margin-bottom: 16px;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
+        
+        .item-details {
+          margin-bottom: 16px;
+          
+          .detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            
+            &:last-child {
+              margin-bottom: 0;
+            }
+            
+            .detail-label {
+              color: #64748b;
+              font-size: 0.875rem;
+              font-weight: 400;
+            }
+            
+            .detail-value {
+              font-weight: 600;
+              font-size: 0.875rem;
+              
+              &.price {
+                color: #dc2626;
+              }
+              
+              &.cost {
+                color: #7c3aed;
+              }
+              
+              &.profit {
+                color: #059669;
+              }
+            }
+          }
+        }
+        
+        .card-actions {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          border-top: 1px solid #f1f5f9;
+          padding-top: 16px;
+          margin-top: 16px;
+          
+          .edit-btn {
+            --color: #64748b;
+            font-size: 0.875rem;
+            
+            &:hover {
+              --color: #1e293b;
+            }
+          }
+          
+          .delete-btn {
+            --color: #ef4444;
+            
+            ion-icon {
+              font-size: 1.1rem;
+            }
+          }
+        }
+      }
+    }
+  }
+              
+              ion-icon {
+                font-size: 1.2rem;
+              }
+            }
+            
+            .metric-info {
+  
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    
+    .empty-icon {
+      ion-icon {
+        font-size: 4rem;
+        color: #cbd5e1;
+        margin-bottom: 20px;
       }
     }
     
-    ion-card-content {
-      padding: 20px;
-      
-      h2 {
-        margin: 0 0 8px 0;
-        font-size: 1.25rem;
-        font-weight: 700;
-        color: #1e293b;
-        line-height: 1.2;
-      }
-      
-      .description {
-        color: #64748b;
-        font-size: 0.9rem;
-        line-height: 1.4;
-        margin: 0 0 16px 0;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-      }
-      
-      .item-details {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 16px;
-        
-        .price {
-          font-size: 1.1rem;
-          font-weight: 700;
-          color: #059669;
-          margin: 0;
-        }
-        
-        .category {
-          background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-          color: white;
-          padding: 4px 12px;
-          border-radius: 12px;
-          font-size: 0.8rem;
-          font-weight: 600;
-          margin: 0;
-        }
-        
-        .prep-time {
-          color: #64748b;
-          font-size: 0.9rem;
-          margin: 0;
-          font-weight: 500;
-        }
-      }
-      
-      .ingredients-preview {
-        margin-bottom: 20px;
-        
-        h4 {
-          margin: 0 0 8px 0;
-          color: #475569;
-          font-size: 0.9rem;
-          font-weight: 600;
-        }
-        
-        .ingredient-tags {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 6px;
-          
-          ion-chip {
-            --background: #f1f5f9;
-            --color: #475569;
-            font-size: 0.8rem;
-            height: 28px;
-          }
-        }
-      }
-      
-      .item-actions {
-        display: flex;
-        gap: 8px;
-        flex-wrap: wrap;
-        
-        ion-button {
-          --border-radius: 12px;
-          font-size: 0.8rem;
-          font-weight: 600;
-          flex: 1;
-          min-width: 80px;
-          
-          ion-icon {
-            font-size: 1rem;
-          }
-        }
-      }
+    h2 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #475569;
+      margin-bottom: 12px;
     }
-  }
-}
-
-// Empty State
-.empty-state {
-  text-align: center;
-  padding: 60px 20px;
-  
-  ion-icon {
-    font-size: 4rem;
-    color: #cbd5e1;
-    margin-bottom: 20px;
-  }
-  
-  h2 {
-    margin: 0 0 12px 0;
-    color: #475569;
-    font-weight: 600;
-  }
-  
-  p {
-    color: #64748b;
-    margin: 0 0 24px 0;
-    font-size: 0.95rem;
-  }
-  
-  ion-button {
-    --background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-    --color: white;
-    --border-radius: 16px;
-    font-weight: 600;
-    box-shadow: 0 4px 20px rgba(99, 102, 241, 0.3);
+    
+    p {
+      color: #64748b;
+      margin-bottom: 24px;
+      font-size: 1rem;
+    }
+    
+    .add-first-item-btn {
+      --background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      --color: white;
+      --border-radius: 12px;
+      font-weight: 600;
+      padding: 12px 24px;
+    }
   }
 }
 
@@ -598,6 +710,12 @@
     padding: 16px 12px;
   }
   
+  .menu-dashboard {
+    .menu-items-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  
   .modern-add-item-card {
     ion-card-header {
       padding: 20px 16px;
@@ -606,11 +724,6 @@
     ion-card-content {
       padding: 24px 16px;
     }
-  }
-  
-  .menu-grid {
-    grid-template-columns: 1fr;
-    gap: 16px;
   }
   
   .form-grid {
@@ -640,15 +753,4 @@
       }
     }
   }
-}
-
-// Legacy compatibility for existing elements
-.menu-content {
-  --background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
-}
-
-.menu-container {
-  padding: 24px 16px;
-  max-width: 1200px;
-  margin: 0 auto;
 }

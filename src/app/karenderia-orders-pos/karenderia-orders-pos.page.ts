@@ -30,28 +30,36 @@ export interface PosOrder {
 })
 export class KarenderiaOrdersPosPage implements OnInit {
     
+  // Search term
+  searchTerm = '';
+  
+  // Selected category
+  selectedCategory = 'all';
+  
+  // Table number
+  tableNumber = '';
+  
+  // Current order array for the new template
+  currentOrder: any[] = [];
+  
   // Categories
   categories = [
-    { id: 'rice-bowl', name: 'Rice Bowl', icon: 'restaurant' },
-    { id: 'noodles', name: 'Noodles', icon: 'cafe' },
-    { id: 'grilled', name: 'Grilled', icon: 'flame' },
-    { id: 'fried', name: 'Fried', icon: 'pizza' },
-    { id: 'soup', name: 'Soup', icon: 'wine' },
+    { id: 'ulam', name: 'Ulam', icon: 'restaurant' },
+    { id: 'sabaw', name: 'Sabaw', icon: 'wine' },
+    { id: 'rice', name: 'Rice', icon: 'cafe' },
     { id: 'dessert', name: 'Dessert', icon: 'ice-cream' },
-    { id: 'beverages', name: 'Beverages', icon: 'cafe' }
+    { id: 'drinks', name: 'Drinks', icon: 'cafe' }
   ];
-
-  selectedCategory = 'rice-bowl';
   
-  // Menu items (mock data based on the image)
+  // Menu items (Filipino dishes)
   menuItems: MenuItem[] = [
     {
       id: '1',
-      name: 'Thai Rice Bowl',
-      description: 'Authentic Thai flavors with rice',
-      price: 279.09,
-      category: 'rice-bowl',
-      image: 'assets/default-food.svg',
+      name: 'Adobong Manok',
+      description: 'Classic Filipino chicken adobo cooked in soy sauce and vinegar',
+      price: 85,
+      category: 'ulam',
+      image: 'assets/images/filipino-adobo-chicken-rice.png',
       ingredients: [],
       preparationTime: 15,
       isAvailable: true,
@@ -62,13 +70,13 @@ export class KarenderiaOrdersPosPage implements OnInit {
     },
     {
       id: '2',
-      name: 'Smoke Salmon Rice Bowl',
-      description: 'Fresh salmon with rice and vegetables',
-      price: 327.09,
-      category: 'rice-bowl',
-      image: 'assets/default-food.svg',
+      name: 'Sinigang na Baboy',
+      description: 'Sour pork soup with vegetables',
+      price: 95,
+      category: 'sabaw',
+      image: 'assets/images/filipino-sinigang.png',
       ingredients: [],
-      preparationTime: 12,
+      preparationTime: 25,
       isAvailable: true,
       isPopular: false,
       allergens: [],
@@ -77,13 +85,13 @@ export class KarenderiaOrdersPosPage implements OnInit {
     },
     {
       id: '3',
-      name: 'Healthy Rice Bowl',
-      description: 'Nutritious and balanced rice bowl',
-      price: 327.09,
-      category: 'rice-bowl',
-      image: 'assets/default-food.svg',
+      name: 'Kare-Kare',
+      description: 'Oxtail stew in peanut sauce',
+      price: 120,
+      category: 'ulam',
+      image: 'assets/images/filipino-kare-kare.png',
       ingredients: [],
-      preparationTime: 10,
+      preparationTime: 30,
       isAvailable: true,
       isPopular: false,
       allergens: [],
@@ -92,11 +100,11 @@ export class KarenderiaOrdersPosPage implements OnInit {
     },
     {
       id: '4',
-      name: 'Bibimbap Rice Bowl',
-      description: 'Korean style mixed rice bowl',
-      price: 327.09,
-      category: 'rice-bowl',
-      image: 'assets/default-food.svg',
+      name: 'Lechon Kawali',
+      description: 'Crispy fried pork belly',
+      price: 110,
+      category: 'ulam',
+      image: 'assets/images/filipino-lechon-kawali.png',
       ingredients: [],
       preparationTime: 18,
       isAvailable: true,
@@ -107,29 +115,13 @@ export class KarenderiaOrdersPosPage implements OnInit {
     },
     {
       id: '5',
-      name: 'Golden Beef Rice Bowl',
-      description: 'Tender beef with golden sauce',
-      price: 327.09,
-      category: 'rice-bowl',
-      image: 'assets/default-food.svg',
+      name: 'Garlic Rice',
+      description: 'Fragrant rice with garlic',
+      price: 25,
+      category: 'rice',
+      image: 'assets/images/garlic-rice.png',
       ingredients: [],
-      preparationTime: 20,
-      isAvailable: true,
-      isPopular: false,
-      allergens: [],
-      createdAt: new Date(),
-      updatedAt: new Date()
-    },
-    // Add more items for other categories
-    {
-      id: '6',
-      name: 'Miso Ramen',
-      description: 'Rich and flavorful miso broth ramen',
-      price: 279.09,
-      category: 'noodles',
-      image: 'assets/default-food.svg',
-      ingredients: [],
-      preparationTime: 15,
+      preparationTime: 10,
       isAvailable: true,
       isPopular: true,
       allergens: [],
@@ -137,14 +129,14 @@ export class KarenderiaOrdersPosPage implements OnInit {
       updatedAt: new Date()
     },
     {
-      id: '7',
-      name: 'Waffle',
-      description: 'Crispy waffle with toppings',
-      price: 179.09,
-      category: 'dessert',
-      image: 'assets/default-food.svg',
+      id: '6',
+      name: 'Plain Rice',
+      description: 'Steamed white rice',
+      price: 20,
+      category: 'rice',
+      image: 'assets/images/plain-white-rice.png',
       ingredients: [],
-      preparationTime: 8,
+      preparationTime: 5,
       isAvailable: true,
       isPopular: false,
       allergens: [],
@@ -152,14 +144,29 @@ export class KarenderiaOrdersPosPage implements OnInit {
       updatedAt: new Date()
     },
     {
-      id: '8',
-      name: 'Mocha Ice Cream',
-      description: 'Rich mocha flavored ice cream',
-      price: 179.09,
+      id: '7',
+      name: 'Halo-Halo',
+      description: 'Filipino shaved ice dessert with mixed ingredients',
+      price: 65,
       category: 'dessert',
-      image: 'assets/default-food.svg',
+      image: 'assets/images/halo-halo-dessert.png',
       ingredients: [],
-      preparationTime: 5,
+      preparationTime: 8,
+      isAvailable: true,
+      isPopular: true,
+      allergens: [],
+      createdAt: new Date(),
+      updatedAt: new Date()
+    },
+    {
+      id: '8',
+      name: 'Iced Tea',
+      description: 'Refreshing iced tea',
+      price: 30,
+      category: 'drinks',
+      image: 'assets/images/iced-tea.png',
+      ingredients: [],
+      preparationTime: 3,
       isAvailable: true,
       isPopular: false,
       allergens: [],
@@ -169,7 +176,6 @@ export class KarenderiaOrdersPosPage implements OnInit {
   ];
 
   // Current order
-  currentOrder: OrderItem[] = [];
   paymentMethod: 'cash' | 'card' | 'gcash' = 'cash';
   customerName = '';
   orderType: 'dine-in' | 'takeout' = 'dine-in';
@@ -210,7 +216,24 @@ export class KarenderiaOrdersPosPage implements OnInit {
   }
 
   getFilteredMenuItems(): MenuItem[] {
-    return this.menuItems.filter(item => item.category === this.selectedCategory);
+    let filtered = this.menuItems;
+    
+    // Filter by category
+    if (this.selectedCategory !== 'all') {
+      filtered = filtered.filter(item => 
+        item.category.toLowerCase() === this.selectedCategory.toLowerCase()
+      );
+    }
+    
+    // Filter by search term
+    if (this.searchTerm) {
+      filtered = filtered.filter(item =>
+        item.name.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+        item.description.toLowerCase().includes(this.searchTerm.toLowerCase())
+      );
+    }
+    
+    return filtered;
   }
 
   addToOrder(menuItem: MenuItem) {
@@ -448,6 +471,45 @@ export class KarenderiaOrdersPosPage implements OnInit {
     return category ? category.name : '';
   }
 
+  // Helper method to get appropriate image for menu items
+  getItemImage(item: MenuItem): string {
+    // If item already has an image, use it
+    if (item.image && item.image !== 'assets/default-food.png') {
+      return item.image;
+    }
+
+    // Map dish names to your new images
+    const dishName = item.name?.toLowerCase() || '';
+    
+    if (dishName.includes('adobo') || dishName.includes('chicken adobo')) {
+      return 'assets/images/filipino-adobo-chicken-rice.png';
+    }
+    if (dishName.includes('kare-kare') || dishName.includes('kare kare')) {
+      return 'assets/images/filipino-kare-kare.png';
+    }
+    if (dishName.includes('lechon') || dishName.includes('kawali')) {
+      return 'assets/images/filipino-lechon-kawali.png';
+    }
+    if (dishName.includes('sinigang') || dishName.includes('baboy')) {
+      return 'assets/images/filipino-sinigang.png';
+    }
+    if (dishName.includes('halo-halo') || dishName.includes('dessert')) {
+      return 'assets/images/halo-halo-dessert.png';
+    }
+    if (dishName.includes('garlic rice') || dishName.includes('fried rice')) {
+      return 'assets/images/garlic-rice.png';
+    }
+    if (dishName.includes('rice') && !dishName.includes('fried')) {
+      return 'assets/images/plain-white-rice.png';
+    }
+    if (dishName.includes('tea') || dishName.includes('iced')) {
+      return 'assets/images/iced-tea.png';
+    }
+    
+    // Default fallback
+    return 'assets/images/placeholder-food.jpg';
+  }
+
   // Add missing methods
   showSettings() {
     console.log('Show settings');
@@ -459,5 +521,53 @@ export class KarenderiaOrdersPosPage implements OnInit {
 
   searchItems() {
     console.log('Search items');
+  }
+
+  // Additional helper methods
+  getSubtotal() {
+    return this.currentOrder.reduce((total, item) => total + item.subtotal, 0);
+  }
+
+  getVAT() {
+    return this.getSubtotal() * 0.12; // 12% VAT
+  }
+
+  getTotal() {
+    return this.getSubtotal() + this.getVAT();
+  }
+
+  increaseQuantity(item: any) {
+    item.quantity++;
+    item.subtotal = item.quantity * item.menuItem.price;
+  }
+
+  decreaseQuantity(item: any) {
+    if (item.quantity > 1) {
+      item.quantity--;
+      item.subtotal = item.quantity * item.menuItem.price;
+    } else {
+      this.removeFromOrder(this.currentOrder.indexOf(item));
+    }
+  }
+
+  processPayment() {
+    if (!this.tableNumber) {
+      console.log('Please enter a table number');
+      return;
+    }
+
+    if (this.currentOrder.length === 0) {
+      console.log('Please add items to the order');
+      return;
+    }
+
+    // Process payment logic here
+    console.log('Payment processed successfully!');
+    this.clearOrder();
+  }
+
+  logout() {
+    // Handle logout
+    console.log('Logout');
   }
 }
