@@ -1,0 +1,343 @@
+<ion-content class="settings-content">
+  <div class="settings-layout">
+    <!-- Left Sidebar Navigation -->
+    <div class="settings-sidebar">
+      <div class="sidebar-header">
+        <div class="brand">
+          <div class="brand-icon">LR</div>
+          <div class="brand-info">
+            <h3>Lola Rosa's</h3>
+            <span>Kitchen</span>
+          </div>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a class="nav-item" routerLink="/karenderia-dashboard">
+          <ion-icon name="grid-outline"></ion-icon>
+          <span>Dashboard</span>
+        </a>
+        <a class="nav-item" routerLink="/karenderia-menu">
+          <ion-icon name="restaurant-outline"></ion-icon>
+          <span>Menu Management</span>
+        </a>
+        <a class="nav-item" routerLink="/karenderia-orders-pos">
+          <ion-icon name="calculator-outline"></ion-icon>
+          <span>POS System</span>
+        </a>
+        <a class="nav-item" routerLink="/karenderia-orders">
+          <ion-icon name="receipt-outline"></ion-icon>
+          <span>Orders</span>
+        </a>
+        <a class="nav-item">
+          <ion-icon name="people-outline"></ion-icon>
+          <span>Customers</span>
+        </a>
+        <a class="nav-item active">
+          <ion-icon name="person-outline"></ion-icon>
+          <span>Profile</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <a class="nav-item" (click)="logout()">
+          <ion-icon name="log-out-outline"></ion-icon>
+          <span>Sign Out</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="settings-main">
+      <!-- Header -->
+      <div class="settings-header">
+        <div class="header-content">
+          <h1>Settings</h1>
+          <p>Manage your carinderia settings and preferences</p>
+        </div>
+        <div class="header-actions">
+          <button class="save-btn" (click)="saveChanges()">
+            <ion-icon name="save-outline"></ion-icon>
+            Save Changes
+          </button>
+        </div>
+      </div>
+
+      <!-- Content Area -->
+      <div class="settings-content-area">
+        <!-- Settings Tabs -->
+        <div class="settings-tabs">
+          <div class="tabs-container">
+            <button 
+              class="tab-btn active" 
+              [class.active]="selectedTab === 'business'"
+              (click)="selectTab('business')">
+              Business Info
+            </button>
+            <button 
+              class="tab-btn" 
+              [class.active]="selectedTab === 'operations'"
+              (click)="selectTab('operations')">
+              Operations
+            </button>
+            <button 
+              class="tab-btn" 
+              [class.active]="selectedTab === 'notifications'"
+              (click)="selectTab('notifications')">
+              Notifications
+            </button>
+            <button 
+              class="tab-btn" 
+              [class.active]="selectedTab === 'account'"
+              (click)="selectTab('account')">
+              Account
+            </button>
+          </div>
+        </div>
+
+        <!-- Business Information Tab -->
+        <div *ngIf="selectedTab === 'business'" class="tab-content">
+          <div class="settings-section">
+            <h2>Business Information</h2>
+            
+            <!-- Business Logo Section -->
+            <div class="form-group logo-section">
+              <label>Business Logo</label>
+              <div class="logo-upload-area">
+                <div class="current-logo">
+                  <div class="logo-preview">
+                    <span class="logo-text">LR</span>
+                  </div>
+                </div>
+                <div class="upload-controls">
+                  <button class="upload-btn" (click)="uploadLogo()">
+                    <ion-icon name="cloud-upload-outline"></ion-icon>
+                    Upload Logo
+                  </button>
+                  <p class="upload-hint">Recommended size: 200x200px</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Business Details Form -->
+            <div class="form-row">
+              <div class="form-group">
+                <label for="businessName">Business Name</label>
+                <input 
+                  type="text" 
+                  id="businessName"
+                  [(ngModel)]="businessInfo.name"
+                  placeholder="Enter business name">
+              </div>
+              <div class="form-group">
+                <label for="phoneNumber">Phone Number</label>
+                <input 
+                  type="tel" 
+                  id="phoneNumber"
+                  [(ngModel)]="businessInfo.phone"
+                  placeholder="Enter phone number">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="emailAddress">Email Address</label>
+                <input 
+                  type="email" 
+                  id="emailAddress"
+                  [(ngModel)]="businessInfo.email"
+                  placeholder="Enter email address">
+              </div>
+              <div class="form-group">
+                <label for="cuisineType">Cuisine Type</label>
+                <select id="cuisineType" [(ngModel)]="businessInfo.cuisineType">
+                  <option value="filipino">Filipino</option>
+                  <option value="chinese">Chinese</option>
+                  <option value="korean">Korean</option>
+                  <option value="japanese">Japanese</option>
+                  <option value="fusion">Fusion</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="businessDescription">Business Description</label>
+              <textarea 
+                id="businessDescription"
+                [(ngModel)]="businessInfo.description"
+                placeholder="Describe your restaurant..."
+                rows="4"></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="address">Address</label>
+              <textarea 
+                id="address"
+                [(ngModel)]="businessInfo.address"
+                placeholder="Enter complete business address..."
+                rows="3"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Operations Tab -->
+        <div *ngIf="selectedTab === 'operations'" class="tab-content">
+          <div class="settings-section">
+            <h2>Operations Settings</h2>
+            
+            <!-- Operating Hours -->
+            <div class="form-group">
+              <label>Operating Hours</label>
+              <div class="operating-hours">
+                <div *ngFor="let day of operatingHours" class="day-schedule">
+                  <div class="day-name">{{ day.name }}</div>
+                  <div class="day-controls">
+                    <label class="toggle-switch">
+                      <input type="checkbox" [(ngModel)]="day.isOpen">
+                      <span class="toggle-slider"></span>
+                    </label>
+                    <div *ngIf="day.isOpen" class="time-inputs">
+                      <input type="time" [(ngModel)]="day.openTime">
+                      <span>to</span>
+                      <input type="time" [(ngModel)]="day.closeTime">
+                    </div>
+                    <span *ngIf="!day.isOpen" class="closed-text">Closed</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notifications Tab -->
+        <div *ngIf="selectedTab === 'notifications'" class="tab-content">
+          <div class="settings-section">
+            <h2>Notification Preferences</h2>
+            
+            <div class="form-group">
+              <label>Order Notifications</label>
+              <div class="notification-settings">
+                <label class="checkbox-group">
+                  <input type="checkbox" [(ngModel)]="notificationSettings.newOrders">
+                  <span class="checkmark"></span>
+                  New order received
+                </label>
+                <label class="checkbox-group">
+                  <input type="checkbox" [(ngModel)]="notificationSettings.orderCancellations">
+                  <span class="checkmark"></span>
+                  Order cancellations
+                </label>
+                <label class="checkbox-group">
+                  <input type="checkbox" [(ngModel)]="notificationSettings.paymentReceived">
+                  <span class="checkmark"></span>
+                  Payment received
+                </label>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>System Notifications</label>
+              <div class="notification-settings">
+                <label class="checkbox-group">
+                  <input type="checkbox" [(ngModel)]="notificationSettings.systemUpdates">
+                  <span class="checkmark"></span>
+                  System updates
+                </label>
+                <label class="checkbox-group">
+                  <input type="checkbox" [(ngModel)]="notificationSettings.promotionalEmails">
+                  <span class="checkmark"></span>
+                  Promotional emails
+                </label>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Notification Methods</label>
+              <div class="notification-methods">
+                <label class="checkbox-group">
+                  <input type="checkbox" [(ngModel)]="notificationSettings.emailNotifications">
+                  <span class="checkmark"></span>
+                  Email notifications
+                </label>
+                <label class="checkbox-group">
+                  <input type="checkbox" [(ngModel)]="notificationSettings.smsNotifications">
+                  <span class="checkmark"></span>
+                  SMS notifications
+                </label>
+                <label class="checkbox-group">
+                  <input type="checkbox" [(ngModel)]="notificationSettings.pushNotifications">
+                  <span class="checkmark"></span>
+                  Push notifications
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Account Tab -->
+        <div *ngIf="selectedTab === 'account'" class="tab-content">
+          <div class="settings-section">
+            <h2>Account Settings</h2>
+            
+            <div class="form-group">
+              <label>Profile Information</label>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="firstName">First Name</label>
+                  <input 
+                    type="text" 
+                    id="firstName"
+                    [(ngModel)]="accountSettings.firstName"
+                    placeholder="Enter first name">
+                </div>
+                <div class="form-group">
+                  <label for="lastName">Last Name</label>
+                  <input 
+                    type="text" 
+                    id="lastName"
+                    [(ngModel)]="accountSettings.lastName"
+                    placeholder="Enter last name">
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Change Password</label>
+              <div class="password-change">
+                <div class="form-group">
+                  <label for="currentPassword">Current Password</label>
+                  <input 
+                    type="password" 
+                    id="currentPassword"
+                    [(ngModel)]="passwordChange.currentPassword"
+                    placeholder="Enter current password">
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="newPassword">New Password</label>
+                    <input 
+                      type="password" 
+                      id="newPassword"
+                      [(ngModel)]="passwordChange.newPassword"
+                      placeholder="Enter new password">
+                  </div>
+                  <div class="form-group">
+                    <label for="confirmPassword">Confirm Password</label>
+                    <input 
+                      type="password" 
+                      id="confirmPassword"
+                      [(ngModel)]="passwordChange.confirmPassword"
+                      placeholder="Confirm new password">
+                  </div>
+                </div>
+                <button class="secondary-btn" (click)="changePassword()">
+                  Change Password
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</ion-content>

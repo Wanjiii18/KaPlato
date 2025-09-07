@@ -16,7 +16,7 @@
   position: fixed;
   height: 100vh;
   z-index: 1000;
-  box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 2px 0 4px rgba(0, 0, 0, 0.15);
   
   .sidebar-header {
     padding: 24px 20px;
@@ -81,6 +81,7 @@
       transition: all 0.2s ease;
       color: #94a3b8;
       position: relative;
+      border-radius: 0;
       
       &:hover {
         background: #334155;
@@ -91,7 +92,7 @@
       &.active {
         background: linear-gradient(135deg, #3730a3, #4338ca);
         color: white;
-        border-right: 3px solid #f59e0b;
+        border-right: 4px solid #f59e0b;
         box-shadow: 0 2px 8px rgba(55, 48, 163, 0.3);
         
         ion-icon {
@@ -297,23 +298,23 @@
         }
         
         &.sales-card .metric-icon {
-          background: linear-gradient(135deg, #16a34a, #059669);
-          box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
+          background: linear-gradient(135deg, #27ae60, #2ecc71);
+          box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3);
         }
         
         &.orders-card .metric-icon {
-          background: linear-gradient(135deg, #3b82f6, #2563eb);
-          box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+          background: linear-gradient(135deg, #3498db, #5dade2);
+          box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
         }
         
         &.avg-order-card .metric-icon {
-          background: linear-gradient(135deg, #f59e0b, #f97316);
-          box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+          background: linear-gradient(135deg, #e67e22, #f39c12);
+          box-shadow: 0 4px 12px rgba(230, 126, 34, 0.3);
         }
         
         &.rating-card .metric-icon {
-          background: linear-gradient(135deg, #8b5cf6, #7c3aed);
-          box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+          background: linear-gradient(135deg, #9b59b6, #8e44ad);
+          box-shadow: 0 4px 12px rgba(155, 89, 182, 0.3);
         }
       }
     }

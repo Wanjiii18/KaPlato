@@ -3,12 +3,12 @@
     <!-- Left Sidebar Navigation -->
     <div class="pos-sidebar">
       <div class="sidebar-header">
-        <div class="restaurant-logo">
-          <span class="logo-text">LR</span>
-        </div>
-        <div class="restaurant-info">
-          <h3>Lola Rosa's</h3>
-          <p>Kitchen</p>
+        <div class="brand">
+          <div class="brand-icon">LR</div>
+          <div class="brand-info">
+            <h3>Lola Rosa's</h3>
+            <span>Kitchen</span>
+          </div>
         </div>
       </div>
 
@@ -29,21 +29,17 @@
           <ion-icon name="receipt-outline"></ion-icon>
           <span>Orders</span>
         </a>
-        <a class="nav-item" routerLink="/karenderia-customers">
+        <a class="nav-item">
           <ion-icon name="people-outline"></ion-icon>
           <span>Customers</span>
         </a>
         <a class="nav-item" routerLink="/karenderia-settings">
-          <ion-icon name="settings-outline"></ion-icon>
-          <span>Settings</span>
+          <ion-icon name="person-outline"></ion-icon>
+          <span>Profile</span>
         </a>
       </nav>
 
       <div class="sidebar-footer">
-        <a class="nav-item" routerLink="/customer-browse">
-          <ion-icon name="storefront-outline"></ion-icon>
-          <span>Back to Customer App</span>
-        </a>
         <a class="nav-item" (click)="logout()">
           <ion-icon name="log-out-outline"></ion-icon>
           <span>Sign Out</span>

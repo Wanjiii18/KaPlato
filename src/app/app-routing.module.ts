@@ -72,6 +72,11 @@ const routes: Routes = [
     canActivate: [AuthGuard, KarenderiaGuard]
   },
   {
+    path: 'karenderia-settings',
+    loadChildren: () => import('./karenderia-settings/karenderia-settings.module').then( m => m.KarenderiaSettingsPageModule),
+    canActivate: [AuthGuard, KarenderiaGuard]
+  },
+  {
     path: 'order-details',
     loadChildren: () => import('./pages/order-details/order-details.module').then( m => m.OrderDetailsPageModule),
     canActivate: [AuthGuard, KarenderiaGuard]

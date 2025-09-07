@@ -3,48 +3,43 @@
     <!-- Left Sidebar Navigation -->
     <div class="orders-sidebar">
       <div class="sidebar-header">
-        <div class="restaurant-logo">
-          <span class="logo-text">LR</span>
-        </div>
-        <div class="restaurant-info">
-          <h3>Lola Rosa's</h3>
-          <p>Kitchen</p>
+        <div class="brand">
+          <div class="brand-icon">LR</div>
+          <div class="brand-info">
+            <h3>Lola Rosa's</h3>
+            <span>Kitchen</span>
+          </div>
         </div>
       </div>
 
       <nav class="sidebar-nav">
-        <a class="nav-item" routerLink="/karenderia-dashboard">
+        <a class="nav-item" routerLink="/karenderia-dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: false}">
           <ion-icon name="grid-outline"></ion-icon>
           <span>Dashboard</span>
         </a>
-        <a class="nav-item" routerLink="/karenderia-menu">
+        <a class="nav-item" routerLink="/karenderia-menu" routerLinkActive="active" [routerLinkActiveOptions]="{exact: false}">
           <ion-icon name="restaurant-outline"></ion-icon>
           <span>Menu Management</span>
         </a>
-        <a class="nav-item" routerLink="/karenderia-orders-pos">
+        <a class="nav-item" routerLink="/karenderia-orders-pos" routerLinkActive="active" [routerLinkActiveOptions]="{exact: false}">
           <ion-icon name="calculator-outline"></ion-icon>
           <span>POS System</span>
         </a>
         <a class="nav-item active">
           <ion-icon name="receipt-outline"></ion-icon>
           <span>Orders</span>
-          <span class="nav-badge">12</span>
         </a>
-        <a class="nav-item" routerLink="/karenderia-customers">
+        <a class="nav-item">
           <ion-icon name="people-outline"></ion-icon>
           <span>Customers</span>
         </a>
-        <a class="nav-item" routerLink="/karenderia-settings">
-          <ion-icon name="settings-outline"></ion-icon>
-          <span>Settings</span>
+        <a class="nav-item" routerLink="/karenderia-settings" routerLinkActive="active" [routerLinkActiveOptions]="{exact: false}">
+          <ion-icon name="person-outline"></ion-icon>
+          <span>Profile</span>
         </a>
       </nav>
 
       <div class="sidebar-footer">
-        <a class="nav-item" routerLink="/customer-browse">
-          <ion-icon name="storefront-outline"></ion-icon>
-          <span>Back to Customer App</span>
-        </a>
         <a class="nav-item" (click)="logout()">
           <ion-icon name="log-out-outline"></ion-icon>
           <span>Sign Out</span>
@@ -59,12 +54,6 @@
         <div class="header-content">
           <h1>Order Management</h1>
           <p>Track and manage all orders from POS system</p>
-        </div>
-        <div class="header-actions">
-          <button class="export-btn">
-            <ion-icon name="funnel-outline"></ion-icon>
-            Export
-          </button>
         </div>
       </div>
 
