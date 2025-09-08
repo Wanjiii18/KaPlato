@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { MenuService } from '../services/menu.service';
 import { OrderService } from '../services/order.service';
@@ -6,6 +6,7 @@ import { SpoonacularService } from '../services/spoonacular.service';
 import { KarenderiaInfoService } from '../services/karenderia-info.service';
 import { MenuItem, MenuIngredient } from '../models/menu.model';
 import { AlertController, ToastController, ModalController } from '@ionic/angular';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-karenderia-menu',
@@ -13,11 +14,13 @@ import { AlertController, ToastController, ModalController } from '@ionic/angula
   styleUrls: ['./karenderia-menu-new.page.scss'],
   standalone: false,
 })
-export class KarenderiaMenuPage implements OnInit {
+export class KarenderiaMenuPage implements OnInit, OnDestroy {
   menuItems: MenuItem[] = [];
   filteredMenuItems: MenuItem[] = [];
   selectedCategory = 'all';
   isAddingItem = false;
+  
+  private menuSubscription?: Subscription;
   
   // New menu item form
   newMenuItem = {
@@ -125,6 +128,13 @@ export class KarenderiaMenuPage implements OnInit {
     this.loadMenuItems();
   }
 
+  ngOnDestroy() {
+    // Clean up subscription to prevent memory leaks
+    if (this.menuSubscription) {
+      this.menuSubscription.unsubscribe();
+    }
+  }
+
   /**
    * Open the order modal for placing orders
    */
@@ -156,8 +166,26 @@ export class KarenderiaMenuPage implements OnInit {
   }
 
   loadMenuItems() {
-    this.menuService.menuItems$.subscribe(items => {
-      this.menuItems = items;
+    // Subscribe to menu items from the service
+    // The service automatically loads data in its constructor, so we just need to subscribe
+    // Unsubscribe any existing subscription first to prevent duplicates
+    if (this.menuSubscription) {
+      this.menuSubscription.unsubscribe();
+    }
+    
+    this.menuSubscription = this.menuService.menuItems$.subscribe(items => {
+      console.log('Menu items received in component:', items);
+      
+      // Remove any potential duplicates based on ID and name
+      const uniqueItems = items.filter((item, index, self) => {
+        return index === self.findIndex(i => 
+          (i.id && item.id && i.id === item.id) || 
+          (i.name === item.name && !i.id && !item.id)
+        );
+      });
+      
+      console.log('Unique menu items after deduplication:', uniqueItems);
+      this.menuItems = uniqueItems;
       this.filterByCategory();
     });
   }

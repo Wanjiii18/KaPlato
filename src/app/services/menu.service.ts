@@ -77,6 +77,11 @@ export class MenuService {
       });
       
       console.log('Mapped menu items:', mappedItems);
+      
+      // Clear any existing items before setting new ones to prevent duplicates
+      this.menuItemsSubject.next([]);
+      
+      // Set the new items
       this.menuItemsSubject.next(mappedItems);
     } catch (error) {
       console.error('Error loading menu items:', error);
