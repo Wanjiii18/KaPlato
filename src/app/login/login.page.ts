@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgForm } from '@angular/forms';
 import { AuthService } from '../services/auth.service';
+import { KarenderiaInfoService } from '../services/karenderia-info.service';
 
 @Component({
   selector: 'app-login',
@@ -22,7 +23,8 @@ export class LoginPage implements OnInit {
 
   constructor(
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private karenderiaInfoService: KarenderiaInfoService
   ) {}
 
   ngOnInit() {
@@ -61,6 +63,12 @@ export class LoginPage implements OnInit {
           password: this.loginData.password 
         };
         const response = await this.authService.login(credentials).toPromise();
+        
+        // If it's a karenderia owner, load their karenderia data
+        if (response?.user?.role === 'karenderia_owner') {
+          console.log('🏪 Karenderia owner logged in, loading karenderia data...');
+          await this.karenderiaInfoService.reloadKarenderiaData();
+        }
         
         // Redirect based on user role
         if (response?.user) {

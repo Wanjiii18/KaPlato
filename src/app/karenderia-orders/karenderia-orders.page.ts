@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { KarenderiaInfoService } from '../services/karenderia-info.service';
 
 interface OrderItem {
   name: string;
@@ -41,7 +42,7 @@ export class KarenderiaOrdersPage implements OnInit {
   preparingOrders: number = 0;
   readyOrders: number = 0;
 
-  constructor(private router: Router) { }
+  constructor(private router: Router, private karenderiaInfoService: KarenderiaInfoService) { }
 
   ngOnInit() {
     this.loadOrders();
@@ -294,5 +295,14 @@ export class KarenderiaOrdersPage implements OnInit {
 
   trackByOrderId(index: number, order: Order): string {
     return order.id;
+  }
+
+  // Dynamic karenderia display methods
+  getKarenderiaDisplayName(): string {
+    return this.karenderiaInfoService.getKarenderiaDisplayName();
+  }
+
+  getKarenderiaBrandInitials(): string {
+    return this.karenderiaInfoService.getKarenderiaBrandInitials();
   }
 }

@@ -3,6 +3,7 @@ import { MenuService } from '../services/menu.service';
 import { AnalyticsService } from '../services/analytics.service';
 import { MenuItem, DetailedOrder, DetailedOrderItem } from '../models/menu.model';
 import { AlertController, ToastController } from '@ionic/angular';
+import { KarenderiaInfoService } from '../services/karenderia-info.service';
 
 export interface OrderItem {
   menuItem: MenuItem;
@@ -197,7 +198,8 @@ export class KarenderiaOrdersPosPage implements OnInit {
     private menuService: MenuService,
     private analyticsService: AnalyticsService,
     private alertController: AlertController,
-    private toastController: ToastController
+    private toastController: ToastController,
+    private karenderiaInfoService: KarenderiaInfoService
   ) { }
 
   ngOnInit() {
@@ -569,5 +571,14 @@ export class KarenderiaOrdersPosPage implements OnInit {
   logout() {
     // Handle logout
     console.log('Logout');
+  }
+
+  // Dynamic karenderia display methods
+  getKarenderiaDisplayName(): string {
+    return this.karenderiaInfoService.getKarenderiaDisplayName();
+  }
+
+  getKarenderiaBrandInitials(): string {
+    return this.karenderiaInfoService.getKarenderiaBrandInitials();
   }
 }

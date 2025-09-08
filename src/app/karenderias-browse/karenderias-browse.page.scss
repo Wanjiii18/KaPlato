@@ -382,38 +382,233 @@
 }
 
 // Responsive design
+@media (max-width: 1200px) {
+  .karenderias-grid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .browse-container {
+    padding: 16px 12px;
+  }
+  
+  .browse-header {
+    padding: 16px 0;
+    
+    h1 {
+      font-size: 1.5rem;
+    }
+    
+    p {
+      font-size: 0.9rem;
+    }
+  }
+  
+  .karenderias-grid {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 14px;
+  }
+  
+  .karenderia-card {
+    .karenderia-image {
+      height: 160px;
+    }
+    
+    .karenderia-content {
+      padding: 16px;
+      
+      .karenderia-name {
+        font-size: 1rem;
+      }
+      
+      .karenderia-address {
+        font-size: 0.8rem;
+      }
+    }
+  }
+}
+
 @media (max-width: 768px) {
   .browse-container {
     padding: 12px;
+  }
+  
+  .browse-header {
+    h1 {
+      font-size: 1.25rem;
+    }
+    
+    p {
+      font-size: 0.875rem;
+    }
+  }
+  
+  .search-section {
+    margin-bottom: 16px;
+    
+    .search-bar {
+      --padding-start: 12px;
+      --padding-end: 12px;
+      font-size: 0.875rem;
+    }
+  }
+  
+  .categories-scroll {
+    padding: 8px 0;
+    margin-bottom: 16px;
+    
+    .category-chip {
+      padding: 6px 12px;
+      font-size: 0.8rem;
+      margin-right: 8px;
+    }
   }
   
   .results-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 12px;
+    margin-bottom: 16px;
+    
+    .results-count {
+      font-size: 0.875rem;
+    }
     
     .sort-select {
       align-self: stretch;
+      font-size: 0.875rem;
     }
   }
   
-  .karenderia-meta {
-    flex-direction: column;
-    align-items: flex-start;
+  .karenderias-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  
+  .karenderia-card {
+    .karenderia-image {
+      height: 140px;
+    }
+    
+    .karenderia-content {
+      padding: 14px;
+    }
+    
+    .karenderia-meta {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+      
+      .rating-info {
+        font-size: 0.8rem;
+      }
+      
+      .distance-info {
+        font-size: 0.8rem;
+      }
+    }
+    
+    .karenderia-actions {
+      .view-menu-btn {
+        font-size: 0.875rem;
+        padding: 8px 16px;
+      }
+    }
   }
 }
 
 @media (max-width: 480px) {
-  .categories-scroll {
-    padding: 8px 4px;
+  .browse-container {
+    padding: 8px;
   }
   
-  .category-chip {
-    padding: 6px 12px;
-    font-size: 0.8rem;
+  .browse-header {
+    padding: 12px 0;
+    
+    h1 {
+      font-size: 1.1rem;
+    }
+    
+    p {
+      font-size: 0.8rem;
+    }
+  }
+  
+  .search-section {
+    margin-bottom: 12px;
+  }
+  
+  .categories-scroll {
+    padding: 6px 0;
+    margin-bottom: 12px;
+    
+    .category-chip {
+      padding: 4px 10px;
+      font-size: 0.75rem;
+      margin-right: 6px;
+    }
+  }
+  
+  .results-header {
+    margin-bottom: 12px;
+    
+    .results-count {
+      font-size: 0.8rem;
+    }
+  }
+  
+  .karenderias-grid {
+    gap: 10px;
   }
   
   .karenderia-card {
     margin: 0 -4px;
+    
+    .karenderia-image {
+      height: 120px;
+    }
+    
+    .karenderia-content {
+      padding: 12px;
+      
+      .karenderia-name {
+        font-size: 0.9rem;
+      }
+      
+      .karenderia-address {
+        font-size: 0.75rem;
+      }
+    }
+    
+    .karenderia-meta {
+      .rating-info, .distance-info {
+        font-size: 0.75rem;
+      }
+    }
+    
+    .karenderia-actions {
+      .view-menu-btn {
+        font-size: 0.8rem;
+        padding: 6px 12px;
+      }
+    }
+  }
+  
+  .no-results {
+    padding: 40px 16px;
+    
+    ion-icon {
+      font-size: 3rem;
+    }
+    
+    h3 {
+      font-size: 1.1rem;
+    }
+    
+    p {
+      font-size: 0.85rem;
+    }
   }
 }

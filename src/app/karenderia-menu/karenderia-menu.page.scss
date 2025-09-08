@@ -9,6 +9,86 @@
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
+// Mobile Top Bar (hidden on desktop)
+.mobile-top-bar {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1001;
+  background: #1e293b;
+  color: white;
+  padding: 12px 16px;
+  border-bottom: 1px solid #334155;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  
+  .mobile-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    color: inherit;
+    
+    &:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+    
+    .brand-icon {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, #f59e0b, #f97316);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 14px;
+      color: white;
+    }
+    
+    .brand-info {
+      h3 {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 600;
+        color: white;
+        line-height: 1.2;
+      }
+      
+      span {
+        font-size: 12px;
+        color: #94a3b8;
+        font-weight: 500;
+      }
+    }
+  }
+  
+  .mobile-actions {
+    display: flex;
+    gap: 8px;
+    
+    ion-button {
+      --color: #94a3b8;
+      --padding-start: 8px;
+      --padding-end: 8px;
+      
+      &:hover {
+        --color: white;
+      }
+      
+      ion-icon {
+        font-size: 20px;
+      }
+    }
+  }
+}
+
 // Sidebar Styles
 .sidebar {
   width: 280px;
@@ -860,20 +940,270 @@
 }
 
 // Responsive Design
+@media (max-width: 1200px) {
+  .menu-dashboard {
+    .menu-items-grid {
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+    }
+  }
+}
+
+@media (max-width: 1024px) {
+  .dashboard-layout {
+    flex-direction: column;
+    
+    .sidebar {
+      width: 100%;
+      height: auto;
+      position: relative;
+      order: 1; // Keep sidebar at top for mobile
+      min-height: auto;
+      flex-shrink: 0;
+      
+      .logo-section {
+        display: none; // Hide logo on mobile to save space
+      }
+      
+      .sidebar-nav {
+        display: flex;
+        flex-direction: row;
+        gap: 8px;
+        padding: 12px 16px;
+        overflow-x: auto;
+        white-space: nowrap;
+        
+        .nav-item {
+          white-space: nowrap;
+          min-width: auto;
+          padding: 8px 16px;
+          border-radius: 20px;
+          border-right: none;
+          font-size: 0.875rem;
+          
+          &.active {
+            background: linear-gradient(135deg, #3730a3, #4338ca);
+            border-right: none;
+            border-radius: 20px;
+          }
+          
+          ion-icon {
+            margin-right: 4px;
+          }
+          
+          span {
+            display: inline; // Show text on tablet
+          }
+        }
+      }
+      
+      .sidebar-footer {
+        display: none;
+      }
+    }
+    
+    .main-content {
+      order: 2;
+      margin-left: 0;
+      height: calc(100vh - 60px); // Adjust for compact sidebar
+      flex: 1;
+    }
+  }
+  
+  .menu-dashboard {
+    .menu-items-grid {
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 14px;
+    }
+  }
+}
+
 @media (max-width: 768px) {
+  .mobile-top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 60px;
+  }
+
+  .dashboard-layout {    
+    .sidebar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      background: #1e293b;
+      border-top: 1px solid #334155;
+      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3);
+      width: 100%;
+      height: auto;
+      order: 2;
+      
+      .sidebar-header {
+        display: none;
+      }
+      
+      .sidebar-nav {
+        display: flex;
+        justify-content: space-around;
+        padding: 8px 4px;
+        gap: 0;
+        
+        .nav-item {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          padding: 8px 4px;
+          border-radius: 12px;
+          border-right: none;
+          background: transparent;
+          color: #94a3b8;
+          min-width: auto;
+          transition: all 0.2s ease;
+          
+          &.desktop-only {
+            display: none; // Hide profile button on mobile
+          }
+          
+          &.active {
+            background: linear-gradient(135deg, #3730a3, #4338ca);
+            color: white;
+            border-right: none;
+            box-shadow: 0 2px 8px rgba(55, 48, 163, 0.3);
+            
+            ion-icon {
+              color: #f59e0b;
+              transform: scale(1.1);
+            }
+          }
+          
+          &:hover {
+            background: #334155;
+            color: white;
+            transform: none;
+          }
+          
+          ion-icon {
+            font-size: 1.2rem;
+            margin-right: 0;
+            margin-bottom: 2px;
+            transition: all 0.2s ease;
+          }
+          
+          span {
+            font-size: 0.7rem;
+            font-weight: 500;
+            text-align: center;
+            line-height: 1;
+            color: inherit;
+          }
+        }
+      }
+      
+      .sidebar-footer {
+        display: none;
+      }
+    }
+    
+    .main-content {
+      height: calc(100vh - 130px); // Space for top bar (60px) + bottom nav (70px)
+      margin-bottom: 70px;
+      margin-left: 0;
+      margin-top: 60px; // Space for mobile top bar
+      order: 1;
+    }
+  }
+
   .modern-menu-container {
     padding: 16px 12px;
+  }
+  
+  .modern-menu-header {
+    .gradient-menu-toolbar {
+      padding: 12px 16px;
+      
+      ion-title {
+        .modern-menu-title {
+          h1 {
+            font-size: 1.25rem;
+          }
+          
+          span {
+            font-size: 0.8rem;
+          }
+        }
+      }
+      
+      .modern-order-btn, .modern-add-btn {
+        font-size: 0.875rem;
+        padding: 8px 12px;
+        
+        ion-icon {
+          font-size: 1rem;
+        }
+      }
+    }
   }
   
   .menu-dashboard {
     .menu-items-grid {
       grid-template-columns: 1fr;
+      gap: 12px;
+    }
+    
+    .modern-menu-item-card {
+      .item-header {
+        .item-title {
+          font-size: 1rem;
+        }
+        
+        .item-category {
+          font-size: 0.75rem;
+        }
+      }
+      
+      .item-content {
+        .item-description {
+          font-size: 0.875rem;
+        }
+        
+        .item-details {
+          .detail-item {
+            font-size: 0.8rem;
+          }
+        }
+      }
+      
+      .item-footer {
+        .item-price {
+          font-size: 1.1rem;
+        }
+        
+        .item-actions {
+          gap: 6px;
+          
+          .edit-btn, .delete-btn {
+            padding: 6px 10px;
+            font-size: 0.8rem;
+          }
+        }
+      }
     }
   }
   
   .modern-add-item-card {
     ion-card-header {
       padding: 20px 16px;
+      
+      ion-card-title {
+        font-size: 1.25rem;
+      }
+      
+      ion-card-subtitle {
+        font-size: 0.875rem;
+      }
     }
     
     ion-card-content {
@@ -883,14 +1213,58 @@
   
   .form-grid {
     grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .form-actions {
+    gap: 8px;
+    
+    .cancel-btn, .save-btn {
+      font-size: 0.875rem;
+    }
   }
 }
 
 @media (max-width: 480px) {
+  .dashboard-layout {
+    .sidebar {
+      .sidebar-nav {
+        padding: 6px 2px;
+        
+        .nav-item {
+          padding: 6px 2px;
+          
+          ion-icon {
+            font-size: 1.1rem;
+          }
+          
+          span {
+            font-size: 0.65rem;
+          }
+        }
+      }
+    }
+    
+    .main-content {
+      height: calc(100vh - 60px);
+      margin-bottom: 60px;
+    }
+  }
+
+  .modern-menu-container {
+    padding: 12px 8px;
+  }
+  
   .modern-menu-header {
     .gradient-menu-toolbar {
+      padding: 10px 12px;
+      
       ion-title {
         .modern-menu-title {
+          h1 {
+            font-size: 1.1rem;
+          }
+          
           span {
             display: none;
           }
@@ -898,14 +1272,92 @@
       }
       
       .modern-order-btn, .modern-add-btn {
+        padding: 6px 10px;
+        font-size: 0.8rem;
+        
         ion-icon {
           margin-right: 0;
+          font-size: 0.9rem;
         }
         
         span {
           display: none;
         }
       }
+    }
+  }
+  
+  .menu-dashboard {
+    .menu-items-grid {
+      gap: 10px;
+    }
+    
+    .modern-menu-item-card {
+      padding: 12px;
+      
+      .item-header {
+        margin-bottom: 8px;
+        
+        .item-title {
+          font-size: 0.9rem;
+        }
+        
+        .item-category {
+          font-size: 0.7rem;
+        }
+      }
+      
+      .item-content {
+        margin-bottom: 8px;
+        
+        .item-description {
+          font-size: 0.8rem;
+        }
+        
+        .item-details {
+          .detail-item {
+            font-size: 0.75rem;
+          }
+        }
+      }
+      
+      .item-footer {
+        .item-price {
+          font-size: 1rem;
+        }
+        
+        .item-actions {
+          gap: 4px;
+          
+          .edit-btn, .delete-btn {
+            padding: 4px 8px;
+            font-size: 0.75rem;
+            
+            ion-icon {
+              font-size: 0.8rem;
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  .modern-add-item-card {
+    ion-card-header {
+      padding: 16px 12px;
+    }
+    
+    ion-card-content {
+      padding: 20px 12px;
+    }
+  }
+  
+  .form-actions {
+    flex-direction: column;
+    
+    .cancel-btn, .save-btn {
+      width: 100%;
+      margin: 0;
     }
   }
 }

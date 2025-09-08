@@ -1,12 +1,31 @@
 <ion-content class="settings-content">
+  <!-- Mobile Top Bar (visible only on mobile) -->
+  <div class="mobile-top-bar">
+    <div class="mobile-brand">
+      <div class="brand-icon">{{getKarenderiaBrandInitials()}}</div>
+      <div class="brand-info">
+        <h3>{{getKarenderiaDisplayName()}}</h3>
+        <span>Settings</span>
+      </div>
+    </div>
+    <div class="mobile-actions">
+      <ion-button fill="clear" size="small" routerLink="/karenderia-settings">
+        <ion-icon name="person-circle-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+      <ion-button fill="clear" size="small" (click)="logout()">
+        <ion-icon name="log-out-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </div>
+  </div>
+
   <div class="settings-layout">
     <!-- Left Sidebar Navigation -->
     <div class="settings-sidebar">
       <div class="sidebar-header">
         <div class="brand">
-          <div class="brand-icon">LR</div>
+          <div class="brand-icon">{{getKarenderiaBrandInitials()}}</div>
           <div class="brand-info">
-            <h3>Lola Rosa's</h3>
+            <h3>{{getKarenderiaDisplayName()}}</h3>
             <span>Kitchen</span>
           </div>
         </div>
@@ -14,28 +33,24 @@
 
       <nav class="sidebar-nav">
         <a class="nav-item" routerLink="/karenderia-dashboard">
-          <ion-icon name="grid-outline"></ion-icon>
-          <span>Dashboard</span>
+          <ion-icon name="grid-outline" class="nav-icon"></ion-icon>
+          <span class="nav-text">Dashboard</span>
         </a>
         <a class="nav-item" routerLink="/karenderia-menu">
-          <ion-icon name="restaurant-outline"></ion-icon>
-          <span>Menu Management</span>
+          <ion-icon name="restaurant-outline" class="nav-icon"></ion-icon>
+          <span class="nav-text">Menu</span>
         </a>
         <a class="nav-item" routerLink="/karenderia-orders-pos">
-          <ion-icon name="calculator-outline"></ion-icon>
-          <span>POS System</span>
+          <ion-icon name="calculator-outline" class="nav-icon"></ion-icon>
+          <span class="nav-text">POS</span>
         </a>
         <a class="nav-item" routerLink="/karenderia-orders">
-          <ion-icon name="receipt-outline"></ion-icon>
-          <span>Orders</span>
+          <ion-icon name="receipt-outline" class="nav-icon"></ion-icon>
+          <span class="nav-text">Orders</span>
         </a>
-        <a class="nav-item">
-          <ion-icon name="people-outline"></ion-icon>
-          <span>Customers</span>
-        </a>
-        <a class="nav-item active">
-          <ion-icon name="person-outline"></ion-icon>
-          <span>Profile</span>
+        <a class="nav-item active" routerLink="/karenderia-settings">
+          <ion-icon name="settings-outline" class="nav-icon"></ion-icon>
+          <span class="nav-text">Settings</span>
         </a>
       </nav>
 

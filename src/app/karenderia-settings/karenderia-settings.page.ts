@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { KarenderiaInfoService } from '../services/karenderia-info.service';
 
 interface BusinessInfo {
   name: string;
@@ -100,7 +101,7 @@ export class KarenderiaSettingsPage implements OnInit {
     { name: 'Sunday', isOpen: false, openTime: '09:00', closeTime: '18:00' }
   ];
 
-  constructor(private router: Router) { }
+  constructor(private router: Router, private karenderiaInfoService: KarenderiaInfoService) { }
 
   ngOnInit() {
     this.loadSettings();
@@ -169,5 +170,14 @@ export class KarenderiaSettingsPage implements OnInit {
   private showSuccessMessage() {
     // Implement success message display
     console.log('Settings saved successfully!');
+  }
+
+  // Dynamic karenderia display methods
+  getKarenderiaDisplayName(): string {
+    return this.karenderiaInfoService.getKarenderiaDisplayName();
+  }
+
+  getKarenderiaBrandInitials(): string {
+    return this.karenderiaInfoService.getKarenderiaBrandInitials();
   }
 }

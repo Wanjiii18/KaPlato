@@ -2,7 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { MenuService } from '../services/menu.service';
 import { AuthService } from '../services/auth.service';
-import { MenuItem, Order, Ingredient, DailySales } from '../models/menu.model';
+import { KarenderiaInfoService } from '../services/karenderia-info.service';
+import { MenuItem, Order, Ingredient, DailySales, Karenderia } from '../models/menu.model';
 
 @Component({
   selector: 'app-karenderia-dashboard',
@@ -24,12 +25,15 @@ export class KarenderiaDashboardPage implements OnInit {
   constructor(
     private router: Router,
     private menuService: MenuService,
-    private authService: AuthService
+    private authService: AuthService,
+    private karenderiaInfoService: KarenderiaInfoService
   ) { }
 
   async ngOnInit() {
     this.isLoading = true;
     try {
+      // Reload karenderia data to ensure we have the latest info for the logged-in user
+      await this.karenderiaInfoService.reloadKarenderiaData();
       await this.loadDashboardData();
     } catch (error) {
       console.error('Error loading dashboard data:', error);
@@ -182,8 +186,21 @@ export class KarenderiaDashboardPage implements OnInit {
     this.router.navigate(['/karenderia/pos']);
   }
 
+  navigateToSettings() {
+    this.router.navigate(['/karenderia-settings']);
+  }
+
   navigateToAnalytics() {
     this.router.navigate(['/karenderia-analytics']);
+  }
+
+  // Helper methods for dynamic karenderia display
+  getKarenderiaDisplayName(): string {
+    return this.karenderiaInfoService.getKarenderiaDisplayName();
+  }
+
+  getKarenderiaBrandInitials(): string {
+    return this.karenderiaInfoService.getKarenderiaBrandInitials();
   }
 
   formatPhp(amount: number): string {

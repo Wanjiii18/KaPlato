@@ -191,3 +191,37 @@ export interface SalesAnalytics {
     }[];
   }[];
 }
+
+// Karenderia interface for restaurant information
+export interface Karenderia {
+  id: string;
+  name: string;
+  business_name?: string;
+  description?: string;
+  address: string;
+  city?: string;
+  province?: string;
+  phone?: string;
+  email?: string;
+  business_email?: string;
+  owner_id: string;
+  latitude?: number;
+  longitude?: number;
+  opening_time?: string;
+  closing_time?: string;
+  operating_days?: string[];
+  status: 'active' | 'inactive' | 'pending' | 'suspended';
+  business_permit?: string;
+  logo_url?: string;
+  images?: string[];
+  average_rating?: number;
+  total_reviews?: number;
+  delivery_fee?: number;
+  delivery_time_minutes?: number;
+  accepts_cash?: boolean;
+  accepts_online_payment?: boolean;
+  approved_at?: Date;
+  approved_by?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}

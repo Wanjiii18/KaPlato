@@ -799,4 +799,11 @@ export class KarenderiaService {
     });
   }
 
+  // Get current user's karenderia (for karenderia owners)
+  getCurrentUserKarenderia(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/karenderias/my-karenderia`, {
+      headers: this.getHeaders()
+    });
+  }
+
 }

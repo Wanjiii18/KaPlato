@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { MenuService } from '../services/menu.service';
 import { OrderService } from '../services/order.service';
 import { SpoonacularService } from '../services/spoonacular.service';
+import { KarenderiaInfoService } from '../services/karenderia-info.service';
 import { MenuItem, MenuIngredient } from '../models/menu.model';
 import { AlertController, ToastController, ModalController } from '@ionic/angular';
 
@@ -116,7 +117,8 @@ export class KarenderiaMenuPage implements OnInit {
     private spoonacularService: SpoonacularService,
     private alertController: AlertController,
     private toastController: ToastController,
-    private modalController: ModalController
+    private modalController: ModalController,
+    private karenderiaInfoService: KarenderiaInfoService
   ) { }
 
   ngOnInit() {
@@ -534,5 +536,14 @@ export class KarenderiaMenuPage implements OnInit {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     this.router.navigate(['/login']);
+  }
+
+  // Dynamic karenderia display methods
+  getKarenderiaDisplayName(): string {
+    return this.karenderiaInfoService.getKarenderiaDisplayName();
+  }
+
+  getKarenderiaBrandInitials(): string {
+    return this.karenderiaInfoService.getKarenderiaBrandInitials();
   }
 }
