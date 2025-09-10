@@ -12,8 +12,8 @@ import { Geolocation } from '@capacitor/geolocation';
   standalone: false,
 })
 export class MapComponent implements AfterViewInit, OnDestroy {
-  @Input() lat = 14.5995; // Default to Manila coordinates
-  @Input() lng = 120.9842;
+  @Input() lat = 10.3234; // Default to Cebu coordinates where karenderias are
+  @Input() lng = 123.9312; // Default to Cebu coordinates where karenderias are
   @Input() zoom = 13;
 
   private map!: L.Map;
@@ -43,12 +43,26 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     // Add a small delay to ensure the DOM is fully rendered
     setTimeout(() => {
       this.initMap();
+      this.clearRoute(); // Clear any existing routes
       this.getCurrentLocation();
       this.setupGlobalFunctions();
+      
+      // Fallback: if no location is available after 3 seconds, search with default Cebu coordinates
+      setTimeout(() => {
+        if (!this.currentLocation) {
+          console.log('📍 No location detected, using default Cebu coordinates for search');
+          this.currentLocation = { lat: 10.3234, lng: 123.9312 };
+          this.map.setView([this.currentLocation.lat, this.currentLocation.lng], 16);
+          this.searchNearbyKarenderias();
+        }
+      }, 3000);
     }, 250);
   }
 
   ngOnDestroy() {
+    // Clean up any routes or markers when component is destroyed
+    this.clearRoute();
+    this.clearKarenderiaMarkers();
     if (this.map) {
       this.map.remove();
     }
@@ -95,6 +109,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       this.map.setView([this.currentLocation.lat, this.currentLocation.lng], 16);
       this.addCurrentLocationMarker();
       this.updateSearchRadius();
+      // Automatically search for karenderias when location is obtained
+      this.searchNearbyKarenderias();
     } catch (error) {
       this.handleLocationError(error);
     }
@@ -182,26 +198,41 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   // Search nearby karenderias
   searchNearbyKarenderias(): void {
     if (!this.currentLocation) {
-      this.showToast('Location not available', 'warning');
-      return;
+      // Use default Cebu coordinates if no location
+      this.currentLocation = { lat: 10.3234, lng: 123.9312 };
+      this.showToast('Using default Cebu location', 'warning');
     }
 
     this.isSearching = true;
     this.clearKarenderiaMarkers();
 
-    this.karenderiaService.getNearbyKarenderias_Local(
+    // Use the actual API that we know works
+    this.karenderiaService.getNearbyKarenderias(
       this.currentLocation.lat,
       this.currentLocation.lng,
-      this.searchRange
+      5000 // Use 5km radius to match your test
     ).subscribe({
       next: (karenderias) => {
-        this.karenderias = karenderias;
+        console.log('📍 Map received karenderias:', karenderias);
+        // Convert Karenderia[] to SimpleKarenderia[] format
+        this.karenderias = karenderias.map(k => ({
+          id: k.id || '',
+          name: k.name,
+          address: k.address,
+          location: k.location,
+          description: k.description,
+          rating: k.rating,
+          priceRange: k.priceRange,
+          cuisine: k.cuisine,
+          contactNumber: k.contactNumber,
+          distance: k.distance
+        }));
         this.addKarenderiaMarkers();
         this.isSearching = false;
-        this.showToast(`Found ${karenderias.length} karenderias within ${this.searchRange}m`, 'success');
+        this.showToast(`Found ${karenderias.length} karenderias within 5km`, 'success');
       },
       error: (error) => {
-        console.error('Search error:', error);
+        console.error('❌ Map search error:', error);
         this.isSearching = false;
         this.showToast('Search failed. Please try again.', 'danger');
       }
@@ -241,6 +272,16 @@ export class MapComponent implements AfterViewInit, OnDestroy {
 
   // Create popup content for karenderia markers
   private createPopupContent(karenderia: SimpleKarenderia): string {
+    const isRoutingActive = this.isRoutingActive;
+    const directionsButton = isRoutingActive 
+      ? `<button disabled style="background: #ccc; color: #666; border: none; padding: 8px 12px; border-radius: 4px; cursor: not-allowed; font-size: 12px;">
+           Route Active
+         </button>`
+      : `<button onclick="window.getDirections('${karenderia.id}')" 
+                style="background: #007bff; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px;">
+           Get Directions
+         </button>`;
+
     return `
       <div style="padding: 10px; font-family: Arial, sans-serif;">
         <h3 style="margin: 0 0 10px 0; color: #333;">${karenderia.name}</h3>
@@ -248,13 +289,12 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         <p style="margin: 5px 0; font-size: 14px;"><strong>Distance:</strong> ${Math.round(karenderia.distance || 0)}m</p>
         <p style="margin: 5px 0; font-size: 14px;"><strong>Rating:</strong> ${karenderia.rating || 'N/A'}</p>
         
-        <div style="margin-top: 10px; display: flex; gap: 10px;">
-          <button onclick="window.getDirections('${karenderia.id}')" 
-                  style="background: #007bff; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px;">
-            Get Directions
-          </button>
+        ${isRoutingActive ? '<p style="margin: 5px 0; color: #ff6b35; font-size: 12px; font-style: italic;">Clear current route to get new directions</p>' : ''}
+        
+        <div style="margin-top: 10px; display: flex; gap: 10px; flex-wrap: wrap;">
+          ${directionsButton}
           <button onclick="window.clearRoute()" 
-                  style="background: #6c757d; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px;">
+                  style="background: #dc3545; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px;">
             Clear Route
           </button>
         </div>
@@ -266,6 +306,12 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   private clearKarenderiaMarkers(): void {
     this.karenderiaMarkers.forEach(marker => this.map.removeLayer(marker));
     this.karenderiaMarkers = [];
+  }
+
+  // Refresh karenderia markers with updated popup content
+  private refreshKarenderiaMarkers(): void {
+    this.clearKarenderiaMarkers();
+    this.addKarenderiaMarkers();
   }
 
   // Setup global functions for popup buttons
@@ -289,29 +335,29 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       return;
     }
 
+    // Check if routing is already active and warn user
+    if (this.isRoutingActive) {
+      this.showToast('Please clear the current route first', 'warning');
+      return;
+    }
+
     const loading = await this.loadingController.create({
       message: 'Getting directions...',
-      cssClass: 'loading-accessible', // Add custom CSS class for accessibility
-      backdropDismiss: false, // Prevent backdrop dismiss to avoid aria-hidden conflicts
-      keyboardClose: false // Prevent keyboard close to maintain focus control
+      cssClass: 'loading-accessible',
+      backdropDismiss: false,
+      keyboardClose: false
     });
     
     try {
       await loading.present();
       
-      // Fix aria-hidden issues on the loading element
-      setTimeout(() => {
-        const loadingElement = document.querySelector('ion-loading');
-        if (loadingElement) {
-          loadingElement.removeAttribute('aria-hidden');
-          loadingElement.setAttribute('aria-live', 'polite');
-          loadingElement.setAttribute('aria-describedby', 'loading-message');
-        }
-      }, 50);
-
+      // Clear any existing routes first (extra safety)
       this.clearRoute();
+      
+      // Display the new route
       this.displayTurnByTurnRoute(karenderia);
-      this.showToast(`Route to ${karenderia.name} displayed`, 'success');
+      this.showToast(`Route to ${karenderia.name} displayed. Click "Clear Route" to remove.`, 'success');
+      
     } catch (error) {
       console.error('Direction error:', error);
       this.showToast('Error getting directions', 'danger');
@@ -367,10 +413,20 @@ export class MapComponent implements AfterViewInit, OnDestroy {
           element.removeAttribute('aria-hidden');
         });
       }
+      
+      // Add routing-active class to map container to show routing UI
+      const mapContainer = document.getElementById('map');
+      if (mapContainer) {
+        mapContainer.classList.add('routing-active');
+      }
     }, 100);
 
     // Store the routing control to remove it later
     this.currentRoute = routingControl;
+    this.isRoutingActive = true;
+
+    // Refresh markers to update popup content
+    this.refreshKarenderiaMarkers();
 
     // Use a layer group for custom markers
     this.routeLayer = L.layerGroup().addTo(this.map);
@@ -396,19 +452,62 @@ export class MapComponent implements AfterViewInit, OnDestroy {
 
   // Clear route
   private clearRoute(): void {
+    console.log('🧹 Clearing route...');
+    
     // Remove routing control from the map
-    if (this.currentRoute && this.map.hasLayer(this.currentRoute)) {
-      this.map.removeControl(this.currentRoute);
+    if (this.currentRoute) {
+      try {
+        if (this.map.hasLayer && this.map.hasLayer(this.currentRoute)) {
+          this.map.removeControl(this.currentRoute);
+        } else {
+          // Try alternative removal method
+          this.currentRoute.remove();
+        }
+        console.log('✅ Routing control removed');
+      } catch (error) {
+        console.error('❌ Error removing routing control:', error);
+      }
+      this.currentRoute = null;
     }
     
     // Remove custom markers layer
     if (this.routeLayer) {
-      this.map.removeLayer(this.routeLayer);
+      try {
+        this.map.removeLayer(this.routeLayer);
+        console.log('✅ Route layer removed');
+      } catch (error) {
+        console.error('❌ Error removing route layer:', error);
+      }
       this.routeLayer = undefined;
     }
 
+    // Remove routing container from DOM if it exists
+    const routingContainers = document.querySelectorAll('.leaflet-routing-container, .leaflet-routing-container-accessible');
+    routingContainers.forEach(container => {
+      try {
+        container.remove();
+        console.log('✅ Routing container removed from DOM');
+      } catch (error) {
+        console.error('❌ Error removing routing container:', error);
+      }
+    });
+
+    // Remove routing-active class to hide routing UI
+    const mapContainer = document.getElementById('map');
+    if (mapContainer) {
+      mapContainer.classList.remove('routing-active');
+      console.log('✅ Routing-active class removed');
+    }
+
+    // Reset routing state
     this.isRoutingActive = false;
-    this.currentRoute = null;
+    
+    // Refresh markers to update popup content
+    this.refreshKarenderiaMarkers();
+    
+    // Show success message
+    this.showToast('Route cleared', 'success');
+    console.log('🎉 Route clearing completed');
   }
 
   // Refresh map size
@@ -420,10 +519,13 @@ export class MapComponent implements AfterViewInit, OnDestroy {
 
   private handleLocationError(error: any): void {
     console.error('Location error:', error);
-    this.currentLocation = { lat: 14.5995, lng: 120.9842 }; // Default location
+    this.currentLocation = { lat: 10.3234, lng: 123.9312 }; // Default to Cebu where karenderias are
+    this.map.setView([this.currentLocation.lat, this.currentLocation.lng], 16);
     this.addCurrentLocationMarker();
     this.updateSearchRadius();
-    this.showToast('Using default location due to error.', 'warning');
+    this.showToast('Using default Cebu location. Searching for karenderias...', 'warning');
+    // Search for karenderias even with default location
+    this.searchNearbyKarenderias();
   }
 
   private async showToast(message: string, color: 'success' | 'warning' | 'danger' = 'success'): Promise<void> {

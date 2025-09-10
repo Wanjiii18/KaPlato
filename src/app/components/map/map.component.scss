@@ -132,3 +132,54 @@
 .leaflet-marker-shadow {
   pointer-events: auto;
 }
+
+/* Hide routing controls by default */
+.leaflet-routing-container {
+  display: none !important;
+}
+
+/* When routing is active, show the controls */
+.routing-active .leaflet-routing-container {
+  display: block !important;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  max-width: 300px;
+  font-size: 14px;
+}
+
+/* Style the routing instructions */
+.leaflet-routing-container h3 {
+  background: var(--ion-color-primary);
+  color: white;
+  margin: 0;
+  padding: 10px;
+  border-radius: 8px 8px 0 0;
+  font-size: 16px;
+}
+
+.leaflet-routing-container .leaflet-routing-instructions {
+  max-height: 200px;
+  overflow-y: auto;
+  padding: 10px;
+}
+
+/* Improve popup styling */
+.karenderia-popup .leaflet-popup-content {
+  width: auto !important;
+  margin: 0 !important;
+}
+
+.karenderia-popup .leaflet-popup-content-wrapper {
+  border-radius: 8px;
+  box-shadow: 0 3px 14px rgba(0,0,0,0.4);
+}
+
+/* Custom marker styling */
+.karenderia-marker {
+  transition: transform 0.2s ease;
+}
+
+.karenderia-marker:hover {
+  transform: scale(1.1);
+}

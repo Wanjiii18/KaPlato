@@ -619,3 +619,13 @@ ion-router-outlet {
     }
   }
 }
+
+// Clear Route FAB Button Styling
+.clear-route-fab {
+  margin-bottom: 8px !important;
+  transform: scale(0.85);
+  
+  &:hover {
+    transform: scale(0.9);
+  }
+}

@@ -22,8 +22,8 @@ export class MapViewPage implements OnInit, AfterViewInit {
   userLocation: any = null;
   
   // Map properties
-  currentLat = 14.5995; // Default to Manila coordinates
-  currentLng = 120.9842;
+  currentLat = 10.3234; // Default to Cebu coordinates where karenderias are located
+  currentLng = 123.9312;
   mapZoom = 13;
 
   constructor(
@@ -45,7 +45,7 @@ export class MapViewPage implements OnInit, AfterViewInit {
       this.router.navigateByUrl('/map-view', { replaceUrl: true });
     }
     
-    this.loadKarenderias();
+    // Get location first, which will then load karenderias
     this.getCurrentLocation();
     // DON'T call addSwipeGesture() here - moved to ngAfterViewInit()
   }
@@ -98,41 +98,56 @@ export class MapViewPage implements OnInit, AfterViewInit {
     console.log('🔍 Loading karenderias for map view...');
     
     try {
-      // First try to load from localStorage (test data)
-      this.karenderiaService.getAllKarenderias_Local().subscribe({
-        next: (localData) => {
-          console.log('📱 Local storage data:', localData);
-          if (localData && localData.length > 0) {
-            this.karenderias = localData.map(k => ({
-              id: k.id,
-              name: k.name,
-              cuisine: k.cuisine?.join(', ') || 'Filipino',
-              address: k.address,
-              rating: k.rating || 4.5,
-              isOpen: true, // Default to open
-              deliveryTime: '20-30 min',
-              distance: 300,
-              latitude: k.location?.latitude || 10.3157,
-              longitude: k.location?.longitude || 123.8854
-            }));
-            this.filteredKarenderias = [...this.karenderias];
-            console.log('✅ Loaded from localStorage:', this.karenderias.length, 'karenderias');
-            this.applyFilter();
-            return;
-          }
-          
-          // If no local data, try backend
-          this.loadFromBackend();
-        },
-        error: (error) => {
-          console.error('❌ Error loading from localStorage:', error);
-          this.loadFromBackend();
-        }
-      });
+      // If we have user location, search nearby karenderias
+      if (this.userLocation) {
+        console.log('📍 Using user location for nearby search:', this.userLocation);
+        this.searchNearbyKarenderias(this.userLocation.latitude, this.userLocation.longitude, 5000);
+        return;
+      }
+      
+      // If no user location, use Cebu coordinates as default
+      console.log('📍 No user location, using Cebu coordinates for search');
+      this.searchNearbyKarenderias(10.3234, 123.9312, 5000);
+      
     } catch (error) {
       console.error('❌ Error in loadKarenderias:', error);
-      this.loadFromBackend();
+      this.loadMockData();
     }
+  }
+
+  searchNearbyKarenderias(lat: number, lng: number, radius: number) {
+    console.log(`🔍 Searching nearby karenderias at ${lat}, ${lng} within ${radius}m`);
+    
+    this.karenderiaService.getNearbyKarenderias(lat, lng, radius).subscribe({
+      next: (response) => {
+        console.log('✅ Found nearby karenderias:', response);
+        if (response && response.length > 0) {
+          this.karenderias = response.map(k => ({
+            id: k.id,
+            name: k.name,
+            cuisine: k.cuisine?.join(', ') || 'Filipino',
+            address: k.address,
+            rating: k.rating || 4.5,
+            isOpen: true,
+            deliveryTime: '20-30 min',
+            distance: k.distance || 300,
+            latitude: k.location?.latitude || 10.3157,
+            longitude: k.location?.longitude || 123.8854
+          }));
+          this.filteredKarenderias = [...this.karenderias];
+          console.log('🎉 SUCCESS: Loaded', this.karenderias.length, 'nearby karenderias');
+          this.applyFilter();
+        } else {
+          console.log('⚠️ No nearby karenderias found, loading mock data...');
+          this.loadMockData();
+        }
+      },
+      error: (error) => {
+        console.error('❌ Error searching nearby karenderias:', error);
+        console.log('📋 Falling back to mock data...');
+        this.loadMockData();
+      }
+    });
   }
 
   loadFromBackend() {
@@ -310,14 +325,21 @@ export class MapViewPage implements OnInit, AfterViewInit {
             latitude: position.coords.latitude,
             longitude: position.coords.longitude
           };
+          console.log('📍 Got user location:', this.userLocation);
+          // Reload karenderias with new location
+          this.loadKarenderias();
         },
         (error) => {
           console.error('Error getting location:', error);
           this.showToast('Unable to get your location');
+          // Still load karenderias with default Cebu location
+          this.loadKarenderias();
         }
       );
     } else {
       this.showToast('Geolocation is not supported');
+      // Still load karenderias with default Cebu location
+      this.loadKarenderias();
     }
   }
 
@@ -325,6 +347,15 @@ export class MapViewPage implements OnInit, AfterViewInit {
     this.getCurrentLocation();
     this.loadKarenderias();
     this.showToast('Location refreshed');
+  }
+
+  clearRoutes() {
+    // Call the global clearRoute function that's set up by the map component
+    if ((window as any).clearRoute) {
+      (window as any).clearRoute();
+    } else {
+      this.showToast('No active route to clear');
+    }
   }
 
   async showToast(message: string) {

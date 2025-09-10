@@ -98,10 +98,16 @@ export class KarenderiaService {
 
   private getHeaders(): HttpHeaders {
     const token = localStorage.getItem('auth_token');
-    return new HttpHeaders({
-      'Content-Type': 'application/json',
-      'Authorization': token ? `Bearer ${token}` : ''
-    });
+    const headers: any = {
+      'Content-Type': 'application/json'
+    };
+    
+    // Only add Authorization header if token exists
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    
+    return new HttpHeaders(headers);
   }
 
   // Get all karenderias
