@@ -380,29 +380,91 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       addWaypoints: false,
       draggableWaypoints: false,
       fitSelectedRoutes: true,
-      show: true, // Show the instructions panel (changed from false)
+      show: true,
       router: (L.Routing as any).osrmv1({
-        serviceUrl: 'https://router.project-osrm.org/route/v1', // Use official OSRM server
-        profile: 'driving', // Use driving profile
-        suppressDemoServerWarning: true // Suppress the demo server warning
+        serviceUrl: 'https://router.project-osrm.org/route/v1',
+        profile: 'driving',
+        suppressDemoServerWarning: true
       }),
       lineOptions: {
         styles: [{ color: '#007bff', opacity: 0.8, weight: 6 }],
         extendToWaypoints: true,
         missingRouteTolerance: 100
       },
-      // Disable default markers
       createMarker: () => null,
-      // Fix accessibility issues
-      containerClassName: 'leaflet-routing-container-accessible',
-      // Add proper ARIA attributes
-      summaryTemplate: '<h2 role="heading" aria-level="2">{name}</h2><h3 role="heading" aria-level="3">{distance}, {time}</h3>'
+      containerClassName: 'solid-routing-container',
+      summaryTemplate: '<h2 role="heading" aria-level="2" style="background: #1f2937 !important; color: white !important; padding: 16px !important; margin: -20px -20px 16px -20px !important; border-radius: 12px 12px 0 0 !important;">{name}</h2><h3 role="heading" aria-level="3" style="background: #d1fae5 !important; color: #065f46 !important; padding: 12px 16px !important; margin: 0 0 16px 0 !important; border-radius: 8px !important; border-left: 4px solid #10b981 !important;">{distance}, {time}</h3>',
+      // Apply solid styling directly to the control
+      controlOptions: {
+        style: {
+          'background': '#ffffff !important',
+          'background-color': '#ffffff !important',
+          'border': '3px solid #1f2937 !important',
+          'border-radius': '16px !important',
+          'box-shadow': '0 12px 40px rgba(0, 0, 0, 0.5) !important',
+          'padding': '20px !important',
+          'opacity': '1 !important',
+          'backdrop-filter': 'none !important',
+          'z-index': '99999 !important'
+        }
+      }
     }).addTo(this.map);
 
-    // Fix aria-hidden issues by ensuring the routing container is properly accessible
+    // Fix aria-hidden issues and apply solid styling directly to DOM
     setTimeout(() => {
       const routingContainer = document.querySelector('.leaflet-routing-container');
       if (routingContainer) {
+        // Apply solid styling directly to the DOM element
+        const element = routingContainer as HTMLElement;
+        element.style.cssText = `
+          background: #ffffff !important;
+          background-color: #ffffff !important;
+          border: 3px solid #1f2937 !important;
+          border-radius: 16px !important;
+          box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5) !important;
+          padding: 20px !important;
+          opacity: 1 !important;
+          backdrop-filter: none !important;
+          z-index: 99999 !important;
+          max-width: 450px !important;
+          max-height: 70vh !important;
+          overflow-y: auto !important;
+          position: relative !important;
+          font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+          color: #111827 !important;
+        `;
+        
+        // Apply styling to all child elements
+        const allChildren = element.querySelectorAll('*');
+        allChildren.forEach((child) => {
+          const childElement = child as HTMLElement;
+          childElement.style.opacity = '1';
+          childElement.style.background = 'inherit';
+          if (childElement.tagName === 'TABLE') {
+            childElement.style.cssText += `
+              background: #ffffff !important;
+              background-color: #ffffff !important;
+              border-radius: 8px !important;
+              overflow: hidden !important;
+            `;
+          }
+          if (childElement.tagName === 'TR') {
+            childElement.style.cssText += `
+              background: #ffffff !important;
+              background-color: #ffffff !important;
+              border-bottom: 1px solid #e5e7eb !important;
+            `;
+          }
+          if (childElement.tagName === 'TD') {
+            childElement.style.cssText += `
+              padding: 12px 8px !important;
+              color: #111827 !important;
+              font-weight: 600 !important;
+              background: transparent !important;
+            `;
+          }
+        });
+        
         routingContainer.removeAttribute('aria-hidden');
         routingContainer.setAttribute('role', 'dialog');
         routingContainer.setAttribute('aria-label', `Directions to ${karenderia.name}`);
@@ -412,6 +474,92 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         focusableElements.forEach((element) => {
           element.removeAttribute('aria-hidden');
         });
+        // Add close button functionality
+        const existingCloseBtn = routingContainer.querySelector('.leaflet-routing-close');
+        if (!existingCloseBtn) {
+          // Add custom close button
+          routingContainer.classList.add('has-close-button');
+          const closeBtn = document.createElement('div');
+          closeBtn.innerHTML = '×';
+          closeBtn.className = 'custom-routing-close';
+          closeBtn.style.cssText = `
+            position: absolute !important;
+            top: 12px !important;
+            right: 12px !important;
+            background: #ffffff !important;
+            background-color: #ffffff !important;
+            border: 2px solid #374151 !important;
+            border-radius: 10px !important;
+            width: 36px !important;
+            height: 36px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            cursor: pointer !important;
+            color: #374151 !important;
+            font-size: 20px !important;
+            font-weight: bold !important;
+            line-height: 1 !important;
+            transition: all 0.2s ease !important;
+            z-index: 99999 !important;
+            opacity: 1 !important;
+          `;
+          
+          closeBtn.addEventListener('click', () => {
+            this.clearRoute();
+          });
+          
+          closeBtn.addEventListener('mouseenter', () => {
+            closeBtn.style.background = '#ef4444 !important';
+            closeBtn.style.backgroundColor = '#ef4444 !important';
+            closeBtn.style.color = 'white !important';
+            closeBtn.style.borderColor = '#dc2626 !important';
+            closeBtn.style.transform = 'scale(1.1) !important';
+          });
+          
+          closeBtn.addEventListener('mouseleave', () => {
+            closeBtn.style.background = '#ffffff !important';
+            closeBtn.style.backgroundColor = '#ffffff !important';
+            closeBtn.style.color = '#374151 !important';
+            closeBtn.style.borderColor = '#374151 !important';
+            closeBtn.style.transform = 'scale(1) !important';
+          });
+          
+          routingContainer.appendChild(closeBtn);
+        } else {
+          // Add click listener to existing close button
+          existingCloseBtn.addEventListener('click', () => {
+            this.clearRoute();
+          });
+        }
+        
+        // Create a function to reapply styling if Leaflet overwrites it
+        const reapplyStyling = () => {
+          const container = document.querySelector('.leaflet-routing-container') as HTMLElement;
+          if (container) {
+            container.style.cssText = `
+              background: #ffffff !important;
+              background-color: #ffffff !important;
+              border: 3px solid #1f2937 !important;
+              border-radius: 16px !important;
+              box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5) !important;
+              padding: 20px !important;
+              opacity: 1 !important;
+              backdrop-filter: none !important;
+              z-index: 99999 !important;
+              max-width: 450px !important;
+              max-height: 70vh !important;
+              overflow-y: auto !important;
+              position: relative !important;
+              font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+              color: #111827 !important;
+            `;
+          }
+        };
+        
+        // Reapply styling every 100ms for the first 2 seconds to ensure it sticks
+        const styleMaintainer = setInterval(reapplyStyling, 100);
+        setTimeout(() => clearInterval(styleMaintainer), 2000);
       }
       
       // Add routing-active class to map container to show routing UI
