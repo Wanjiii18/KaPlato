@@ -2,9 +2,11 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule, AlertController, LoadingController, ToastController } from '@ionic/angular';
+import { Router } from '@angular/router';
 import { UserService, UserProfile } from '../services/user.service';
 import { ProfileService } from '../services/profile.service';
 import { AuthService, Allergen, MealPlan } from '../services/auth.service';
+import { KarenderiaService } from '../services/karenderia.service';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -29,13 +31,24 @@ export class ProfilePage implements OnInit, OnDestroy {
   dietaryRestrictions: string[] = [];
   cuisinePreferences: string[] = [];
   
+  // Business application management
+  hasBusinessApplication = false;
+  applicationStatus: 'pending' | 'approved' | 'rejected' = 'pending';
+  
+  // Karenderia business information
+  karenderiaData: any = null;
+  isKarenderiaOwner = false;
+  
   // Subscription management
   private profileSubscription?: Subscription;
+  private karenderiaSubscription?: Subscription;
   
   constructor(
     private userService: UserService,
     private profileService: ProfileService,
     private authService: AuthService,
+    private karenderiaService: KarenderiaService,
+    private router: Router,
     private alertController: AlertController,
     private loadingController: LoadingController,
     private toastController: ToastController
@@ -52,6 +65,9 @@ export class ProfilePage implements OnInit, OnDestroy {
     if (this.profileSubscription) {
       this.profileSubscription.unsubscribe();
     }
+    if (this.karenderiaSubscription) {
+      this.karenderiaSubscription.unsubscribe();
+    }
   }
 
   loadUserProfile() {
@@ -61,6 +77,31 @@ export class ProfilePage implements OnInit, OnDestroy {
       if (profile) {
         this.allergens = profile.allergens || [];
         this.mealPlans = profile.mealPlans || [];
+        
+        // Check if user is a karenderia owner and load karenderia data
+        this.isKarenderiaOwner = profile.role === 'karenderia_owner';
+        if (this.isKarenderiaOwner) {
+          this.loadKarenderiaData();
+        }
+      }
+    });
+  }
+
+  loadKarenderiaData() {
+    this.karenderiaSubscription = this.karenderiaService.getMyKarenderia().subscribe({
+      next: (response) => {
+        console.log('Karenderia API response:', response);
+        if (response.success && response.data) {
+          this.karenderiaData = response.data;
+          console.log('Karenderia data loaded:', this.karenderiaData);
+        } else {
+          console.warn('Karenderia API response missing data:', response);
+          this.karenderiaData = null;
+        }
+      },
+      error: (error) => {
+        console.error('Error loading karenderia data:', error);
+        this.karenderiaData = null;
       }
     });
   }
@@ -450,5 +491,36 @@ export class ProfilePage implements OnInit, OnDestroy {
   formatDate(date?: Date): string {
     if (!date) return 'N/A';
     return new Date(date).toLocaleDateString();
+  }
+
+  // Business application methods
+  navigateToKarenderiaApplication() {
+    this.router.navigate(['/karenderia-application']);
+  }
+
+  navigateToKarenderiaSettings() {
+    this.router.navigate(['/karenderia-settings']);
+  }
+
+  getStatusIcon(status: string): string {
+    switch (status) {
+      case 'pending': return 'time-outline';
+      case 'approved': return 'checkmark-circle-outline';
+      case 'rejected': return 'close-circle-outline';
+      default: return 'help-outline';
+    }
+  }
+
+  getStatusDescription(status: string): string {
+    switch (status) {
+      case 'pending': 
+        return 'Your karenderia application is being reviewed by our team. We will notify you once a decision is made.';
+      case 'approved': 
+        return 'Congratulations! Your karenderia has been approved and is now visible on the map.';
+      case 'rejected': 
+        return 'Your application was not approved. Please review the requirements and submit a new application.';
+      default: 
+        return 'Application status is unknown. Please contact support.';
+    }
   }
 }

@@ -504,6 +504,10 @@ export class KarenderiaDashboardPage implements OnInit, AfterViewInit {
     }
   }
 
+  updateLocation() {
+    this.router.navigate(['/karenderia-location-update']);
+  }
+
   async showToast(message: string, color: string = 'primary') {
     const toast = await this.toastController.create({
       message,

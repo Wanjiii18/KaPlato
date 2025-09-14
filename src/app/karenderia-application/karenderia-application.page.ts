@@ -1,10 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgForm } from '@angular/forms';
-import { ApplicationService, KarenderiaApplication } from '../services/application.service';
-import { AuthService } from '../services/auth.service';
-import { UserService, UserProfile } from '../services/user.service';
 import { LoadingController, ToastController, AlertController } from '@ionic/angular';
+import { 
+  KarenderiaOwnerService, 
+  RegistrationData, 
+  MapCoordinates 
+} from '../services/karenderia-owner.service';
 
 @Component({
   selector: 'app-karenderia-application',
@@ -13,231 +15,222 @@ import { LoadingController, ToastController, AlertController } from '@ionic/angu
   standalone: false,
 })
 export class KarenderiaApplicationPage implements OnInit {
-  applicationData = {
-    businessName: '',
-    businessAddress: '',
-    contactNumber: '',
-    businessPermitNumber: '',
-    ownerName: '',
-    description: '',
-    cuisine: [] as string[],
-    operatingHours: {
-      monday: { open: '08:00', close: '20:00' },
-      tuesday: { open: '08:00', close: '20:00' },
-      wednesday: { open: '08:00', close: '20:00' },
-      thursday: { open: '08:00', close: '20:00' },
-      friday: { open: '08:00', close: '20:00' },
-      saturday: { open: '08:00', close: '20:00' },
-      sunday: { open: '08:00', close: '20:00' }
-    } as { [key: string]: { open: string; close: string } },
-    socialMediaLinks: {
-      facebook: '',
-      instagram: ''
+  registrationData: RegistrationData = {
+    owner: {
+      name: '',
+      email: '',
+      phone: '',
+      address: ''
     },
-    estimatedCapacity: 0,
-    priceRange: 'Budget' as 'Budget' | 'Moderate' | 'Expensive'
+    karenderia: {
+      name: '',
+      description: '',
+      address: '',
+      latitude: 0,
+      longitude: 0,
+      phone: '',
+      email: '',
+      cuisine_type: 'Filipino',
+      operating_days: [],
+      opening_time: '08:00',
+      closing_time: '20:00',
+      delivery_available: true,
+      pickup_available: true,
+      delivery_fee: 0,
+      minimum_order: 0
+    },
+    password: '',
+    password_confirmation: ''
   };
 
-  businessPermitFile: File | null = null;
-  currentUser: UserProfile | null = null;
-  existingApplications: KarenderiaApplication[] = [];
+  selectedCoordinates?: MapCoordinates;
   isLoading = false;
   errorMessage = '';
+  currentStep = 1;
+  totalSteps = 4;
 
-  availableCuisines = [
-    'Filipino', 'Chinese', 'Japanese', 'Korean', 'Thai', 'Vietnamese',
-    'American', 'Italian', 'Mexican', 'Indian', 'Mediterranean', 'Fusion'
-  ];
-
-  daysOfWeek = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+  availableCuisines: string[] = [];
+  daysOfWeek: string[] = [];
 
   constructor(
-    private applicationService: ApplicationService,
-    private authService: AuthService,
-    private userService: UserService,
+    private karenderiaOwnerService: KarenderiaOwnerService,
+    private router: Router,
     private loadingController: LoadingController,
     private toastController: ToastController,
-    private alertController: AlertController,
-    private router: Router
+    private alertController: AlertController
   ) {}
 
   ngOnInit() {
-    this.loadCurrentUser();
-    this.loadExistingApplications();
+    this.availableCuisines = this.karenderiaOwnerService.getCuisineTypes();
+    this.daysOfWeek = this.karenderiaOwnerService.getDaysOfWeek();
+    
+    // Initialize operating_days with all days
+    this.registrationData.karenderia.operating_days = [...this.daysOfWeek];
   }
 
-  async loadCurrentUser() {
-    this.currentUser = this.userService.getCurrentUserProfile();
-    if (this.currentUser) {
-      this.applicationData.ownerName = this.currentUser.displayName;
-      this.applicationData.contactNumber = this.currentUser.phoneNumber || '';
-    }
+  onCoordinatesSelected(coordinates: MapCoordinates) {
+    this.selectedCoordinates = coordinates;
+    this.registrationData.karenderia.latitude = coordinates.latitude;
+    this.registrationData.karenderia.longitude = coordinates.longitude;
   }
 
-  async loadExistingApplications() {
-    if (!this.currentUser) return;
-
-    this.applicationService.getApplicationsByApplicant(this.currentUser.uid).subscribe({
-      next: (applications) => {
-        this.existingApplications = applications;
-      },
-      error: (error) => {
-        console.error('Error loading applications:', error);
-      }
-    });
-  }
-
-  onFileSelected(event: any) {
-    const file = event.target.files[0];
-    if (file) {
-      // Validate file type
-      if (!file.type.startsWith('image/')) {
-        this.showToast('Please select an image file for business permit', 'warning');
-        return;
-      }
-
-      // Validate file size (max 5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        this.showToast('File size must be less than 5MB', 'warning');
-        return;
-      }
-
-      this.businessPermitFile = file;
-    }
-  }
-
-  onCuisineChange(cuisine: string, event: any) {
-    if (event.detail.checked) {
-      if (!this.applicationData.cuisine.includes(cuisine)) {
-        this.applicationData.cuisine.push(cuisine);
-      }
+  toggleOperatingDay(day: string) {
+    const index = this.registrationData.karenderia.operating_days.indexOf(day);
+    if (index > -1) {
+      this.registrationData.karenderia.operating_days.splice(index, 1);
     } else {
-      const index = this.applicationData.cuisine.indexOf(cuisine);
-      if (index > -1) {
-        this.applicationData.cuisine.splice(index, 1);
-      }
+      this.registrationData.karenderia.operating_days.push(day);
     }
   }
 
-  async onSubmitApplication(form: NgForm) {
-    if (!form.valid || !this.businessPermitFile || !this.currentUser) {
-      this.errorMessage = 'Please fill in all required fields and upload business permit';
+  isDaySelected(day: string): boolean {
+    return this.registrationData.karenderia.operating_days.includes(day);
+  }
+
+  nextStep() {
+    if (this.currentStep < this.totalSteps) {
+      this.currentStep++;
+    }
+  }
+
+  previousStep() {
+    if (this.currentStep > 1) {
+      this.currentStep--;
+    }
+  }
+
+  async onSubmitRegistration(form: NgForm) {
+    if (!form.valid) {
+      await this.showToast('Please fill in all required fields', 'warning');
       return;
     }
 
-    if (this.applicationData.cuisine.length === 0) {
-      this.errorMessage = 'Please select at least one cuisine type';
+    if (!this.selectedCoordinates) {
+      await this.showToast('Please select your karenderia location on the map', 'warning');
+      return;
+    }
+
+    if (this.registrationData.password !== this.registrationData.password_confirmation) {
+      await this.showToast('Passwords do not match', 'danger');
+      return;
+    }
+
+    if (this.registrationData.karenderia.operating_days.length === 0) {
+      await this.showToast('Please select at least one operating day', 'warning');
       return;
     }
 
     const loading = await this.loadingController.create({
-      message: 'Submitting application...'
+      message: 'Submitting your application...'
     });
     await loading.present();
 
     try {
-      const applicationData = {
-        applicantId: this.currentUser.uid,
-        applicationStatus: 'pending' as const,
-        businessPermitImageUrl: '', // Will be set by the service when file is uploaded
-        ...this.applicationData
-      };
-
-      const applicationId = await this.applicationService.submitApplication(
-        applicationData,
-        this.businessPermitFile
-      );
-
+      const response = await this.karenderiaOwnerService.register(this.registrationData).toPromise();
+      
       await loading.dismiss();
-      await this.showToast('Application submitted successfully!', 'success');
       
-      // Refresh applications
-      this.loadExistingApplications();
-      
-      // Reset form
-      this.resetForm();
-      
+      if (response && response.message) {
+        await this.showSuccessAlert();
+      }
     } catch (error: any) {
       await loading.dismiss();
-      this.errorMessage = error.message || 'Error submitting application';
-      console.error('Error submitting application:', error);
+      console.error('Registration error:', error);
+      
+      let errorMsg = 'Registration failed. Please try again.';
+      if (error.error && error.error.message) {
+        errorMsg = error.error.message;
+      } else if (error.error && error.error.errors) {
+        // Handle validation errors
+        const errors = Object.values(error.error.errors).flat();
+        errorMsg = errors.join(', ');
+      }
+      
+      await this.showToast(errorMsg, 'danger');
     }
   }
 
-  resetForm() {
-    this.applicationData = {
-      businessName: '',
-      businessAddress: '',
-      contactNumber: this.currentUser?.phoneNumber || '',
-      businessPermitNumber: '',
-      ownerName: this.currentUser?.displayName || '',
-      description: '',
-      cuisine: [],
-      operatingHours: {
-        monday: { open: '08:00', close: '20:00' },
-        tuesday: { open: '08:00', close: '20:00' },
-        wednesday: { open: '08:00', close: '20:00' },
-        thursday: { open: '08:00', close: '20:00' },
-        friday: { open: '08:00', close: '20:00' },
-        saturday: { open: '08:00', close: '20:00' },
-        sunday: { open: '08:00', close: '20:00' }
-      } as { [key: string]: { open: string; close: string } },
-      socialMediaLinks: {
-        facebook: '',
-        instagram: ''
-      },
-      estimatedCapacity: 0,
-      priceRange: 'Budget' as 'Budget' | 'Moderate' | 'Expensive'
-    };
-    this.businessPermitFile = null;
-    this.errorMessage = '';
+  private async showToast(message: string, color: string = 'primary') {
+    const toast = await this.toastController.create({
+      message,
+      duration: 3000,
+      color,
+      position: 'top'
+    });
+    await toast.present();
   }
 
-  getStatusColor(status: string): string {
-    switch (status) {
-      case 'approved': return 'success';
-      case 'rejected': return 'danger';
-      case 'pending': return 'warning';
-      default: return 'medium';
-    }
-  }
-
-  getStatusIcon(status: string): string {
-    switch (status) {
-      case 'approved': return 'checkmark-circle';
-      case 'rejected': return 'close-circle';
-      case 'pending': return 'time';
-      default: return 'help-circle';
-    }
-  }
-
-  async showApplicationDetails(application: KarenderiaApplication) {
+  private async showSuccessAlert() {
     const alert = await this.alertController.create({
-      header: 'Application Details',
-      subHeader: application.businessName,
-      message: `
-        <p><strong>Status:</strong> ${application.applicationStatus.toUpperCase()}</p>
-        <p><strong>Submitted:</strong> ${application.submittedAt.toLocaleDateString()}</p>
-        ${application.rejectionReason ? `<p><strong>Rejection Reason:</strong> ${application.rejectionReason}</p>` : ''}
-        ${application.adminNotes ? `<p><strong>Admin Notes:</strong> ${application.adminNotes}</p>` : ''}
-      `,
-      buttons: ['OK']
+      header: 'Application Submitted!',
+      message: 'Your karenderia application has been submitted successfully. You will receive an email notification once it has been reviewed by our admin team.',
+      buttons: [
+        {
+          text: 'OK',
+          handler: () => {
+            this.router.navigate(['/home']);
+          }
+        }
+      ]
     });
     await alert.present();
   }
 
-  async showToast(message: string, color: string = 'primary') {
-    const toast = await this.toastController.create({
-      message: message,
-      duration: 3000,
-      position: 'bottom',
-      color: color
+  async showHelp() {
+    const alert = await this.alertController.create({
+      header: 'Application Help',
+      message: `
+        <p><strong>Step 1:</strong> Enter your personal information as the karenderia owner.</p>
+        <p><strong>Step 2:</strong> Provide your karenderia business details.</p>
+        <p><strong>Step 3:</strong> Set your location by clicking on the map.</p>
+        <p><strong>Step 4:</strong> Configure operating hours and delivery options.</p>
+        <br>
+        <p>All applications are reviewed by our admin team within 24-48 hours.</p>
+      `,
+      buttons: ['Got it!']
     });
-    toast.present();
+    await alert.present();
   }
 
-  // Add missing method
-  showHelp() {
-    console.log('Show help');
+  getStepTitle(): string {
+    switch (this.currentStep) {
+      case 1: return 'Owner Information';
+      case 2: return 'Business Details';
+      case 3: return 'Location & Address';
+      case 4: return 'Operations & Delivery';
+      default: return 'Registration';
+    }
+  }
+
+  getStepDescription(): string {
+    switch (this.currentStep) {
+      case 1: return 'Enter your personal details as the karenderia owner';
+      case 2: return 'Provide information about your karenderia business';
+      case 3: return 'Set your business location and address';
+      case 4: return 'Configure operating hours and delivery options';
+      default: return '';
+    }
+  }
+
+  isStepValid(): boolean {
+    switch (this.currentStep) {
+      case 1:
+        return !!(this.registrationData.owner.name && 
+                  this.registrationData.owner.email && 
+                  this.registrationData.owner.phone && 
+                  this.registrationData.password && 
+                  this.registrationData.password_confirmation);
+      case 2:
+        return !!(this.registrationData.karenderia.name && 
+                  this.registrationData.karenderia.description && 
+                  this.registrationData.karenderia.cuisine_type);
+      case 3:
+        return !!(this.registrationData.karenderia.address && 
+                  this.selectedCoordinates);
+      case 4:
+        return this.registrationData.karenderia.operating_days.length > 0;
+      default:
+        return false;
+    }
   }
 }

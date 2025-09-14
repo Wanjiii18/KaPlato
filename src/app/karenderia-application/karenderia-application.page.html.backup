@@ -1,0 +1,500 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-button fill="clear" defaultHref="/home">
+        <ion-icon name="arrow-back"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>
+      <ion-icon name="restaurant"></ion-icon>
+      Karenderia Registration
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button fill="clear" (click)="showHelp()">
+        <ion-icon name="help-circle"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="registration-content">
+  <div class="registration-container">
+    
+    <!-- Progress Indicator -->
+    <div class="progress-section">
+      <div class="progress-header">
+        <h2>{{ getStepTitle() }}</h2>
+        <p>{{ getStepDescription() }}</p>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" [style.width.%]="(currentStep / totalSteps) * 100"></div>
+      </div>
+      <div class="step-indicator">
+        <span>Step {{ currentStep }} of {{ totalSteps }}</span>
+      </div>
+    </div>
+
+    <form #registrationForm="ngForm" novalidate class="registration-form">
+      
+      <!-- Step 1: Owner Information -->
+      <div class="form-step" *ngIf="currentStep === 1">
+        <div class="step-content">
+          <ion-item class="input-item">
+            <ion-label position="floating">Full Name *</ion-label>
+            <ion-input
+              type="text"
+              name="ownerName"
+              [(ngModel)]="registrationData.owner.name"
+              required>
+            </ion-input>
+          </ion-item>
+
+          <ion-item class="input-item">
+            <ion-label position="floating">Email Address *</ion-label>
+            <ion-input
+              type="email"
+              name="ownerEmail"
+              [(ngModel)]="registrationData.owner.email"
+              required>
+            </ion-input>
+          </ion-item>
+
+          <ion-item class="input-item">
+            <ion-label position="floating">Phone Number *</ion-label>
+            <ion-input
+              type="tel"
+              name="ownerPhone"
+              [(ngModel)]="registrationData.owner.phone"
+              required>
+            </ion-input>
+          </ion-item>
+
+          <ion-item class="input-item">
+            <ion-label position="floating">Address *</ion-label>
+            <ion-textarea
+              name="ownerAddress"
+              [(ngModel)]="registrationData.owner.address"
+              rows="3"
+              required>
+            </ion-textarea>
+          </ion-item>
+
+          <ion-item class="input-item">
+            <ion-label position="floating">Password *</ion-label>
+            <ion-input
+              type="password"
+              name="password"
+              [(ngModel)]="registrationData.password"
+              required>
+            </ion-input>
+          </ion-item>
+
+          <ion-item class="input-item">
+            <ion-label position="floating">Confirm Password *</ion-label>
+            <ion-input
+              type="password"
+              name="passwordConfirmation"
+              [(ngModel)]="registrationData.password_confirmation"
+              required>
+            </ion-input>
+          </ion-item>
+        </div>
+      </div>
+
+      <!-- Step 2: Business Details -->
+      <div class="form-step" *ngIf="currentStep === 2">
+        <div class="step-content">
+          <ion-item class="input-item">
+            <ion-label position="floating">Karenderia Name *</ion-label>
+            <ion-input
+              type="text"
+              name="karenderiaName"
+              [(ngModel)]="registrationData.karenderia.name"
+              required>
+            </ion-input>
+          </ion-item>
+
+          <ion-item class="input-item">
+            <ion-label position="floating">Description *</ion-label>
+            <ion-textarea
+              name="description"
+              [(ngModel)]="registrationData.karenderia.description"
+              rows="4"
+              placeholder="Describe your karenderia and specialties..."
+              required>
+            </ion-textarea>
+          </ion-item>
+
+          <ion-item class="input-item">
+            <ion-label position="floating">Karenderia Phone</ion-label>
+            <ion-input
+              type="tel"
+              name="karenderiaPhone"
+              [(ngModel)]="registrationData.karenderia.phone">
+            </ion-input>
+          </ion-item>
+
+          <ion-item class="input-item">
+            <ion-label position="floating">Karenderia Email</ion-label>
+            <ion-input
+              type="email"
+              name="karenderiaEmail"
+              [(ngModel)]="registrationData.karenderia.email">
+            </ion-input>
+          </ion-item>
+
+          <ion-item class="input-item">
+            <ion-label position="floating">Cuisine Type *</ion-label>
+            <ion-select
+              name="cuisineType"
+              [(ngModel)]="registrationData.karenderia.cuisine_type"
+              interface="popover"
+              required>
+              <ion-select-option *ngFor="let cuisine of availableCuisines" [value]="cuisine">
+                {{ cuisine }}
+              </ion-select-option>
+            </ion-select>
+          </ion-item>
+        </div>
+      </div>
+
+      <!-- Step 3: Location & Address -->
+      <div class="form-step" *ngIf="currentStep === 3">
+        <div class="step-content">
+          <ion-item class="input-item">
+            <ion-label position="floating">Business Address *</ion-label>
+            <ion-textarea
+              name="businessAddress"
+              [(ngModel)]="registrationData.karenderia.address"
+              rows="3"
+              placeholder="Enter your complete business address..."
+              required>
+            </ion-textarea>
+          </ion-item>
+
+          <!-- Map Component -->
+          <app-location-map
+            [initialCoordinates]="selectedCoordinates"
+            (coordinatesSelected)="onCoordinatesSelected($event)">
+          </app-location-map>
+        </div>
+      </div>
+
+      <!-- Step 4: Operations & Delivery -->
+      <div class="form-step" *ngIf="currentStep === 4">
+        <div class="step-content">
+          
+          <!-- Operating Days -->
+          <div class="section-header">
+            <h3>Operating Days</h3>
+            <p>Select the days your karenderia is open</p>
+          </div>
+          
+          <div class="operating-days">
+            <ion-chip 
+              *ngFor="let day of daysOfWeek"
+              [color]="isDaySelected(day) ? 'primary' : 'medium'"
+              (click)="toggleOperatingDay(day)"
+              class="day-chip">
+              <ion-icon name="checkmark" *ngIf="isDaySelected(day)"></ion-icon>
+              {{ day | titlecase }}
+            </ion-chip>
+          </div>
+
+          <!-- Operating Hours -->
+          <div class="operating-hours">
+            <ion-item class="input-item">
+              <ion-label position="floating">Opening Time</ion-label>
+              <ion-input
+                type="time"
+                name="openingTime"
+                [(ngModel)]="registrationData.karenderia.opening_time">
+              </ion-input>
+            </ion-item>
+
+            <ion-item class="input-item">
+              <ion-label position="floating">Closing Time</ion-label>
+              <ion-input
+                type="time"
+                name="closingTime"
+                [(ngModel)]="registrationData.karenderia.closing_time">
+              </ion-input>
+            </ion-item>
+          </div>
+
+          <!-- Delivery Options -->
+          <div class="delivery-options">
+            <div class="section-header">
+              <h3>Delivery Options</h3>
+            </div>
+
+            <ion-item class="toggle-item">
+              <ion-checkbox
+                slot="start"
+                [(ngModel)]="registrationData.karenderia.delivery_available"
+                name="deliveryAvailable">
+              </ion-checkbox>
+              <ion-label>Delivery Available</ion-label>
+            </ion-item>
+
+            <ion-item class="toggle-item">
+              <ion-checkbox
+                slot="start"
+                [(ngModel)]="registrationData.karenderia.pickup_available"
+                name="pickupAvailable">
+              </ion-checkbox>
+              <ion-label>Pickup Available</ion-label>
+            </ion-item>
+
+            <ion-item class="input-item" *ngIf="registrationData.karenderia.delivery_available">
+              <ion-label position="floating">Delivery Fee (₱)</ion-label>
+              <ion-input
+                type="number"
+                name="deliveryFee"
+                [(ngModel)]="registrationData.karenderia.delivery_fee"
+                min="0">
+              </ion-input>
+            </ion-item>
+
+            <ion-item class="input-item" *ngIf="registrationData.karenderia.delivery_available">
+              <ion-label position="floating">Minimum Order (₱)</ion-label>
+              <ion-input
+                type="number"
+                name="minimumOrder"
+                [(ngModel)]="registrationData.karenderia.minimum_order"
+                min="0">
+              </ion-input>
+            </ion-item>
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigation Buttons -->
+      <div class="navigation-buttons">
+        <ion-button 
+          *ngIf="currentStep > 1"
+          fill="outline" 
+          (click)="previousStep()"
+          class="nav-button">
+          <ion-icon name="chevron-back" slot="start"></ion-icon>
+          Previous
+        </ion-button>
+
+        <ion-button 
+          *ngIf="currentStep < totalSteps"
+          [disabled]="!isStepValid()"
+          (click)="nextStep()"
+          class="nav-button">
+          Next
+          <ion-icon name="chevron-forward" slot="end"></ion-icon>
+        </ion-button>
+
+        <ion-button 
+          *ngIf="currentStep === totalSteps"
+          [disabled]="!registrationForm.valid || !selectedCoordinates || isLoading"
+          (click)="onSubmitRegistration(registrationForm)"
+          color="success"
+          class="submit-button">
+          <ion-spinner name="crescent" *ngIf="isLoading"></ion-spinner>
+          <span *ngIf="!isLoading">
+            <ion-icon name="checkmark" slot="start"></ion-icon>
+            Submit Application
+          </span>
+        </ion-button>
+      </div>
+
+    </form>
+  </div>
+</ion-content>
+
+        <ion-item class="input-item">
+          <ion-label position="floating">Business Address *</ion-label>
+          <ion-textarea
+            name="businessAddress"
+            [(ngModel)]="applicationData.businessAddress"
+            required
+            rows="3"
+            #businessAddress="ngModel">
+          </ion-textarea>
+        </ion-item>
+        <div class="error-message" *ngIf="businessAddress.invalid && businessAddress.touched">
+          Business address is required
+        </div>
+
+        <ion-item class="input-item">
+          <ion-label position="floating">Owner Name *</ion-label>
+          <ion-input
+            type="text"
+            name="ownerName"
+            [(ngModel)]="applicationData.ownerName"
+            required
+            #ownerName="ngModel">
+          </ion-input>
+        </ion-item>
+
+        <ion-item class="input-item">
+          <ion-label position="floating">Contact Number *</ion-label>
+          <ion-input
+            type="tel"
+            name="contactNumber"
+            [(ngModel)]="applicationData.contactNumber"
+            required
+            #contactNumber="ngModel">
+          </ion-input>
+        </ion-item>
+
+        <ion-item class="input-item">
+          <ion-label position="floating">Business Description *</ion-label>
+          <ion-textarea
+            name="description"
+            [(ngModel)]="applicationData.description"
+            required
+            rows="4"
+            placeholder="Tell us about your karenderia..."
+            #description="ngModel">
+          </ion-textarea>
+        </ion-item>
+
+        <!-- Business Permit -->
+        <div class="section-header">
+          <h3><ion-icon name="document-text-outline"></ion-icon> Business Permit</h3>
+        </div>
+
+        <ion-item class="input-item">
+          <ion-label position="floating">Business Permit Number *</ion-label>
+          <ion-input
+            type="text"
+            name="businessPermitNumber"
+            [(ngModel)]="applicationData.businessPermitNumber"
+            required
+            #businessPermitNumber="ngModel">
+          </ion-input>
+        </ion-item>
+
+        <div class="file-upload-section">
+          <ion-label>Upload Business Permit Image *</ion-label>
+          <div class="file-input-container">
+            <input 
+              type="file" 
+              accept="image/*" 
+              (change)="onFileSelected($event)"
+              #fileInput
+              required>
+            <ion-button 
+              fill="outline" 
+              (click)="fileInput.click()"
+              [color]="businessPermitFile ? 'success' : 'primary'">
+              <ion-icon name="cloud-upload-outline" slot="start"></ion-icon>
+              {{ businessPermitFile ? 'File Selected' : 'Choose File' }}
+            </ion-button>
+          </div>
+          <p class="file-help-text">Please upload a clear image of your business permit (Max 5MB)</p>
+        </div>
+
+        <!-- Cuisine Types -->
+        <div class="section-header">
+          <h3><ion-icon name="restaurant-outline"></ion-icon> Cuisine Types</h3>
+        </div>
+
+        <div class="cuisine-grid">
+          <ion-item *ngFor="let cuisine of availableCuisines" class="cuisine-item">
+            <ion-checkbox
+              [checked]="applicationData.cuisine.includes(cuisine)"
+              (ionChange)="onCuisineChange(cuisine, $event)">
+            </ion-checkbox>
+            <ion-label class="ion-margin-start">{{ cuisine }}</ion-label>
+          </ion-item>
+        </div>
+
+        <!-- Additional Information -->
+        <div class="section-header">
+          <h3><ion-icon name="information-circle-outline"></ion-icon> Additional Information</h3>
+        </div>
+
+        <ion-item class="input-item">
+          <ion-label>Price Range</ion-label>
+          <ion-select
+            name="priceRange"
+            [(ngModel)]="applicationData.priceRange"
+            interface="popover">
+            <ion-select-option value="Budget">Budget (₱50-100)</ion-select-option>
+            <ion-select-option value="Moderate">Moderate (₱100-200)</ion-select-option>
+            <ion-select-option value="Expensive">Premium (₱200+)</ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <ion-item class="input-item">
+          <ion-label position="floating">Estimated Seating Capacity</ion-label>
+          <ion-input
+            type="number"
+            name="estimatedCapacity"
+            [(ngModel)]="applicationData.estimatedCapacity"
+            min="0">
+          </ion-input>
+        </ion-item>
+
+        <!-- Social Media -->
+        <ion-item class="input-item">
+          <ion-label position="floating">Facebook Page (Optional)</ion-label>
+          <ion-input
+            type="url"
+            name="facebook"
+            [(ngModel)]="applicationData.socialMediaLinks.facebook">
+          </ion-input>
+        </ion-item>
+
+        <ion-item class="input-item">
+          <ion-label position="floating">Instagram Handle (Optional)</ion-label>
+          <ion-input
+            type="text"
+            name="instagram"
+            [(ngModel)]="applicationData.socialMediaLinks.instagram">
+          </ion-input>
+        </ion-item>
+
+        <!-- Operating Hours -->
+        <div class="section-header">
+          <h3><ion-icon name="time-outline"></ion-icon> Operating Hours</h3>
+        </div>
+
+        <div class="operating-hours">
+          <div *ngFor="let day of daysOfWeek" class="day-schedule">
+            <ion-item class="day-item">
+              <ion-label class="day-label">{{ day | titlecase }}</ion-label>
+              <div class="time-inputs">
+                <ion-input
+                  type="time"
+                  [(ngModel)]="applicationData.operatingHours[day].open"
+                  [name]="day + '_open'">
+                </ion-input>
+                <span class="time-separator">to</span>
+                <ion-input
+                  type="time"
+                  [(ngModel)]="applicationData.operatingHours[day].close"
+                  [name]="day + '_close'">
+                </ion-input>
+              </div>
+            </ion-item>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="submit-section">
+          <ion-button
+            expand="block"
+            (click)="onSubmitApplication(applicationForm)"
+            [disabled]="!applicationForm.valid || !businessPermitFile || isLoading"
+            class="submit-button">
+            <ion-spinner name="crescent" *ngIf="isLoading"></ion-spinner>
+            <span *ngIf="!isLoading">Submit Application</span>
+          </ion-button>
+
+          <!-- Error Message -->
+          <div class="error-message" *ngIf="errorMessage">
+            {{ errorMessage }}
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</ion-content>

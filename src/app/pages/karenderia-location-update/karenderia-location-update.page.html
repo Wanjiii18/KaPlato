@@ -1,0 +1,165 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>Update Business Location</ion-title>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/karenderia-dashboard"></ion-back-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div class="location-update-container">
+    
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="loading-container">
+      <ion-spinner name="crescent" color="primary"></ion-spinner>
+      <h3>Loading your karenderia information...</h3>
+    </div>
+
+    <!-- Main Content -->
+    <div *ngIf="!isLoading && karenderia" class="content-container">
+      
+      <!-- Business Info Header -->
+      <ion-card class="business-header-card">
+        <ion-card-header>
+          <ion-card-title>{{ karenderia.name }}</ion-card-title>
+          <ion-card-subtitle>Update your exact map location</ion-card-subtitle>
+        </ion-card-header>
+        <ion-card-content>
+          <div class="address-info">
+            <ion-icon name="location" color="primary"></ion-icon>
+            <span>{{ karenderia.address }}</span>
+          </div>
+          <div class="location-status" *ngIf="karenderia.latitude && karenderia.longitude">
+            <ion-chip color="success">
+              <ion-icon name="checkmark-circle"></ion-icon>
+              <ion-label>Location Set</ion-label>
+            </ion-chip>
+            <p class="coordinates">
+              Current: {{ karenderia.latitude | number:'1.6-6' }}, {{ karenderia.longitude | number:'1.6-6' }}
+            </p>
+          </div>
+          <div class="location-status" *ngIf="!karenderia.latitude || !karenderia.longitude">
+            <ion-chip color="warning">
+              <ion-icon name="warning"></ion-icon>
+              <ion-label>Location Required</ion-label>
+            </ion-chip>
+            <p>Set your exact location to appear on customer maps</p>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Address Search -->
+      <ion-card class="search-card">
+        <ion-card-header>
+          <ion-card-title>Search for Your Location</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-item>
+            <ion-input
+              [(ngModel)]="searchAddress"
+              label="Search Address"
+              labelPlacement="stacked"
+              placeholder="Enter address, landmark, or business name"
+              (keyup.enter)="searchLocation()">
+            </ion-input>
+            <ion-button 
+              slot="end" 
+              fill="solid" 
+              (click)="searchLocation()">
+              <ion-icon name="search"></ion-icon>
+            </ion-button>
+          </ion-item>
+          
+          <ion-button 
+            expand="block" 
+            fill="outline" 
+            size="small" 
+            (click)="getCurrentLocation()"
+            class="current-location-btn">
+            <ion-icon name="locate" slot="start"></ion-icon>
+            Use My Current Location
+          </ion-button>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Map Container -->
+      <ion-card class="map-card">
+        <ion-card-header>
+          <ion-card-title>Set Exact Location</ion-card-title>
+          <ion-card-subtitle>Drag the red marker to your exact business location</ion-card-subtitle>
+        </ion-card-header>
+        <ion-card-content>
+          <div class="map-container" #mapContainer>
+            <!-- Google Maps will be loaded here -->
+          </div>
+          
+          <!-- Selected Coordinates Display -->
+          <div class="coordinates-display" *ngIf="selectedLocation.lat && selectedLocation.lng">
+            <ion-chip color="tertiary">
+              <ion-icon name="location"></ion-icon>
+              <ion-label>
+                Selected: {{ selectedLocation.lat | number:'1.6-6' }}, {{ selectedLocation.lng | number:'1.6-6' }}
+              </ion-label>
+            </ion-chip>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Instructions -->
+      <ion-card class="instructions-card">
+        <ion-card-header>
+          <ion-card-title>
+            <ion-icon name="information-circle" color="primary"></ion-icon>
+            How to Set Your Location
+          </ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <div class="instruction-steps">
+            <div class="step">
+              <div class="step-number">1</div>
+              <div class="step-text">
+                <strong>Search:</strong> Use the search box above to find your general area
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-number">2</div>
+              <div class="step-text">
+                <strong>Pinpoint:</strong> Drag the red marker to your exact business location
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-number">3</div>
+              <div class="step-text">
+                <strong>Save:</strong> Click "Update Location" to save your coordinates
+              </div>
+            </div>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+    </div>
+
+    <!-- Save Button -->
+    <div class="save-section" *ngIf="!isLoading">
+      <ion-button 
+        expand="block" 
+        size="large" 
+        [disabled]="!selectedLocation.lat || !selectedLocation.lng || isSaving"
+        (click)="saveLocation()">
+        <ion-icon name="save" slot="start"></ion-icon>
+        {{ isSaving ? 'Updating...' : 'Update Location' }}
+      </ion-button>
+      
+      <div class="save-note">
+        <ion-text color="medium">
+          <p>
+            <ion-icon name="shield-checkmark"></ion-icon>
+            Your location will be visible to customers looking for nearby karenderias
+          </p>
+        </ion-text>
+      </div>
+    </div>
+
+  </div>
+</ion-content>

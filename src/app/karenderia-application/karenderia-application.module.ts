@@ -5,15 +5,16 @@ import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 
 import { KarenderiaApplicationPageRoutingModule } from './karenderia-application-routing.module';
-
 import { KarenderiaApplicationPage } from './karenderia-application.page';
+import { SharedModule } from '../shared/shared.module';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
-    KarenderiaApplicationPageRoutingModule
+    KarenderiaApplicationPageRoutingModule,
+    SharedModule
   ],
   declarations: [KarenderiaApplicationPage]
 })

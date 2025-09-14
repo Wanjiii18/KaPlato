@@ -48,6 +48,11 @@ const routes: Routes = [
     canActivate: [AuthGuard, KarenderiaGuard]
   },
   {
+    path: 'karenderia-location-update',
+    loadComponent: () => import('./pages/karenderia-location-update/karenderia-location-update.page').then(m => m.KarenderiaLocationUpdatePage),
+    canActivate: [AuthGuard, KarenderiaGuard]
+  },
+  {
     path: 'karenderia-menu',
     loadChildren: () => import('./karenderia-menu/karenderia-menu.module').then( m => m.KarenderiaMenuPageModule),
     canActivate: [AuthGuard, KarenderiaGuard]

@@ -926,3 +926,43 @@
   font-style: italic;
   margin-top: 0.5rem;
 }
+
+// Business Information Section Styles
+.business-info-section {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  
+  .section-title {
+    color: white;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    
+    &::before {
+      content: '';
+      width: 4px;
+      height: 20px;
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      border-radius: 2px;
+    }
+  }
+  
+  .modern-form-group {
+    margin-bottom: 1rem;
+  }
+  
+  .modern-input-item {
+    --background: rgba(255, 255, 255, 0.05);
+    --border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    
+    ion-textarea {
+      --color: white;
+      --placeholder-color: rgba(255, 255, 255, 0.6);
+    }
+  }
+}

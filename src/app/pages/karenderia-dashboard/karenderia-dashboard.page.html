@@ -210,6 +210,15 @@
               <ion-icon name="create" slot="start"></ion-icon>
               Edit Details
             </ion-button>
+            <ion-button 
+              fill="solid" 
+              size="small" 
+              color="primary"
+              (click)="updateLocation()"
+              [disabled]="!karenderia">
+              <ion-icon name="location" slot="start"></ion-icon>
+              {{ (karenderia?.latitude && karenderia?.longitude) ? 'Update Location' : 'Set Location' }}
+            </ion-button>
           </div>
         </ion-card-content>
       </ion-card>

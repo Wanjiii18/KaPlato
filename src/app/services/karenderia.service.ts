@@ -806,4 +806,11 @@ export class KarenderiaService {
     });
   }
 
+  // Update karenderia location (for karenderia owners)
+  updateKarenderiaLocation(locationData: { latitude: number; longitude: number }): Observable<any> {
+    return this.http.put(`${this.apiUrl}/karenderias/my-karenderia/location`, locationData, {
+      headers: this.getHeaders()
+    });
+  }
+
 }

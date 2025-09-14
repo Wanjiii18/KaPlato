@@ -41,6 +41,10 @@
           <ion-icon name="person-outline"></ion-icon>
           <ion-label>General</ion-label>
         </ion-segment-button>
+        <ion-segment-button value="business" class="modern-segment-btn">
+          <ion-icon name="business-outline"></ion-icon>
+          <ion-label>Business</ion-label>
+        </ion-segment-button>
         <ion-segment-button value="allergens" class="modern-segment-btn">
           <ion-icon name="warning-outline"></ion-icon>
           <ion-label>Allergens</ion-label>
@@ -114,6 +118,157 @@
               <h4>Member Since</h4>
               <p>{{ formatDate(userProfile.createdAt) }}</p>
             </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modern Business Section -->
+    <div *ngIf="selectedSegment === 'business'" class="modern-segment-content animate-slide-up">
+      <div class="modern-business-card">
+        <div class="modern-card-header">
+          <div class="header-content">
+            <h3>Business & Karenderia</h3>
+            <p *ngIf="!isKarenderiaOwner">Manage your business profile and karenderia applications</p>
+            <p *ngIf="isKarenderiaOwner">Your karenderia business information</p>
+          </div>
+          <div class="header-icon">
+            <ion-icon name="business-outline"></ion-icon>
+          </div>
+        </div>
+        
+        <div class="modern-card-content">
+          
+          <!-- Karenderia Business Information (for karenderia owners) -->
+          <div *ngIf="isKarenderiaOwner && karenderiaData" class="modern-business-info">
+            <div class="business-details">
+              <div class="modern-info-item">
+                <div class="info-icon business-name-icon">
+                  <ion-icon name="storefront-outline"></ion-icon>
+                </div>
+                <div class="info-content">
+                  <h4>Business Name</h4>
+                  <p>{{ karenderiaData.name }}</p>
+                </div>
+              </div>
+              
+              <div class="modern-info-item" *ngIf="karenderiaData.phone">
+                <div class="info-icon phone-icon">
+                  <ion-icon name="call-outline"></ion-icon>
+                </div>
+                <div class="info-content">
+                  <h4>Phone Number</h4>
+                  <p>{{ karenderiaData.phone }}</p>
+                </div>
+              </div>
+              
+              <div class="modern-info-item" *ngIf="karenderiaData.email">
+                <div class="info-icon email-icon">
+                  <ion-icon name="mail-outline"></ion-icon>
+                </div>
+                <div class="info-content">
+                  <h4>Business Email</h4>
+                  <p>{{ karenderiaData.email }}</p>
+                </div>
+              </div>
+              
+              <div class="modern-info-item" *ngIf="karenderiaData.address">
+                <div class="info-icon address-icon">
+                  <ion-icon name="location-outline"></ion-icon>
+                </div>
+                <div class="info-content">
+                  <h4>Business Address</h4>
+                  <p>{{ karenderiaData.address }}</p>
+                </div>
+              </div>
+              
+              <div class="modern-info-item" *ngIf="karenderiaData.description">
+                <div class="info-icon description-icon">
+                  <ion-icon name="document-text-outline"></ion-icon>
+                </div>
+                <div class="info-content">
+                  <h4>Description</h4>
+                  <p>{{ karenderiaData.description }}</p>
+                </div>
+              </div>
+              
+              <div class="modern-info-item">
+                <div class="info-icon status-icon">
+                  <ion-icon name="checkmark-circle-outline" color="success"></ion-icon>
+                </div>
+                <div class="info-content">
+                  <h4>Status</h4>
+                  <p>Active Karenderia Owner</p>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Business Actions -->
+            <div class="business-actions">
+              <ion-button 
+                expand="block" 
+                fill="outline" 
+                color="primary"
+                (click)="navigateToKarenderiaSettings()" 
+                class="modern-action-button">
+                <ion-icon name="settings-outline" slot="start"></ion-icon>
+                Manage Business Settings
+              </ion-button>
+            </div>
+          </div>
+          
+          <!-- Loading state -->
+          <div *ngIf="isKarenderiaOwner && !karenderiaData" class="loading-state">
+            <ion-spinner></ion-spinner>
+            <p>Loading your business information...</p>
+          </div>
+          
+          <!-- Apply for Karenderia Map (for non-karenderia owners) -->
+          <div *ngIf="!isKarenderiaOwner" class="modern-business-action">
+            <div class="action-info">
+              <div class="action-icon">
+                <ion-icon name="map-outline"></ion-icon>
+              </div>
+              <div class="action-details">
+                <h4>Register Your Karenderia</h4>
+                <p>Add your restaurant to the KaPlato map and start receiving orders from customers</p>
+                <div class="action-benefits">
+                  <ion-chip color="success" outline="true">
+                    <ion-icon name="checkmark-circle"></ion-icon>
+                    <ion-label>Increase Visibility</ion-label>
+                  </ion-chip>
+                  <ion-chip color="primary" outline="true">
+                    <ion-icon name="location"></ion-icon>
+                    <ion-label>Map Presence</ion-label>
+                  </ion-chip>
+                  <ion-chip color="secondary" outline="true">
+                    <ion-icon name="people"></ion-icon>
+                    <ion-label>Reach Customers</ion-label>
+                  </ion-chip>
+                </div>
+              </div>
+            </div>
+            <ion-button 
+              expand="block" 
+              fill="solid" 
+              color="primary"
+              (click)="navigateToKarenderiaApplication()" 
+              class="modern-apply-button">
+              <ion-icon name="add-circle-outline" slot="start"></ion-icon>
+              Apply for Map Registration
+            </ion-button>
+          </div>
+
+          <!-- Business Status (if has application) -->
+          <div class="modern-business-status" *ngIf="hasBusinessApplication && !isKarenderiaOwner">
+            <div class="status-header">
+              <h4>Application Status</h4>
+              <div class="status-badge" [ngClass]="'status-' + applicationStatus">
+                <ion-icon [name]="getStatusIcon(applicationStatus)"></ion-icon>
+                <span>{{ applicationStatus | titlecase }}</span>
+              </div>
+            </div>
+            <p class="status-description">{{ getStatusDescription(applicationStatus) }}</p>
           </div>
         </div>
       </div>

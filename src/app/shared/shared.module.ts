@@ -4,10 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 
 import { OrderModalComponent } from '../modals/order-modal/order-modal.component';
+import { LocationMapComponent } from './components/location-map/location-map.component';
 
 @NgModule({
   declarations: [
-    OrderModalComponent
+    OrderModalComponent,
+    LocationMapComponent
   ],
   imports: [
     CommonModule,
@@ -15,7 +17,8 @@ import { OrderModalComponent } from '../modals/order-modal/order-modal.component
     IonicModule
   ],
   exports: [
-    OrderModalComponent
+    OrderModalComponent,
+    LocationMapComponent
   ]
 })
 export class SharedModule { }
