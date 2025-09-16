@@ -66,7 +66,8 @@
         <div class="image-container">
           <img [src]="favorite.menuItemImage || 'assets/images/default-food.jpg'" 
                [alt]="favorite.menuItemName"
-               class="meal-image">
+               class="meal-image"
+               loading="lazy">
           <div class="price-badge">₱{{ favorite.menuItemPrice }}</div>
         </div>
         

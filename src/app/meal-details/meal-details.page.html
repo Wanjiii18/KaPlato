@@ -30,7 +30,8 @@
       <div class="hero-image-container">
         <img [src]="menuItem.image || 'assets/images/default-food.jpg'" 
              [alt]="menuItem.name"
-             class="hero-image">
+             class="hero-image"
+             loading="lazy">
         <div class="hero-overlay">
           <div class="price-badge">
             ₱{{ menuItem.price }}

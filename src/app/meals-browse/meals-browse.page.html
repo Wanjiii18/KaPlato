@@ -92,7 +92,8 @@
         <div class="meal-image-container">
           <img [src]="meal.image || 'assets/images/default-food.jpg'" 
                [alt]="meal.name"
-               class="meal-image">
+               class="meal-image"
+               loading="lazy">
           <div class="meal-badges">
             <ion-chip color="primary" size="small" class="price-chip">
               <ion-label>₱{{ meal.price }}</ion-label>
