@@ -160,30 +160,23 @@ export class KarenderiaMenuPage implements OnInit, OnDestroy {
   ) { }
 
   async ngOnInit() {
-    console.log('🔄 KarenderiaMenu ngOnInit - Starting initialization...');
-    
     // Check authentication status
     const isAuthenticated = this.authService.isAuthenticated();
     
     if (isAuthenticated) {
       const currentUser = this.authService.getCurrentUser();
-      console.log('🔄 KarenderiaMenu ngOnInit - Current user:', currentUser?.email);
       
       // Force reload karenderia data if user is a karenderia owner
       if (currentUser?.role === 'karenderia_owner') {
         this.karenderiaInfoService.reloadKarenderiaData();
         
         // Force reload menu data to ensure fresh data for this user
-        console.log('🔄 Force reloading menu data for user:', currentUser.email);
         await this.menuService.forceReload();
-        console.log('🔄 Force reload completed, now setting up subscription...');
       }
     }
     
     // Always set up the subscription to menu items
-    console.log('🔄 Setting up menu subscription...');
     this.loadMenuItems();
-    console.log('🔄 ngOnInit complete');
   }
 
   ngOnDestroy() {
@@ -228,16 +221,10 @@ export class KarenderiaMenuPage implements OnInit, OnDestroy {
     // The service automatically loads data in its constructor, so we just need to subscribe
     // Unsubscribe any existing subscription first to prevent duplicates
     if (this.menuSubscription) {
-      console.log('🔄 Unsubscribing from existing menu subscription');
       this.menuSubscription.unsubscribe();
     }
     
-    console.log('🔄 Setting up new menu subscription...');
     this.menuSubscription = this.menuService.menuItems$.subscribe(items => {
-      console.log('📡 Menu items received in component:', items);
-      console.log('📡 First item details:', items[0] ? JSON.stringify(items[0], null, 2) : 'No items');
-      console.log('📡 Component menuItems before assignment:', this.menuItems.length);
-      
       // Remove any potential duplicates based on ID and name
       const uniqueItems = items.filter((item, index, self) => {
         return index === self.findIndex(i => 
@@ -246,13 +233,9 @@ export class KarenderiaMenuPage implements OnInit, OnDestroy {
         );
       });
       
-      console.log('📡 Unique menu items after deduplication:', uniqueItems);
       this.menuItems = uniqueItems;
-      console.log('📡 Component menuItems after assignment:', this.menuItems.length);
       this.filterByCategory();
-      console.log('📡 Filtered items after filterByCategory:', this.filteredMenuItems.length);
     });
-    console.log('🔄 Menu subscription setup complete');
   }
 
   filterByCategory(category?: string) {

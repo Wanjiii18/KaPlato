@@ -154,7 +154,8 @@ export class AuthService {
   }
 
   logout(): void {
-    console.log('🚪 Logging out user, clearing all data...');
+    // Get the token before clearing it for server logout
+    const token = localStorage.getItem('auth_token');
     
     // Clear local storage immediately for instant logout feeling
     localStorage.removeItem('auth_token');
@@ -164,10 +165,10 @@ export class AuthService {
     localStorage.removeItem('karenderia_data');
     localStorage.removeItem('menu_cache');
     
+    // Clear the user subject
     this.currentUserSubject.next(null);
 
     // Optional: Notify server in background (don't wait for response)
-    const token = localStorage.getItem('auth_token');
     if (token) {
       this.http.post(`${this.apiUrl}/auth/logout`, {}, {
         headers: { Authorization: `Bearer ${token}` }
@@ -180,8 +181,17 @@ export class AuthService {
 
   // Simple logout with navigation - use this in components
   async logoutAndRedirect(): Promise<void> {
+    // First, clear the authentication state
     this.logout();
-    await this.router.navigate(['/login'], { replaceUrl: true });
+    
+    // Wait a small moment for the observable to update
+    await new Promise(resolve => setTimeout(resolve, 50));
+    
+    // Navigate to login with replace to prevent going back to protected route
+    await this.router.navigate(['/login'], { 
+      replaceUrl: true,
+      skipLocationChange: false 
+    });
   }
 
   // Logout with simple confirmation

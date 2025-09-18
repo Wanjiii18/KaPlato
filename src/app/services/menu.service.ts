@@ -35,7 +35,6 @@ export class MenuService {
 
   // Method to clear all cached data (useful for logout/user switching)
   clearCache(): void {
-    console.log('🧹 Clearing menu service cache...');
     this.menuItemsSubject.next([]);
     this.ingredientsSubject.next([]);
     this.categoriesSubject.next([]);
@@ -44,7 +43,6 @@ export class MenuService {
 
   // Method to force reload all data (useful for user switching)
   forceReload(): void {
-    console.log('🔄 Force reloading all menu data...');
     this.clearCache();
     this.loadCategories().catch(err => console.warn('Categories loading failed:', err));
     this.loadIngredients().catch(err => console.warn('Ingredients loading failed:', err));
@@ -54,7 +52,6 @@ export class MenuService {
 
   private getHeaders(): HttpHeaders {
     const token = localStorage.getItem('auth_token');
-    console.log('Auth token for menu request:', token ? 'Token exists' : 'No token found');
     return new HttpHeaders({
       'Content-Type': 'application/json',
       'Authorization': token ? `Bearer ${token}` : ''
@@ -73,25 +70,15 @@ export class MenuService {
   // MENU ITEMS
   async loadMenuItems(): Promise<void> {
     try {
-      console.log('🍽️ Loading menu items from API for current karenderia...');
-      
       // Check authentication
       const token = localStorage.getItem('auth_token');
-      console.log('🔑 Auth token exists:', !!token);
       
       const response = await this.http.get<{ data: any[], debug?: any, karenderia?: any }>(`${this.apiUrl}/menu-items/my-menu`, {
         headers: this.getHeaders()
       }).toPromise();
       
-      console.log('🍽️ Raw API response:', response);
-      console.log('🍽️ Menu items from API:', response?.data);
-      console.log('🏪 Karenderia info:', response?.karenderia);
-      console.log('🐛 Debug info:', response?.debug);
-      
       // Map backend field names to frontend field names
       const mappedItems: MenuItem[] = (response?.data || []).map(item => {
-        console.log('🍽️ Processing menu item:', item.name, 'for karenderia:', item.karenderia_id);
-        
         return {
           ...item,
           isAvailable: item.is_available !== undefined ? item.is_available : item.isAvailable,
@@ -101,9 +88,6 @@ export class MenuService {
           updatedAt: item.updated_at ? new Date(item.updated_at) : item.updatedAt
         };
       });
-      
-      console.log('🍽️ Final mapped menu items:', mappedItems);
-      console.log('🍽️ Total items loaded:', mappedItems.length);
       
       // Clear any existing items before setting new ones to prevent duplicates
       this.menuItemsSubject.next([]);
@@ -494,7 +478,6 @@ export class MenuService {
       });
 
       await Promise.all(promises);
-      console.log('Nutrition data generated for all menu items');
     } catch (error) {
       console.error('Error generating nutrition for existing items:', error);
       throw error;
