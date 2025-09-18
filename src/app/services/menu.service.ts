@@ -33,6 +33,25 @@ export class MenuService {
     this.loadOrders().catch(err => console.warn('Orders loading failed:', err));
   }
 
+  // Method to clear all cached data (useful for logout/user switching)
+  clearCache(): void {
+    console.log('🧹 Clearing menu service cache...');
+    this.menuItemsSubject.next([]);
+    this.ingredientsSubject.next([]);
+    this.categoriesSubject.next([]);
+    this.ordersSubject.next([]);
+  }
+
+  // Method to force reload all data (useful for user switching)
+  forceReload(): void {
+    console.log('🔄 Force reloading all menu data...');
+    this.clearCache();
+    this.loadCategories().catch(err => console.warn('Categories loading failed:', err));
+    this.loadIngredients().catch(err => console.warn('Ingredients loading failed:', err));
+    this.loadMenuItems().catch(err => console.warn('Menu items loading failed:', err));
+    this.loadOrders().catch(err => console.warn('Orders loading failed:', err));
+  }
+
   private getHeaders(): HttpHeaders {
     const token = localStorage.getItem('auth_token');
     console.log('Auth token for menu request:', token ? 'Token exists' : 'No token found');
@@ -54,18 +73,24 @@ export class MenuService {
   // MENU ITEMS
   async loadMenuItems(): Promise<void> {
     try {
-      console.log('Loading menu items from API...');
-      const response = await this.http.get<{ data: any[] }>(`${this.apiUrl}/menu-items`, {
+      console.log('🍽️ Loading menu items from API for current karenderia...');
+      
+      // Check authentication
+      const token = localStorage.getItem('auth_token');
+      console.log('🔑 Auth token exists:', !!token);
+      
+      const response = await this.http.get<{ data: any[], debug?: any, karenderia?: any }>(`${this.apiUrl}/menu-items/my-menu`, {
         headers: this.getHeaders()
       }).toPromise();
       
-      console.log('Raw API response:', response);
-      console.log('Menu items from API:', response?.data);
+      console.log('🍽️ Raw API response:', response);
+      console.log('🍽️ Menu items from API:', response?.data);
+      console.log('🏪 Karenderia info:', response?.karenderia);
+      console.log('🐛 Debug info:', response?.debug);
       
       // Map backend field names to frontend field names
       const mappedItems: MenuItem[] = (response?.data || []).map(item => {
-        console.log('Processing menu item:', item);
-        console.log('Item ingredients:', item.ingredients);
+        console.log('🍽️ Processing menu item:', item.name, 'for karenderia:', item.karenderia_id);
         
         return {
           ...item,
@@ -77,7 +102,8 @@ export class MenuService {
         };
       });
       
-      console.log('Mapped menu items:', mappedItems);
+      console.log('🍽️ Final mapped menu items:', mappedItems);
+      console.log('🍽️ Total items loaded:', mappedItems.length);
       
       // Clear any existing items before setting new ones to prevent duplicates
       this.menuItemsSubject.next([]);
@@ -85,7 +111,7 @@ export class MenuService {
       // Set the new items
       this.menuItemsSubject.next(mappedItems);
     } catch (error) {
-      console.error('Error loading menu items:', error);
+      console.error('❌ Error loading menu items:', error);
     }
   }
 

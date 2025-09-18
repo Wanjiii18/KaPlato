@@ -154,9 +154,16 @@ export class AuthService {
   }
 
   logout(): void {
+    console.log('🚪 Logging out user, clearing all data...');
+    
     // Clear local storage immediately for instant logout feeling
     localStorage.removeItem('auth_token');
     localStorage.removeItem('user_data');
+    
+    // Clear any other cached data that might persist across sessions
+    localStorage.removeItem('karenderia_data');
+    localStorage.removeItem('menu_cache');
+    
     this.currentUserSubject.next(null);
 
     // Optional: Notify server in background (don't wait for response)
