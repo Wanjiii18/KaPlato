@@ -309,6 +309,20 @@
         .searchbar-input {
           font-size: 14px;
           font-weight: 400;
+          color: #1e293b !important;
+          
+          &::placeholder {
+            color: #64748b !important;
+          }
+        }
+        
+        ion-input {
+          --color: #1e293b !important;
+          --placeholder-color: #64748b !important;
+          
+          &::part(native) {
+            color: #1e293b !important;
+          }
         }
       }
     }
@@ -330,6 +344,7 @@
         height: 48px;
         border: 1px solid #e2e8f0;
         border-radius: 12px;
+        color: #1e293b !important;
 
         &::part(icon) {
           color: #6366f1;
@@ -338,6 +353,15 @@
         &::part(placeholder) {
           color: #64748b;
           font-weight: 400;
+        }
+        
+        &::part(text) {
+          color: #1e293b !important;
+        }
+        
+        ion-select-option {
+          --color: #1e293b;
+          color: #1e293b !important;
         }
       }
     }
@@ -455,6 +479,8 @@
     --border-radius: 12px;
     --border-color: #e2e8f0;
     --background: white;
+    --color: #1e293b;
+    --placeholder-color: #64748b;
     --padding-start: 16px;
     --padding-end: 16px;
     margin-bottom: 16px;
@@ -464,6 +490,22 @@
       --border-color: #6366f1;
       --border-width: 2px;
       box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+    
+    ion-input, ion-textarea, ion-select {
+      --color: #1e293b !important;
+      --placeholder-color: #64748b !important;
+      color: #1e293b !important;
+      
+      &::part(native) {
+        color: #1e293b !important;
+      }
+    }
+    
+    ion-label {
+      --color: #374151 !important;
+      color: #374151 !important;
+      font-weight: 500;
     }
   }
   
@@ -1044,6 +1086,296 @@
       ion-card-content {
         padding: 24px 16px;
       }
+    }
+  }
+}
+
+// Additional form styling for better text visibility
+.modern-menu-form {
+  // Global form text visibility fixes
+  ion-item {
+    --color: #1e293b !important;
+    
+    ion-input, ion-textarea, ion-select {
+      --color: #1e293b !important;
+      --placeholder-color: #64748b !important;
+      color: #1e293b !important;
+      
+      input, textarea {
+        color: #1e293b !important;
+        background: transparent !important;
+        
+        &::placeholder {
+          color: #64748b !important;
+          opacity: 1;
+        }
+      }
+      
+      &::part(native) {
+        color: #1e293b !important;
+      }
+    }
+    
+    ion-label {
+      --color: #374151 !important;
+      color: #374151 !important;
+      font-weight: 500;
+      margin-bottom: 8px;
+    }
+  }
+  
+  // Specific fixes for different input types
+  .modern-input {
+    color: #1e293b !important;
+    
+    &::part(native) {
+      color: #1e293b !important;
+    }
+  }
+  
+  .modern-textarea {
+    color: #1e293b !important;
+    
+    &::part(native) {
+      color: #1e293b !important;
+    }
+  }
+  
+  .modern-select {
+    color: #1e293b !important;
+    
+    &::part(text) {
+      color: #1e293b !important;
+    }
+  }
+}
+
+// Force text visibility in all form fields
+ion-input, ion-textarea, ion-select {
+  --color: #1e293b !important;
+  color: #1e293b !important;
+  
+  &::part(native) {
+    color: #1e293b !important;
+  }
+}
+
+ion-searchbar {
+  --color: #1e293b !important;
+  color: #1e293b !important;
+  
+  &::part(native) {
+    color: #1e293b !important;
+  }
+  
+  input {
+    color: #1e293b !important;
+  }
+}
+
+// Final comprehensive form visibility fix
+.modern-add-item-section {
+  ion-input,
+  ion-textarea,
+  ion-select {
+    // Force dark text on light background
+    --color: #1e293b !important;
+    --placeholder-color: rgba(30, 41, 59, 0.6) !important;
+    --background: #ffffff !important;
+    --border-color: #e2e8f0 !important;
+    
+    // Target internal elements
+    input {
+      color: #1e293b !important;
+      background-color: #ffffff !important;
+    }
+    
+    textarea {
+      color: #1e293b !important;
+      background-color: #ffffff !important;
+    }
+    
+    .select-text {
+      color: #1e293b !important;
+    }
+    
+    .native-input,
+    .native-textarea {
+      color: #1e293b !important;
+      background-color: #ffffff !important;
+    }
+  }
+  
+  // Additional form element fixes
+  .form-control,
+  .modern-form-control {
+    background: #ffffff !important;
+    color: #1e293b !important;
+    border: 1px solid #e2e8f0 !important;
+    
+    input,
+    textarea {
+      color: #1e293b !important;
+      background: #ffffff !important;
+    }
+  }
+  
+  // Label and text visibility
+  ion-label {
+    color: #1e293b !important;
+    font-weight: 500;
+  }
+  
+  h3, h4, p, span {
+    color: #1e293b !important;
+  }
+  
+  // Fix Add Custom button text visibility
+  .section-header {
+    ion-button {
+      --color: #f9f9f9 !important;
+      color: #ffffff !important;
+      font-weight: 500;
+      
+      ion-icon {
+        color: #3b82f6 !important;
+      }
+    }
+  }
+  
+  // Chip elements
+  .allergen-chip,
+  .ingredient-item {
+    background: #f8fafc !important;
+    color: #1e293b !important;
+    border: 1px solid #e2e8f0 !important;
+  }
+  
+  // Fix ingredient checkbox items with black background
+  .ingredient-checkboxes {
+    .ingredient-checkbox-item {
+      --background: #ffffff !important;
+      --color: #1e293b !important;
+      --border-color: #e2e8f0 !important;
+      background: #ffffff !important;
+      
+      ion-label {
+        color: #1e293b !important;
+      }
+      
+      h3 {
+        color: #1e293b !important;
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 600;
+      }
+      
+      p {
+        color: #64748b !important;
+        margin: 4px 0 0 0;
+        font-size: 0.875rem;
+      }
+      
+      ion-checkbox {
+        --checkmark-color: #ffffff !important;
+        --border-color: #3b82f6 !important;
+        --background-checked: #3b82f6 !important;
+      }
+    }
+  }
+  
+  // Fix selected ingredients section with black background
+  .selected-ingredients {
+    .selected-ingredient-item {
+      --background: #ffffff !important;
+      --color: #1e293b !important;
+      --border-color: #e2e8f0 !important;
+      background: #ffffff !important;
+      margin-bottom: 8px;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+      
+      .ingredient-details {
+        h4 {
+          color: #1e293b !important;
+          margin: 0;
+          font-size: 1rem;
+          font-weight: 500;
+        }
+        
+        p {
+          color: #64748b !important;
+          margin: 4px 0 0 0;
+          font-size: 0.875rem;
+        }
+      }
+      
+      ion-button {
+        --color: #ef4444 !important;
+      }
+    }
+  }
+}
+
+// Ultimate input text visibility fix
+.modern-add-item-section {
+  // Target all possible input elements
+  ion-item {
+    --background: #ffffff !important;
+    --color: #1e293b !important;
+    background: #ffffff !important;
+    
+    ion-input {
+      --color: #1e293b !important;
+      --placeholder-color: #64748b !important;
+      color: #1e293b !important;
+      
+      input {
+        color: #1e293b !important;
+        background: transparent !important;
+        opacity: 1 !important;
+        
+        &::placeholder {
+          color: #64748b !important;
+          opacity: 0.7 !important;
+        }
+      }
+    }
+    
+    ion-textarea {
+      --color: #1e293b !important;
+      --placeholder-color: #64748b !important;
+      color: #1e293b !important;
+      
+      textarea {
+        color: #1e293b !important;
+        background: transparent !important;
+        opacity: 1 !important;
+        
+        &::placeholder {
+          color: #64748b !important;
+          opacity: 0.7 !important;
+        }
+      }
+    }
+    
+    ion-select {
+      --color: #1e293b !important;
+      --placeholder-color: #64748b !important;
+      color: #1e293b !important;
+      
+      .select-text {
+        color: #1e293b !important;
+      }
+      
+      .select-placeholder {
+        color: #64748b !important;
+      }
+    }
+    
+    ion-label {
+      --color: #374151 !important;
+      color: #374151 !important;
     }
   }
 }

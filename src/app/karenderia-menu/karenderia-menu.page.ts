@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { MenuService } from '../services/menu.service';
 import { OrderService } from '../services/order.service';
@@ -20,6 +20,8 @@ export class KarenderiaMenuPage implements OnInit, OnDestroy {
   filteredMenuItems: MenuItem[] = [];
   selectedCategory = 'all';
   isAddingItem = false;
+  isEditingItem = false;
+  editingItem: MenuItem | null = null;
   
   private menuSubscription?: Subscription;
   
@@ -153,23 +155,19 @@ export class KarenderiaMenuPage implements OnInit, OnDestroy {
     private toastController: ToastController,
     private modalController: ModalController,
     private karenderiaInfoService: KarenderiaInfoService,
-    private authService: AuthService
+    private authService: AuthService,
+    private cdr: ChangeDetectorRef
   ) { }
 
   ngOnInit() {
-    console.log('🔍 KarenderiaMenu: ngOnInit called');
-    
     // Check authentication status
     const isAuthenticated = this.authService.isAuthenticated();
-    console.log('🔍 KarenderiaMenu: User authenticated:', isAuthenticated);
     
     if (isAuthenticated) {
       const currentUser = this.authService.getCurrentUser();
-      console.log('🔍 KarenderiaMenu: Current user:', currentUser);
       
       // Force reload karenderia data if user is a karenderia owner
       if (currentUser?.role === 'karenderia_owner') {
-        console.log('🔍 KarenderiaMenu: User is karenderia owner, reloading karenderia data...');
         this.karenderiaInfoService.reloadKarenderiaData();
       }
     }
@@ -223,7 +221,8 @@ export class KarenderiaMenuPage implements OnInit, OnDestroy {
     }
     
     this.menuSubscription = this.menuService.menuItems$.subscribe(items => {
-      console.log('Menu items received in component:', items);
+      console.log('📡 Menu items received in component:', items);
+      console.log('📡 First item details:', items[0] ? JSON.stringify(items[0], null, 2) : 'No items');
       
       // Remove any potential duplicates based on ID and name
       const uniqueItems = items.filter((item, index, self) => {
@@ -233,7 +232,7 @@ export class KarenderiaMenuPage implements OnInit, OnDestroy {
         );
       });
       
-      console.log('Unique menu items after deduplication:', uniqueItems);
+      console.log('📡 Unique menu items after deduplication:', uniqueItems);
       this.menuItems = uniqueItems;
       this.filterByCategory();
     });
@@ -260,7 +259,10 @@ export class KarenderiaMenuPage implements OnInit, OnDestroy {
 
   cancelAddingItem() {
     this.isAddingItem = false;
+    this.isEditingItem = false;
+    this.editingItem = null;
     this.resetNewItemForm();
+    this.cdr.detectChanges();
   }
 
   resetNewItemForm() {
@@ -389,7 +391,7 @@ export class KarenderiaMenuPage implements OnInit, OnDestroy {
     // Check authentication first
     if (!this.authService.isAuthenticated()) {
       const toast = await this.toastController.create({
-        message: 'You must be logged in to add menu items',
+        message: 'You must be logged in to save menu items',
         duration: 3000,
         color: 'danger'
       });
@@ -429,23 +431,36 @@ export class KarenderiaMenuPage implements OnInit, OnDestroy {
     try {
       console.log('User authenticated:', this.authService.isAuthenticated());
       console.log('Current user:', this.authService.getCurrentUser());
-      console.log('Attempting to save menu item:', menuItem);
-      await this.menuService.addMenuItem(menuItem);
       
-      const toast = await this.toastController.create({
-        message: 'Menu item added successfully!',
-        duration: 3000,
-        color: 'success'
-      });
-      await toast.present();
+      if (this.isEditingItem && this.editingItem) {
+        console.log('Updating menu item:', this.editingItem.id, menuItem);
+        await this.menuService.updateMenuItem(this.editingItem.id, menuItem);
+        
+        const toast = await this.toastController.create({
+          message: 'Menu item updated successfully!',
+          duration: 3000,
+          color: 'success'
+        });
+        await toast.present();
+      } else {
+        console.log('Adding new menu item:', menuItem);
+        await this.menuService.addMenuItem(menuItem);
+        
+        const toast = await this.toastController.create({
+          message: 'Menu item added successfully!',
+          duration: 3000,
+          color: 'success'
+        });
+        await toast.present();
+      }
       
       this.cancelAddingItem();
       this.loadMenuItems(); // Reload menu items
     } catch (error) {
-      console.error('Error adding menu item:', error);
+      console.error('Error saving menu item:', error);
       console.error('Full error details:', JSON.stringify(error, null, 2));
       const toast = await this.toastController.create({
-        message: 'Failed to add menu item: ' + (error as any)?.message || 'Unknown error',
+        message: `Failed to ${this.isEditingItem ? 'update' : 'add'} menu item: ` + (error as any)?.message || 'Unknown error',
         duration: 5000,
         color: 'danger'
       });
@@ -458,8 +473,147 @@ export class KarenderiaMenuPage implements OnInit, OnDestroy {
   }
 
   async editMenuItem(item: MenuItem) {
-    // Implementation for editing menu items
-    console.log('Edit menu item:', item);
+    console.log('🔧 EDITING ORIGINAL ITEM:', JSON.stringify(item, null, 2));
+    console.log('🔧 EDITING item.name:', item.name, 'typeof:', typeof item.name);
+    console.log('🔧 EDITING item.price:', item.price, 'typeof:', typeof item.price);
+    console.log('🔧 EDITING item.category:', item.category, 'typeof:', typeof item.category);
+    
+    // Set edit mode
+    this.isEditingItem = true;
+    this.isAddingItem = false;
+    this.editingItem = item;
+    
+    // Handle ingredients mapping more robustly
+    let ingredientsList: string[] = [];
+    if (item.ingredients && Array.isArray(item.ingredients)) {
+      ingredientsList = item.ingredients.map((ing: any) => {
+        // Handle different ingredient data structures
+        if (typeof ing === 'string') {
+          return ing;
+        } else if (ing.ingredientName) {
+          return ing.ingredientName;
+        } else if (ing.name) {
+          return ing.name;
+        } else {
+          return String(ing);
+        }
+      });
+    }
+    
+    // Convert price to number, handling string format
+    const priceValue = typeof item.price === 'string' ? parseFloat(item.price) : Number(item.price);
+    // Use any to access backend properties that might not be in interface
+    const itemAny = item as any;
+    const prepTimeValue = itemAny.preparation_time_minutes ? Number(itemAny.preparation_time_minutes) : 15;
+    
+    // Map backend category to frontend category options
+    let frontendCategory = item.category;
+    const categoryMap: { [key: string]: string } = {
+      'main_course': 'main',
+      'main_dish': 'main',
+      'appetizer': 'appetizers',
+      'dessert': 'desserts', 
+      'beverage': 'beverages',
+      'rice_dishes': 'main',
+      'noodle_dishes': 'main'
+    };
+    if (categoryMap[item.category]) {
+      frontendCategory = categoryMap[item.category];
+    }
+    
+    console.log('🔧 Converted values - price:', priceValue, 'prepTime:', prepTimeValue, 'category:', frontendCategory);
+    
+    // Directly assign without setTimeout to avoid timing issues
+    this.newMenuItem = {
+      name: String(item.name || ''),
+      description: String(item.description || ''),
+      price: priceValue || 0,
+      cost_price: 0,
+      category: frontendCategory,
+      preparation_time_minutes: prepTimeValue,
+      calories: itemAny.calories || 0,
+      ingredients: ingredientsList,
+      allergens: [...(item.allergens || [])],
+      dietary_info: '',
+      spice_level: 1,
+      serving_size: 1,
+      is_available: itemAny.is_available !== false,
+      is_featured: itemAny.is_featured || false,
+      image_url: itemAny.image_url || ''
+    };
+    
+    console.log('🔧 Final newMenuItem:', JSON.stringify(this.newMenuItem, null, 2));
+    console.log('🔧 newMenuItem.name after assignment:', this.newMenuItem.name);
+    console.log('🔧 newMenuItem.price after assignment:', this.newMenuItem.price);
+    console.log('🔧 newMenuItem.category after assignment:', this.newMenuItem.category);
+    
+    // Force change detection multiple times to ensure binding works
+    this.cdr.detectChanges();
+    
+    // Additional force update with timeout and manual DOM update
+    setTimeout(() => {
+      this.cdr.detectChanges();
+      console.log('🔧 After timeout - newMenuItem.name:', this.newMenuItem.name);
+      
+      // Manually trigger DOM updates for Ionic components
+      const nameInput = document.querySelector('ion-input[label="Dish Name *"] input') as HTMLInputElement;
+      const descTextarea = document.querySelector('ion-textarea[label="Description *"] textarea') as HTMLTextAreaElement;
+      const priceInput = document.querySelector('ion-input[label="Price (PHP) *"] input') as HTMLInputElement;
+      
+      if (nameInput) {
+        nameInput.value = this.newMenuItem.name;
+        nameInput.dispatchEvent(new Event('input', { bubbles: true }));
+        console.log('🔧 Manually set name input to:', nameInput.value);
+      }
+      
+      if (descTextarea) {
+        descTextarea.value = this.newMenuItem.description;
+        descTextarea.dispatchEvent(new Event('input', { bubbles: true }));
+        console.log('🔧 Manually set description to:', descTextarea.value);
+      }
+      
+      if (priceInput) {
+        priceInput.value = this.newMenuItem.price.toString();
+        priceInput.dispatchEvent(new Event('input', { bubbles: true }));
+        console.log('🔧 Manually set price to:', priceInput.value);
+      }
+    }, 100);
+    
+    // Additional force refresh after longer delay
+    setTimeout(() => {
+      this.cdr.detectChanges();
+    }, 200);
+    
+    // Scroll to form
+    setTimeout(() => {
+      const formElement = document.querySelector('.modern-add-item-section');
+      if (formElement) {
+        formElement.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, 100);
+  }
+
+  // Method to get user-friendly category display name
+  getCategoryDisplayName(category: string): string {
+    const categoryDisplayMap: { [key: string]: string } = {
+      'main_course': 'Main Course',
+      'main': 'Main Course',
+      'appetizer': 'Appetizer',
+      'appetizers': 'Appetizers',
+      'dessert': 'Dessert',
+      'desserts': 'Desserts',
+      'beverage': 'Beverage',
+      'beverages': 'Beverages',
+      'soup': 'Soup',
+      'rice': 'Rice Dishes',
+      'rice_dishes': 'Rice Dishes',
+      'noodle': 'Noodle Dishes',
+      'noodle_dishes': 'Noodle Dishes',
+      'snack': 'Snack',
+      'snacks': 'Snacks'
+    };
+    
+    return categoryDisplayMap[category] || category.charAt(0).toUpperCase() + category.slice(1);
   }
 
   async deleteMenuItem(item: MenuItem) {
@@ -637,18 +791,7 @@ export class KarenderiaMenuPage implements OnInit, OnDestroy {
 
   // Dynamic karenderia display methods
   getKarenderiaDisplayName(): string {
-    const displayName = this.karenderiaInfoService.getKarenderiaDisplayName();
-    console.log('🔍 KarenderiaMenu: getKarenderiaDisplayName() called, returning:', displayName);
-    
-    // Let's also check what the service has
-    const currentKarenderia = this.karenderiaInfoService.getCurrentKarenderia();
-    console.log('🔍 KarenderiaMenu: Current karenderia data:', currentKarenderia);
-    
-    // Check auth token
-    const token = localStorage.getItem('auth_token');
-    console.log('🔍 KarenderiaMenu: Auth token exists:', !!token);
-    
-    return displayName;
+    return this.karenderiaInfoService.getKarenderiaDisplayName();
   }
 
   getKarenderiaBrandInitials(): string {

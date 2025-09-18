@@ -107,16 +107,16 @@
         </div>
       </div>
 
-      <!-- Modern Add Menu Item Form -->
-      <div *ngIf="isAddingItem" class="modern-add-item-section animate-slide-up">
+      <!-- Modern Add/Edit Menu Item Form -->
+      <div *ngIf="isAddingItem || isEditingItem" class="modern-add-item-section animate-slide-up">
       <ion-card class="modern-add-item-card">
         <ion-card-header>
           <div class="card-header">
             <div class="header-icon">
-              <ion-icon name="add-circle" color="primary"></ion-icon>
+              <ion-icon [name]="isEditingItem ? 'create' : 'add-circle'" color="primary"></ion-icon>
             </div>
             <div class="header-content">
-              <h2>Add New Menu Item</h2>
+              <h2>{{ isEditingItem ? 'Edit Menu Item' : 'Add New Menu Item' }}</h2>
             </div>
             <ion-button fill="clear" (click)="cancelAddingItem()" class="close-btn">
               <ion-icon name="close" color="medium"></ion-icon>
@@ -137,7 +137,8 @@
             <div class="input-group">
               <ion-item class="modern-item">
                 <ion-input 
-                  [(ngModel)]="newMenuItem.name" 
+                  [(ngModel)]="newMenuItem.name"
+                  type="text"
                   label="Dish Name *"
                   labelPlacement="stacked"
                   placeholder="Enter delicious dish name"
@@ -147,7 +148,7 @@
               
               <ion-item class="modern-item">
                 <ion-textarea 
-                  [(ngModel)]="newMenuItem.description" 
+                  [(ngModel)]="newMenuItem.description"
                   label="Description *"
                   labelPlacement="stacked"
                   placeholder="Describe your dish in detail"
@@ -168,7 +169,7 @@
             <div class="form-grid">
               <ion-item class="modern-item">
                 <ion-input 
-                  [(ngModel)]="newMenuItem.price" 
+                  [(ngModel)]="newMenuItem.price"
                   type="number" 
                   label="Price (PHP) *"
                   labelPlacement="stacked"
@@ -194,7 +195,7 @@
             
             <ion-item class="modern-item">
               <ion-input 
-                [(ngModel)]="newMenuItem.preparation_time_minutes" 
+                [(ngModel)]="newMenuItem.preparation_time_minutes"
                 type="number" 
                 label="Preparation Time (minutes)"
                 labelPlacement="stacked"
@@ -284,8 +285,8 @@
               Cancel
             </ion-button>
             <ion-button expand="block" (click)="saveMenuItem()" [disabled]="!newMenuItem.name || !newMenuItem.description || newMenuItem.price <= 0" class="save-btn">
-              <ion-icon name="checkmark" slot="start"></ion-icon>
-              Save Menu Item
+              <ion-icon [name]="isEditingItem ? 'checkmark' : 'add'" slot="start"></ion-icon>
+              {{ isEditingItem ? 'Update Menu Item' : 'Save Menu Item' }}
             </ion-button>
           </div>
         </form>
@@ -294,7 +295,7 @@
     </div>
     
     <!-- Menu Management Dashboard -->
-    <div class="menu-dashboard" *ngIf="!isAddingItem">
+    <div class="menu-dashboard" *ngIf="!isAddingItem && !isEditingItem">
       <!-- Menu Items Grid -->
       <div class="menu-items-grid">
         <div class="menu-item-card" *ngFor="let item of filteredMenuItems">
@@ -305,7 +306,7 @@
           <div class="card-content">
             <div class="card-header">
               <h3 class="item-name">{{ item.name }}</h3>
-              <div class="category-badge">{{ item.category | titlecase }}</div>
+              <div class="category-badge">{{ getCategoryDisplayName(item.category) }}</div>
             </div>
             
             <p class="item-description">{{ item.description }}</p>
@@ -365,3 +366,4 @@
     </div>
   </div>
 </div>
+#ffffff
