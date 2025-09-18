@@ -172,6 +172,21 @@ export class MenuService {
     this.loadMenuItems();
   }
 
+  async updateMenuItemAvailability(id: string, isAvailable: boolean): Promise<void> {
+    await this.http.put(`${this.apiUrl}/menu-items/${id}/availability`, {
+      is_available: isAvailable
+    }, {
+      headers: this.getHeaders()
+    }).toPromise();
+    
+    // Update the local state immediately for better UX
+    const currentItems = this.menuItemsSubject.value;
+    const updatedItems = currentItems.map(item => 
+      item.id === id ? { ...item, isAvailable, is_available: isAvailable } : item
+    );
+    this.menuItemsSubject.next(updatedItems);
+  }
+
   async deleteMenuItem(id: string): Promise<void> {
     await this.http.delete(`${this.apiUrl}/menu-items/${id}`, {
       headers: this.getHeaders()

@@ -298,15 +298,30 @@
     <div class="menu-dashboard" *ngIf="!isAddingItem && !isEditingItem">
       <!-- Menu Items Grid -->
       <div class="menu-items-grid">
-        <div class="menu-item-card" *ngFor="let item of filteredMenuItems">
+        <div class="menu-item-card" 
+             *ngFor="let item of filteredMenuItems"
+             [class.unavailable]="!item.isAvailable">
           <div class="card-image">
             <img [src]="getItemImage(item)" [alt]="item.name">
           </div>
           
           <div class="card-content">
             <div class="card-header">
-              <h3 class="item-name">{{ item.name }}</h3>
-              <div class="category-badge">{{ getCategoryDisplayName(item.category) }}</div>
+              <div class="header-left">
+                <h3 class="item-name">{{ item.name }}</h3>
+                <div class="category-badge">{{ getCategoryDisplayName(item.category) }}</div>
+              </div>
+              <div class="header-right">
+                <div class="availability-toggle">
+                  <ion-label class="toggle-label">Available</ion-label>
+                  <ion-toggle 
+                    [checked]="item.isAvailable" 
+                    (ionChange)="toggleItemAvailability(item, $event)"
+                    color="success"
+                    class="availability-switch">
+                  </ion-toggle>
+                </div>
+              </div>
             </div>
             
             <p class="item-description">{{ item.description }}</p>

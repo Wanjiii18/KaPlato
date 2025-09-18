@@ -84,45 +84,31 @@
           <!-- Category Filters -->
           <div class="category-filters">
             <button 
+              *ngFor="let category of categories"
               class="category-btn" 
-              [class.active]="selectedCategory === 'all'"
-              (click)="selectCategory('all')">
-              All Items
-            </button>
-            <button 
-              class="category-btn" 
-              [class.active]="selectedCategory === 'Ulam'"
-              (click)="selectCategory('Ulam')">
-              Ulam
-            </button>
-            <button 
-              class="category-btn" 
-              [class.active]="selectedCategory === 'Sabaw'"
-              (click)="selectCategory('Sabaw')">
-              Sabaw
-            </button>
-            <button 
-              class="category-btn" 
-              [class.active]="selectedCategory === 'Rice'"
-              (click)="selectCategory('Rice')">
-              Rice
-            </button>
-            <button 
-              class="category-btn" 
-              [class.active]="selectedCategory === 'Dessert'"
-              (click)="selectCategory('Dessert')">
-              Dessert
-            </button>
-            <button 
-              class="category-btn" 
-              [class.active]="selectedCategory === 'Drinks'"
-              (click)="selectCategory('Drinks')">
-              Drinks
+              [class.active]="selectedCategory === category.id"
+              (click)="selectCategory(category.id)">
+              <ion-icon [name]="category.icon"></ion-icon>
+              {{ category.name }}
             </button>
           </div>
 
           <!-- Menu Items Grid -->
           <div class="menu-grid">
+            <!-- Loading State -->
+            <div *ngIf="isLoadingMenu" class="loading-message">
+              <ion-spinner name="bubbles"></ion-spinner>
+              <p>Loading menu items...</p>
+            </div>
+            
+            <!-- No Items Message -->
+            <div *ngIf="!isLoadingMenu && getFilteredMenuItems().length === 0" class="no-items-message">
+              <ion-icon name="restaurant-outline"></ion-icon>
+              <p>No menu items available</p>
+              <span>Try selecting a different category</span>
+            </div>
+            
+            <!-- Menu Items -->
             <div 
               *ngFor="let item of getFilteredMenuItems()" 
               class="menu-item-card"

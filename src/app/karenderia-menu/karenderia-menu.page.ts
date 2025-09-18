@@ -677,6 +677,40 @@ export class KarenderiaMenuPage implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * Toggle menu item availability from toggle switch
+   */
+  async toggleItemAvailability(item: MenuItem, event: any) {
+    try {
+      const newAvailabilityState = event.detail.checked;
+      
+      // Call the API to update the backend
+      await this.menuService.updateMenuItemAvailability(item.id, newAvailabilityState);
+      
+      const toast = await this.toastController.create({
+        message: `${item.name} ${newAvailabilityState ? 'is now available' : 'is now unavailable'}`,
+        duration: 2000,
+        color: newAvailabilityState ? 'success' : 'warning',
+        position: 'top'
+      });
+      await toast.present();
+    } catch (error) {
+      console.error('Error updating menu item availability:', error);
+      
+      // Revert the toggle state if API call failed
+      const toggle = event.target;
+      toggle.checked = !event.detail.checked;
+      
+      const toast = await this.toastController.create({
+        message: 'Failed to update item availability',
+        duration: 3000,
+        color: 'danger',
+        position: 'top'
+      });
+      await toast.present();
+    }
+  }
+
   formatPhp(amount: number): string {
     return this.menuService.formatPhp(amount);
   }

@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { MenuService } from '../services/menu.service';
 import { AnalyticsService } from '../services/analytics.service';
 import { MenuItem, DetailedOrder, DetailedOrderItem } from '../models/menu.model';
 import { AlertController, ToastController } from '@ionic/angular';
 import { KarenderiaInfoService } from '../services/karenderia-info.service';
+import { Subscription } from 'rxjs';
 
 export interface OrderItem {
   menuItem: MenuItem;
@@ -29,7 +30,7 @@ export interface PosOrder {
   styleUrls: ['./karenderia-orders-pos.page.scss'],
   standalone: false
 })
-export class KarenderiaOrdersPosPage implements OnInit {
+export class KarenderiaOrdersPosPage implements OnInit, OnDestroy {
     
   // Search term
   searchTerm = '';
@@ -43,138 +44,21 @@ export class KarenderiaOrdersPosPage implements OnInit {
   // Current order array for the new template
   currentOrder: any[] = [];
   
-  // Categories
+  // Categories - Updated to match backend categories
   categories = [
-    { id: 'ulam', name: 'Ulam', icon: 'restaurant' },
-    { id: 'sabaw', name: 'Sabaw', icon: 'wine' },
-    { id: 'rice', name: 'Rice', icon: 'cafe' },
-    { id: 'dessert', name: 'Dessert', icon: 'ice-cream' },
-    { id: 'drinks', name: 'Drinks', icon: 'cafe' }
+    { id: 'all', name: 'All Items', icon: 'grid' },
+    { id: 'Main Dish', name: 'Main Dish', icon: 'restaurant' },
+    { id: 'Appetizer', name: 'Appetizer', icon: 'leaf' },
+    { id: 'Side Dish', name: 'Side Dish', icon: 'cafe' },
+    { id: 'Dessert', name: 'Dessert', icon: 'ice-cream' },
+    { id: 'Beverage', name: 'Beverage', icon: 'wine' }
   ];
   
-  // Menu items (Filipino dishes)
-  menuItems: MenuItem[] = [
-    {
-      id: '1',
-      name: 'Adobong Manok',
-      description: 'Classic Filipino chicken adobo cooked in soy sauce and vinegar',
-      price: 85,
-      category: 'ulam',
-      image: 'assets/images/filipino-adobo-chicken-rice.png',
-      ingredients: [],
-      preparationTime: 15,
-      isAvailable: true,
-      isPopular: true,
-      allergens: [],
-      createdAt: new Date(),
-      updatedAt: new Date()
-    },
-    {
-      id: '2',
-      name: 'Sinigang na Baboy',
-      description: 'Sour pork soup with vegetables',
-      price: 95,
-      category: 'sabaw',
-      image: 'assets/images/filipino-sinigang.png',
-      ingredients: [],
-      preparationTime: 25,
-      isAvailable: true,
-      isPopular: false,
-      allergens: [],
-      createdAt: new Date(),
-      updatedAt: new Date()
-    },
-    {
-      id: '3',
-      name: 'Kare-Kare',
-      description: 'Oxtail stew in peanut sauce',
-      price: 120,
-      category: 'ulam',
-      image: 'assets/images/filipino-kare-kare.png',
-      ingredients: [],
-      preparationTime: 30,
-      isAvailable: true,
-      isPopular: false,
-      allergens: [],
-      createdAt: new Date(),
-      updatedAt: new Date()
-    },
-    {
-      id: '4',
-      name: 'Lechon Kawali',
-      description: 'Crispy fried pork belly',
-      price: 110,
-      category: 'ulam',
-      image: 'assets/images/filipino-lechon-kawali.png',
-      ingredients: [],
-      preparationTime: 18,
-      isAvailable: true,
-      isPopular: false,
-      allergens: [],
-      createdAt: new Date(),
-      updatedAt: new Date()
-    },
-    {
-      id: '5',
-      name: 'Garlic Rice',
-      description: 'Fragrant rice with garlic',
-      price: 25,
-      category: 'rice',
-      image: 'assets/images/garlic-rice.png',
-      ingredients: [],
-      preparationTime: 10,
-      isAvailable: true,
-      isPopular: true,
-      allergens: [],
-      createdAt: new Date(),
-      updatedAt: new Date()
-    },
-    {
-      id: '6',
-      name: 'Plain Rice',
-      description: 'Steamed white rice',
-      price: 20,
-      category: 'rice',
-      image: 'assets/images/plain-white-rice.png',
-      ingredients: [],
-      preparationTime: 5,
-      isAvailable: true,
-      isPopular: false,
-      allergens: [],
-      createdAt: new Date(),
-      updatedAt: new Date()
-    },
-    {
-      id: '7',
-      name: 'Halo-Halo',
-      description: 'Filipino shaved ice dessert with mixed ingredients',
-      price: 65,
-      category: 'dessert',
-      image: 'assets/images/halo-halo-dessert.png',
-      ingredients: [],
-      preparationTime: 8,
-      isAvailable: true,
-      isPopular: true,
-      allergens: [],
-      createdAt: new Date(),
-      updatedAt: new Date()
-    },
-    {
-      id: '8',
-      name: 'Iced Tea',
-      description: 'Refreshing iced tea',
-      price: 30,
-      category: 'drinks',
-      image: 'assets/images/iced-tea.png',
-      ingredients: [],
-      preparationTime: 3,
-      isAvailable: true,
-      isPopular: false,
-      allergens: [],
-      createdAt: new Date(),
-      updatedAt: new Date()
-    }
-  ];
+  
+  // Menu items (will be loaded from backend)
+  menuItems: MenuItem[] = [];
+  isLoadingMenu = true;
+  private menuSubscription?: Subscription;
 
   // Current order
   paymentMethod: 'cash' | 'card' | 'gcash' = 'cash';
@@ -208,9 +92,34 @@ export class KarenderiaOrdersPosPage implements OnInit {
     this.loadSeasonalTrends();
   }
 
-  loadMenuItems() {
-    // In a real app, load from MenuService
-    // For now, using mock data
+  async loadMenuItems() {
+    this.isLoadingMenu = true;
+    
+    try {
+      console.log('🍽️ Loading menu items from backend for POS...');
+      
+      // Subscribe to menu items from the service
+      this.menuSubscription = this.menuService.menuItems$.subscribe(items => {
+        console.log('📋 Received menu items for POS:', items.length);
+        this.menuItems = items.filter(item => item.isAvailable !== false);
+        console.log('✅ Available menu items for POS:', this.menuItems.length);
+        this.isLoadingMenu = false;
+      });
+      
+      // Force reload menu items from backend
+      await this.menuService.loadMenuItems();
+      
+    } catch (error) {
+      console.error('❌ Error loading menu items for POS:', error);
+      await this.showToast('Failed to load menu items');
+      this.isLoadingMenu = false;
+    }
+  }
+
+  ngOnDestroy() {
+    if (this.menuSubscription) {
+      this.menuSubscription.unsubscribe();
+    }
   }
 
   selectCategory(categoryId: string) {
@@ -220,21 +129,26 @@ export class KarenderiaOrdersPosPage implements OnInit {
   getFilteredMenuItems(): MenuItem[] {
     let filtered = this.menuItems;
     
+    // Filter out unavailable items first
+    filtered = filtered.filter(item => item.isAvailable !== false);
+    
     // Filter by category
-    if (this.selectedCategory !== 'all') {
+    if (this.selectedCategory !== 'all' && this.selectedCategory !== 'All Items') {
       filtered = filtered.filter(item => 
-        item.category.toLowerCase() === this.selectedCategory.toLowerCase()
+        item.category === this.selectedCategory
       );
     }
     
     // Filter by search term
-    if (this.searchTerm) {
+    if (this.searchTerm && this.searchTerm.trim()) {
+      const searchLower = this.searchTerm.toLowerCase();
       filtered = filtered.filter(item =>
-        item.name.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        item.description.toLowerCase().includes(this.searchTerm.toLowerCase())
+        item.name.toLowerCase().includes(searchLower) ||
+        item.description?.toLowerCase().includes(searchLower)
       );
     }
     
+    console.log('🔍 POS Filtered menu items:', filtered.length, 'Category:', this.selectedCategory);
     return filtered;
   }
 
@@ -580,5 +494,15 @@ export class KarenderiaOrdersPosPage implements OnInit {
 
   getKarenderiaBrandInitials(): string {
     return this.karenderiaInfoService.getKarenderiaBrandInitials();
+  }
+
+  async showToast(message: string, color: string = 'danger') {
+    const toast = await this.toastController.create({
+      message: message,
+      duration: 2000,
+      color: color,
+      position: 'bottom'
+    });
+    await toast.present();
   }
 }
