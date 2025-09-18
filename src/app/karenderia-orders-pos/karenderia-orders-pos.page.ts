@@ -156,15 +156,20 @@ export class KarenderiaOrdersPosPage implements OnInit, OnDestroy {
     const existingItem = this.currentOrder.find(item => item.menuItem.id === menuItem.id);
     
     if (existingItem) {
-      existingItem.quantity += 1;
-      existingItem.subtotal = existingItem.quantity * menuItem.price;
+      // Increment existing item quantity
+      const newQuantity = Math.floor(Number(existingItem.quantity)) + 1;
+      existingItem.quantity = newQuantity;
+      existingItem.subtotal = newQuantity * menuItem.price;
     } else {
+      // Add new item with quantity 1
       this.currentOrder.push({
         menuItem,
         quantity: 1,
         subtotal: menuItem.price
       });
     }
+    
+    console.log('📝 Order updated:', this.currentOrder);
   }
 
   removeFromOrder(index: number) {
@@ -172,11 +177,20 @@ export class KarenderiaOrdersPosPage implements OnInit, OnDestroy {
   }
 
   updateQuantity(index: number, newQuantity: number) {
-    if (newQuantity <= 0) {
+    console.log('📊 Before update - Index:', index, 'New Quantity:', newQuantity, 'Type:', typeof newQuantity);
+    
+    // Ensure quantity is a valid integer
+    const quantity = Math.max(0, Math.floor(Number(newQuantity)));
+    
+    console.log('📊 Processed quantity:', quantity);
+    
+    if (quantity <= 0) {
       this.removeFromOrder(index);
     } else {
-      this.currentOrder[index].quantity = newQuantity;
-      this.currentOrder[index].subtotal = newQuantity * this.currentOrder[index].menuItem.price;
+      this.currentOrder[index].quantity = quantity;
+      this.currentOrder[index].subtotal = quantity * this.currentOrder[index].menuItem.price;
+      
+      console.log('📊 After update - Item:', this.currentOrder[index]);
     }
   }
 

@@ -144,27 +144,28 @@
           <!-- Order Items -->
           <div class="order-items">
             <div *ngIf="currentOrder.length === 0" class="empty-order">
+              <ion-icon name="bag-outline"></ion-icon>
               <p>No items in order</p>
               <span>Select items from the menu to add them</span>
             </div>
             
-            <div *ngFor="let item of currentOrder" class="order-item">
-              <div class="item-image-small">
-                <img [src]="getItemImage(item)" [alt]="item.name">
+            <div *ngFor="let orderItem of currentOrder; let i = index" class="order-item-card">
+              <div class="item-info">
+                <img [src]="getItemImage(orderItem.menuItem)" [alt]="orderItem.menuItem.name" class="item-image">
+                <div class="item-details">
+                  <h4 class="item-name">{{ orderItem.menuItem.name }}</h4>
+                  <p class="item-price">₱{{ orderItem.menuItem.price }}</p>
+                </div>
               </div>
-              <div class="item-details">
-                <h4>{{ item.name }}</h4>
-                <p>₱{{ item.price }}</p>
-              </div>
-              <div class="quantity-controls">
-                <button (click)="decreaseQuantity(item)">
+              <div class="item-controls">
+                <button class="qty-btn" (click)="updateQuantity(i, orderItem.quantity - 1)">
                   <ion-icon name="remove"></ion-icon>
                 </button>
-                <span>{{ item.quantity }}</span>
-                <button (click)="increaseQuantity(item)">
+                <span class="quantity">{{ orderItem.quantity }}</span>
+                <button class="qty-btn" (click)="updateQuantity(i, orderItem.quantity + 1)">
                   <ion-icon name="add"></ion-icon>
                 </button>
-                <button class="remove-btn" (click)="removeFromOrder(item)">
+                <button class="remove-btn" (click)="removeFromOrder(i)">
                   <ion-icon name="trash-outline"></ion-icon>
                 </button>
               </div>
@@ -174,7 +175,7 @@
           <!-- Order Summary -->
           <div class="order-summary" *ngIf="currentOrder.length > 0">
             <div class="summary-line">
-              <span>Subtotal:</span>
+              <span>Subtotal ({{ currentOrder.length }} items):</span>
               <span>₱{{ getSubtotal().toFixed(2) }}</span>
             </div>
             <div class="summary-line">
@@ -189,10 +190,13 @@
 
           <!-- Action Buttons -->
           <div class="order-actions" *ngIf="currentOrder.length > 0">
-            <button class="clear-btn" (click)="clearOrder()">Clear</button>
+            <button class="clear-btn" (click)="clearOrder()">
+              <ion-icon name="trash-outline"></ion-icon>
+              Clear
+            </button>
             <button class="pay-btn" (click)="processPayment()" [disabled]="!tableNumber">
               <ion-icon name="card-outline"></ion-icon>
-              Pay
+              Pay ₱{{ getTotal().toFixed(2) }}
             </button>
           </div>
         </div>
