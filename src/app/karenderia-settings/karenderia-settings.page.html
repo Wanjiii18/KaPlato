@@ -68,7 +68,7 @@
       <div class="settings-header">
         <div class="header-content">
           <h1>Settings</h1>
-          <p>Manage your carinderia settings and preferences</p>
+          <p>Manage your karenderia settings and preferences</p>
         </div>
         <div class="header-actions">
           <button class="save-btn" (click)="saveChanges()">
@@ -87,7 +87,7 @@
               class="tab-btn active" 
               [class.active]="selectedTab === 'business'"
               (click)="selectTab('business')">
-              Business Info
+              Personalization
             </button>
             <button 
               class="tab-btn" 
@@ -110,10 +110,11 @@
           </div>
         </div>
 
-        <!-- Business Information Tab -->
+        <!-- Personalization Tab -->
         <div *ngIf="selectedTab === 'business'" class="tab-content">
           <div class="settings-section">
-            <h2>Business Information</h2>
+            <h2>Personalization</h2>
+            <p class="section-description">Customize your karenderia's appearance and branding</p>
             
             <!-- Business Logo Section -->
             <div class="form-group logo-section">
@@ -121,7 +122,7 @@
               <div class="logo-upload-area">
                 <div class="current-logo">
                   <div class="logo-preview">
-                    <span class="logo-text">LR</span>
+                    <span class="logo-text">{{getKarenderiaBrandInitials()}}</span>
                   </div>
                 </div>
                 <div class="upload-controls">
@@ -129,9 +130,38 @@
                     <ion-icon name="cloud-upload-outline"></ion-icon>
                     Upload Logo
                   </button>
-                  <p class="upload-hint">Recommended size: 200x200px</p>
+                  <p class="upload-hint">Recommended size: 200x200px (JPG, PNG)</p>
                 </div>
               </div>
+            </div>
+
+            <!-- Business Photos Section -->
+            <div class="form-group photos-section">
+              <label>Business Photos</label>
+              <p class="form-description">Showcase your karenderia with attractive photos</p>
+              <div class="photos-grid">
+                <div class="photo-upload-slot" (click)="uploadBusinessPhoto()">
+                  <ion-icon name="camera-outline"></ion-icon>
+                  <span>Add Photo</span>
+                </div>
+                <!-- Dynamic photo slots -->
+                <div class="photo-slot empty-slot">
+                  <ion-icon name="image-outline"></ion-icon>
+                  <span>Photo 1</span>
+                </div>
+                <div class="photo-slot empty-slot">
+                  <ion-icon name="image-outline"></ion-icon>
+                  <span>Photo 2</span>
+                </div>
+                <div class="photo-slot empty-slot">
+                  <ion-icon name="image-outline"></ion-icon>
+                  <span>Photo 3</span>
+                </div>
+              </div>
+              <p class="photo-guidelines">
+                <ion-icon name="information-circle-outline"></ion-icon>
+                Upload high-quality photos of your exterior, interior, and signature dishes (Max 5 photos, 5MB each)
+              </p>
             </div>
 
             <!-- Business Details Form -->
@@ -180,7 +210,7 @@
               <textarea 
                 id="businessDescription"
                 [(ngModel)]="businessInfo.description"
-                placeholder="Describe your restaurant..."
+                placeholder="Tell customers about your karenderia's story, specialties, and what makes you unique..."
                 rows="4"></textarea>
             </div>
 

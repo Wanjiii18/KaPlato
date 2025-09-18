@@ -26,13 +26,20 @@
 
 .action-buttons {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   flex-wrap: wrap;
+  align-items: center;
 }
 
 .action-buttons ion-button {
   flex: 1;
-  min-width: 120px;
+  min-width: 100px;
+}
+
+.action-buttons ion-button[fill="clear"] {
+  --padding-start: 8px;
+  --padding-end: 8px;
+  font-size: 12px;
 }
 
 .results-summary {
@@ -43,6 +50,22 @@
   margin-top: 10px;
   text-align: center;
   font-size: 14px;
+}
+
+.location-help {
+  background: var(--ion-color-light);
+  padding: 8px 12px;
+  border-radius: 4px;
+  margin-top: 10px;
+  text-align: center;
+  font-size: 12px;
+  
+  ion-note {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+  }
 }
 
 /* Leaflet map styling fixes */
@@ -68,6 +91,24 @@
 
 .current-location-marker {
   filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.3));
+  z-index: 1000 !important;
+}
+
+/* Accuracy indicator styles */
+.current-location-marker div {
+  pointer-events: none;
+}
+
+.current-location-marker .accuracy-badge {
+  background: rgba(0,123,255,0.9) !important;
+  color: white !important;
+  padding: 2px 4px !important;
+  border-radius: 3px !important;
+  font-size: 10px !important;
+  font-weight: bold !important;
+  margin-top: 2px !important;
+  white-space: nowrap !important;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.3) !important;
 }
 
 /* Popup styles */

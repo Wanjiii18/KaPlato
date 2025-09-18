@@ -35,6 +35,7 @@ export class MenuService {
 
   private getHeaders(): HttpHeaders {
     const token = localStorage.getItem('auth_token');
+    console.log('Auth token for menu request:', token ? 'Token exists' : 'No token found');
     return new HttpHeaders({
       'Content-Type': 'application/json',
       'Authorization': token ? `Bearer ${token}` : ''

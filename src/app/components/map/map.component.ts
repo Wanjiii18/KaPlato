@@ -88,6 +88,39 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     });
 
     tiles.addTo(this.map);
+
+    // Add click handler for manual location setting
+    this.map.on('click', (e: any) => {
+      this.onMapClick(e);
+    });
+  }
+
+  private async onMapClick(e: any): Promise<void> {
+    const alert = await this.alertController.create({
+      header: 'Set Location',
+      message: 'Set this as your search location?',
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel'
+        },
+        {
+          text: 'Set Location',
+          handler: () => {
+            this.currentLocation = {
+              lat: e.latlng.lat,
+              lng: e.latlng.lng
+            };
+            this.addCurrentLocationMarker();
+            this.updateSearchRadius();
+            this.showToast('Location set manually. Searching for karenderias...', 'success');
+            this.searchNearbyKarenderias();
+          }
+        }
+      ]
+    });
+
+    await alert.present();
   }
 
   private async getCurrentLocation(): Promise<void> {
@@ -97,17 +130,63 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         await this.requestLocationPermission();
       }
 
-      const position = await Geolocation.getCurrentPosition({
-        enableHighAccuracy: true,
-      });
+      // Show loading toast
+      this.showToast('Getting your precise location...', 'warning');
 
-      this.currentLocation = {
+      // First, try to get a quick location fix
+      let position;
+      try {
+        position = await Geolocation.getCurrentPosition({
+          enableHighAccuracy: true,
+          timeout: 15000, // 15 second timeout
+          maximumAge: 30000 // Accept cached position up to 30 seconds old
+        });
+      } catch (error) {
+        console.warn('High accuracy location failed, trying standard accuracy:', error);
+        // Fallback to standard accuracy
+        position = await Geolocation.getCurrentPosition({
+          enableHighAccuracy: false,
+          timeout: 10000,
+          maximumAge: 60000
+        });
+      }
+
+      const newLocation = {
         lat: position.coords.latitude,
         lng: position.coords.longitude,
       };
 
+      // Validate location accuracy
+      let finalAccuracy = position.coords.accuracy;
+      console.log(`📍 Location obtained with ${finalAccuracy}m accuracy`);
+
+      // If accuracy is very poor (>100m), try to get a better fix
+      if (finalAccuracy > 100) {
+        this.showToast(`Location accuracy: ${Math.round(finalAccuracy)}m. Trying to improve...`, 'warning');
+        try {
+          const betterPosition = await Geolocation.getCurrentPosition({
+            enableHighAccuracy: true,
+            timeout: 20000,
+            maximumAge: 0 // Force fresh location
+          });
+          
+          if (betterPosition.coords.accuracy < finalAccuracy) {
+            console.log(`📍 Improved accuracy from ${finalAccuracy}m to ${betterPosition.coords.accuracy}m`);
+            newLocation.lat = betterPosition.coords.latitude;
+            newLocation.lng = betterPosition.coords.longitude;
+            finalAccuracy = betterPosition.coords.accuracy;
+            this.showToast(`Location improved to ${Math.round(finalAccuracy)}m accuracy`, 'success');
+          }
+        } catch (error) {
+          console.warn('Could not improve location accuracy:', error);
+        }
+      } else {
+        this.showToast(`Location found with ${Math.round(finalAccuracy)}m accuracy`, 'success');
+      }
+
+      this.currentLocation = newLocation;
       this.map.setView([this.currentLocation.lat, this.currentLocation.lng], 16);
-      this.addCurrentLocationMarker();
+      this.addCurrentLocationMarker(finalAccuracy);
       this.updateSearchRadius();
       // Automatically search for karenderias when location is obtained
       this.searchNearbyKarenderias();
@@ -147,7 +226,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.updateSearchRadius();
   }
 
-  private addCurrentLocationMarker(): void {
+  private addCurrentLocationMarker(accuracy?: number): void {
     if (!this.currentLocation || !this.map) {
       return;
     }
@@ -157,15 +236,37 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       this.map.removeLayer(this.currentLocationMarker);
     }
 
-    // Create custom icon for current location
+    // Create custom icon for current location with accuracy indicator
+    const accuracyText = accuracy ? `±${Math.round(accuracy)}m` : '';
+    const iconHtml = `
+      <div style="display: flex; flex-direction: column; align-items: center;">
+        <div style="background-color: #007bff; width: 16px; height: 16px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);"></div>
+        ${accuracyText ? `<div style="background: rgba(0,123,255,0.9); color: white; padding: 2px 4px; border-radius: 3px; font-size: 10px; margin-top: 2px; white-space: nowrap;">${accuracyText}</div>` : ''}
+      </div>
+    `;
+
     const currentLocationIcon = L.divIcon({
-      html: '<div style="background-color: #007bff; width: 20px; height: 20px; border-radius: 50%;"></div>',
-      iconSize: [20, 20],
+      html: iconHtml,
+      iconSize: [30, 40],
+      iconAnchor: [15, 20],
+      className: 'current-location-marker'
     });
 
     this.currentLocationMarker = L.marker([this.currentLocation.lat, this.currentLocation.lng], {
       icon: currentLocationIcon,
     }).addTo(this.map);
+
+    // Add accuracy circle if available
+    if (accuracy && accuracy > 0) {
+      L.circle([this.currentLocation.lat, this.currentLocation.lng], {
+        color: '#007bff',
+        fillColor: '#007bff',
+        fillOpacity: 0.1,
+        radius: accuracy,
+        weight: 1,
+        dashArray: '5, 5'
+      }).addTo(this.map);
+    }
   }
 
   private updateSearchRadius(): void {
@@ -247,6 +348,67 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     } else {
       this.showToast('Getting your location...', 'warning');
       await this.getCurrentLocation();
+    }
+  }
+
+  // Refresh location with high accuracy
+  async refreshLocation(): Promise<void> {
+    try {
+      this.showToast('Refreshing location with high accuracy...', 'warning');
+      
+      const position = await Geolocation.getCurrentPosition({
+        enableHighAccuracy: true,
+        timeout: 20000,
+        maximumAge: 0 // Force fresh location
+      });
+
+      const newLocation = {
+        lat: position.coords.latitude,
+        lng: position.coords.longitude,
+      };
+
+      const accuracy = position.coords.accuracy;
+      console.log(`📍 Refreshed location with ${accuracy}m accuracy`);
+
+      // Update location if we got a fresh reading
+      this.currentLocation = newLocation;
+      this.map.setView([this.currentLocation.lat, this.currentLocation.lng], 16);
+      this.addCurrentLocationMarker(accuracy);
+      this.updateSearchRadius();
+      
+      this.showToast(`Location refreshed with ${Math.round(accuracy)}m accuracy`, 'success');
+      
+      // Auto-search after refresh
+      this.searchNearbyKarenderias();
+    } catch (error) {
+      console.error('Location refresh failed:', error);
+      this.showToast('Could not refresh location. Using current location.', 'danger');
+    }
+  }
+
+  // Force enable location services
+  async enableLocationServices(): Promise<void> {
+    try {
+      const alert = await this.alertController.create({
+        header: 'Enable High Accuracy GPS',
+        message: 'For the most accurate karenderia search, please:\n\n1. Enable GPS/Location Services\n2. Allow high accuracy mode\n3. Ensure you\'re outdoors for best signal',
+        buttons: [
+          {
+            text: 'Continue with Current',
+            role: 'cancel'
+          },
+          {
+            text: 'Enable GPS',
+            handler: async () => {
+              await this.getCurrentLocation();
+            }
+          }
+        ]
+      });
+
+      await alert.present();
+    } catch (error) {
+      console.error('Error showing location services dialog:', error);
     }
   }
 
@@ -665,15 +827,41 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     }
   }
 
-  private handleLocationError(error: any): void {
+  private async handleLocationError(error: any): Promise<void> {
     console.error('Location error:', error);
-    this.currentLocation = { lat: 10.3234, lng: 123.9312 }; // Default to Cebu where karenderias are
-    this.map.setView([this.currentLocation.lat, this.currentLocation.lng], 16);
-    this.addCurrentLocationMarker();
-    this.updateSearchRadius();
-    this.showToast('Using default Cebu location. Searching for karenderias...', 'warning');
-    // Search for karenderias even with default location
-    this.searchNearbyKarenderias();
+    
+    // Define accurate fallback locations in the Philippines
+    const fallbackLocations = [
+      { name: 'Cebu City', lat: 10.3157, lng: 123.8854 }, // Most karenderias
+      { name: 'Manila', lat: 14.5995, lng: 120.9842 },
+      { name: 'Makati', lat: 14.5547, lng: 121.0244 },
+      { name: 'Quezon City', lat: 14.6760, lng: 121.0437 },
+      { name: 'Talisay, Cebu', lat: 10.2449, lng: 123.8494 }
+    ];
+
+    // Show location selection alert
+    const alert = await this.alertController.create({
+      header: 'Location Not Available',
+      message: 'GPS location is not available. Please select a nearby city to search for karenderias.',
+      buttons: fallbackLocations.map(location => ({
+        text: location.name,
+        handler: () => {
+          this.currentLocation = { lat: location.lat, lng: location.lng };
+          this.map.setView([this.currentLocation.lat, this.currentLocation.lng], 14);
+          this.addCurrentLocationMarker();
+          this.updateSearchRadius();
+          this.showToast(`Using ${location.name} as location. Searching for karenderias...`, 'warning');
+          this.searchNearbyKarenderias();
+        }
+      })).concat([{
+        text: 'Try GPS Again',
+        handler: () => {
+          this.getCurrentLocation();
+        }
+      }])
+    });
+
+    await alert.present();
   }
 
   private async showToast(message: string, color: 'success' | 'warning' | 'danger' = 'success'): Promise<void> {

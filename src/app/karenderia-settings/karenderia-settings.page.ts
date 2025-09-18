@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { KarenderiaInfoService } from '../services/karenderia-info.service';
+import { AdminService } from '../services/admin.service';
 
 interface BusinessInfo {
   name: string;
@@ -101,7 +102,11 @@ export class KarenderiaSettingsPage implements OnInit {
     { name: 'Sunday', isOpen: false, openTime: '09:00', closeTime: '18:00' }
   ];
 
-  constructor(private router: Router, private karenderiaInfoService: KarenderiaInfoService) { }
+  constructor(
+    private router: Router, 
+    private karenderiaInfoService: KarenderiaInfoService,
+    private adminService: AdminService
+  ) { }
 
   ngOnInit() {
     this.loadSettings();
@@ -122,9 +127,30 @@ export class KarenderiaSettingsPage implements OnInit {
   }
 
   // Settings methods
-  loadSettings() {
+  async loadSettings() {
     // Load settings from backend or local storage
     console.log('Loading settings...');
+    
+    try {
+      // Load current karenderia verification status
+      // Note: This would typically come from a service that gets the current user's karenderia
+      // For now, we'll use a placeholder implementation
+      const karenderiaId = this.getCurrentKarenderiaId();
+      if (karenderiaId) {
+        // TODO: Replace with actual API call to get karenderia details
+        // const karenderiaDetails = await this.adminService.getKarenderiaById(karenderiaId).toPromise();
+        // this.verificationStatus = karenderiaDetails.status as VerificationStatus;
+        // this.verifiedAt = karenderiaDetails.approved_at ? new Date(karenderiaDetails.approved_at) : null;
+      }
+    } catch (error) {
+      console.error('Error loading verification status:', error);
+    }
+  }
+
+  private getCurrentKarenderiaId(): number | null {
+    // TODO: Get this from a service that tracks current user's karenderia
+    // This is a placeholder implementation
+    return null;
   }
 
   saveChanges() {
@@ -138,11 +164,6 @@ export class KarenderiaSettingsPage implements OnInit {
     
     // Show success message
     this.showSuccessMessage();
-  }
-
-  uploadLogo() {
-    // Implement logo upload functionality
-    console.log('Uploading logo...');
   }
 
   changePassword() {
@@ -179,5 +200,36 @@ export class KarenderiaSettingsPage implements OnInit {
 
   getKarenderiaBrandInitials(): string {
     return this.karenderiaInfoService.getKarenderiaBrandInitials();
+  }
+
+  // Logo and photo upload methods
+  async uploadLogo(): Promise<void> {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = (event: any) => {
+      const file = event.target.files[0];
+      if (file) {
+        // Handle logo upload
+        this.businessInfo.logo = file;
+        console.log('Logo uploaded:', file.name);
+      }
+    };
+    input.click();
+  }
+
+  async uploadBusinessPhoto(): Promise<void> {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.multiple = true;
+    input.onchange = (event: any) => {
+      const files = Array.from(event.target.files);
+      if (files.length > 0) {
+        // Handle business photos upload
+        console.log('Business photos uploaded:', files.length, 'files');
+      }
+    };
+    input.click();
   }
 }

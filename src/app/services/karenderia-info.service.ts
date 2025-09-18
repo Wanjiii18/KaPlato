@@ -31,21 +31,46 @@ export class KarenderiaInfoService {
         return;
       }
       
-      console.log('✅ Auth token found, making API call...');
+      console.log('✅ Auth token found:', token.substring(0, 20) + '...');
+      
+      // Let's also check what user data we have
+      const userData = localStorage.getItem('user_data');
+      if (userData) {
+        try {
+          const user = JSON.parse(userData);
+          console.log('👤 Current user info:', {
+            id: user.id,
+            email: user.email,
+            role: user.role,
+            name: user.name
+          });
+        } catch (e) {
+          console.warn('⚠️ Could not parse user data');
+        }
+      }
+      
+      console.log('🔍 Making API call to getCurrentUserKarenderia...');
       
       // Try to get real data from backend
       const karenderiaData = await this.karenderiaService.getCurrentUserKarenderia().toPromise();
-      console.log('📡 API Response:', karenderiaData);
+      console.log('📡 Raw API Response:', karenderiaData);
       
       if (karenderiaData && karenderiaData.success && karenderiaData.data) {
-        console.log('✅ Successfully loaded karenderia data:', karenderiaData.data.name);
+        console.log('✅ Successfully loaded karenderia data from backend!');
+        console.log('📋 Karenderia name:', karenderiaData.data.name);
+        console.log('📋 Business name:', karenderiaData.data.business_name);
         this.currentKarenderiaSubject.next(karenderiaData.data);
         return;
       } else {
         console.warn('⚠️ API returned unsuccessful response:', karenderiaData);
+        console.warn('⚠️ Success field:', karenderiaData?.success);
+        console.warn('⚠️ Data field:', karenderiaData?.data);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ Error loading karenderia from backend:', error);
+      console.error('❌ Error type:', typeof error);
+      console.error('❌ Error message:', error?.message);
+      console.error('❌ Error status:', error?.status);
     }
 
     // Fallback to mock data if API call fails
@@ -88,6 +113,7 @@ export class KarenderiaInfoService {
 
   getKarenderiaDisplayName(): string {
     const karenderia = this.getCurrentKarenderia();
+    
     if (!karenderia) {
       // Check if user is logged in
       const token = localStorage.getItem('auth_token');
@@ -96,7 +122,9 @@ export class KarenderiaInfoService {
       }
       return 'Loading...'; // Loading state for logged-in users
     }
-    return karenderia.business_name || karenderia.name || 'Your Karenderia';
+    
+    const displayName = karenderia.business_name || karenderia.name || 'Your Karenderia';
+    return displayName;
   }
 
   getKarenderiaBrandInitials(): string {

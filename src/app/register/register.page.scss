@@ -926,3 +926,230 @@
   font-style: italic;
   margin-top: 0.5rem;
 }
+
+// Business Information Section Styles
+.business-info-section {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+
+  .section-header {
+    margin-bottom: 1.5rem;
+    text-align: center;
+
+    h3 {
+      color: var(--ion-color-primary);
+      font-weight: 600;
+      font-size: 1.3rem;
+      margin: 0 0 0.5rem 0;
+    }
+
+    p {
+      color: var(--ion-color-medium);
+      font-size: 0.95rem;
+      margin: 0;
+    }
+  }
+
+  .form-row {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+
+    .half-width {
+      flex: 1;
+    }
+
+    @media (max-width: 768px) {
+      flex-direction: column;
+      gap: 0;
+
+      .half-width {
+        width: 100%;
+      }
+    }
+  }
+
+  .payment-options {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+
+    h4 {
+      color: var(--ion-color-primary);
+      font-weight: 600;
+      font-size: 1.1rem;
+      margin: 0 0 1rem 0;
+      text-align: center;
+    }
+
+    .checkbox-item {
+      --background: transparent;
+      --padding-start: 0;
+      --inner-padding-end: 0;
+      margin-bottom: 0.5rem;
+
+      ion-checkbox {
+        margin-right: 1rem;
+        --border-color: var(--ion-color-primary);
+        --checkmark-color: white;
+        --background-checked: var(--ion-color-primary);
+      }
+
+      ion-label {
+        color: var(--ion-color-step-850);
+        font-weight: 500;
+      }
+    }
+  }
+
+  ion-textarea {
+    --background: transparent;
+    --color: var(--ion-color-step-850);
+    
+    &::part(native) {
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      padding: 0.5rem;
+      background: rgba(255, 255, 255, 0.05);
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .business-info-section {
+    .form-row {
+      flex-direction: column;
+    }
+  }
+}
+
+// Success alert styles
+.modern-success-alert {
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  .alert-icon {
+    color: var(--ion-color-success);
+    font-size: 1.2rem;
+  }
+
+  span {
+    color: var(--ion-color-success);
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+}
+
+// Business permit upload section
+.business-permit-section {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+
+  h4 {
+    color: var(--ion-color-primary);
+    font-weight: 600;
+    font-size: 1.1rem;
+    margin: 0 0 0.5rem 0;
+    text-align: center;
+  }
+
+  .permit-description {
+    color: var(--ion-color-medium);
+    font-size: 0.9rem;
+    text-align: center;
+    margin-bottom: 1rem;
+  }
+
+  .permit-upload-area {
+    border: 2px dashed rgba(var(--ion-color-primary-rgb), 0.3);
+    border-radius: 8px;
+    padding: 2rem 1rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: rgba(var(--ion-color-primary-rgb), 0.05);
+
+    &:hover {
+      border-color: var(--ion-color-primary);
+      background: rgba(var(--ion-color-primary-rgb), 0.1);
+    }
+
+    .upload-content {
+      .upload-icon {
+        font-size: 3rem;
+        color: var(--ion-color-primary);
+        margin-bottom: 1rem;
+      }
+
+      h5 {
+        color: var(--ion-color-step-850);
+        font-weight: 600;
+        margin: 0 0 0.5rem 0;
+      }
+
+      p {
+        color: var(--ion-color-medium);
+        font-size: 0.9rem;
+        margin: 0 0 0.5rem 0;
+      }
+
+      .file-types {
+        color: var(--ion-color-medium);
+        font-size: 0.8rem;
+        font-style: italic;
+      }
+    }
+  }
+
+  .permit-file-preview {
+    background: rgba(var(--ion-color-success-rgb), 0.1);
+    border: 1px solid rgba(var(--ion-color-success-rgb), 0.3);
+    border-radius: 8px;
+    padding: 1rem;
+
+    .file-info {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+
+      .file-icon {
+        font-size: 2rem;
+        color: var(--ion-color-success);
+      }
+
+      .file-details {
+        flex: 1;
+
+        h6 {
+          margin: 0 0 0.25rem 0;
+          color: var(--ion-color-step-850);
+          font-weight: 600;
+          font-size: 0.95rem;
+        }
+
+        p {
+          margin: 0;
+          color: var(--ion-color-medium);
+          font-size: 0.8rem;
+        }
+      }
+
+      ion-button {
+        --color: var(--ion-color-danger);
+      }
+    }
+  }
+}

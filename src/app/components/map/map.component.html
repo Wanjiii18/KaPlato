@@ -36,6 +36,15 @@
         My Location
       </ion-button>
       
+      <ion-button 
+        (click)="refreshLocation()" 
+        size="small"
+        fill="clear"
+        color="secondary">
+        <ion-icon name="refresh" slot="start"></ion-icon>
+        Refresh GPS
+      </ion-button>
+      
 
     </div>
   </div>
@@ -46,5 +55,13 @@
   <!-- Results Summary -->
   <div class="results-summary" *ngIf="karenderias.length > 0">
     <p>Found {{ karenderias.length }} karenderias within {{ searchRange }}m</p>
+  </div>
+  
+  <!-- Location Help -->
+  <div class="location-help" *ngIf="!currentLocation">
+    <ion-note color="medium">
+      <ion-icon name="information-circle-outline"></ion-icon>
+      Tap on the map to set your location manually, or use the GPS buttons above.
+    </ion-note>
   </div>
 </div>

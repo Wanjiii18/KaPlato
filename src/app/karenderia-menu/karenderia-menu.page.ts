@@ -4,6 +4,7 @@ import { MenuService } from '../services/menu.service';
 import { OrderService } from '../services/order.service';
 import { SpoonacularService } from '../services/spoonacular.service';
 import { KarenderiaInfoService } from '../services/karenderia-info.service';
+import { AuthService } from '../services/auth.service';
 import { MenuItem, MenuIngredient } from '../models/menu.model';
 import { AlertController, ToastController, ModalController } from '@ionic/angular';
 import { Subscription } from 'rxjs';
@@ -22,16 +23,46 @@ export class KarenderiaMenuPage implements OnInit, OnDestroy {
   
   private menuSubscription?: Subscription;
   
-  // New menu item form
+  // New menu item form with all required fields
   newMenuItem = {
     name: '',
     description: '',
     price: 0,
+    cost_price: 0,
     category: 'main',
-    preparationTime: 15,
-    selectedIngredients: [] as MenuIngredient[],
-    customIngredients: [] as MenuIngredient[]
+    preparation_time_minutes: 15,
+    calories: 0,
+    ingredients: [] as string[],
+    allergens: [] as string[],
+    dietary_info: '',
+    spice_level: 1,
+    serving_size: 1,
+    is_available: true,
+    is_featured: false,
+    image_url: ''
   };
+
+  // Form helpers
+  newIngredient = '';
+  newAllergen = '';
+  availableAllergens = [
+    'Dairy', 'Eggs', 'Fish', 'Shellfish', 'Tree Nuts', 'Peanuts', 
+    'Wheat', 'Soy', 'Sesame', 'Gluten', 'Corn', 'Sulphites'
+  ];
+  
+  categories = [
+    { value: 'main', label: 'Main Course' },
+    { value: 'dessert', label: 'Dessert' },
+    { value: 'beverage', label: 'Beverage' },
+  ];
+
+  spiceLevels = [
+    { value: 1, label: 'Mild' },
+    { value: 2, label: 'Medium' },
+    { value: 3, label: 'Spicy' },
+    { value: 4, label: 'Very Spicy' },
+    { value: 5, label: 'Extremely Spicy' }
+  ];
 
   // Common ingredients for different dish types
   commonIngredients: { [key: string]: { name: string; quantity: number; unit: string; cost: number; }[] } = {
@@ -121,10 +152,28 @@ export class KarenderiaMenuPage implements OnInit, OnDestroy {
     private alertController: AlertController,
     private toastController: ToastController,
     private modalController: ModalController,
-    private karenderiaInfoService: KarenderiaInfoService
+    private karenderiaInfoService: KarenderiaInfoService,
+    private authService: AuthService
   ) { }
 
   ngOnInit() {
+    console.log('🔍 KarenderiaMenu: ngOnInit called');
+    
+    // Check authentication status
+    const isAuthenticated = this.authService.isAuthenticated();
+    console.log('🔍 KarenderiaMenu: User authenticated:', isAuthenticated);
+    
+    if (isAuthenticated) {
+      const currentUser = this.authService.getCurrentUser();
+      console.log('🔍 KarenderiaMenu: Current user:', currentUser);
+      
+      // Force reload karenderia data if user is a karenderia owner
+      if (currentUser?.role === 'karenderia_owner') {
+        console.log('🔍 KarenderiaMenu: User is karenderia owner, reloading karenderia data...');
+        this.karenderiaInfoService.reloadKarenderiaData();
+      }
+    }
+    
     this.loadMenuItems();
   }
 
@@ -219,54 +268,88 @@ export class KarenderiaMenuPage implements OnInit, OnDestroy {
       name: '',
       description: '',
       price: 0,
+      cost_price: 0,
       category: 'main',
-      preparationTime: 15,
-      selectedIngredients: [],
-      customIngredients: []
+      preparation_time_minutes: 15,
+      calories: 0,
+      ingredients: [],
+      allergens: [],
+      dietary_info: '',
+      spice_level: 1,
+      serving_size: 1,
+      is_available: true,
+      is_featured: false,
+      image_url: ''
     };
-    this.selectedDishType = '';
+    this.newIngredient = '';
+    this.newAllergen = '';
     this.showIngredientSelection = false;
+  }
+
+  // New ingredient management methods
+  addIngredient() {
+    if (this.newIngredient.trim() && !this.newMenuItem.ingredients.includes(this.newIngredient.trim())) {
+      this.newMenuItem.ingredients.push(this.newIngredient.trim());
+      this.newIngredient = '';
+    }
+  }
+
+  removeIngredient(index: number) {
+    this.newMenuItem.ingredients.splice(index, 1);
+  }
+
+  // New allergen management methods
+  addAllergen() {
+    if (this.newAllergen && !this.newMenuItem.allergens.includes(this.newAllergen)) {
+      this.newMenuItem.allergens.push(this.newAllergen);
+      this.newAllergen = '';
+    }
+  }
+
+  removeAllergen(index: number) {
+    this.newMenuItem.allergens.splice(index, 1);
+  }
+
+  toggleAllergen(allergen: string) {
+    const index = this.newMenuItem.allergens.indexOf(allergen);
+    if (index > -1) {
+      this.newMenuItem.allergens.splice(index, 1);
+    } else {
+      this.newMenuItem.allergens.push(allergen);
+    }
+  }
+
+  isAllergenSelected(allergen: string): boolean {
+    return this.newMenuItem.allergens.includes(allergen);
   }
 
   onDishTypeChange() {
     if (this.selectedDishType && this.commonIngredients[this.selectedDishType]) {
       this.showIngredientSelection = true;
       // Pre-select common ingredients
-      this.newMenuItem.selectedIngredients = this.commonIngredients[this.selectedDishType].map((ing: any) => ({
-        ingredientId: this.generateTempId(),
-        ingredientName: ing.name,
-        quantity: ing.quantity,
-        unit: ing.unit,
-        cost: ing.cost
-      }));
+      this.newMenuItem.ingredients = this.commonIngredients[this.selectedDishType].map((ing: any) => ing.name);
     } else {
       this.showIngredientSelection = false;
-      this.newMenuItem.selectedIngredients = [];
+      this.newMenuItem.ingredients = [];
     }
   }
 
   toggleIngredient(ingredient: any, checked: boolean) {
     if (checked) {
-      // Add ingredient if not already selected
-      if (!this.newMenuItem.selectedIngredients.find(ing => ing.ingredientName === ingredient.name)) {
-        this.newMenuItem.selectedIngredients.push({
-          ingredientId: this.generateTempId(),
-          ingredientName: ingredient.name,
-          quantity: ingredient.quantity,
-          unit: ingredient.unit,
-          cost: ingredient.cost
-        });
+      // Add ingredient if not already in the list
+      if (!this.newMenuItem.ingredients.includes(ingredient.name)) {
+        this.newMenuItem.ingredients.push(ingredient.name);
       }
     } else {
       // Remove ingredient
-      this.newMenuItem.selectedIngredients = this.newMenuItem.selectedIngredients.filter(
-        ing => ing.ingredientName !== ingredient.name
+      this.newMenuItem.ingredients = this.newMenuItem.ingredients.filter(
+        ing => ing !== ingredient.name
       );
     }
   }
 
   isIngredientSelected(ingredientName: string): boolean {
-    return this.newMenuItem.selectedIngredients.some(ing => ing.ingredientName === ingredientName);
+    return this.newMenuItem.ingredients.includes(ingredientName);
   }
 
   async addCustomIngredient() {
@@ -277,21 +360,6 @@ export class KarenderiaMenuPage implements OnInit, OnDestroy {
           name: 'name',
           type: 'text',
           placeholder: 'Ingredient name'
-        },
-        {
-          name: 'quantity',
-          type: 'number',
-          placeholder: 'Quantity'
-        },
-        {
-          name: 'unit',
-          type: 'text',
-          placeholder: 'Unit (g, ml, pieces, etc.)'
-        },
-        {
-          name: 'cost',
-          type: 'number',
-          placeholder: 'Cost in PHP'
         }
       ],
       buttons: [
@@ -302,14 +370,10 @@ export class KarenderiaMenuPage implements OnInit, OnDestroy {
         {
           text: 'Add',
           handler: (data) => {
-            if (data.name && data.quantity && data.unit && data.cost) {
-              this.newMenuItem.selectedIngredients.push({
-                ingredientId: this.generateTempId(),
-                ingredientName: data.name,
-                quantity: parseFloat(data.quantity),
-                unit: data.unit,
-                cost: parseFloat(data.cost)
-              });
+            if (data.name) {
+              if (!this.newMenuItem.ingredients.includes(data.name)) {
+                this.newMenuItem.ingredients.push(data.name);
+              }
               return true;
             }
             return false;
@@ -321,23 +385,19 @@ export class KarenderiaMenuPage implements OnInit, OnDestroy {
     await alert.present();
   }
 
-  removeIngredient(index: number) {
-    this.newMenuItem.selectedIngredients.splice(index, 1);
-  }
-
-  updateIngredientQuantity(index: number, quantity: number) {
-    this.newMenuItem.selectedIngredients[index].quantity = quantity;
-  }
-
-  updateIngredientCost(index: number, cost: number) {
-    this.newMenuItem.selectedIngredients[index].cost = cost;
-  }
-
-  getTotalCost(): number {
-    return this.newMenuItem.selectedIngredients.reduce((total, ing) => total + ing.cost, 0);
-  }
-
   async saveMenuItem() {
+    // Check authentication first
+    if (!this.authService.isAuthenticated()) {
+      const toast = await this.toastController.create({
+        message: 'You must be logged in to add menu items',
+        duration: 3000,
+        color: 'danger'
+      });
+      await toast.present();
+      this.router.navigate(['/login']);
+      return;
+    }
+
     if (!this.newMenuItem.name || !this.newMenuItem.description || this.newMenuItem.price <= 0) {
       const toast = await this.toastController.create({
         message: 'Please fill in all required fields',
@@ -348,21 +408,28 @@ export class KarenderiaMenuPage implements OnInit, OnDestroy {
       return;
     }
 
-    const menuItem: Partial<MenuItem> = {
+    const menuItem: any = {
       name: this.newMenuItem.name,
       description: this.newMenuItem.description,
       price: this.newMenuItem.price,
       category: this.newMenuItem.category,
-      preparationTime: this.newMenuItem.preparationTime,
-      ingredients: this.newMenuItem.selectedIngredients,
-      isAvailable: true,
-      isPopular: false,
-      allergens: [],
-      createdAt: new Date(),
-      updatedAt: new Date()
+      preparation_time: this.newMenuItem.preparation_time_minutes,
+      ingredients: this.newMenuItem.ingredients, // Send as simple string array
+      allergens: this.newMenuItem.allergens,
+      calories: this.newMenuItem.calories,
+      dietary_info: this.newMenuItem.dietary_info,
+      spice_level: this.newMenuItem.spice_level,
+      serving_size: this.newMenuItem.serving_size,
+      is_available: this.newMenuItem.is_available,
+      is_featured: this.newMenuItem.is_featured,
+      image_url: this.newMenuItem.image_url,
+      cost_price: this.newMenuItem.cost_price
     };
 
     try {
+      console.log('User authenticated:', this.authService.isAuthenticated());
+      console.log('Current user:', this.authService.getCurrentUser());
+      console.log('Attempting to save menu item:', menuItem);
       await this.menuService.addMenuItem(menuItem);
       
       const toast = await this.toastController.create({
@@ -373,11 +440,13 @@ export class KarenderiaMenuPage implements OnInit, OnDestroy {
       await toast.present();
       
       this.cancelAddingItem();
+      this.loadMenuItems(); // Reload menu items
     } catch (error) {
       console.error('Error adding menu item:', error);
+      console.error('Full error details:', JSON.stringify(error, null, 2));
       const toast = await this.toastController.create({
-        message: 'Failed to add menu item',
-        duration: 3000,
+        message: 'Failed to add menu item: ' + (error as any)?.message || 'Unknown error',
+        duration: 5000,
         color: 'danger'
       });
       await toast.present();
@@ -568,7 +637,18 @@ export class KarenderiaMenuPage implements OnInit, OnDestroy {
 
   // Dynamic karenderia display methods
   getKarenderiaDisplayName(): string {
-    return this.karenderiaInfoService.getKarenderiaDisplayName();
+    const displayName = this.karenderiaInfoService.getKarenderiaDisplayName();
+    console.log('🔍 KarenderiaMenu: getKarenderiaDisplayName() called, returning:', displayName);
+    
+    // Let's also check what the service has
+    const currentKarenderia = this.karenderiaInfoService.getCurrentKarenderia();
+    console.log('🔍 KarenderiaMenu: Current karenderia data:', currentKarenderia);
+    
+    // Check auth token
+    const token = localStorage.getItem('auth_token');
+    console.log('🔍 KarenderiaMenu: Auth token exists:', !!token);
+    
+    return displayName;
   }
 
   getKarenderiaBrandInitials(): string {
