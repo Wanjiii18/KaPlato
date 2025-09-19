@@ -110,7 +110,7 @@
             
             <!-- Menu Items -->
             <div 
-              *ngFor="let item of getFilteredMenuItems()" 
+              *ngFor="let item of getFilteredMenuItems(); trackBy: trackByMenuItem" 
               class="menu-item-card"
               (click)="addToOrder(item)">
               <div class="item-image">
@@ -149,7 +149,7 @@
               <span>Select items from the menu to add them</span>
             </div>
             
-            <div *ngFor="let orderItem of currentOrder; let i = index" class="order-item-card">
+            <div *ngFor="let orderItem of currentOrder; let i = index; trackBy: trackByOrderItem" class="order-item-card">
               <div class="item-info">
                 <img [src]="getItemImage(orderItem.menuItem)" [alt]="orderItem.menuItem.name" class="item-image">
                 <div class="item-details">

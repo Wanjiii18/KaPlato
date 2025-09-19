@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { MenuService } from '../services/menu.service';
 import { AnalyticsService } from '../services/analytics.service';
 import { MenuItem, DetailedOrder, DetailedOrderItem } from '../models/menu.model';
@@ -83,7 +83,8 @@ export class KarenderiaOrdersPosPage implements OnInit, OnDestroy {
     private analyticsService: AnalyticsService,
     private alertController: AlertController,
     private toastController: ToastController,
-    private karenderiaInfoService: KarenderiaInfoService
+    private karenderiaInfoService: KarenderiaInfoService,
+    private cdr: ChangeDetectorRef
   ) { }
 
   ngOnInit() {
@@ -96,13 +97,9 @@ export class KarenderiaOrdersPosPage implements OnInit, OnDestroy {
     this.isLoadingMenu = true;
     
     try {
-      console.log('🍽️ Loading menu items from backend for POS...');
-      
       // Subscribe to menu items from the service
       this.menuSubscription = this.menuService.menuItems$.subscribe(items => {
-        console.log('📋 Received menu items for POS:', items.length);
         this.menuItems = items.filter(item => item.isAvailable !== false);
-        console.log('✅ Available menu items for POS:', this.menuItems.length);
         this.isLoadingMenu = false;
       });
       
@@ -148,7 +145,6 @@ export class KarenderiaOrdersPosPage implements OnInit, OnDestroy {
       );
     }
     
-    console.log('🔍 POS Filtered menu items:', filtered.length, 'Category:', this.selectedCategory);
     return filtered;
   }
 
@@ -169,20 +165,23 @@ export class KarenderiaOrdersPosPage implements OnInit, OnDestroy {
       });
     }
     
-    console.log('📝 Order updated:', this.currentOrder);
+    // Force update by creating a new array reference
+    this.currentOrder = [...this.currentOrder];
+    // Also trigger change detection
+    this.cdr.detectChanges();
   }
 
   removeFromOrder(index: number) {
     this.currentOrder.splice(index, 1);
+    // Force update by creating a new array reference
+    this.currentOrder = [...this.currentOrder];
+    // Trigger change detection to update the UI immediately
+    this.cdr.detectChanges();
   }
 
   updateQuantity(index: number, newQuantity: number) {
-    console.log('📊 Before update - Index:', index, 'New Quantity:', newQuantity, 'Type:', typeof newQuantity);
-    
     // Ensure quantity is a valid integer
     const quantity = Math.max(0, Math.floor(Number(newQuantity)));
-    
-    console.log('📊 Processed quantity:', quantity);
     
     if (quantity <= 0) {
       this.removeFromOrder(index);
@@ -190,8 +189,12 @@ export class KarenderiaOrdersPosPage implements OnInit, OnDestroy {
       this.currentOrder[index].quantity = quantity;
       this.currentOrder[index].subtotal = quantity * this.currentOrder[index].menuItem.price;
       
-      console.log('📊 After update - Item:', this.currentOrder[index]);
+      // Force update by creating a new array reference
+      this.currentOrder = [...this.currentOrder];
     }
+    
+    // Trigger change detection to update the UI immediately
+    this.cdr.detectChanges();
   }
 
   getOrderTotal(): number {
@@ -381,11 +384,12 @@ export class KarenderiaOrdersPosPage implements OnInit, OnDestroy {
 
   clearOrder() {
     this.currentOrder = [];
+    // Trigger change detection to update the UI immediately
+    this.cdr.detectChanges();
   }
 
   async showOrderHistory() {
     // Navigate to order history page
-    console.log('Show order history');
   }
 
   setPaymentMethod(method: 'cash' | 'card' | 'gcash') {
@@ -442,7 +446,7 @@ export class KarenderiaOrdersPosPage implements OnInit, OnDestroy {
 
   // Add missing methods
   showSettings() {
-    console.log('Show settings');
+    // Show settings functionality
   }
 
   getCategoryItemCount(categoryId: string): number {
@@ -450,7 +454,7 @@ export class KarenderiaOrdersPosPage implements OnInit, OnDestroy {
   }
 
   searchItems() {
-    console.log('Search items');
+    // Search functionality
   }
 
   // Additional helper methods
@@ -482,23 +486,31 @@ export class KarenderiaOrdersPosPage implements OnInit, OnDestroy {
 
   processPayment() {
     if (!this.tableNumber) {
-      console.log('Please enter a table number');
+      this.showToast('Please enter a table number');
       return;
     }
 
     if (this.currentOrder.length === 0) {
-      console.log('Please add items to the order');
+      this.showToast('Please add items to the order');
       return;
     }
 
     // Process payment logic here
-    console.log('Payment processed successfully!');
+    this.showToast('Payment processed successfully!', 'success');
     this.clearOrder();
   }
 
   logout() {
     // Handle logout
-    console.log('Logout');
+  }
+
+  // TrackBy functions for better performance
+  trackByMenuItem(index: number, item: MenuItem): any {
+    return item.id;
+  }
+
+  trackByOrderItem(index: number, item: any): any {
+    return item.menuItem.id;
   }
 
   // Dynamic karenderia display methods
