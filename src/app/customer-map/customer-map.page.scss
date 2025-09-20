@@ -1,0 +1,158 @@
+// Customer Map Styles
+.map-content {
+  --background: #f8f9fa;
+}
+
+.map-header {
+  ion-toolbar {
+    --background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --color: white;
+    --border-width: 0;
+    z-index: 1003;
+  }
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0 8px;
+}
+
+.header-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 1.2rem;
+  color: white;
+  
+  ion-icon {
+    font-size: 1.4rem;
+  }
+}
+
+// Search and Filter Section
+.search-filter-section {
+  background: white;
+  padding: 16px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  position: relative;
+}
+
+.search-container {
+  margin-bottom: 12px;
+}
+
+.map-searchbar {
+  --background: #f8f9fb;
+  --border-radius: 16px;
+  --box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  --color: #333;
+  --placeholder-color: #999;
+  --icon-color: var(--ion-color-primary);
+  margin: 0;
+}
+
+// Filter Chips
+.filter-chips {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.filter-chip {
+  --background: #f1f3f4;
+  --color: #666;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+  
+  &:hover {
+    transform: translateY(-1px);
+  }
+  
+  ion-icon {
+    margin-right: 4px;
+  }
+}
+
+// Range Slider
+.range-container {
+  margin-top: 8px;
+  
+  .range-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    
+    ion-label {
+      font-size: 0.9rem;
+      color: #666;
+      font-weight: 500;
+    }
+    
+    ion-badge {
+      --background: var(--ion-color-primary);
+      --color: white;
+      font-size: 0.8rem;
+      padding: 4px 8px;
+      border-radius: 12px;
+    }
+  }
+}
+
+.search-range {
+  --bar-background: #e0e0e0;
+  --bar-background-active: var(--ion-color-primary);
+  --knob-background: var(--ion-color-primary);
+  --knob-size: 20px;
+}
+
+// Map Container
+.map-container {
+  height: calc(100vh - 200px);
+  position: relative;
+  z-index: 1;
+}
+
+// Floating Action Button
+.clear-route-fab {
+  --background: #ff4757;
+  --color: white;
+  --box-shadow: 0 4px 16px rgba(255, 71, 87, 0.3);
+  
+  &:hover {
+    --box-shadow: 0 6px 20px rgba(255, 71, 87, 0.4);
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .filter-chips {
+    gap: 6px;
+  }
+  
+  .filter-chip {
+    font-size: 0.85rem;
+    --height: 32px;
+  }
+}
+
+// Dark Mode Support
+@media (prefers-color-scheme: dark) {
+  .search-filter-section {
+    background: #1a1a1a;
+    border-bottom: 1px solid #333;
+  }
+}

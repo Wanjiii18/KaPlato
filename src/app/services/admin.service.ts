@@ -40,7 +40,7 @@ export class AdminService {
   constructor(private http: HttpClient) {}
 
   private getAuthHeaders(): { [key: string]: string } {
-    const token = localStorage.getItem('auth_token');
+    const token = sessionStorage.getItem('auth_token');
     return token ? { Authorization: `Bearer ${token}` } : {};
   }
 

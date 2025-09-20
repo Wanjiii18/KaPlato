@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { AnalyticsService } from '../services/analytics.service';
-import { OrderService } from '../services/order.service';
 import { ToastController } from '@ionic/angular';
 import { SalesAnalytics } from '../models/menu.model';
 
@@ -26,7 +25,6 @@ export class KarenderiaAnalyticsPage implements OnInit {
   
   constructor(
     private analyticsService: AnalyticsService,
-    private orderService: OrderService,
     private toastController: ToastController
   ) { }
 
@@ -42,37 +40,6 @@ export class KarenderiaAnalyticsPage implements OnInit {
     
     await this.loadAllAnalytics();
     await this.loadSeasonalTrends();
-  }
-
-  /**
-   * Open the order modal for placing orders
-   */
-  async openOrderModal() {
-    try {
-      const result = await this.orderService.openOrderModal();
-      
-      if (result && result.success) {
-        const toast = await this.toastController.create({
-          message: `Order placed successfully! Updating analytics...`,
-          duration: 3000,
-          color: 'success',
-          position: 'top'
-        });
-        await toast.present();
-        
-        // Refresh analytics after order is placed
-        await this.loadAllAnalytics();
-        await this.loadSeasonalTrends();
-      }
-    } catch (error) {
-      console.error('Error opening order modal:', error);
-      const toast = await this.toastController.create({
-        message: 'Failed to open order modal',
-        duration: 2000,
-        color: 'danger'
-      });
-      await toast.present();
-    }
   }
 
   async loadAllAnalytics() {

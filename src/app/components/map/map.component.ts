@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, Input, OnDestroy } from '@angular/core';
+import { Component, AfterViewInit, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
 import * as L from 'leaflet';
 import 'leaflet-routing-machine';
 import { KarenderiaService, Karenderia, SimpleKarenderia } from '../../services/karenderia.service';
@@ -15,6 +15,9 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   @Input() lat = 14.5995; // Default to Manila coordinates
   @Input() lng = 120.9842;
   @Input() zoom = 13;
+  @Input() isLocationPickerMode = false; // New input for location picker mode
+  @Input() searchRadiusMeters = 1000; // Search radius in meters for visual indication
+  @Output() mapDoubleClick = new EventEmitter<{lat: number, lng: number}>();
 
   private map!: L.Map;
   private currentLocationMarker?: L.Marker;
@@ -43,7 +46,29 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     // Add a small delay to ensure the DOM is fully rendered
     setTimeout(() => {
       this.initMap();
+<<<<<<< Updated upstream
       this.getCurrentLocation();
+=======
+      this.clearRoute(); // Clear any existing routes
+      
+      // Only get location and search karenderias if NOT in location picker mode
+      if (!this.isLocationPickerMode) {
+        this.getCurrentLocation();
+        
+        // Fallback: if no location is available after 3 seconds, search with default Cebu coordinates
+        setTimeout(() => {
+          if (!this.currentLocation) {
+            console.log('📍 No location detected, using default Cebu coordinates for search');
+            this.currentLocation = { lat: 10.3234, lng: 123.9312 };
+            this.map.setView([this.currentLocation.lat, this.currentLocation.lng], 16);
+            this.searchNearbyKarenderias();
+          }
+        }, 3000);
+      } else {
+        console.log('📍 Location picker mode - skipping automatic location detection and karenderia search');
+      }
+      
+>>>>>>> Stashed changes
       this.setupGlobalFunctions();
     }, 250);
   }
@@ -74,9 +99,74 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     });
 
     tiles.addTo(this.map);
+<<<<<<< Updated upstream
+=======
+
+    // Add click handler for manual location setting
+    this.map.on('click', (e: any) => {
+      this.onMapClick(e);
+    });
+
+    // Add double-click handler for location picker
+    this.map.on('dblclick', (e: any) => {
+      this.onMapDoubleClick(e);
+    });
+  }
+
+  private async onMapClick(e: any): Promise<void> {
+    // Skip map click functionality in location picker mode
+    if (this.isLocationPickerMode) {
+      return;
+    }
+    
+    const alert = await this.alertController.create({
+      header: 'Set Location',
+      message: 'Set this as your search location?',
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel'
+        },
+        {
+          text: 'Set Location',
+          handler: () => {
+            this.currentLocation = {
+              lat: e.latlng.lat,
+              lng: e.latlng.lng
+            };
+            this.addCurrentLocationMarker();
+            this.updateSearchRadius();
+            this.showToast('Location set manually. Searching for karenderias...', 'success');
+            this.searchNearbyKarenderias();
+          }
+        }
+      ]
+    });
+
+    await alert.present();
+>>>>>>> Stashed changes
+  }
+
+  private onMapDoubleClick(e: any): void {
+    console.log('📍 Map double-click detected:', e.latlng);
+    console.log('📍 Is location picker mode:', this.isLocationPickerMode);
+    
+    // Emit the double-click event with coordinates
+    this.mapDoubleClick.emit({
+      lat: e.latlng.lat,
+      lng: e.latlng.lng
+    });
+    
+    console.log('📍 Double-click event emitted with coordinates:', e.latlng.lat, e.latlng.lng);
   }
 
   private async getCurrentLocation(): Promise<void> {
+    // Don't get location or search in location picker mode
+    if (this.isLocationPickerMode) {
+      console.log('📍 Skipping getCurrentLocation - in location picker mode');
+      return;
+    }
+    
     try {
       const permissions = await Geolocation.checkPermissions();
       if (permissions.location !== 'granted') {
@@ -153,6 +243,11 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   }
 
   private updateSearchRadius(): void {
+    // Don't show search radius in location picker mode
+    if (this.isLocationPickerMode) {
+      return;
+    }
+    
     if (this.currentLocation) {
       // Remove existing radius circle
       if (this.searchRadius) {
@@ -181,6 +276,12 @@ export class MapComponent implements AfterViewInit, OnDestroy {
 
   // Search nearby karenderias
   searchNearbyKarenderias(): void {
+    // Don't search for karenderias in location picker mode
+    if (this.isLocationPickerMode) {
+      console.log('📍 Skipping karenderia search - in location picker mode');
+      return;
+    }
+    
     if (!this.currentLocation) {
       this.showToast('Location not available', 'warning');
       return;
@@ -221,6 +322,12 @@ export class MapComponent implements AfterViewInit, OnDestroy {
 
   // Add karenderia markers to map
   private addKarenderiaMarkers(): void {
+    // Don't add karenderia markers in location picker mode
+    if (this.isLocationPickerMode) {
+      console.log('📍 Skipping karenderia markers - in location picker mode');
+      return;
+    }
+    
     this.karenderias.forEach(karenderia => {
       const icon = L.divIcon({
         html: '<div style="background: #28a745; color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid white; font-size: 16px;">🍽️</div>',
@@ -408,7 +515,19 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     }
 
     this.isRoutingActive = false;
+<<<<<<< Updated upstream
     this.currentRoute = null;
+=======
+    
+    // Refresh markers to update popup content
+    this.refreshKarenderiaMarkers();
+    
+    // Only show success message if NOT in location picker mode
+    if (!this.isLocationPickerMode) {
+      this.showToast('Route cleared', 'success');
+    }
+    console.log('🎉 Route clearing completed');
+>>>>>>> Stashed changes
   }
 
   // Refresh map size

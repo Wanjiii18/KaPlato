@@ -1,7 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { MenuService } from '../services/menu.service';
-import { OrderService } from '../services/order.service';
 import { SpoonacularService } from '../services/spoonacular.service';
 import { KarenderiaInfoService } from '../services/karenderia-info.service';
 import { MenuItem, MenuIngredient } from '../models/menu.model';
@@ -116,7 +115,6 @@ export class KarenderiaMenuPage implements OnInit, OnDestroy {
   constructor(
     private router: Router,
     private menuService: MenuService,
-    private orderService: OrderService,
     private spoonacularService: SpoonacularService,
     private alertController: AlertController,
     private toastController: ToastController,
@@ -132,36 +130,6 @@ export class KarenderiaMenuPage implements OnInit, OnDestroy {
     // Clean up subscription to prevent memory leaks
     if (this.menuSubscription) {
       this.menuSubscription.unsubscribe();
-    }
-  }
-
-  /**
-   * Open the order modal for placing orders
-   */
-  async openOrderModal() {
-    try {
-      const result = await this.orderService.openOrderModal();
-      
-      if (result && result.success) {
-        const toast = await this.toastController.create({
-          message: `Order ${result.orderData.orderNumber || 'placed'} successfully!`,
-          duration: 3000,
-          color: 'success',
-          position: 'top'
-        });
-        await toast.present();
-        
-        // Optionally refresh menu items to update availability
-        this.loadMenuItems();
-      }
-    } catch (error) {
-      console.error('Error opening order modal:', error);
-      const toast = await this.toastController.create({
-        message: 'Failed to open order modal',
-        duration: 2000,
-        color: 'danger'
-      });
-      await toast.present();
     }
   }
 
@@ -549,14 +517,6 @@ export class KarenderiaMenuPage implements OnInit, OnDestroy {
   // Navigation methods
   navigateToDashboard() {
     this.router.navigate(['/karenderia-dashboard']);
-  }
-
-  navigateToPos() {
-    this.router.navigate(['/karenderia-orders-pos']);
-  }
-
-  navigateToOrders() {
-    this.router.navigate(['/karenderia-orders']);
   }
 
   logout() {

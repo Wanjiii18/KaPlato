@@ -8,20 +8,24 @@
     <ion-title>
       <div class="header-title">
         <ion-icon name="map" color="light"></ion-icon>
-        <span>Find Karenderias</span>
+        <span *ngIf="!isLocationPickerMode">Find Karenderias</span>
+        <span *ngIf="isLocationPickerMode">Pick Business Location</span>
       </div>
     </ion-title>
     <ion-buttons slot="end">
-      <ion-button fill="clear" color="light" (click)="refreshLocation()">
+      <ion-button *ngIf="!isLocationPickerMode" fill="clear" color="light" (click)="refreshLocation()">
         <ion-icon name="refresh-outline"></ion-icon>
+      </ion-button>
+      <ion-button *ngIf="isLocationPickerMode" fill="clear" color="light" (click)="cancelLocationPicking()">
+        <ion-icon name="close-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true" class="map-content">
-  <!-- Search and Filter Section -->
-  <div class="search-filter-section">
+  <!-- Search and Filter Section - Only show for normal mode -->
+  <div class="search-filter-section" *ngIf="!isLocationPickerMode">
     <div class="search-container">
       <ion-searchbar 
         [(ngModel)]="searchQuery" 
@@ -56,9 +60,20 @@
     </div>
   </div>
 
+  <!-- Location Picker Instructions - Only show for location picker mode -->
+  <div class="location-picker-instructions" *ngIf="isLocationPickerMode">
+    <div class="instruction-card">
+      <ion-icon name="information-circle-outline" color="primary"></ion-icon>
+      <div class="instruction-text">
+        <h3>Set Your Business Location</h3>
+        <p>Browse the map and double-click anywhere to set your Karenderia location. This is where customers will find you when searching nearby.</p>
+      </div>
+    </div>
+  </div>
+
   <!-- Map Container -->
   <div class="map-container">
-    <app-map [lat]="currentLat" [lng]="currentLng" [zoom]="mapZoom"></app-map>
+    <app-map [lat]="currentLat" [lng]="currentLng" [zoom]="mapZoom" [isLocationPickerMode]="isLocationPickerMode" (mapDoubleClick)="onMapDoubleClick($event)"></app-map>
   </div>
 
   <!-- Location Controls -->
@@ -67,11 +82,19 @@
       <ion-fab-button color="primary" (click)="centerOnUserLocation()">
         <ion-icon name="locate"></ion-icon>
       </ion-fab-button>
+<<<<<<< Updated upstream
+=======
+      
+      <!-- Clear Route Button - Only show for normal mode (not location picker) -->
+      <ion-fab-button *ngIf="!isLocationPickerMode" color="danger" (click)="clearRoutes()" class="clear-route-fab">
+        <ion-icon name="close"></ion-icon>
+      </ion-fab-button>
+>>>>>>> Stashed changes
     </ion-fab>
   </div>
 
-  <!-- Karenderias List Toggle -->
-  <div class="list-toggle">
+  <!-- Karenderias List Toggle - Only show for normal mode -->
+  <div class="list-toggle" [class.list-visible]="showList" *ngIf="!isLocationPickerMode">
     <ion-button 
       expand="block" 
       fill="solid" 
@@ -83,9 +106,9 @@
     </ion-button>
   </div>
 
-  <!-- Karenderias List -->
-  <div class="karenderias-list-wrapper" #listWrapper>
-    <div class="karenderias-list" [class.show]="showList">
+  <!-- Karenderias List - Only show for normal mode -->
+  <div class="karenderias-list-wrapper" #listWrapper [class.show]="showList" *ngIf="!isLocationPickerMode">
+    <div class="karenderias-list">
       <div class="list-header">
         <h3>Found {{ filteredKarenderias.length }} Karenderias</h3>
         <!-- Close Button -->

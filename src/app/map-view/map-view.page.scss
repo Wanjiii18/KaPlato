@@ -48,13 +48,8 @@
   margin: 0;
   
   .searchbar-input-container {
-    border: 2px solid transparent;
-    transition: all 0.3s ease;
-    
-    &:focus-within {
-      border-color: var(--ion-color-primary);
-      --background: white;
-    }
+    background: var(--background);
+    border-radius: var(--border-radius);
   }
 }
 
@@ -63,267 +58,267 @@
   gap: 8px;
   overflow-x: auto;
   padding: 4px 0;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 .filter-chip {
   --background: #f1f3f4;
   --color: #5f6368;
-  min-width: auto;
-  height: 36px;
-  border-radius: 18px;
-  transition: all 0.3s ease;
+  margin: 0;
+  min-width: fit-content;
   
   &.active {
-    --background: var(--ion-color-primary);
+    --background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     --color: white;
-    transform: scale(1.05);
   }
   
   ion-icon {
     margin-right: 4px;
-    font-size: 16px;
-  }
-  
-  ion-label {
-    font-size: 0.85rem;
-    font-weight: 600;
   }
 }
 
-// Map Container - Full height with overlay list
+// Map Container
 .map-container {
-  height: calc(100vh - 180px); // Slightly more room for map visibility
-  margin: 0;
   position: relative;
+  height: calc(100vh - 200px);
+  min-height: 400px;
   z-index: 1;
 }
 
 // Location Controls
 .location-controls {
-  ion-fab-button {
-    --background: var(--ion-color-primary);
-    --color: white;
-    --box-shadow: 0 4px 16px rgba(102, 126, 234, 0.4);
-    
-    &:hover {
-      --background: var(--ion-color-primary-shade);
+  position: absolute;
+  bottom: 120px;
+  right: 16px;
+  z-index: 1002;
+  
+  ion-fab {
+    ion-fab-button {
+      --background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --color: white;
+      --box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+      
+      &:hover {
+        --box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+      }
     }
   }
 }
 
 // List Toggle
 .list-toggle {
-  position: fixed;
-  bottom: 20px;
-  left: 20px;
-  right: 80px;
-  z-index: 1001;
-}
-
-.toggle-button {
-  --background: var(--ion-color-primary);
-  --color: white;
-  --border-radius: 25px;
-  --box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-  height: 50px;
-  font-weight: 600;
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  right: 16px;
+  z-index: 1002;
+  transition: bottom 0.3s ease-in-out;
   
-  &:hover {
-    --background: var(--ion-color-primary-shade);
+  // Move button up when list is shown
+  &.list-visible {
+    bottom: calc(60vh + 16px);
+  }
+  
+  .toggle-button {
+    --background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --color: white;
+    --border-radius: 25px;
+    --box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+    height: 50px;
+    font-weight: 600;
+    cursor: pointer;
+    
+    &:hover {
+      --box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+    
+    &:active {
+      transform: scale(0.98);
+    }
   }
 }
 
+// Karenderias List
 .karenderias-list-wrapper {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
-  z-index: 1002;
-  padding-top: 60px;
-}
-
-// Karenderias List - Always visible at bottom
-.karenderias-list {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: white;
-  border-radius: 20px 20px 0 0;
-  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
-  transform: translateY(calc(100% - 120px)); // Show a preview at bottom
-  transition: transform 0.3s ease;
-  max-height: calc(70vh - 60px);
-
+  height: 60vh;
+  z-index: 1001;
+  transform: translateY(100%);
+  transition: transform 0.3s ease-in-out;
+  
   &.show {
-    transform: translateY(0); // Full expansion
+    transform: translateY(0);
+  }
+  
+  .karenderias-list {
+    background: white;
+    height: 100%;
+    border-radius: 20px 20px 0 0;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
   }
 }
 
 .list-header {
+  padding: 20px 20px 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 20px 10px;
-  border-bottom: 1px solid #f0f0f0;
-  cursor: pointer;
-  position: relative;
-  
-  // Drag indicator handle
-  &::before {
-    content: '';
-    position: absolute;
-    top: 8px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 40px;
-    height: 4px;
-    background: #ccc;
-    border-radius: 2px;
-  }
+  background: white;
+  border-bottom: 1px solid #eee;
   
   h3 {
     margin: 0;
+    color: #333;
     font-size: 1.2rem;
-    font-weight: 700;
-    color: #2c3e50;
-    text-align: center;
-    flex: 1;
+    font-weight: 600;
   }
-
+  
   .close-button {
-    --color: #2c3e50;
-    --icon-size: 20px;
-    margin-left: auto;
-    font-size: 1.2rem;
+    background: #f5f5f5;
+    border: none;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    
+    ion-icon {
+      font-size: 20px;
+      color: #666;
+    }
+    
+    &:hover {
+      background: #e0e0e0;
+    }
   }
 }
 
-.list-content {
-  padding: 10px 20px 20px;
-  max-height: calc(70vh - 80px);
+.karenderias-grid {
+  flex: 1;
   overflow-y: auto;
+  padding: 16px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
 }
 
-.karenderia-item {
-  margin: 0 0 12px 0;
-  border-radius: 16px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-  transition: all 0.3s ease;
+.karenderia-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
   
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
-  }
-  
-  ion-card-content {
-    padding: 16px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
   }
 }
 
-.karenderia-info {
-  .info-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 8px;
-    
-    h4 {
-      margin: 0;
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: #2c3e50;
-      flex: 1;
-    }
+.card-content {
+  padding: 16px;
+}
+
+.karenderia-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+
+.karenderia-name {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+  line-height: 1.3;
+}
+
+.status-badge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  
+  &.open {
+    background: #e8f5e8;
+    color: #2e7d32;
   }
   
-  .status-badge {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    background: #f8f9fa;
-    padding: 4px 8px;
-    border-radius: 12px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: #6c757d;
-    
-    &.open {
-      background: #d4edda;
-      color: #155724;
-    }
-    
-    ion-icon {
-      font-size: 10px;
-    }
-  }
-  
-  .cuisine {
-    margin: 0 0 4px 0;
-    font-size: 0.9rem;
-    color: var(--ion-color-primary);
-    font-weight: 500;
-  }
-  
-  .address {
-    margin: 0 0 12px 0;
-    font-size: 0.85rem;
-    color: #6c757d;
-  }
-  
-  .karenderia-meta {
-    display: flex;
-    gap: 16px;
-    margin-bottom: 12px;
-    
-    > div {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      font-size: 0.8rem;
-      color: #6c757d;
-      
-      ion-icon {
-        font-size: 14px;
-      }
-    }
-    
-    .rating {
-      color: #f39c12;
-    }
-  }
-  
-  .action-buttons {
-    display: flex;
-    gap: 8px;
-    
-    ion-button {
-      --height: 32px;
-      --border-radius: 16px;
-      font-size: 0.8rem;
-      font-weight: 600;
-    }
+  &.closed {
+    background: #ffebee;
+    color: #c62828;
   }
 }
 
-// Responsive Design
-@media (max-width: 768px) {
-  .filter-controls {
-    .filter-chip {
-      ion-label {
-        font-size: 0.8rem;
-      }
-    }
-  }
+.karenderia-details {
+  margin: 8px 0;
+}
+
+.detail-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 4px 0;
+  font-size: 0.9rem;
+  color: #666;
   
-  .karenderia-meta {
-    flex-wrap: wrap;
-    gap: 8px;
+  ion-icon {
+    font-size: 14px;
+    color: #999;
   }
+}
+
+.distance {
+  font-weight: 500;
+  color: #667eea;
+}
+
+.rating {
+  display: flex;
+  align-items: center;
+  gap: 4px;
   
-  .action-buttons {
-    flex-direction: column;
+  ion-icon {
+    color: #ffc107;
+  }
+}
+
+.card-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.action-button {
+  flex: 1;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &.primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
     
+<<<<<<< Updated upstream
     ion-button {
       --height: 36px;
     }
@@ -550,12 +545,24 @@
     background: #cbd5e1 !important;
     border-radius: 3px !important;
 
+=======
+>>>>>>> Stashed changes
     &:hover {
-      background: #94a3b8 !important;
+      opacity: 0.9;
+    }
+  }
+  
+  &.secondary {
+    background: #f5f5f5;
+    color: #666;
+    
+    &:hover {
+      background: #e0e0e0;
     }
   }
 }
 
+<<<<<<< Updated upstream
 // Make sure the routing container is visible when shown
 .leaflet-routing-container:not(.leaflet-routing-container-hide) {
   display: block !important;
@@ -583,6 +590,109 @@
   &:hover {
     background: #e2e8f0 !important;
     color: #475569 !important;
+=======
+// Loading states
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  
+  ion-spinner {
+    --color: var(--ion-color-primary);
+  }
+}
+
+.no-results {
+  text-align: center;
+  padding: 40px 20px;
+  color: #666;
+  
+  ion-icon {
+    font-size: 3rem;
+    color: #ccc;
+    margin-bottom: 16px;
+  }
+  
+  h3 {
+    margin: 0 0 8px;
+    color: #333;
+  }
+  
+  p {
+    margin: 0;
+    font-size: 0.9rem;
+  }
+}
+
+// Responsive design
+@media (min-width: 768px) {
+  .karenderias-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+  
+  .karenderias-list-wrapper {
+    height: 70vh;
+  }
+}
+
+@media (min-width: 1024px) {
+  .karenderias-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+// Accessibility improvements
+.karenderia-card {
+  &:focus {
+    outline: 2px solid var(--ion-color-primary);
+    outline-offset: 2px;
+  }
+}
+
+.action-button {
+  &:focus {
+    outline: 2px solid var(--ion-color-primary);
+    outline-offset: 2px;
+  }
+}
+
+// High contrast mode support
+@media (prefers-contrast: high) {
+  .karenderia-card {
+    border: 2px solid #333;
+  }
+  
+  .filter-chip {
+    border: 1px solid #666;
+  }
+}
+
+// Reduced motion support
+@media (prefers-reduced-motion: reduce) {
+  .karenderias-list-wrapper,
+  .karenderia-card,
+  .action-button,
+  .filter-chip {
+    transition: none;
+  }
+}
+
+// Dark mode support (if needed in future)
+@media (prefers-color-scheme: dark) {
+  .search-filter-section {
+    background: #1a1a1a;
+  }
+  
+  .karenderias-list {
+    background: #1a1a1a;
+    
+    .karenderia-card {
+      background: #2a2a2a;
+      color: white;
+    }
+>>>>>>> Stashed changes
   }
 }
 
@@ -591,20 +701,6 @@
   ion-loading {
     &[aria-hidden="true"] {
       display: none !important;
-    }
-    
-    &:not([aria-hidden="true"]) {
-      display: flex !important;
-    }
-    
-    // Ensure loading spinner is accessible
-    .loading-wrapper {
-      outline: none !important;
-      
-      &:focus {
-        outline: 2px solid #2563eb !important;
-        outline-offset: 2px !important;
-      }
     }
   }
 }
@@ -618,4 +714,61 @@ ion-router-outlet {
       visibility: hidden !important;
     }
   }
+<<<<<<< Updated upstream
+=======
+}
+
+// Clear Route FAB Button Styling
+.clear-route-fab {
+  margin-bottom: 8px !important;
+  transform: scale(0.85);
+  
+  &:hover {
+    transform: scale(0.9);
+  }
+}
+
+// Location Picker Styles
+.location-picker-instructions {
+  background: white;
+  padding: 16px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  position: relative;
+  
+  .instruction-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+    padding: 20px;
+    border-radius: 12px;
+    border-left: 4px solid var(--ion-color-primary);
+    
+    ion-icon {
+      font-size: 28px;
+      color: var(--ion-color-primary);
+      margin-top: 4px;
+      flex-shrink: 0;
+    }
+    
+    .instruction-text {
+      flex: 1;
+      
+      h3 {
+        margin: 0 0 8px 0;
+        color: #333;
+        font-size: 1.1rem;
+        font-weight: 600;
+      }
+      
+      p {
+        margin: 0;
+        color: #555;
+        font-size: 0.95rem;
+        line-height: 1.4;
+      }
+    }
+  }
+>>>>>>> Stashed changes
 }

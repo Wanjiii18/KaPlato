@@ -1,6 +1,6 @@
 <div class="map-container">
-  <!-- Search Controls -->
-  <div class="search-controls">
+  <!-- Search Controls - Only show when NOT in location picker mode -->
+  <div class="search-controls" *ngIf="!isLocationPickerMode">
     <div class="range-control">
       <ion-item lines="none">
         <ion-label>Search Range: {{ searchRange }}m</ion-label>
@@ -43,8 +43,19 @@
   <!-- Map -->
   <div id="map"></div>
   
-  <!-- Results Summary -->
-  <div class="results-summary" *ngIf="karenderias.length > 0">
+  <!-- Results Summary - Only show when NOT in location picker mode -->
+  <div class="results-summary" *ngIf="karenderias.length > 0 && !isLocationPickerMode">
     <p>Found {{ karenderias.length }} karenderias within {{ searchRange }}m</p>
   </div>
+<<<<<<< Updated upstream
+=======
+  
+  <!-- Location Help - Only show when NOT in location picker mode -->
+  <div class="location-help" *ngIf="!currentLocation && !isLocationPickerMode">
+    <ion-note color="medium">
+      <ion-icon name="information-circle-outline"></ion-icon>
+      Tap on the map to set your location manually, or use the GPS buttons above.
+    </ion-note>
+  </div>
+>>>>>>> Stashed changes
 </div>

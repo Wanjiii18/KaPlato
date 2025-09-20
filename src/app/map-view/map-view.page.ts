@@ -1,6 +1,6 @@
 import { Component, OnInit, AfterViewInit, ViewChild, ElementRef  } from '@angular/core';
-import { Router } from '@angular/router';
-import { ToastController, LoadingController } from '@ionic/angular';
+import { Router, ActivatedRoute } from '@angular/router';
+import { ToastController, LoadingController, AlertController } from '@ionic/angular';
 import { KarenderiaService } from '../services/karenderia.service';
 import { GestureController } from '@ionic/angular';
 import { Location } from '@angular/common';
@@ -16,10 +16,15 @@ export class MapViewPage implements OnInit, AfterViewInit {
 
   searchQuery = '';
   selectedFilter = 'all';
-  showList = true; // Show list by default
+  showList = false; // Start with list hidden for better mobile UX
   karenderias: any[] = [];
   filteredKarenderias: any[] = [];
   userLocation: any = null;
+  
+  // Location picker mode
+  isLocationPickerMode: boolean = false;
+  returnTo: string = '';
+  selectedLocation: { lat: number, lng: number } | null = null;
   
   // Map properties
   currentLat = 14.5995; // Default to Manila coordinates
@@ -28,8 +33,10 @@ export class MapViewPage implements OnInit, AfterViewInit {
 
   constructor(
     private router: Router,
+    private route: ActivatedRoute,
     private toastController: ToastController,
     private loadingController: LoadingController,
+    private alertController: AlertController,
     private karenderiaService: KarenderiaService,
     private gestureCtrl: GestureController,
     private location: Location
@@ -39,14 +46,34 @@ export class MapViewPage implements OnInit, AfterViewInit {
     console.log('🗺️ Map view initializing...');
     console.log('🗺️ Current URL:', this.router.url);
     
+    // Check if we're in location picker mode
+    this.route.queryParams.subscribe(params => {
+      this.isLocationPickerMode = params['mode'] === 'location-picker';
+      this.returnTo = params['returnTo'] || 'home';
+      
+      if (this.isLocationPickerMode) {
+        console.log('📍 Location picker mode activated - no auto location detection');
+        this.showList = false; // Hide karenderias list in picker mode
+        // Don't load karenderias or get location in picker mode
+        return;
+      }
+    });
+    
     // Ensure we stay on the map-view route
-    if (this.router.url !== '/map-view') {
+    if (this.router.url.split('?')[0] !== '/map-view') {
       console.log('⚠️ URL mismatch detected, ensuring we stay on map-view');
       this.router.navigateByUrl('/map-view', { replaceUrl: true });
     }
     
+<<<<<<< Updated upstream
     this.loadKarenderias();
     this.getCurrentLocation();
+=======
+    // Only get location and load karenderias if NOT in picker mode
+    if (!this.isLocationPickerMode) {
+      this.getCurrentLocation();
+    }
+>>>>>>> Stashed changes
     // DON'T call addSwipeGesture() here - moved to ngAfterViewInit()
   }
 
@@ -78,7 +105,10 @@ export class MapViewPage implements OnInit, AfterViewInit {
   }
 
   toggleListView() {
+    console.log('🔄 Toggling list view. Current state:', this.showList);
     this.showList = !this.showList;
+    console.log('🔄 New state:', this.showList);
+    console.log('📋 Filtered karenderias count:', this.filteredKarenderias.length);
   }
 
   addSwipeGesture() {
@@ -334,5 +364,67 @@ export class MapViewPage implements OnInit, AfterViewInit {
       position: 'bottom'
     });
     toast.present();
+  }
+
+  // Location picker methods
+  async onMapDoubleClick(event: any) {
+    if (!this.isLocationPickerMode) {
+      return; // Only handle double-click in location picker mode
+    }
+
+    console.log('📍 Double-click event received:', event);
+
+    // Get coordinates from the map click event
+    // EventEmitter sends data directly, not wrapped in detail
+    if (event && event.lat && event.lng) {
+      this.selectedLocation = {
+        lat: event.lat,
+        lng: event.lng
+      };
+
+      console.log('📍 Selected location:', this.selectedLocation);
+
+      // Show confirmation dialog
+      const alert = await this.alertController.create({
+        header: 'Set Business Location',
+        message: `Do you want to apply this location to your karenderia?<br><br><strong>Coordinates:</strong><br>Latitude: ${this.selectedLocation.lat.toFixed(6)}<br>Longitude: ${this.selectedLocation.lng.toFixed(6)}`,
+        buttons: [
+          {
+            text: 'Cancel',
+            role: 'cancel',
+            cssClass: 'secondary'
+          },
+          {
+            text: 'Apply Location',
+            role: 'confirm',
+            cssClass: 'primary',
+            handler: () => {
+              this.confirmLocation();
+            }
+          }
+        ]
+      });
+
+      await alert.present();
+    } else {
+      console.error('❌ Invalid event data:', event);
+    }
+  }
+
+  confirmLocation() {
+    if (this.selectedLocation) {
+      // Navigate back with location data
+      this.router.navigate([`/${this.returnTo}`], {
+        queryParams: {
+          selectedLat: this.selectedLocation.lat,
+          selectedLng: this.selectedLocation.lng
+        }
+      });
+    }
+  }
+
+  cancelLocationPicking() {
+    // Navigate back without location data
+    this.router.navigate([`/${this.returnTo}`]);
   }
 }

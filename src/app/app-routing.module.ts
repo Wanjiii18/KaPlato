@@ -57,28 +57,15 @@ const routes: Routes = [
     loadChildren: () => import('./karenderia-ingredients/karenderia-ingredients.module').then( m => m.KarenderiaIngredientsPageModule),
     canActivate: [AuthGuard, KarenderiaGuard]
   },
-  {
-    path: 'karenderia-orders',
-    loadChildren: () => import('./karenderia-orders/karenderia-orders.module').then( m => m.KarenderiaOrdersPageModule),
-    canActivate: [AuthGuard, KarenderiaGuard]
-  },
+
   {
     path: 'karenderia-analytics',
     loadChildren: () => import('./karenderia-analytics/karenderia-analytics.module').then( m => m.KarenderiaAnalyticsPageModule)
   },
-  {
-    path: 'karenderia-orders-pos',
-    loadChildren: () => import('./karenderia-orders-pos/karenderia-orders-pos.module').then( m => m.KarenderiaOrdersPosPageModule),
-    canActivate: [AuthGuard, KarenderiaGuard]
-  },
+
   {
     path: 'karenderia-settings',
     loadChildren: () => import('./karenderia-settings/karenderia-settings.module').then( m => m.KarenderiaSettingsPageModule),
-    canActivate: [AuthGuard, KarenderiaGuard]
-  },
-  {
-    path: 'order-details',
-    loadChildren: () => import('./pages/order-details/order-details.module').then( m => m.OrderDetailsPageModule),
     canActivate: [AuthGuard, KarenderiaGuard]
   },
   {
@@ -90,6 +77,11 @@ const routes: Routes = [
     path: 'map-view',
     loadChildren: () => import('./map-view/map-view.module').then(m => m.MapViewPageModule)
     // No guards - allow public access for better user experience
+  },
+  {
+    path: 'customer-map',
+    loadComponent: () => import('./customer-map/customer-map.page').then(m => m.CustomerMapPage),
+    canActivate: [AuthGuard, CustomerGuard] // Only for customers
   },
   {
     path: 'karenderia-detail/:id',

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { MenuItem, Ingredient, MenuCategory, Order, DailySales, MenuIngredient } from '../models/menu.model';
+import { MenuItem, Ingredient, MenuCategory, DailySales, MenuIngredient } from '../models/menu.model';
 import { EnhancedNutritionService, MenuItemNutrition } from './enhanced-nutrition.service';
 import { SpoonacularService } from './spoonacular.service';
 
@@ -14,12 +14,10 @@ export class MenuService {
   private menuItemsSubject = new BehaviorSubject<MenuItem[]>([]);
   private ingredientsSubject = new BehaviorSubject<Ingredient[]>([]);
   private categoriesSubject = new BehaviorSubject<MenuCategory[]>([]);
-  private ordersSubject = new BehaviorSubject<Order[]>([]);
 
   menuItems$ = this.menuItemsSubject.asObservable();
   ingredients$ = this.ingredientsSubject.asObservable();
   categories$ = this.categoriesSubject.asObservable();
-  orders$ = this.ordersSubject.asObservable();
 
   constructor(
     private http: HttpClient,
@@ -30,9 +28,26 @@ export class MenuService {
     this.loadCategories().catch(err => console.warn('Categories loading failed:', err));
     this.loadIngredients().catch(err => console.warn('Ingredients loading failed:', err));
     this.loadMenuItems().catch(err => console.warn('Menu items loading failed:', err));
-    this.loadOrders().catch(err => console.warn('Orders loading failed:', err));
   }
 
+<<<<<<< Updated upstream
+=======
+  // Method to clear all cached data (useful for logout/user switching)
+  clearCache(): void {
+    this.menuItemsSubject.next([]);
+    this.ingredientsSubject.next([]);
+    this.categoriesSubject.next([]);
+  }
+
+  // Method to force reload all data (useful for user switching)
+  forceReload(): void {
+    this.clearCache();
+    this.loadCategories().catch(err => console.warn('Categories loading failed:', err));
+    this.loadIngredients().catch(err => console.warn('Ingredients loading failed:', err));
+    this.loadMenuItems().catch(err => console.warn('Menu items loading failed:', err));
+  }
+
+>>>>>>> Stashed changes
   private getHeaders(): HttpHeaders {
     const token = localStorage.getItem('auth_token');
     return new HttpHeaders({
@@ -246,26 +261,6 @@ export class MenuService {
   }
 
   // ORDERS
-  async loadOrders(): Promise<void> {
-    try {
-      const response = await this.http.get<{ data: Order[] }>(`${this.apiUrl}/orders`, {
-        headers: this.getHeaders()
-      }).toPromise();
-      
-      this.ordersSubject.next(response?.data || []);
-    } catch (error) {
-      console.error('Error loading orders:', error);
-    }
-  }
-
-  async updateOrderStatus(id: string, status: Order['status']): Promise<void> {
-    await this.http.put(`${this.apiUrl}/orders/${id}`, { status }, {
-      headers: this.getHeaders()
-    }).toPromise();
-    
-    this.loadOrders();
-  }
-
   // ANALYTICS
   async getDailySales(date: Date): Promise<DailySales> {
     const params = { date: date.toISOString().split('T')[0] };
@@ -284,7 +279,6 @@ export class MenuService {
       return response?.data || {
         date,
         totalSales: 0,
-        totalOrders: 0,
         popularItems: []
       };
     } catch (error) {
@@ -292,7 +286,6 @@ export class MenuService {
       return {
         date,
         totalSales: 0,
-        totalOrders: 0,
         popularItems: []
       };
     }

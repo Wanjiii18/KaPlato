@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { MenuService } from '../services/menu.service';
 import { AuthService } from '../services/auth.service';
 import { KarenderiaInfoService } from '../services/karenderia-info.service';
-import { MenuItem, Order, Ingredient, DailySales, Karenderia } from '../models/menu.model';
+import { MenuItem, Ingredient, DailySales, Karenderia } from '../models/menu.model';
 
 @Component({
   selector: 'app-karenderia-dashboard',
@@ -13,14 +13,20 @@ import { MenuItem, Order, Ingredient, DailySales, Karenderia } from '../models/m
 })
 export class KarenderiaDashboardPage implements OnInit {
   todaysSales: DailySales | null = null;
-  recentOrders: Order[] = [];
   lowStockItems: Ingredient[] = [];
+  lowStockAlerts: any[] = [];
   menuItemsCount = 0;
-  pendingOrdersCount = 0;
   totalRevenue = 0;
   isLoading = true;
-  avgOrderValue = 173;
-  displayOrders: any[] = [];
+
+  dashboardData = {
+    todaysSales: 0,
+    lowStockItems: 0,
+    activeMenuItems: 0,
+    allergenCompliantItems: 0,
+    topSellingItem: '',
+    salesTrend: 0
+  };
 
   constructor(
     private router: Router,
@@ -56,23 +62,9 @@ export class KarenderiaDashboardPage implements OnInit {
       this.todaysSales = await salesPromise.catch(() => ({
         date: new Date(),
         totalSales: 15420,
-        totalOrders: 89,
         popularItems: []
       }));
       
-      // Load recent orders with timeout
-      const ordersSubscription = this.menuService.orders$.subscribe(orders => {
-        this.recentOrders = orders.slice(0, 5);
-        this.pendingOrdersCount = orders.filter(o => o.status === 'pending').length;
-      });
-      
-      // Auto-unsubscribe after 5 seconds if no data
-      setTimeout(() => {
-        if (this.recentOrders.length === 0) {
-          ordersSubscription.unsubscribe();
-        }
-      }, 5000);
-
       // Load low stock items with timeout
       const stockSubscription = this.menuService.getLowStockIngredients().subscribe(items => {
         this.lowStockItems = items;
@@ -96,7 +88,6 @@ export class KarenderiaDashboardPage implements OnInit {
       }, 5000);
 
       // Generate sample data for demo
-      this.generateSampleData();
       
     } catch (error) {
       console.error('Dashboard data loading error:', error);
@@ -104,70 +95,11 @@ export class KarenderiaDashboardPage implements OnInit {
       this.todaysSales = {
         date: new Date(),
         totalSales: 15420,
-        totalOrders: 89,
         popularItems: []
       };
-      this.recentOrders = [];
       this.lowStockItems = [];
       this.menuItemsCount = 25;
-      this.pendingOrdersCount = 8;
-      this.generateSampleData();
     }
-  }
-
-  generateSampleData() {
-    // Sample recent orders for the new modern design
-    this.displayOrders = [
-      {
-        id: 123,
-        customerName: "Maria Santos",
-        itemsText: "Adobong Manok, Rice",
-        totalAmount: 285,
-        status: "active",
-        timeAgo: "5 min ago"
-      },
-      {
-        id: 122,
-        customerName: "Juan Dela Cruz",
-        itemsText: "Sinigang na Baboy, Rice",
-        totalAmount: 320,
-        status: "completed",
-        timeAgo: "12 min ago"
-      },
-      {
-        id: 121,
-        customerName: "Ana Garcia",
-        itemsText: "Kare-Kare, Rice, Drinks",
-        totalAmount: 450,
-        status: "completed",
-        timeAgo: "18 min ago"
-      },
-      {
-        id: 120,
-        customerName: "Pedro Reyes",
-        itemsText: "Lechon Kawali, Rice",
-        totalAmount: 360,
-        status: "active",
-        timeAgo: "22 min ago"
-      },
-      {
-        id: 119,
-        customerName: "Carmen Torres",
-        itemsText: "Chicken Curry, Rice",
-        totalAmount: 290,
-        status: "completed",
-        timeAgo: "28 min ago"
-      }
-    ];
-
-    // Keep the old format for compatibility
-    this.recentOrders = this.displayOrders.map(order => ({
-      customerName: order.customerName,
-      totalAmount: order.totalAmount,
-      items: [order.itemsText],
-      status: order.status,
-      createdAt: new Date(Date.now() - Math.random() * 3600000)
-    })) as Order[];
   }
 
   navigateToMenu() {
@@ -176,14 +108,6 @@ export class KarenderiaDashboardPage implements OnInit {
 
   navigateToIngredients() {
     this.router.navigate(['/karenderia-ingredients']);
-  }
-
-  navigateToOrders() {
-    this.router.navigate(['/karenderia-orders']);
-  }
-
-  navigateToPos() {
-    this.router.navigate(['/karenderia/pos']);
   }
 
   navigateToSettings() {
@@ -205,18 +129,6 @@ export class KarenderiaDashboardPage implements OnInit {
 
   formatPhp(amount: number): string {
     return this.menuService.formatPhp(amount);
-  }
-
-  getOrderStatusColor(status: string): string {
-    switch (status) {
-      case 'pending': return 'warning';
-      case 'confirmed': return 'primary';
-      case 'preparing': return 'secondary';
-      case 'ready': return 'success';
-      case 'delivered': return 'success';
-      case 'cancelled': return 'danger';
-      default: return 'medium';
-    }
   }
 
   logout() {

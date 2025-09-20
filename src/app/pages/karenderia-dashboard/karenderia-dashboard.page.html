@@ -82,21 +82,6 @@
           </ion-card-content>
         </ion-card>
 
-        <ion-card class="stat-card orders">
-          <ion-card-content>
-            <div class="stat-icon">
-              <ion-icon name="restaurant" color="primary"></ion-icon>
-            </div>
-            <div class="stat-content">
-              <h2>{{ dashboardData.todaysOrders }}</h2>
-              <p>Orders Today</p>
-              <div class="sub-stat">
-                <span>{{ dashboardData.pendingOrders }} pending</span>
-              </div>
-            </div>
-          </ion-card-content>
-        </ion-card>
-
         <ion-card class="stat-card inventory">
           <ion-card-content>
             <div class="stat-icon">
@@ -225,10 +210,6 @@
       <ion-fab-list side="top">
         <ion-fab-button color="success" (click)="addMenuItem()">
           <ion-icon name="restaurant"></ion-icon>
-        </ion-fab-button>
-        
-        <ion-fab-button color="warning" (click)="quickOrderStatusUpdate()">
-          <ion-icon name="clipboard-outline"></ion-icon>
         </ion-fab-button>
         
         <ion-fab-button color="tertiary" (click)="navigateToAnalytics()">

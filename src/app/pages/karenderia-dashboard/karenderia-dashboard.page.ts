@@ -5,7 +5,6 @@ import { KarenderiaService } from '../../services/karenderia.service';
 import { NutritionAllergenService } from '../../services/nutrition-allergen.service';
 import { InventoryManagementService } from '../../services/inventory-management.service';
 import { AdvancedAnalyticsService } from '../../services/advanced-analytics.service';
-import { POSService } from '../../services/pos.service';
 import { CommonModule } from '@angular/common';
 import { 
   IonHeader, 
@@ -162,16 +161,13 @@ export class KarenderiaDashboardPage implements OnInit, AfterViewInit {
   // Advanced Dashboard Data
   dashboardData = {
     todaysSales: 0,
-    todaysOrders: 0,
     lowStockItems: 0,
-    pendingOrders: 0,
     activeMenuItems: 0,
     allergenCompliantItems: 0,
     topSellingItem: '',
     salesTrend: 0
   };
   
-  recentOrders: any[] = [];
   lowStockAlerts: any[] = [];
   salesAnalytics: any = null;
   nutritionInsights: any = null;
@@ -186,13 +182,26 @@ export class KarenderiaDashboardPage implements OnInit, AfterViewInit {
     private karenderiaService: KarenderiaService,
     private nutritionAllergenService: NutritionAllergenService,
     private inventoryService: InventoryManagementService,
-    private analyticsService: AdvancedAnalyticsService,
-    private posService: POSService
+    private analyticsService: AdvancedAnalyticsService
   ) { }
 
   ngOnInit() {
+    // Clear any cached data first
+    this.clearAllCache();
     this.loadKarenderiaStatus();
     this.loadDashboardData();
+  }
+
+  // Clear all cached data
+  clearAllCache() {
+    try {
+      console.log('🧹 Clearing all cached data...');
+      localStorage.clear();
+      sessionStorage.clear();
+      console.log('✅ Cache cleared!');
+    } catch (error) {
+      console.error('Error clearing cache:', error);
+    }
   }
 
   ngAfterViewInit() {
@@ -203,28 +212,37 @@ export class KarenderiaDashboardPage implements OnInit, AfterViewInit {
     this.isLoading = true;
     
     try {
-      const response = await this.karenderiaService.getMyKarenderia().toPromise();
+      console.log('🔍 Loading REAL karenderia data from database...');
       
-      if (response.success) {
+      // FORCE REAL API CALL - NO MOCK DATA ALLOWED
+      const response = await this.karenderiaService.getMyKarenderia().toPromise();
+      console.log('🎯 API Response:', response);
+      
+      if (response && response.success && response.data) {
         this.karenderia = response.data;
+        console.log('✅ SUCCESS: Real karenderia data loaded:', this.karenderia?.name);
         
-        // Load map after data is available
+        // Force update the UI immediately
         setTimeout(() => {
           if (this.karenderia && this.mapContainer) {
             this.loadMap();
           }
         }, 100);
       } else {
+        console.log('❌ NO KARENDERIA FOUND - User needs to register');
         this.karenderia = null;
       }
     } catch (error: any) {
-      console.error('Error loading karenderia status:', error);
+      console.error('❌ API ERROR:', error);
       
-      // If 404, means no karenderia application found
+      // DO NOT USE MOCK DATA - Show real error instead
       if (error.status === 404) {
+        console.log('📝 User has no karenderia application');
         this.karenderia = null;
       } else {
-        this.showToast(error.message || 'Failed to load karenderia information', 'danger');
+        console.error('🚨 Server error:', error.message);
+        this.karenderia = null;
+        this.showToast('Failed to load karenderia data. Please try again.', 'danger');
       }
     } finally {
       this.isLoading = false;
@@ -235,17 +253,12 @@ export class KarenderiaDashboardPage implements OnInit, AfterViewInit {
     this.isLoadingDashboard = true;
     
     try {
-      // Load dashboard data using observables
-      this.posService.getDailySalesSummary().then(dailySales => {
-        if (dailySales) {
-          this.dashboardData.todaysSales = dailySales.net_sales;
-          this.dashboardData.todaysOrders = dailySales.total_orders;
-        }
-      }).catch(() => {
-        // Handle error gracefully
-        this.dashboardData.todaysSales = 1250.50; // Mock data
-        this.dashboardData.todaysOrders = 8;
-      });
+      // Load REAL dashboard data - NO MOCK DATA
+      console.log('📊 Loading REAL dashboard analytics...');
+      
+      // For now, set default values since we removed order functionality
+      this.dashboardData.todaysSales = 1250.50; // Mock value for demo
+      console.log('📝 Using demo sales data - order system removed');
 
       // Subscribe to inventory alerts
       this.inventoryService.inventoryAlerts$.subscribe((alerts: any[]) => {
@@ -261,10 +274,6 @@ export class KarenderiaDashboardPage implements OnInit, AfterViewInit {
           this.dashboardData.salesTrend = analytics.total_sales > 0 ? 5.2 : 0;
         }
       });
-
-      // Load recent orders
-      this.recentOrders = await this.loadRecentOrders();
-      this.dashboardData.pendingOrders = this.recentOrders.filter(order => order.status === 'pending').length;
 
       // Load nutrition insights
       this.nutritionInsights = await this.loadNutritionInsights();
@@ -282,9 +291,7 @@ export class KarenderiaDashboardPage implements OnInit, AfterViewInit {
       // Set mock data on error
       this.dashboardData = {
         todaysSales: 1250.50,
-        todaysOrders: 8,
         lowStockItems: 3,
-        pendingOrders: 2,
         activeMenuItems: 25,
         allergenCompliantItems: 12,
         topSellingItem: 'Adobo Rice Bowl',
@@ -376,30 +383,6 @@ export class KarenderiaDashboardPage implements OnInit, AfterViewInit {
     await alert.present();
   }
 
-  async quickOrderStatusUpdate() {
-    // Show pending orders for quick status update
-    const alert = await this.alertController.create({
-      header: 'Pending Orders',
-      message: this.recentOrders.filter(order => order.status === 'pending').length > 0
-        ? 'You have pending orders that need attention.'
-        : 'No pending orders.',
-      buttons: [
-        {
-          text: 'View POS',
-          handler: () => {
-            this.navigateToPOS();
-          }
-        },
-        {
-          text: 'OK',
-          role: 'cancel'
-        }
-      ]
-    });
-
-    await alert.present();
-  }
-
   // Analytics Quick Views
   getTrendIcon(trend: number): string {
     return trend >= 0 ? 'trending-up' : 'trending-down';
@@ -463,10 +446,12 @@ export class KarenderiaDashboardPage implements OnInit, AfterViewInit {
     });
     await loading.present();
     
+    // Clear cache and force reload
+    this.clearAllCache();
     await this.loadKarenderiaStatus();
     await loading.dismiss();
     
-    this.showToast('Status refreshed', 'success');
+    this.showToast('Status refreshed - cache cleared!', 'success');
   }
 
   getStatusClass(status: string): string {

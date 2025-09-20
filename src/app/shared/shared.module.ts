@@ -3,11 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 
-import { OrderModalComponent } from '../modals/order-modal/order-modal.component';
-
 @NgModule({
   declarations: [
-    OrderModalComponent
   ],
   imports: [
     CommonModule,
@@ -15,7 +12,6 @@ import { OrderModalComponent } from '../modals/order-modal/order-modal.component
     IonicModule
   ],
   exports: [
-    OrderModalComponent
   ]
 })
 export class SharedModule { }

@@ -79,7 +79,6 @@ export interface OrderItem {
 export interface DailySales {
   date: Date;
   totalSales: number; // PHP
-  totalOrders: number;
   popularItems: {
     itemId: string;
     itemName: string;

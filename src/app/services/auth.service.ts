@@ -70,8 +70,9 @@ export class AuthService {
   }
 
   private checkStoredAuth(): void {
-    const token = localStorage.getItem('auth_token');
-    const userData = localStorage.getItem('user_data');
+    // Use sessionStorage instead of localStorage for automatic logout on app close
+    const token = sessionStorage.getItem('auth_token');
+    const userData = sessionStorage.getItem('user_data');
     
     if (token && userData) {
       try {
@@ -88,8 +89,9 @@ export class AuthService {
     return this.http.post<AuthResponse>(`${this.apiUrl}/auth/login`, credentials)
       .pipe(
         tap(response => {
-          localStorage.setItem('auth_token', response.access_token);
-          localStorage.setItem('user_data', JSON.stringify(response.user));
+          // Use sessionStorage instead of localStorage for automatic logout on app close
+          sessionStorage.setItem('auth_token', response.access_token);
+          sessionStorage.setItem('user_data', JSON.stringify(response.user));
           this.currentUserSubject.next(response.user);
         }),
         catchError(error => {
@@ -103,8 +105,9 @@ export class AuthService {
     return this.http.post<AuthResponse>(`${this.apiUrl}/auth/register`, userData)
       .pipe(
         tap(response => {
-          localStorage.setItem('auth_token', response.access_token);
-          localStorage.setItem('user_data', JSON.stringify(response.user));
+          // Use sessionStorage instead of localStorage for automatic logout on app close
+          sessionStorage.setItem('auth_token', response.access_token);
+          sessionStorage.setItem('user_data', JSON.stringify(response.user));
           this.currentUserSubject.next(response.user);
         }),
         catchError(error => {
@@ -118,8 +121,9 @@ export class AuthService {
     return this.http.post<AuthResponse>(`${this.apiUrl}/auth/register-karenderia-owner`, registrationData)
       .pipe(
         tap(response => {
-          localStorage.setItem('auth_token', response.access_token);
-          localStorage.setItem('user_data', JSON.stringify(response.user));
+          // Use sessionStorage instead of localStorage for automatic logout on app close
+          sessionStorage.setItem('auth_token', response.access_token);
+          sessionStorage.setItem('user_data', JSON.stringify(response.user));
           this.currentUserSubject.next(response.user);
         }),
         catchError(error => {
@@ -130,9 +134,26 @@ export class AuthService {
   }
 
   logout(): void {
+<<<<<<< Updated upstream
     // Clear local storage immediately for instant logout feeling
     localStorage.removeItem('auth_token');
     localStorage.removeItem('user_data');
+=======
+    // Get the token before clearing it for server logout
+    const token = sessionStorage.getItem('auth_token');
+    
+    // Clear session storage immediately for instant logout feeling
+    sessionStorage.removeItem('auth_token');
+    sessionStorage.removeItem('user_data');
+    
+    // Also clear localStorage items that might persist
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('user_data');
+    localStorage.removeItem('karenderia_data');
+    localStorage.removeItem('menu_cache');
+    
+    // Clear the user subject
+>>>>>>> Stashed changes
     this.currentUserSubject.next(null);
 
     // Optional: Notify server in background (don't wait for response)
@@ -177,7 +198,7 @@ export class AuthService {
   }
 
   isAuthenticated(): boolean {
-    return !!localStorage.getItem('auth_token');
+    return !!sessionStorage.getItem('auth_token');
   }
 
   getCurrentUser(): User | null {
@@ -185,7 +206,7 @@ export class AuthService {
   }
 
   getAuthToken(): string | null {
-    return localStorage.getItem('auth_token');
+    return sessionStorage.getItem('auth_token');
   }
 
   private getAuthHeaders(): { [key: string]: string } {

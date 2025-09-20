@@ -10,12 +10,8 @@
       </div>
     </ion-title>
     <ion-buttons slot="end">
-      <ion-button (click)="openOrderModal()" fill="solid" color="light" size="small" class="header-action-btn">
-        <ion-icon name="bag" slot="start"></ion-icon>
-        Order
-      </ion-button>
-      <ion-button routerLink="/order-details" fill="clear" color="light" class="header-action-btn">
-        <ion-icon name="list" slot="icon-only"></ion-icon>
+      <ion-button routerLink="/karenderia-menu" fill="clear" color="light" class="header-action-btn">
+        <ion-icon name="restaurant" slot="icon-only"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
@@ -198,26 +194,6 @@
         <div class="actions-grid">
           <ion-button 
             expand="block" 
-            routerLink="/order-details" 
-            fill="solid"
-            color="primary"
-            class="action-btn">
-            <ion-icon name="list" slot="start"></ion-icon>
-            View All Orders
-          </ion-button>
-          
-          <ion-button 
-            expand="block" 
-            routerLink="/karenderia-orders-pos" 
-            fill="solid"
-            color="success"
-            class="action-btn">
-            <ion-icon name="add" slot="start"></ion-icon>
-            Create New Order
-          </ion-button>
-
-          <ion-button 
-            expand="block" 
             routerLink="/karenderia-menu" 
             fill="outline"
             color="tertiary"
@@ -235,10 +211,10 @@
         <ion-icon name="bar-chart" size="large"></ion-icon>
       </div>
       <h3>No Analytics Data Available</h3>
-      <p>Start taking orders to see your business analytics and insights here.</p>
-      <ion-button routerLink="/karenderia-orders-pos" color="primary" fill="solid">
-        <ion-icon name="add" slot="start"></ion-icon>
-        Create Your First Order
+      <p>Add more menu items and engage with customers to see your business analytics and insights here.</p>
+      <ion-button routerLink="/karenderia-menu" color="primary" fill="solid">
+        <ion-icon name="restaurant" slot="start"></ion-icon>
+        Manage Your Menu
       </ion-button>
     </div>
 

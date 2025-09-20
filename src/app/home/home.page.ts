@@ -72,12 +72,12 @@ export class HomePage implements OnInit, OnDestroy {
 
   async navigateToMap() {
     try {
-      console.log('🗺️ Navigating to map view...');
+      console.log('🗺️ Navigating to customer map view...');
       
-      const success = await this.router.navigateByUrl('/map-view');
+      const success = await this.router.navigateByUrl('/customer-map');
       
     } catch (error) {
-      console.error('❌ Error navigating to map-view:', error);
+      console.error('❌ Error navigating to customer-map:', error);
       await this.showToast('Navigation error - please try again');
     }
   }
