@@ -151,7 +151,7 @@ export class AdminLocationManagementPage implements OnInit {
 
     try {
       // Default to Philippines center, or use existing location
-      const defaultLat = this.selectedLocation.lat || 14.5995;
+      const defaultLat = this.selectedLocation.lat || 10.3157;
       const defaultLng = this.selectedLocation.lng || 120.9842;
       
       const mapOptions = {

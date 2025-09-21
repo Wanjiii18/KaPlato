@@ -433,7 +433,7 @@ export class HomePage implements OnInit, OnDestroy {
         id: 'mock-2',
         name: "Tita Neng's Lutong Bahay",
         address: "456 Food Ave, Manila",
-        location: { latitude: 14.5995, longitude: 120.9842 },
+        location: { latitude: 10.3157, longitude: 123.8854 },
         rating: 4.6,
         priceRange: 'Budget',
         cuisine: ['Filipino', 'Home-cooked'],

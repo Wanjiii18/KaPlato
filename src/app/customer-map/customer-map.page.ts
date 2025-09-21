@@ -22,8 +22,8 @@ import { ComponentsModule } from '../components/components.module';
 })
 export class CustomerMapPage implements OnInit, OnDestroy {
   // Location and Map
-  currentLat = 14.5995; // Default to Manila
-  currentLng = 120.9842;
+  currentLat = 10.3157; // Default to Cebu City
+  currentLng = 123.8854;
   mapZoom = 13;
 
   // UI State

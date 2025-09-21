@@ -12,8 +12,8 @@ import { Geolocation } from '@capacitor/geolocation';
   standalone: false,
 })
 export class MapComponent implements AfterViewInit, OnDestroy {
-  @Input() lat = 14.5995; // Default to Manila coordinates
-  @Input() lng = 120.9842;
+  @Input() lat = 10.3157; // Default to Cebu City coordinates
+  @Input() lng = 123.8854;
   @Input() zoom = 13;
   @Input() isLocationPickerMode = false; // New input for location picker mode
   @Input() searchRadiusMeters = 1000; // Search radius in meters for visual indication
@@ -46,9 +46,6 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     // Add a small delay to ensure the DOM is fully rendered
     setTimeout(() => {
       this.initMap();
-<<<<<<< Updated upstream
-      this.getCurrentLocation();
-=======
       this.clearRoute(); // Clear any existing routes
       
       // Only get location and search karenderias if NOT in location picker mode
@@ -68,7 +65,6 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         console.log('📍 Location picker mode - skipping automatic location detection and karenderia search');
       }
       
->>>>>>> Stashed changes
       this.setupGlobalFunctions();
     }, 250);
   }
@@ -99,8 +95,6 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     });
 
     tiles.addTo(this.map);
-<<<<<<< Updated upstream
-=======
 
     // Add click handler for manual location setting
     this.map.on('click', (e: any) => {
@@ -144,7 +138,6 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     });
 
     await alert.present();
->>>>>>> Stashed changes
   }
 
   private onMapDoubleClick(e: any): void {
@@ -168,13 +161,11 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     }
     
     try {
-      const permissions = await Geolocation.checkPermissions();
-      if (permissions.location !== 'granted') {
-        await this.requestLocationPermission();
-      }
-
+      console.log('📍 Attempting to get current location...');
+      
       const position = await Geolocation.getCurrentPosition({
         enableHighAccuracy: true,
+        timeout: 10000
       });
 
       this.currentLocation = {
@@ -182,43 +173,17 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         lng: position.coords.longitude,
       };
 
+      console.log('📍 Current location obtained:', this.currentLocation);
       this.map.setView([this.currentLocation.lat, this.currentLocation.lng], 16);
       this.addCurrentLocationMarker();
       this.updateSearchRadius();
+      this.searchNearbyKarenderias();
+      this.showToast('Location found successfully!', 'success');
+      
     } catch (error) {
-      this.handleLocationError(error);
+      console.warn('📍 Error getting location:', error);
+      this.showToast('Could not get your location. Using default location.', 'warning');
     }
-  }
-
-  private async requestLocationPermission(): Promise<void> {
-    const alert = await this.alertController.create({
-      header: 'Location Access Required',
-      message: 'Please allow location access.',
-      buttons: [
-        {
-          text: 'Cancel',
-          role: 'cancel',
-          handler: () => this.handleLocationPermissionDenied(),
-        },
-        {
-          text: 'Continue',
-          handler: async () => {
-            const permissions = await Geolocation.requestPermissions();
-            if (permissions.location !== 'granted') {
-              this.handleLocationPermissionDenied();
-            }
-          },
-        },
-      ],
-    });
-
-    await alert.present();
-  }
-
-  private handleLocationPermissionDenied(): void {
-    this.currentLocation = { lat: 14.5995, lng: 120.9842 };
-    this.addCurrentLocationMarker();
-    this.updateSearchRadius();
   }
 
   private addCurrentLocationMarker(): void {
@@ -515,19 +480,15 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     }
 
     this.isRoutingActive = false;
-<<<<<<< Updated upstream
-    this.currentRoute = null;
-=======
     
     // Refresh markers to update popup content
-    this.refreshKarenderiaMarkers();
+    this.addKarenderiaMarkers();
     
     // Only show success message if NOT in location picker mode
     if (!this.isLocationPickerMode) {
       this.showToast('Route cleared', 'success');
     }
     console.log('🎉 Route clearing completed');
->>>>>>> Stashed changes
   }
 
   // Refresh map size
@@ -539,10 +500,11 @@ export class MapComponent implements AfterViewInit, OnDestroy {
 
   private handleLocationError(error: any): void {
     console.error('Location error:', error);
-    this.currentLocation = { lat: 14.5995, lng: 120.9842 }; // Default location
+    this.currentLocation = { lat: 10.3157, lng: 123.8854 }; // Default location
     this.addCurrentLocationMarker();
     this.updateSearchRadius();
-    this.showToast('Using default location due to error.', 'warning');
+    this.searchNearbyKarenderias();
+    this.showToast('Could not get your location. Using Cebu City as default.', 'warning');
   }
 
   private async showToast(message: string, color: 'success' | 'warning' | 'danger' = 'success'): Promise<void> {

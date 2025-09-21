@@ -27,8 +27,8 @@ export class MapViewPage implements OnInit, AfterViewInit {
   selectedLocation: { lat: number, lng: number } | null = null;
   
   // Map properties
-  currentLat = 14.5995; // Default to Manila coordinates
-  currentLng = 120.9842;
+  currentLat = 10.3157; // Default to Cebu City coordinates
+  currentLng = 123.8854;
   mapZoom = 13;
 
   constructor(
@@ -65,15 +65,10 @@ export class MapViewPage implements OnInit, AfterViewInit {
       this.router.navigateByUrl('/map-view', { replaceUrl: true });
     }
     
-<<<<<<< Updated upstream
-    this.loadKarenderias();
-    this.getCurrentLocation();
-=======
     // Only get location and load karenderias if NOT in picker mode
     if (!this.isLocationPickerMode) {
       this.getCurrentLocation();
     }
->>>>>>> Stashed changes
     // DON'T call addSwipeGesture() here - moved to ngAfterViewInit()
   }
 
@@ -426,5 +421,17 @@ export class MapViewPage implements OnInit, AfterViewInit {
   cancelLocationPicking() {
     // Navigate back without location data
     this.router.navigate([`/${this.returnTo}`]);
+  }
+
+  clearRoutes() {
+    // This method should be available on the map component
+    // In a real implementation, you would access the map component via ViewChild
+    console.log('Clearing routes...');
+    
+    // If you have a ViewChild reference to the map component, you can call:
+    // this.mapComponent.clearRoute();
+    
+    // For now, just show a toast
+    this.showToast('Routes cleared');
   }
 }

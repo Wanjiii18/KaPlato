@@ -134,11 +134,6 @@ export class AuthService {
   }
 
   logout(): void {
-<<<<<<< Updated upstream
-    // Clear local storage immediately for instant logout feeling
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem('user_data');
-=======
     // Get the token before clearing it for server logout
     const token = sessionStorage.getItem('auth_token');
     
@@ -153,11 +148,9 @@ export class AuthService {
     localStorage.removeItem('menu_cache');
     
     // Clear the user subject
->>>>>>> Stashed changes
     this.currentUserSubject.next(null);
 
     // Optional: Notify server in background (don't wait for response)
-    const token = localStorage.getItem('auth_token');
     if (token) {
       this.http.post(`${this.apiUrl}/auth/logout`, {}, {
         headers: { Authorization: `Bearer ${token}` }

@@ -1,11 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { KarenderiaInfoService } from '../services/karenderia-info.service';
-<<<<<<< Updated upstream
-=======
 import { AdminService } from '../services/admin.service';
 import { KarenderiaService } from '../services/karenderia.service';
->>>>>>> Stashed changes
 
 interface BusinessInfo {
   name: string;
@@ -108,9 +105,6 @@ export class KarenderiaSettingsPage implements OnInit {
     { name: 'Sunday', isOpen: false, openTime: '09:00', closeTime: '18:00' }
   ];
 
-<<<<<<< Updated upstream
-  constructor(private router: Router, private karenderiaInfoService: KarenderiaInfoService) { }
-=======
   constructor(
     private router: Router, 
     private route: ActivatedRoute,
@@ -118,7 +112,6 @@ export class KarenderiaSettingsPage implements OnInit {
     private adminService: AdminService,
     private karenderiaService: KarenderiaService
   ) { }
->>>>>>> Stashed changes
 
   ngOnInit() {
     console.log('🔄 Settings page loading - Initializing karenderia data...');
@@ -161,11 +154,6 @@ export class KarenderiaSettingsPage implements OnInit {
   }
 
   // Settings methods
-<<<<<<< Updated upstream
-  loadSettings() {
-    // Load settings from backend or local storage
-    console.log('Loading settings...');
-=======
   async loadSettings() {
     console.log('🔍 Loading karenderia settings from API...');
     this.isLoading = true;
@@ -251,7 +239,6 @@ export class KarenderiaSettingsPage implements OnInit {
     // TODO: Get this from a service that tracks current user's karenderia
     // This is a placeholder implementation
     return null;
->>>>>>> Stashed changes
   }
 
   async saveChanges() {
@@ -312,11 +299,6 @@ export class KarenderiaSettingsPage implements OnInit {
     }
   }
 
-  uploadLogo() {
-    // Implement logo upload functionality
-    console.log('Uploading logo...');
-  }
-
   changePassword() {
     if (this.passwordChange.newPassword !== this.passwordChange.confirmPassword) {
       console.error('Passwords do not match');
@@ -353,8 +335,6 @@ export class KarenderiaSettingsPage implements OnInit {
   getKarenderiaBrandInitials(): string {
     return this.karenderiaInfoService.getKarenderiaBrandInitials();
   }
-<<<<<<< Updated upstream
-=======
 
   // Logo and photo upload methods
   async uploadLogo(): Promise<void> {
@@ -500,5 +480,4 @@ export class KarenderiaSettingsPage implements OnInit {
       alert('Could not access GPS. Please select location manually.');
     }
   }
->>>>>>> Stashed changes
 }

@@ -188,7 +188,7 @@ export class KarenderiaOwnerRegistrationPage implements OnInit {
 
     try {
       const mapOptions = {
-        center: new google.maps.LatLng(14.5995, 120.9842), // Manila center
+        center: new google.maps.LatLng(10.3157, 123.8854), // Cebu City center
         zoom: 15,
         mapTypeId: google.maps.MapTypeId.ROADMAP,
         gestureHandling: 'cooperative',

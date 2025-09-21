@@ -98,13 +98,6 @@ export class KarenderiaService {
   constructor(private http: HttpClient, private zone: NgZone) {}
 
   private getHeaders(): HttpHeaders {
-<<<<<<< Updated upstream
-    const token = localStorage.getItem('auth_token');
-    return new HttpHeaders({
-      'Content-Type': 'application/json',
-      'Authorization': token ? `Bearer ${token}` : ''
-    });
-=======
     const token = sessionStorage.getItem('auth_token');
     const headers: any = {
       'Content-Type': 'application/json'
@@ -116,7 +109,6 @@ export class KarenderiaService {
     }
     
     return new HttpHeaders(headers);
->>>>>>> Stashed changes
   }
 
   // Get all karenderias

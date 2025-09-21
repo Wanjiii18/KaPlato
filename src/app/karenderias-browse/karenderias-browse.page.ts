@@ -53,7 +53,7 @@ export class KarenderiasBrowsePage implements OnInit {
               name: k.name || 'Unknown Karenderia',
               address: k.address || 'No address',
               location: { 
-                latitude: k.location?.latitude || k.latitude || 14.5995, 
+                latitude: k.location?.latitude || k.latitude || 10.3157, 
                 longitude: k.location?.longitude || k.longitude || 120.9842 
               },
               rating: k.rating || k.average_rating || 4.0,

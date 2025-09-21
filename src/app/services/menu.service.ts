@@ -30,8 +30,6 @@ export class MenuService {
     this.loadMenuItems().catch(err => console.warn('Menu items loading failed:', err));
   }
 
-<<<<<<< Updated upstream
-=======
   // Method to clear all cached data (useful for logout/user switching)
   clearCache(): void {
     this.menuItemsSubject.next([]);
@@ -47,13 +45,18 @@ export class MenuService {
     this.loadMenuItems().catch(err => console.warn('Menu items loading failed:', err));
   }
 
->>>>>>> Stashed changes
   private getHeaders(): HttpHeaders {
-    const token = localStorage.getItem('auth_token');
-    return new HttpHeaders({
-      'Content-Type': 'application/json',
-      'Authorization': token ? `Bearer ${token}` : ''
-    });
+    const token = sessionStorage.getItem('auth_token');
+    const headers: any = {
+      'Content-Type': 'application/json'
+    };
+    
+    // Only add Authorization header if token exists
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    
+    return new HttpHeaders(headers);
   }
 
   // Format PHP currency
