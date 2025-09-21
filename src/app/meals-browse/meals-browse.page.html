@@ -1,9 +1,7 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-button (click)="goBack()">
-        <ion-icon name="chevron-back"></ion-icon>
-      </ion-button>
+      <ion-back-button (click)="goBack()" text="" defaultHref="/tabs/home"></ion-back-button>
     </ion-buttons>
     <ion-title>Browse Meals</ion-title>
     <ion-buttons slot="end">

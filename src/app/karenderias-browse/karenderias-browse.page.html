@@ -144,7 +144,8 @@
             size="small" 
             color="primary" 
             class="view-menu-btn"
-            [disabled]="!karenderia.isOpen">
+            [disabled]="!karenderia.isOpen"
+            (click)="selectKarenderia(karenderia)">
             <ion-icon name="restaurant-outline" slot="start"></ion-icon>
             {{ karenderia.isOpen ? 'View Menu' : 'Closed' }}
           </ion-button>

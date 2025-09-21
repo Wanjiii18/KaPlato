@@ -108,10 +108,15 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   }
 
   private async onMapClick(e: any): Promise<void> {
-    // Skip map click functionality in location picker mode
+    // Only allow manual location setting when NOT in location picker mode
+    // Location picker mode uses double-click instead
     if (this.isLocationPickerMode) {
       return;
     }
+    
+    // For customer maps, don't show location setting dialog
+    // Only show for karenderia/owner maps where they need to search around different locations
+    return; // Disable click-to-set-location for all maps for now
     
     const alert = await this.alertController.create({
       header: 'Set Location',
@@ -143,6 +148,12 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   private onMapDoubleClick(e: any): void {
     console.log('📍 Map double-click detected:', e.latlng);
     console.log('📍 Is location picker mode:', this.isLocationPickerMode);
+    
+    // Only allow double-click location setting in location picker mode
+    if (!this.isLocationPickerMode) {
+      console.log('📍 Double-click ignored - not in location picker mode');
+      return;
+    }
     
     // Emit the double-click event with coordinates
     this.mapDoubleClick.emit({
@@ -255,21 +266,66 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.isSearching = true;
     this.clearKarenderiaMarkers();
 
-    this.karenderiaService.getNearbyKarenderias_Local(
+    console.log('🗺️ Map component searching for karenderias...');
+    console.log('📍 Search params:', {
+      lat: this.currentLocation.lat,
+      lng: this.currentLocation.lng,
+      radius: this.searchRange
+    });
+
+    // Use backend API instead of localStorage
+    this.karenderiaService.getNearbyKarenderias(
       this.currentLocation.lat,
       this.currentLocation.lng,
       this.searchRange
     ).subscribe({
       next: (karenderias) => {
-        this.karenderias = karenderias;
+        console.log('🗺️ Map component received karenderias:', karenderias);
+        
+        // Convert to SimpleKarenderia format
+        this.karenderias = karenderias.map(k => ({
+          id: k.id,
+          name: k.name,
+          address: k.address,
+          location: { 
+            latitude: k.location?.latitude || k.latitude || 0, 
+            longitude: k.location?.longitude || k.longitude || 0 
+          },
+          description: k.description,
+          rating: k.rating || k.average_rating,
+          priceRange: k.priceRange,
+          cuisine: k.cuisine || [],
+          contactNumber: k.contactNumber,
+          distance: k.distance,
+          imageUrl: k.imageUrl
+        }));
+        
         this.addKarenderiaMarkers();
         this.isSearching = false;
         this.showToast(`Found ${karenderias.length} karenderias within ${this.searchRange}m`, 'success');
       },
       error: (error) => {
-        console.error('Search error:', error);
-        this.isSearching = false;
-        this.showToast('Search failed. Please try again.', 'danger');
+        console.error('🗺️ Map search error:', error);
+        console.log('🔄 Trying localStorage fallback...');
+        
+        // Fallback to localStorage if backend fails
+        this.karenderiaService.getNearbyKarenderias_Local(
+          this.currentLocation!.lat,
+          this.currentLocation!.lng,
+          this.searchRange
+        ).subscribe({
+          next: (karenderias) => {
+            this.karenderias = karenderias;
+            this.addKarenderiaMarkers();
+            this.isSearching = false;
+            this.showToast(`Found ${karenderias.length} karenderias within ${this.searchRange}m (offline)`, 'warning');
+          },
+          error: (fallbackError) => {
+            console.error('🗺️ Fallback search also failed:', fallbackError);
+            this.isSearching = false;
+            this.showToast('Search failed. Please try again.', 'danger');
+          }
+        });
       }
     });
   }

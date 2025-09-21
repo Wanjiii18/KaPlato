@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonicModule } from '@ionic/angular';
+import { IonicModule, NavController } from '@ionic/angular';
 import { AlertController, LoadingController, ToastController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { Geolocation } from '@capacitor/geolocation';
@@ -43,6 +43,7 @@ export class CustomerMapPage implements OnInit, OnDestroy {
     private loadingController: LoadingController,
     private toastController: ToastController,
     private router: Router,
+    private navController: NavController,
     private karenderiaService: KarenderiaService
   ) {}
 
@@ -68,6 +69,11 @@ export class CustomerMapPage implements OnInit, OnDestroy {
     this.isLoading = true;
     try {
       console.log('Loading karenderias for customer map...');
+      console.log('🔍 Search parameters:', {
+        latitude: this.currentLat,
+        longitude: this.currentLng,
+        radius: this.searchRadius
+      });
       
       // Use the karenderia service to fetch nearby karenderias
       this.karenderiaService.getNearbyKarenderias(
@@ -76,6 +82,8 @@ export class CustomerMapPage implements OnInit, OnDestroy {
         this.searchRadius
       ).subscribe({
         next: (karenderias) => {
+          console.log('📡 API Response received:', karenderias);
+          
           // Convert to SimpleKarenderia format if needed
           this.karenderias = karenderias.map(k => ({
             id: k.id,
@@ -93,19 +101,87 @@ export class CustomerMapPage implements OnInit, OnDestroy {
             distance: k.distance,
             imageUrl: k.imageUrl
           }));
-          console.log('Loaded karenderias:', this.karenderias.length);
+          console.log('✅ Loaded karenderias:', this.karenderias.length);
+          
+          // Debug each karenderia
+          this.karenderias.forEach(k => {
+            console.log(`📍 ${k.name}: (${k.location.latitude}, ${k.location.longitude}) - ${k.distance}m away`);
+          });
         },
         error: (error) => {
-          console.error('Error loading karenderias:', error);
+          console.error('❌ Error loading karenderias from API:', error);
+          console.log('🔄 Trying fallback method...');
           this.karenderias = [];
+          
+          // Try the getAllKarenderias method as fallback
+          this.tryFallbackMethod();
         }
       });
     } catch (error) {
-      console.error('Error loading karenderias:', error);
+      console.error('❌ Error in loadKarenderias:', error);
       this.karenderias = [];
     } finally {
       this.isLoading = false;
     }
+  }
+
+  tryFallbackMethod() {
+    console.log('🔄 Attempting fallback with getAllKarenderias...');
+    this.karenderiaService.getAllKarenderias().subscribe({
+      next: (karenderias) => {
+        console.log('📡 Fallback API Response:', karenderias);
+        if (karenderias && karenderias.length > 0) {
+          // Manually filter by distance
+          this.karenderias = karenderias
+            .map(k => {
+              const distance = this.calculateDistance(
+                this.currentLat, 
+                this.currentLng,
+                k.location?.latitude || k.latitude || 0,
+                k.location?.longitude || k.longitude || 0
+              );
+              
+              return {
+                id: k.id,
+                name: k.name,
+                address: k.address,
+                location: { 
+                  latitude: k.location?.latitude || k.latitude || 0, 
+                  longitude: k.location?.longitude || k.longitude || 0 
+                },
+                description: k.description,
+                rating: k.rating || k.average_rating,
+                priceRange: k.priceRange,
+                cuisine: k.cuisine || [],
+                contactNumber: k.contactNumber,
+                distance: distance,
+                imageUrl: k.imageUrl
+              };
+            })
+            .filter(k => k.distance <= this.searchRadius);
+            
+          console.log('✅ Fallback successful, filtered karenderias:', this.karenderias.length);
+        }
+      },
+      error: (error) => {
+        console.error('❌ Fallback also failed:', error);
+      }
+    });
+  }
+
+  calculateDistance(lat1: number, lng1: number, lat2: number, lng2: number): number {
+    const R = 6371e3; // Earth's radius in meters
+    const φ1 = lat1 * Math.PI / 180;
+    const φ2 = lat2 * Math.PI / 180;
+    const Δφ = (lat2 - lat1) * Math.PI / 180;
+    const Δλ = (lng2 - lng1) * Math.PI / 180;
+
+    const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
+              Math.cos(φ1) * Math.cos(φ2) *
+              Math.sin(Δλ/2) * Math.sin(Δλ/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+    return R * c; // Distance in meters
   }
 
   onFilterChange(filter: string) {
@@ -201,7 +277,7 @@ export class CustomerMapPage implements OnInit, OnDestroy {
   }
 
   goBack() {
-    this.router.navigate(['/tabs/home']);
+    this.navController.back();
   }
 
   // Handle karenderia selection from list or map

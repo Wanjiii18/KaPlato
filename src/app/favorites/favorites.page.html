@@ -1,5 +1,8 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button (click)="goBack()" text=""></ion-back-button>
+    </ion-buttons>
     <ion-title>My Favorites</ion-title>
     <ion-buttons slot="end" *ngIf="favorites.length > 0">
       <ion-button (click)="clearAllFavorites()">

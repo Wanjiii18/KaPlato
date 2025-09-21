@@ -1,18 +1,20 @@
 <ion-header [translucent]="true" class="map-header">
   <ion-toolbar>
     <div class="header-content">
-      <ion-button fill="clear" color="light" (click)="goBack()" slot="start">
-        <ion-icon name="chevron-back-outline"></ion-icon>
-      </ion-button>
+      <ion-buttons slot="start">
+        <ion-back-button (click)="goBack()" text="" defaultHref="/tabs/home" color="light"></ion-back-button>
+      </ion-buttons>
       
       <div class="header-title">
         <ion-icon name="restaurant-outline"></ion-icon>
         <span>Find Karenderias</span>
       </div>
 
-      <ion-button fill="clear" color="light" (click)="refreshLocation()" slot="end">
-        <ion-icon name="refresh-outline"></ion-icon>
-      </ion-button>
+      <ion-buttons slot="end">
+        <ion-button fill="clear" color="light" (click)="refreshLocation()">
+          <ion-icon name="refresh-outline"></ion-icon>
+        </ion-button>
+      </ion-buttons>
     </div>
   </ion-toolbar>
 </ion-header>

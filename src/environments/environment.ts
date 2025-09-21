@@ -9,7 +9,7 @@ export const environment = {
     enableDebugMode: true,
     lazyLoadDelay: 100
   },
-  apiUrl: 'http://localhost:8000/api', // Laravel API URL
+  apiUrl: 'http://192.168.1.17:8000/api', // Laravel API URL - Updated for mobile access
   spoonacular: {
     apiKey: 'dd401666a6f944fabefcc73a78db06c7', // Replace with your actual API key from spoonacular.com
     baseUrl: 'https://api.spoonacular.com'

@@ -1,5 +1,19 @@
 {
-  "appId": "com.example.app",
+  "appId": "com.kaplato.app",
   "appName": "KaPlato",
-  "webDir": "www"
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https",
+    "allowNavigation": [
+      "http://192.168.1.17:8000",
+      "https://*.ngrok.io",
+      "https://api.spoonacular.com"
+    ],
+    "cleartext": true
+  },
+  "plugins": {
+    "CapacitorHttp": {
+      "enabled": true
+    }
+  }
 }

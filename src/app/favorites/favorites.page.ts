@@ -212,4 +212,8 @@ export class FavoritesPage implements OnInit, OnDestroy {
     });
     await toast.present();
   }
+
+  goBack() {
+    this.navController.back();
+  }
 }

@@ -1,8 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { LoadingController, ToastController, AlertController } from '@ionic/angular';
+import { LoadingController, ToastController, AlertController, NavController } from '@ionic/angular';
 import { KarenderiaService } from '../services/karenderia.service';
 import { Location } from '@angular/common';
+import { timeout, catchError } from 'rxjs/operators';
+import { of } from 'rxjs';
 
 @Component({
   selector: 'app-karenderia-detail',
@@ -28,6 +30,7 @@ export class KarenderiaDetailPage implements OnInit {
     private loadingController: LoadingController,
     private toastController: ToastController,
     private alertController: AlertController,
+    private navController: NavController,
     private location: Location
   ) {}
 
@@ -134,9 +137,13 @@ export class KarenderiaDetailPage implements OnInit {
   }
 
   async loadMenuItems() {
+    console.log('🔍 loadMenuItems called - karenderia:', this.karenderia);
+    console.log('🔍 karenderia ID:', this.karenderia?.id);
+    
     if (!this.karenderia?.id) {
-      console.log('⚠️ No karenderia ID available, using mock data');
-      this.createMockMenuItems();
+      console.log('⚠️ No karenderia ID available, no menu to display');
+      this.menuItems = [];
+      this.filteredMenuItems = [];
       this.isLoading = false;
       return;
     }
@@ -144,40 +151,54 @@ export class KarenderiaDetailPage implements OnInit {
     try {
       console.log('🍽️ Loading menu items for karenderia:', this.karenderia.id);
       
-      // Try to load from backend API first
-      this.karenderiaService.getMenuItemsForKarenderia(this.karenderia.id).subscribe({
-        next: (menuItems) => {
-          if (menuItems && menuItems.length > 0) {
-            console.log('✅ Loaded', menuItems.length, 'menu items from backend');
-            // Transform to our component's MenuItem interface
-            this.menuItems = menuItems.map(item => ({
-              id: item.id || Math.random().toString(),
-              name: item.name,
-              description: item.description || 'Delicious Filipino dish',
-              price: item.price,
-              category: this.mapToLocalCategory(item.category),
-              image: item.imageUrl || 'assets/images/food-placeholder.jpg',
-              available: item.isAvailable,
-              spicyLevel: 'Mild' // Default value
-            }));
-            this.filterMenuItems();
-          } else {
-            console.log('⚠️ No menu items found in backend, using mock data');
-            this.createMockMenuItems();
+      // Try to load from backend API with timeout
+      this.karenderiaService.getMenuItemsForKarenderia(this.karenderia.id)
+        .pipe(
+          timeout(5000), // 5 second timeout
+          catchError(error => {
+            console.error('❌ Error or timeout loading menu items:', error);
+            return of([]); // Return empty array on error/timeout
+          })
+        )
+        .subscribe({
+          next: (menuItems) => {
+            console.log('🔍 Received menu items:', menuItems);
+            if (menuItems && menuItems.length > 0) {
+              console.log('✅ Loaded', menuItems.length, 'menu items from backend');
+              // Transform to our component's MenuItem interface
+              this.menuItems = menuItems.map(item => ({
+                id: item.id || Math.random().toString(),
+                name: item.name,
+                description: item.description || 'Delicious Filipino dish',
+                price: item.price,
+                category: this.mapToLocalCategory(item.category),
+                image: item.imageUrl || 'assets/images/food-placeholder.jpg',
+                available: item.isAvailable,
+                spicyLevel: 'Mild' // Default value
+              }));
+              this.filterMenuItems();
+            } else {
+              console.log('⚠️ No menu items found - displaying empty menu');
+              this.menuItems = [];
+              this.filteredMenuItems = [];
+              this.categories = ['all'];
+            }
+            this.isLoading = false;
+          },
+          error: (error) => {
+            console.error('❌ Final error handler - displaying empty menu:', error);
+            this.menuItems = [];
+            this.filteredMenuItems = [];
+            this.categories = ['all'];
+            this.isLoading = false;
           }
-        },
-        error: (error) => {
-          console.error('❌ Error loading menu items from backend:', error);
-          console.log('📋 Falling back to mock menu data');
-          this.createMockMenuItems();
-        },
-        complete: () => {
-          this.isLoading = false;
-        }
-      });
+        });
+        
     } catch (error) {
       console.error('❌ Error in loadMenuItems:', error);
-      this.createMockMenuItems();
+      this.menuItems = [];
+      this.filteredMenuItems = [];
+      this.categories = ['all'];
       this.isLoading = false;
     }
   }
@@ -192,79 +213,6 @@ export class KarenderiaDetailPage implements OnInit {
       'Side Dish': 'Sides'
     };
     return categoryMap[serviceCategory] || 'Main Course';
-  }
-
-  createMockMenuItems() {
-    // Mock menu items for testing
-    this.menuItems = [
-      {
-        id: '1',
-        name: 'Adobo',
-        description: 'Classic Filipino adobo with tender pork and chicken in savory soy-vinegar sauce',
-        price: 120,
-        category: 'Main Course',
-        image: 'assets/images/adobo.jpg',
-        available: true,
-        spicyLevel: 'Mild'
-      },
-      {
-        id: '2',
-        name: 'Lechon Kawali',
-        description: 'Crispy deep-fried pork belly served with liver sauce',
-        price: 180,
-        category: 'Main Course',
-        image: 'assets/images/lechon-kawali.jpg',
-        available: true,
-        spicyLevel: 'None'
-      },
-      {
-        id: '3',
-        name: 'Sinigang na Baboy',
-        description: 'Sour pork soup with vegetables in tamarind broth',
-        price: 150,
-        category: 'Soup',
-        image: 'assets/images/sinigang.jpg',
-        available: true,
-        spicyLevel: 'None'
-      },
-      {
-        id: '4',
-        name: 'Lumpia Shanghai',
-        description: 'Crispy spring rolls filled with seasoned ground pork',
-        price: 80,
-        category: 'Appetizer',
-        image: 'assets/images/lumpia.jpg',
-        available: true,
-        spicyLevel: 'None'
-      },
-      {
-        id: '5',
-        name: 'Pancit Canton',
-        description: 'Stir-fried noodles with mixed vegetables and meat',
-        price: 100,
-        category: 'Noodles',
-        image: 'assets/images/pancit.jpg',
-        available: true,
-        spicyLevel: 'None'
-      },
-      {
-        id: '6',
-        name: 'Halo-Halo',
-        description: 'Traditional Filipino shaved ice dessert with mixed fruits and ube',
-        price: 85,
-        category: 'Dessert',
-        image: 'assets/images/halo-halo.jpg',
-        available: true,
-        spicyLevel: 'None'
-      }
-    ];
-
-    // Extract categories
-    this.categories = ['all', ...new Set(this.menuItems.map(item => item.category))];
-    this.filteredMenuItems = [...this.menuItems];
-    
-    console.log('✅ Mock menu items created:', this.menuItems.length);
-    console.log('📂 Categories:', this.categories);
   }
 
   setCategory(category: string) {
@@ -417,6 +365,6 @@ export class KarenderiaDetailPage implements OnInit {
   }
 
   goBack() {
-    this.location.back();
+    this.navController.back();
   }
 }
