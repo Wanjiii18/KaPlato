@@ -71,7 +71,7 @@
           <p>Manage your karenderia settings and preferences</p>
         </div>
         <div class="header-actions">
-          <button class="save-btn" (click)="saveChanges()">
+          <button class="save-btn" (click)="saveSettings()">
             <ion-icon name="save-outline"></ion-icon>
             Save Changes
           </button>
@@ -167,60 +167,169 @@
             <!-- Business Details Form -->
             <div class="form-row">
               <div class="form-group">
-                <label for="businessName">Business Name</label>
+                <label for="businessName">Karenderia Name</label>
                 <input 
                   type="text" 
                   id="businessName"
                   [(ngModel)]="businessInfo.name"
-                  placeholder="Enter business name">
+                  placeholder="Enter your karenderia name">
               </div>
               <div class="form-group">
-                <label for="phoneNumber">Phone Number</label>
+                <label for="phoneNumber">Contact Number</label>
                 <input 
                   type="tel" 
                   id="phoneNumber"
                   [(ngModel)]="businessInfo.phone"
-                  placeholder="Enter phone number">
+                  placeholder="Enter your contact number">
               </div>
             </div>
 
             <div class="form-row">
               <div class="form-group">
-                <label for="emailAddress">Email Address</label>
+                <label for="emailAddress">Email Address (Optional)</label>
                 <input 
                   type="email" 
                   id="emailAddress"
                   [(ngModel)]="businessInfo.email"
-                  placeholder="Enter email address">
+                  placeholder="Enter your email address">
               </div>
               <div class="form-group">
-                <label for="cuisineType">Cuisine Type</label>
+                <label for="cuisineType">Food Specialty</label>
                 <select id="cuisineType" [(ngModel)]="businessInfo.cuisineType">
-                  <option value="filipino">Filipino</option>
-                  <option value="chinese">Chinese</option>
-                  <option value="korean">Korean</option>
-                  <option value="japanese">Japanese</option>
-                  <option value="fusion">Fusion</option>
+                  <option value="filipino">Filipino Traditional</option>
+                  <option value="lutong-bahay">Lutong Bahay</option>
+                  <option value="provincial">Provincial Dishes</option>
+                  <option value="street-food">Street Food</option>
+                  <option value="carinderia-style">Carinderia Style</option>
+                  <option value="regional">Regional Specialties</option>
+                  <option value="mixed">Mixed Filipino & Others</option>
                 </select>
               </div>
             </div>
 
             <div class="form-group">
-              <label for="businessDescription">Business Description</label>
+              <label for="businessDescription">About Your Karenderia</label>
               <textarea 
                 id="businessDescription"
                 [(ngModel)]="businessInfo.description"
-                placeholder="Tell customers about your karenderia's story, specialties, and what makes you unique..."
+                placeholder="Tell customers about your karenderia, specialties, and what makes you unique..."
                 rows="4"></textarea>
             </div>
 
             <div class="form-group">
-              <label for="address">Address</label>
+              <label for="address">Complete Address</label>
               <textarea 
                 id="address"
                 [(ngModel)]="businessInfo.address"
-                placeholder="Enter complete business address..."
+                placeholder="Enter your complete business address with landmarks"
                 rows="3"></textarea>
+            </div>
+
+            <!-- Location Coordinates -->
+            <div class="form-group">
+              <label>Exact Location (GPS Coordinates)</label>
+              <p class="form-description">Help customers find your karenderia easily on GPS and delivery apps</p>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="latitude">Latitude (Ginhirapan/North-South)</label>
+                  <input 
+                    type="number" 
+                    id="latitude"
+                    [(ngModel)]="businessInfo.latitude"
+                    placeholder="Enter latitude"
+                    step="any"
+                    min="-90"
+                    max="90">
+                </div>
+                <div class="form-group">
+                  <label for="longitude">Longitude (Ginhilawan/East-West)</label>
+                  <input 
+                    type="number" 
+                    id="longitude"
+                    [(ngModel)]="businessInfo.longitude"
+                    placeholder="Enter longitude"
+                    step="any"
+                    min="-180"
+                    max="180">
+                </div>
+              </div>
+              <div class="location-helpers">
+                <button type="button" class="helper-btn" (click)="getCurrentLocation()">
+                  <ion-icon name="location-outline"></ion-icon>
+                  Use Current Location
+                </button>
+                <button type="button" class="helper-btn" (click)="openMapPicker()">
+                  <ion-icon name="map-outline"></ion-icon>
+                  Pick on Map
+                </button>
+                <button type="button" class="helper-btn" (click)="openMapPicker()">
+                  <ion-icon name="navigate-outline"></ion-icon>
+                  Interactive Map
+                </button>
+              </div>
+              
+              <!-- Interactive Map Modal (hidden by default) -->
+              <div class="map-modal" [class.active]="showMapModal">
+                <div class="map-modal-content">
+                  <div class="map-header">
+                    <h3>Locate Your Karenderia</h3>
+                    <button class="close-btn" (click)="closeMapModal()">
+                      <ion-icon name="close"></ion-icon>
+                    </button>
+                  </div>
+                  
+                  <div class="map-instructions">
+                    <p><ion-icon name="information-circle"></ion-icon> Tap on the map where your karenderia is located</p>
+                  </div>
+                  
+                  <div class="map-container" #mapContainer>
+                    <div class="simple-map" (click)="onMapClick($event)">
+                      <!-- Simple clickable map area -->
+                      <div class="map-grid">
+                        <div class="grid-line"></div>
+                        <div class="grid-line"></div>
+                        <div class="grid-line"></div>
+                        <div class="grid-line"></div>
+                      </div>
+                      
+                      <!-- Business pin marker -->
+                      <div class="business-pin" 
+                           [style.left.%]="pinPosition.x" 
+                           [style.top.%]="pinPosition.y"
+                           *ngIf="pinPosition.x !== null">
+                        <ion-icon name="location"></ion-icon>
+                      </div>
+                      
+                      <div class="map-overlay">
+                        <p>📍 Tap to place your business here</p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="coordinates-display" *ngIf="tempCoordinates.lat">
+                    <p><strong>Selected Location:</strong></p>
+                    <p>Latitude: {{tempCoordinates.lat | number:'1.6-6'}}</p>
+                    <p>Longitude: {{tempCoordinates.lng | number:'1.6-6'}}</p>
+                  </div>
+                  
+                  <div class="map-actions">
+                    <button class="action-btn secondary" (click)="useCurrentLocationOnMap()">
+                      <ion-icon name="locate"></ion-icon>
+                      Use My Location
+                    </button>
+                    <button class="action-btn primary" 
+                            (click)="confirmMapLocation()" 
+                            [disabled]="!tempCoordinates.lat">
+                      <ion-icon name="checkmark"></ion-icon>
+                      Confirm Location
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <p class="location-note">
+                <ion-icon name="information-circle-outline"></ion-icon>
+                Accurate location helps customers find your karenderia and improves delivery service. Your karenderia will be visible to customers after admin verification.
+              </p>
             </div>
           </div>
         </div>
@@ -232,7 +341,8 @@
             
             <!-- Operating Hours -->
             <div class="form-group">
-              <label>Operating Hours</label>
+              <label>Karenderia Operating Hours</label>
+              <p class="form-description">Set your daily operating schedule. Customers will see when you're open for orders.</p>
               <div class="operating-hours">
                 <div *ngFor="let day of operatingHours" class="day-schedule">
                   <div class="day-name">{{ day.name }}</div>

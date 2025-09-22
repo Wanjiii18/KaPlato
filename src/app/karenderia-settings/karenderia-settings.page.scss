@@ -399,20 +399,33 @@ ion-content.settings-content {
 
         label {
           display: block;
-          font-weight: 600;
-          color: #495057;
-          margin-bottom: 8px;
-          font-size: 0.95rem;
+          font-weight: 700;
+          color: #2c3e50;
+          margin-bottom: 12px;
+          font-size: 1rem;
+          text-transform: capitalize;
+          letter-spacing: 0.5px;
+          line-height: 1.4;
+          position: relative;
+          z-index: 1;
+          
+          // Ensure labels are always visible
+          &:not(.sr-only) {
+            opacity: 1;
+            visibility: visible;
+            background: transparent;
+          }
         }
 
         input, select, textarea {
           width: 100%;
           padding: 12px 16px;
-          border: 1px solid #dee2e6;
+          border: 2px solid #e9ecef;
           border-radius: 8px;
-          font-size: 1rem;
+          font-size: 14px;
+          color: #212529;
+          background: #ffffff;
           transition: all 0.3s ease;
-          background: #fff;
 
           &:focus {
             outline: none;
@@ -421,7 +434,19 @@ ion-content.settings-content {
           }
 
           &::placeholder {
-            color: #95a5a6;
+            color: #6c757d;
+            font-style: italic;
+          }
+        }
+
+        // Ensure label visibility on all screen sizes
+        @media (max-width: 768px) {
+          label {
+            font-size: 1.1rem !important;
+            font-weight: 800 !important;
+            margin-bottom: 10px !important;
+            color: #1a202c !important;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.1);
           }
         }
 
@@ -1376,4 +1401,530 @@ ion-content.settings-content {
     text-transform: uppercase;
     letter-spacing: 1px;
   }
+}
+
+// Enhanced Location Coordinates Styles
+.form-group {
+  // Location coordinates specific styling
+  &:has(input[id="latitude"]), &:has(input[id="longitude"]) {
+    .form-row {
+      gap: 20px;
+    }
+    
+    input[type="number"] {
+      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 14px 16px;
+      font-size: 15px;
+      font-weight: 500;
+      color: #334155;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      
+      &:focus {
+        outline: none;
+        border-color: #3b82f6;
+        background: white;
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+        transform: translateY(-2px);
+      }
+      
+      &::placeholder {
+        color: #94a3b8;
+        font-weight: 400;
+      }
+    }
+  }
+}
+
+.location-helpers {
+  display: flex;
+  gap: 16px;
+  margin-top: 24px;
+  flex-wrap: wrap;
+  
+  .helper-btn {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 20px;
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    color: #475569;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+    
+    // Subtle gradient overlay
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, transparent 0%, rgba(59, 130, 246, 0.1) 100%);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    ion-icon {
+      font-size: 18px;
+      color: #3b82f6;
+      transition: all 0.3s ease;
+      z-index: 1;
+    }
+    
+    span {
+      z-index: 1;
+      position: relative;
+    }
+    
+    &:hover {
+      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+      border-color: #2563eb;
+      color: white;
+      transform: translateY(-3px);
+      box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.3);
+      
+      &::before {
+        opacity: 1;
+      }
+      
+      ion-icon {
+        color: white;
+        transform: scale(1.1);
+      }
+    }
+    
+    &:active {
+      transform: translateY(-1px);
+      box-shadow: 0 5px 15px -3px rgba(59, 130, 246, 0.4);
+    }
+    
+    // Individual button styling
+    &:nth-child(1) {
+      border-color: #10b981;
+      
+      ion-icon {
+        color: #10b981;
+      }
+      
+      &:hover {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        border-color: #059669;
+        box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.3);
+      }
+    }
+    
+    &:nth-child(2), &:nth-child(3) {
+      border-color: #f59e0b;
+      
+      ion-icon {
+        color: #f59e0b;
+      }
+      
+      &:hover {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        border-color: #d97706;
+        box-shadow: 0 10px 25px -5px rgba(245, 158, 11, 0.3);
+      }
+    }
+  }
+}
+
+.location-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-top: 24px;
+  padding: 16px 20px;
+  background: linear-gradient(135deg, #fef3cd 0%, #fde68a 100%);
+  border: 2px solid #fbbf24;
+  border-radius: 12px;
+  font-size: 14px;
+  color: #92400e;
+  line-height: 1.5;
+  box-shadow: 0 4px 6px -1px rgba(251, 191, 36, 0.1);
+  
+  ion-icon {
+    font-size: 18px;
+    flex-shrink: 0;
+    margin-top: 2px;
+    color: #d97706;
+    animation: pulse-info 2s infinite ease-in-out;
+  }
+  
+  p {
+    margin: 0;
+    font-weight: 500;
+  }
+}
+
+@keyframes pulse-info {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.8;
+  }
+}
+
+// Enhanced Map Modal Styles
+.map-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.8) 0%, rgba(30, 41, 59, 0.9) 100%);
+  backdrop-filter: blur(8px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  &.active {
+    opacity: 1;
+    visibility: visible;
+  }
+  
+  .map-modal-content {
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    border-radius: 20px;
+    padding: 32px;
+    max-width: 550px;
+    width: 90%;
+    max-height: 85vh;
+    overflow-y: auto;
+    box-shadow: 
+      0 25px 50px -12px rgba(0, 0, 0, 0.25),
+      0 0 0 1px rgba(255, 255, 255, 0.1),
+      inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    transform: scale(0.9) translateY(20px);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  &.active .map-modal-content {
+    transform: scale(1) translateY(0);
+  }
+}
+
+.map-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #e2e8f0;
+  
+  h3 {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #1e293b 0%, #475569 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  .close-btn {
+    background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+    border: 2px solid #cbd5e1;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    
+    ion-icon {
+      font-size: 20px;
+      color: #64748b;
+      transition: all 0.3s ease;
+    }
+    
+    &:hover {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      border-color: #dc2626;
+      transform: scale(1.05);
+      
+      ion-icon {
+        color: white;
+      }
+    }
+}
+
+.map-instructions {
+  margin-bottom: 20px;
+  
+  p {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0;
+    padding: 16px 20px;
+    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+    border: 2px solid #3b82f6;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #1e40af;
+    box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.1);
+    
+    ion-icon {
+      font-size: 18px;
+      color: #2563eb;
+      animation: pulse-instruction 2s infinite ease-in-out;
+    }
+  }
+}
+
+@keyframes pulse-instruction {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+}
+
+.map-container {
+  margin-bottom: 24px;
+  
+  .simple-map {
+    position: relative;
+    width: 100%;
+    height: 250px;
+    background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 50%, #7dd3fc 100%);
+    border: 3px solid #0284c7;
+    border-radius: 16px;
+    cursor: crosshair;
+    overflow: hidden;
+    box-shadow: 
+      0 10px 15px -3px rgba(2, 132, 199, 0.1),
+      inset 0 1px 0 rgba(255, 255, 255, 0.6);
+    transition: all 0.3s ease;
+    
+    &:hover {
+      border-color: #0369a1;
+      box-shadow: 
+        0 15px 25px -5px rgba(2, 132, 199, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.8);
+      transform: scale(1.02);
+    }
+    
+    .map-grid {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      opacity: 0.4;
+      
+      .grid-line {
+        position: absolute;
+        background: linear-gradient(90deg, #0284c7, #0ea5e9);
+        
+        &:nth-child(1) {
+          top: 25%;
+          left: 0;
+          right: 0;
+          height: 2px;
+          border-radius: 1px;
+        }
+        
+        &:nth-child(2) {
+          top: 75%;
+          left: 0;
+          right: 0;
+          height: 2px;
+          border-radius: 1px;
+        }
+        
+        &:nth-child(3) {
+          top: 0;
+          bottom: 0;
+          left: 25%;
+          width: 2px;
+          border-radius: 1px;
+        }
+        
+        &:nth-child(4) {
+          top: 0;
+          bottom: 0;
+          left: 75%;
+          width: 2px;
+          border-radius: 1px;
+        }
+      }
+    }
+    
+    .business-pin {
+      position: absolute;
+      transform: translate(-50%, -100%);
+      z-index: 10;
+      
+      ion-icon {
+        font-size: 36px;
+        color: #dc2626;
+        filter: drop-shadow(0 4px 8px rgba(220, 38, 38, 0.4));
+        animation: pin-bounce-enhanced 3s infinite ease-in-out;
+      }
+    }
+    
+    .map-overlay {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      color: #0284c7;
+      font-weight: 700;
+      font-size: 18px;
+      text-shadow: 0 2px 4px rgba(255, 255, 255, 0.9);
+      pointer-events: none;
+      
+      p {
+        margin: 0;
+        padding: 12px 20px;
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 20px;
+        border: 2px solid rgba(2, 132, 199, 0.3);
+        backdrop-filter: blur(4px);
+      }
+    }
+  }
+}
+
+@keyframes pin-bounce-enhanced {
+  0%, 100% {
+    transform: translate(-50%, -100%) scale(1);
+  }
+  25% {
+    transform: translate(-50%, -100%) scale(1.1) rotate(-2deg);
+  }
+  50% {
+    transform: translate(-50%, -100%) scale(1.15);
+  }
+  75% {
+    transform: translate(-50%, -100%) scale(1.1) rotate(2deg);
+  }
+}
+
+.coordinates-display {
+  padding: 16px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  
+  p {
+    margin: 0 0 8px 0;
+    font-size: 14px;
+    color: #374151;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+    
+    strong {
+      color: #1f2937;
+      font-weight: 600;
+    }
+  }
+}
+
+.map-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  
+  .action-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    
+    ion-icon {
+      font-size: 16px;
+    }
+    
+    &.secondary {
+      background: #f3f4f6;
+      color: #374151;
+      border: 1px solid #d1d5db;
+      
+      &:hover {
+        background: #e5e7eb;
+        border-color: #9ca3af;
+      }
+    }
+    
+    &.primary {
+      background: #3b82f6;
+      color: white;
+      
+      &:hover {
+        background: #2563eb;
+      }
+      
+      &:disabled {
+        background: #9ca3af;
+        cursor: not-allowed;
+        
+        &:hover {
+          background: #9ca3af;
+        }
+      }
+    }
+  }
+}
+
+// Mobile responsiveness for map modal
+@media (max-width: 768px) {
+  .map-modal {
+    .map-modal-content {
+      width: 95%;
+      padding: 20px;
+      max-height: 90vh;
+    }
+  }
+  
+  .map-actions {
+    flex-direction: column;
+    
+    .action-btn {
+      justify-content: center;
+    }
+  }
+  
+  .location-helpers {
+    .helper-btn {
+      flex: 1;
+      justify-content: center;
+      min-width: 120px;
+    }
+  }
+}
 }
