@@ -137,7 +137,7 @@ export class MapViewPage implements OnInit, AfterViewInit {
           this.karenderias = response.map(k => ({
             id: k.id,
             name: k.name,
-            cuisine: k.cuisine?.join(', ') || 'Filipino',
+            cuisine: Array.isArray(k.cuisine) ? k.cuisine.join(', ') : (k.cuisine || 'Filipino'),
             address: k.address,
             rating: k.rating || 4.5,
             isOpen: true,
@@ -165,7 +165,7 @@ export class MapViewPage implements OnInit, AfterViewInit {
           this.karenderias = response.map(k => ({
             id: k.id,
             name: k.name,
-            cuisine: k.cuisine?.join(', ') || 'Filipino',
+            cuisine: Array.isArray(k.cuisine) ? k.cuisine.join(', ') : (k.cuisine || 'Filipino'),
             address: k.address,
             rating: k.rating || k.average_rating || 4.5,
             isOpen: true, // Default to open
