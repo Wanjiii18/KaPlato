@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
+import { AlertController } from '@ionic/angular';
 import { KarenderiaInfoService } from '../services/karenderia-info.service';
 import { KarenderiaService } from '../services/karenderia.service';
 import { AdminService } from '../services/admin.service';
@@ -132,12 +133,33 @@ export class KarenderiaSettingsPage implements OnInit {
 
   constructor(
     private router: Router, 
+    private route: ActivatedRoute,
+    private alertController: AlertController,
     private karenderiaInfoService: KarenderiaInfoService,
     private karenderiaService: KarenderiaService,
     private adminService: AdminService
   ) { }
 
   ngOnInit() {
+    // Check for returned location data from map picker
+    this.route.queryParams.subscribe(params => {
+      if (params['selectedLat'] && params['selectedLng']) {
+        const lat = parseFloat(params['selectedLat']);
+        const lng = parseFloat(params['selectedLng']);
+        
+        if (!isNaN(lat) && !isNaN(lng)) {
+          this.businessInfo.latitude = lat;
+          this.businessInfo.longitude = lng;
+          
+          // Clear the query parameters to avoid re-processing
+          this.router.navigate([], {
+            relativeTo: this.route,
+            queryParams: {},
+            replaceUrl: true
+          });
+        }
+      }
+    });
     this.loadKarenderiaData();
   }
 
@@ -223,17 +245,17 @@ export class KarenderiaSettingsPage implements OnInit {
   saveSettings() {
     // Validate required fields
     if (!this.businessInfo.name || !this.businessInfo.name.trim()) {
-      alert('Please enter your karenderia name.');
+      this.showValidationModal('Please enter your karenderia name.');
       return;
     }
     
     if (!this.businessInfo.phone || !this.businessInfo.phone.trim()) {
-      alert('Please enter your contact number.');
+      this.showValidationModal('Please enter your contact number.');
       return;
     }
     
     if (!this.businessInfo.address || !this.businessInfo.address.trim()) {
-      alert('Please enter your complete address.');
+      this.showValidationModal('Please enter your complete address.');
       return;
     }
 
@@ -264,16 +286,16 @@ export class KarenderiaSettingsPage implements OnInit {
         next: (response) => {
           console.log('Update response:', response);
           if (response.success) {
-            alert('Settings saved successfully!');
+            this.showSuccessModal('Settings saved successfully!');
             // Update the service with new data so the display name updates immediately
             this.karenderiaInfoService.loadKarenderiaData();
           } else {
-            alert('Error saving settings: ' + (response.message || 'Unknown error'));
+            this.showErrorModal('Error saving settings: ' + (response.message || 'Unknown error'));
           }
         },
         error: (error) => {
           console.error('Error updating settings:', error);
-          alert('Error saving settings: ' + (error.error?.message || error.message || 'Please try again.'));
+          this.showErrorModal('Error saving settings: ' + (error.error?.message || error.message || 'Please try again.'));
         }
       });
     } else {
@@ -283,16 +305,16 @@ export class KarenderiaSettingsPage implements OnInit {
           console.log('Registration response:', response);
           if (response.success) {
             this.businessInfo.id = response.data?.id;
-            alert('Karenderia registered successfully!');
+            this.showSuccessModal('Karenderia registered successfully!');
             // Update the service with new data
             this.karenderiaInfoService.loadKarenderiaData();
           } else {
-            alert('Error registering karenderia: ' + (response.message || 'Unknown error'));
+            this.showErrorModal('Error registering karenderia: ' + (response.message || 'Unknown error'));
           }
         },
         error: (error) => {
           console.error('Error registering karenderia:', error);
-          alert('Error registering karenderia: ' + (error.error?.message || error.message || 'Please try again.'));
+          this.showErrorModal('Error registering karenderia: ' + (error.error?.message || error.message || 'Please try again.'));
         }
       });
     }
@@ -468,12 +490,8 @@ export class KarenderiaSettingsPage implements OnInit {
       
       console.log('Current location set:', this.businessInfo.latitude, this.businessInfo.longitude);
       
-      // Show success message (you can implement toast here)
-      alert('Location updated with your current position!');
-      
     } catch (error) {
       console.error('Error getting location:', error);
-      alert('Unable to get your current location. Please check location permissions.');
     }
   }
 
@@ -530,7 +548,7 @@ export class KarenderiaSettingsPage implements OnInit {
       
     } catch (error) {
       console.error('Error getting location:', error);
-      alert('Unable to get your current location.');
+      this.showErrorModal('Unable to get your current location.');
     }
   }
 
@@ -541,7 +559,38 @@ export class KarenderiaSettingsPage implements OnInit {
       this.closeMapModal();
       
       console.log('Location confirmed:', this.businessInfo.latitude, this.businessInfo.longitude);
-      alert('Business location updated successfully!');
+      this.showSuccessModal('Business location updated successfully!');
     }
+  }
+
+  // Modal helper methods
+  private async showSuccessModal(message: string): Promise<void> {
+    const alert = await this.alertController.create({
+      header: 'Success',
+      message: message,
+      buttons: ['OK'],
+      cssClass: 'success-alert'
+    });
+    await alert.present();
+  }
+
+  private async showErrorModal(message: string): Promise<void> {
+    const alert = await this.alertController.create({
+      header: 'Error',
+      message: message,
+      buttons: ['OK'],
+      cssClass: 'error-alert'
+    });
+    await alert.present();
+  }
+
+  private async showValidationModal(message: string): Promise<void> {
+    const alert = await this.alertController.create({
+      header: 'Validation Error',
+      message: message,
+      buttons: ['OK'],
+      cssClass: 'validation-alert'
+    });
+    await alert.present();
   }
 }

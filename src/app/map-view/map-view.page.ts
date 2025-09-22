@@ -1,6 +1,6 @@
 import { Component, OnInit, AfterViewInit, ViewChild, ElementRef  } from '@angular/core';
-import { Router } from '@angular/router';
-import { ToastController, LoadingController } from '@ionic/angular';
+import { Router, ActivatedRoute } from '@angular/router';
+import { ToastController, LoadingController, AlertController } from '@ionic/angular';
 import { KarenderiaService } from '../services/karenderia.service';
 import { GestureController } from '@ionic/angular';
 import { Location } from '@angular/common';
@@ -21,6 +21,11 @@ export class MapViewPage implements OnInit, AfterViewInit {
   filteredKarenderias: any[] = [];
   userLocation: any = null;
   
+  // Location picker properties
+  isLocationPickerMode = false;
+  returnTo = '';
+  selectedLocation: { lat: number; lng: number } | null = null;
+  
   // Map properties
   currentLat = 10.3234; // Default to Cebu coordinates where karenderias are located
   currentLng = 123.9312;
@@ -28,52 +33,57 @@ export class MapViewPage implements OnInit, AfterViewInit {
 
   constructor(
     private router: Router,
+    private route: ActivatedRoute,
     private toastController: ToastController,
     private loadingController: LoadingController,
+    private alertController: AlertController,
     private karenderiaService: KarenderiaService,
     private gestureCtrl: GestureController,
     private location: Location
   ) {}
 
   ngOnInit() {
-    console.log('🗺️ Map view initializing...');
-    console.log('🗺️ Current URL:', this.router.url);
+    // Check for location picker mode from query parameters
+    this.route.queryParams.subscribe(params => {
+      this.isLocationPickerMode = params['mode'] === 'location-picker';
+      this.returnTo = params['returnTo'] || '';
+      
+      if (this.isLocationPickerMode) {
+        this.showList = false; // Hide list in location picker mode
+        this.mapZoom = 15; // Zoom in more for precise location picking
+      }
+    });
     
     // Ensure we stay on the map-view route
-    if (this.router.url !== '/map-view') {
-      console.log('⚠️ URL mismatch detected, ensuring we stay on map-view');
+    if (this.router.url.split('?')[0] !== '/map-view') {
       this.router.navigateByUrl('/map-view', { replaceUrl: true });
     }
     
-    // Get location first, which will then load karenderias
-    this.getCurrentLocation();
-    // DON'T call addSwipeGesture() here - moved to ngAfterViewInit()
+    // Only get location and load karenderias if NOT in location picker mode
+    if (!this.isLocationPickerMode) {
+      this.getCurrentLocation();
+    }
   }
 
   ngAfterViewInit() {
     // Only access DOM elements after the view is initialized
-    console.log('🗺️ View initialized, setting up gestures...');
-    this.addSwipeGesture();
-    
-    // Debug info after a short delay to ensure data is loaded
-    setTimeout(() => {
-      console.log('🔍 DEBUG INFO:');
-      console.log('📊 Total karenderias:', this.karenderias.length);
-      console.log('📋 Filtered karenderias:', this.filteredKarenderias.length);
-      console.log('🔤 Search query:', this.searchQuery);
-      console.log('🏷️ Selected filter:', this.selectedFilter);
-      console.log('👀 Show list:', this.showList);
-    }, 1000);
+    if (!this.isLocationPickerMode) {
+      this.addSwipeGesture();
+    }
   }
 
   goBack() {
-    console.log('🔙 Going back to home page...');
-    // Try to go back in history first
-    if (window.history.length > 1) {
-      this.location.back();
+    if (this.isLocationPickerMode && this.returnTo) {
+      // Return to the specific page that opened the location picker
+      this.router.navigate([`/${this.returnTo}`]);
     } else {
-      // If no history, navigate directly to home
-      this.router.navigate(['/home']);
+      // Try to go back in history first
+      if (window.history.length > 1) {
+        this.location.back();
+      } else {
+        // If no history, navigate directly to home
+        this.router.navigate(['/home']);
+      }
     }
   }
 
@@ -95,32 +105,34 @@ export class MapViewPage implements OnInit, AfterViewInit {
   }
 
   async loadKarenderias() {
-    console.log('🔍 Loading karenderias for map view...');
+    // Skip loading karenderias if in location picker mode
+    if (this.isLocationPickerMode) {
+      return;
+    }
     
     try {
       // If we have user location, search nearby karenderias
       if (this.userLocation) {
-        console.log('📍 Using user location for nearby search:', this.userLocation);
         this.searchNearbyKarenderias(this.userLocation.latitude, this.userLocation.longitude, 5000);
         return;
       }
       
       // If no user location, use Cebu coordinates as default
-      console.log('📍 No user location, using Cebu coordinates for search');
       this.searchNearbyKarenderias(10.3234, 123.9312, 5000);
       
     } catch (error) {
-      console.error('❌ Error in loadKarenderias:', error);
       this.loadMockData();
     }
   }
 
   searchNearbyKarenderias(lat: number, lng: number, radius: number) {
-    console.log(`🔍 Searching nearby karenderias at ${lat}, ${lng} within ${radius}m`);
+    // Skip API call if in location picker mode
+    if (this.isLocationPickerMode) {
+      return;
+    }
     
     this.karenderiaService.getNearbyKarenderias(lat, lng, radius).subscribe({
       next: (response) => {
-        console.log('✅ Found nearby karenderias:', response);
         if (response && response.length > 0) {
           this.karenderias = response.map(k => ({
             id: k.id,
@@ -135,26 +147,20 @@ export class MapViewPage implements OnInit, AfterViewInit {
             longitude: k.location?.longitude || 123.8854
           }));
           this.filteredKarenderias = [...this.karenderias];
-          console.log('🎉 SUCCESS: Loaded', this.karenderias.length, 'nearby karenderias');
           this.applyFilter();
         } else {
-          console.log('⚠️ No nearby karenderias found, loading mock data...');
           this.loadMockData();
         }
       },
       error: (error) => {
-        console.error('❌ Error searching nearby karenderias:', error);
-        console.log('📋 Falling back to mock data...');
         this.loadMockData();
       }
     });
   }
 
   loadFromBackend() {
-    console.log('🌐 Loading from backend...');
     this.karenderiaService.getAllKarenderias().subscribe({
       next: (response) => {
-        console.log('🌐 Backend response:', response);
         if (response && response.length > 0) {
           this.karenderias = response.map(k => ({
             id: k.id,
@@ -169,22 +175,18 @@ export class MapViewPage implements OnInit, AfterViewInit {
             longitude: k.location?.longitude || 123.8854
           }));
           this.filteredKarenderias = [...this.karenderias];
-          console.log('✅ Loaded from backend:', this.karenderias.length, 'karenderias');
         } else {
-          console.log('⚠️ No backend data, loading mock data...');
           this.loadMockData();
         }
         this.applyFilter();
       },
       error: (error) => {
-        console.error('❌ Backend error, loading mock data:', error);
         this.loadMockData();
       }
     });
   }
 
   loadMockData() {
-    console.log('📋 Loading mock data for karenderias...');
     this.karenderias = [
       {
         id: 1,
@@ -236,8 +238,6 @@ export class MapViewPage implements OnInit, AfterViewInit {
       }
     ];
     this.filteredKarenderias = [...this.karenderias];
-    console.log('✅ Mock data loaded:', this.karenderias.length, 'karenderias');
-    console.log('📊 Mock karenderias:', this.karenderias);
   }
 
   onSearchChange() {
@@ -250,11 +250,6 @@ export class MapViewPage implements OnInit, AfterViewInit {
   }
 
   applyFilter() {
-    console.log('🔍 Applying filters...');
-    console.log('📊 Total karenderias:', this.karenderias.length);
-    console.log('🔤 Search query:', this.searchQuery);
-    console.log('🏷️ Selected filter:', this.selectedFilter);
-    
     let filtered = [...this.karenderias];
 
     // Apply search filter
@@ -265,39 +260,29 @@ export class MapViewPage implements OnInit, AfterViewInit {
         k.cuisine.toLowerCase().includes(query) ||
         k.address.toLowerCase().includes(query)
       );
-      console.log('🔍 After search filter:', filtered.length);
     }
 
     // Apply category filter
     switch (this.selectedFilter) {
       case 'open':
         filtered = filtered.filter(k => k.isOpen);
-        console.log('🏪 After "open" filter:', filtered.length);
         break;
       case 'nearby':
         filtered = filtered.filter(k => k.distance && k.distance < 500);
-        console.log('📍 After "nearby" filter:', filtered.length);
         break;
       case 'rating':
         filtered = filtered.filter(k => k.rating >= 4.5);
-        console.log('⭐ After "rating" filter:', filtered.length);
         break;
       case 'all':
       default:
-        console.log('📋 No category filter applied');
         break;
     }
 
     this.filteredKarenderias = filtered;
-    console.log('✅ Final filtered karenderias:', this.filteredKarenderias.length);
-    console.log('📋 Filtered list:', this.filteredKarenderias);
   }
 
   selectKarenderia(karenderia: any) {
     // Navigate to karenderia detail page with menu
-    console.log('Selected karenderia:', karenderia);
-    console.log('🏪 Navigating to karenderia detail page...');
-    
     // Use the karenderia ID or create one if it doesn't exist
     const karenderiaId = karenderia.id || karenderia.name.toLowerCase().replace(/[^a-z0-9]/g, '-');
     
@@ -325,21 +310,25 @@ export class MapViewPage implements OnInit, AfterViewInit {
             latitude: position.coords.latitude,
             longitude: position.coords.longitude
           };
-          console.log('📍 Got user location:', this.userLocation);
-          // Reload karenderias with new location
-          this.loadKarenderias();
+          // Only reload karenderias if not in location picker mode
+          if (!this.isLocationPickerMode) {
+            this.loadKarenderias();
+          }
         },
         (error) => {
-          console.error('Error getting location:', error);
           this.showToast('Unable to get your location');
-          // Still load karenderias with default Cebu location
-          this.loadKarenderias();
+          // Only load karenderias if not in location picker mode
+          if (!this.isLocationPickerMode) {
+            this.loadKarenderias();
+          }
         }
       );
     } else {
       this.showToast('Geolocation is not supported');
-      // Still load karenderias with default Cebu location
-      this.loadKarenderias();
+      // Only load karenderias if not in location picker mode
+      if (!this.isLocationPickerMode) {
+        this.loadKarenderias();
+      }
     }
   }
 
@@ -365,5 +354,120 @@ export class MapViewPage implements OnInit, AfterViewInit {
       position: 'bottom'
     });
     toast.present();
+  }
+
+  // Location picker specific methods
+  private clickCount = 0;
+  private clickTimer: any = null;
+
+  onMapClick(event: { lat: number; lng: number }) {
+    if (!this.isLocationPickerMode) {
+      return;
+    }
+
+    this.clickCount++;
+    
+    if (this.clickCount === 1) {
+      // Single click - start timer
+      this.clickTimer = setTimeout(() => {
+        // Single click timeout - show preview
+        this.showLocationPreview(event.lat, event.lng);
+        this.clickCount = 0;
+      }, 300);
+    } else if (this.clickCount === 2) {
+      // Double click - clear timer and handle selection
+      clearTimeout(this.clickTimer);
+      this.clickCount = 0;
+      this.onMapDoubleClick(event);
+    }
+  }
+
+  async onMapDoubleClick(event: { lat: number; lng: number }) {
+    if (!this.isLocationPickerMode) {
+      return;
+    }
+
+    console.log('📍 Double-click event received:', event);
+
+    // Set selected location
+    this.selectedLocation = {
+      lat: event.lat,
+      lng: event.lng
+    };
+
+    console.log('📍 Selected location:', this.selectedLocation);
+
+    // Show confirmation dialog
+    const alert = await this.alertController.create({
+      header: 'Set Business Location',
+      message: `Do you want to apply this location to your karenderia?<br><br><strong>Coordinates:</strong><br>Latitude: ${this.selectedLocation.lat.toFixed(6)}<br>Longitude: ${this.selectedLocation.lng.toFixed(6)}`,
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+          cssClass: 'secondary'
+        },
+        {
+          text: 'Apply Location',
+          role: 'confirm',
+          cssClass: 'primary',
+          handler: () => {
+            this.confirmLocation();
+          }
+        }
+      ]
+    });
+
+    await alert.present();
+  }
+
+  private showLocationPreview(lat: number, lng: number) {
+    this.showToast(`Location: ${lat.toFixed(6)}, ${lng.toFixed(6)} (Double-click to select)`);
+  }
+
+  confirmLocation() {
+    if (this.selectedLocation) {
+      console.log('Confirming location:', this.selectedLocation);
+      // Navigate back with location data
+      this.router.navigate([`/${this.returnTo}`], {
+        queryParams: {
+          selectedLat: this.selectedLocation.lat,
+          selectedLng: this.selectedLocation.lng
+        }
+      });
+    }
+  }
+
+  async confirmLocationSelection() {
+    if (!this.selectedLocation) {
+      this.showToast('Please select a location first');
+      return;
+    }
+    
+    this.confirmLocation();
+  }
+
+  returnWithLocation() {
+    if (!this.selectedLocation || !this.returnTo) {
+      console.error('Missing data for return:', { 
+        selectedLocation: this.selectedLocation, 
+        returnTo: this.returnTo 
+      });
+      return;
+    }
+    
+    console.log('Returning with location:', this.selectedLocation, 'to:', this.returnTo);
+    
+    // Navigate back with the selected location data
+    this.router.navigate([`/${this.returnTo}`], {
+      queryParams: {
+        selectedLat: this.selectedLocation.lat,
+        selectedLng: this.selectedLocation.lng
+      }
+    });
+  }
+
+  cancelLocationPicking() {
+    this.goBack();
   }
 }

@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, Input, OnDestroy } from '@angular/core';
+import { Component, AfterViewInit, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
 import * as L from 'leaflet';
 import 'leaflet-routing-machine';
 import { KarenderiaService, Karenderia, SimpleKarenderia } from '../../services/karenderia.service';
@@ -15,10 +15,13 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   @Input() lat = 10.3234; // Default to Cebu coordinates where karenderias are
   @Input() lng = 123.9312; // Default to Cebu coordinates where karenderias are
   @Input() zoom = 13;
+  @Input() isLocationPickerMode = false; // New input for location picker mode
+  @Output() mapDoubleClick = new EventEmitter<{ lat: number; lng: number }>(); // Event for location selection
 
   private map!: L.Map;
   private currentLocationMarker?: L.Marker;
   private karenderiaMarkers: L.Marker[] = [];
+  private locationPickerMarker?: L.Marker; // Marker for location picker
   private searchRadius: L.Circle | undefined;
   private routeLayer?: L.LayerGroup;
   
@@ -80,6 +83,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       zoom: this.zoom,
       zoomControl: true,
       attributionControl: true,
+      doubleClickZoom: !this.isLocationPickerMode, // Disable double-click zoom in location picker mode
     });
 
     const tiles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -93,9 +97,28 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.map.on('click', (e: any) => {
       this.onMapClick(e);
     });
+
+    // Add double-click handler for location picker mode
+    this.map.on('dblclick', (e: any) => {
+      this.onMapDoubleClick(e);
+    });
   }
 
   private async onMapClick(e: any): Promise<void> {
+    // In location picker mode, single clicks select the location
+    if (this.isLocationPickerMode) {
+      const lat = e.latlng.lat;
+      const lng = e.latlng.lng;
+      
+      // Add or update location picker marker
+      this.addLocationPickerMarker(lat, lng);
+      
+      // Emit the selected location
+      this.mapDoubleClick.emit({ lat, lng });
+      return;
+    }
+
+    // Normal mode: show confirmation dialog
     const alert = await this.alertController.create({
       header: 'Set Location',
       message: 'Set this as your search location?',
@@ -121,6 +144,68 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     });
 
     await alert.present();
+  }
+
+  private onMapDoubleClick(e: any): void {
+    if (!this.isLocationPickerMode) return;
+    
+    // Prevent default zoom behavior
+    e.originalEvent.preventDefault();
+    e.originalEvent.stopPropagation();
+    
+    const lat = e.latlng.lat;
+    const lng = e.latlng.lng;
+    
+    // Add or update location picker marker
+    this.addLocationPickerMarker(lat, lng);
+    
+    // Emit the selected location
+    this.mapDoubleClick.emit({ lat, lng });
+  }
+
+  private showLocationPreview(lat: number, lng: number): void {
+    // Show a temporary marker and coordinates
+    this.addLocationPickerMarker(lat, lng);
+    this.showToast(`Location: ${lat.toFixed(6)}, ${lng.toFixed(6)} (Double-click to select)`, 'success');
+  }
+
+  private addLocationPickerMarker(lat: number, lng: number): void {
+    // Remove existing location picker marker
+    if (this.locationPickerMarker) {
+      this.map.removeLayer(this.locationPickerMarker);
+    }
+
+    // Create custom icon for location picker
+    const locationIcon = L.icon({
+      iconUrl: 'assets/icons/location-pin.svg',
+      iconSize: [35, 45],
+      iconAnchor: [17, 45],
+      popupAnchor: [0, -45]
+    });
+
+    // Fallback to default marker if custom icon fails
+    const marker = L.marker([lat, lng], {
+      icon: locationIcon
+    }).on('error', function(this: L.Marker) {
+      this.setIcon(L.icon({
+        iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',
+        shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41]
+      }));
+    });
+
+    marker.addTo(this.map);
+    this.locationPickerMarker = marker;
+
+    // Add popup with coordinates
+    marker.bindPopup(`
+      <strong>Selected Location</strong><br>
+      Latitude: ${lat.toFixed(6)}<br>
+      Longitude: ${lng.toFixed(6)}
+    `).openPopup();
   }
 
   private async getCurrentLocation(): Promise<void> {
