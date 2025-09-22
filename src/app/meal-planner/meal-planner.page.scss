@@ -1,507 +1,423 @@
-// Modern Meal Planner Styles - 2025 Design System
-.modern-meal-content {
-  --backg.welcome-section {
-  text-align: center;
-  
-  // Mobile: Compact spacing
-  @media (max-width: 767px) {
-    margin-bottom: 20px;
-    
-    h1 {
-      font-size: 1.5rem;
-      font-weight: 800;
-      color: #1e293b;
-      margin: 0 0 8px 0;
-      letter-spacing: -0.02em;
-    }
-    
-    p {
-      font-size: 0.85rem;
-      color: #64748b;
-      margin: 0 0 16px 0;
-      line-height: 1.5;
-    }
-  }
-  
-  // Tablet: Medium spacing
-  @media (min-width: 768px) and (max-width: 1023px) {
-    margin-bottom: 26px;
-    
-    h1 {
-      font-size: 1.75rem;
-      font-weight: 800;
-      color: #1e293b;
-      margin: 0 0 10px 0;
-      letter-spacing: -0.02em;
-    }
-    
-    p {
-      font-size: 0.95rem;
-      color: #64748b;
-      margin: 0 0 18px 0;
-      line-height: 1.5;
-    }
-  }
-  
-  // Desktop: Full spacing
-  @media (min-width: 1024px) {
-    margin-bottom: 32px;
-    
-    h1 {
-      font-size: 2rem;
-      font-weight: 800;
-      color: #1e293b;
-      margin: 0 0 12px 0;
-      letter-spacing: -0.02em;
-    }
-    
-    p {
-      font-size: 1rem;
-      color: #64748b;
-      margin: 0 0 20px 0;
-      line-height: 1.5;
-    }
-  }
-}
+/* Updated Meal Planner Styles for Daily Menu System */
 
-// Modern Meal Content
-.modern-meal-content {
-  --background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-}
-
-.modern-meal-header {
-  .gradient-meal-toolbar {
-    --background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #d946ef 100%);
-    --color: white;
-    --border-width: 0;
-    padding: 12px 0;
-    box-shadow: 0 4px 20px rgba(99, 102, 241, 0.3);
-  }
+.gradient-meal-toolbar {
+  --background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --color: white;
 }
 
 .modern-meal-title {
   display: flex;
   align-items: center;
-  gap: 12px;
-  font-weight: 800;
-  color: white;
-  text-shadow: 0 2px 8px rgba(0,0,0,0.2);
-  
-  // Mobile: Smaller title
-  @media (max-width: 767px) {
-    font-size: 1.1rem;
-    gap: 8px;
-    
-    ion-icon {
-      font-size: 1.3rem;
-      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
-    }
-  }
-  
-  // Tablet: Medium title
-  @media (min-width: 768px) and (max-width: 1023px) {
-    font-size: 1.25rem;
-    gap: 10px;
-    
-    ion-icon {
-      font-size: 1.45rem;
-      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
-    }
-  }
-  
-  // Desktop: Full title
-  @media (min-width: 1024px) {
-    font-size: 1.4rem;
-    gap: 12px;
-    
-    ion-icon {
-      font-size: 1.6rem;
-      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
-    }
-  }
-}
-
-.modern-back-btn {
-  --color: white;
-  --background: rgba(255, 255, 255, 0.1);
-  --border-radius: 12px;
-  margin: 0 8px;
-  backdrop-filter: blur(10px);
-}
-
-.modern-meal-container {
-  max-width: 700px;
-  margin: 0 auto;
-  
-  // Mobile: Compact padding
-  @media (max-width: 767px) {
-    padding: 16px 12px;
-  }
-  
-  // Tablet: Medium padding
-  @media (min-width: 768px) and (max-width: 1023px) {
-    padding: 20px 16px;
-  }
-  
-  // Desktop: Full padding
-  @media (min-width: 1024px) {
-    padding: 24px 20px;
-  }
-}
-
-.welcome-section {
-  text-align: center;
-  margin-bottom: 32px;
-  
-  h1 {
-    font-size: 2rem;
-    font-weight: 800;
-    color: #1e293b;
-    margin: 0 0 8px 0;
-    letter-spacing: -0.02em;
-  }
-  
-  p {
-    font-size: 1.1rem;
-    color: #64748b;
-    margin: 0;
-    font-weight: 500;
-  }
-}
-
-.modern-meal-planner-card {
-  border-radius: 24px;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.8);
-  background: white;
-  overflow: hidden;
-  margin-bottom: 24px;
-}
-
-.modern-card-header {
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #d946ef 100%);
-  color: white;
-  padding: 32px 24px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  position: relative;
-  overflow: hidden;
-  
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: radial-gradient(circle at 30% 20%, rgba(255,255,255,0.2) 0%, transparent 50%);
-    pointer-events: none;
-  }
-  
-  .header-content {
-    flex: 1;
-    
-    h2 {
-      font-size: 1.8rem;
-      font-weight: 800;
-      margin: 0 0 8px 0;
-      text-shadow: 0 2px 8px rgba(0,0,0,0.2);
-    }
-    
-    p {
-      font-size: 1rem;
-      opacity: 0.9;
-      margin: 0;
-      font-weight: 500;
-    }
-  }
-  
-  .header-decoration {
-    ion-icon {
-      font-size: 3rem;
-      opacity: 0.3;
-      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
-    }
-  }
-}
-
-.modern-card-content {
-  padding: 32px 24px;
-}
-
-.modern-meal-item {
-  display: flex;
-  align-items: center;
-  background: #f8fafc;
-  border-radius: 20px;
-  padding: 20px;
-  margin-bottom: 16px;
-  border: 2px solid transparent;
-  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  position: relative;
-  overflow: hidden;
-  
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 4px;
-    height: 100%;
-    border-radius: 0 4px 4px 0;
-  }
-  
-  &.breakfast-item {
-    &::before {
-      background: linear-gradient(135deg, #f59e0b, #f97316);
-    }
-  }
-  
-  &.lunch-item {
-    &::before {
-      background: linear-gradient(135deg, #10b981, #059669);
-    }
-  }
-  
-  &.dinner-item {
-    &::before {
-      background: linear-gradient(135deg, #8b5cf6, #a855f7);
-    }
-  }
-  
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
-    border-color: #e2e8f0;
-  }
-}
-
-.meal-icon-container {
-  width: 60px;
-  height: 60px;
-  border-radius: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 20px;
-  flex-shrink: 0;
+  gap: 0.5rem;
   
   ion-icon {
-    font-size: 28px;
-  }
-  
-  &.breakfast-icon {
-    background: linear-gradient(135deg, #f59e0b, #f97316);
-  }
-  
-  &.lunch-icon {
-    background: linear-gradient(135deg, #10b981, #059669);
-  }
-  
-  &.dinner-icon {
-    background: linear-gradient(135deg, #8b5cf6, #a855f7);
+    font-size: 1.5rem;
   }
 }
 
-.meal-content {
+.modern-meal-content {
+  --background: #f8f9fa;
+}
+
+/* Selection Section */
+.selection-section {
+  background: white;
+  margin: 1rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  overflow: hidden;
+}
+
+.date-selector {
+  ion-item {
+    --padding-start: 1rem;
+    --padding-end: 1rem;
+  }
+}
+
+.meal-type-selection {
+  padding: 1rem;
+  border-top: 1px solid #e0e0e0;
+  
+  h3 {
+    margin: 0 0 1rem 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333;
+  }
+}
+
+.meal-type-buttons {
+  display: flex;
+  gap: 1rem;
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}
+
+.meal-type-card {
   flex: 1;
-  
-  .meal-label {
-    font-size: 1.2rem;
-    font-weight: 700;
-    color: #1e293b;
-    margin-bottom: 8px;
-    display: block;
-  }
-  
-  .modern-select {
-    --background: white;
-    --border-radius: 12px;
-    --color: #475569;
-    --placeholder-color: #94a3b8;
-    font-size: 1rem;
-    font-weight: 500;
-    border: 2px solid #e2e8f0;
-    border-radius: 12px;
-    padding: 12px 16px;
-    
-    &:focus {
-      border-color: #6366f1;
-      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-    }
-  }
-}
-
-.modern-button-container {
-  margin-top: 32px;
-}
-
-.modern-save-button {
-  --background: linear-gradient(135deg, #6366f1, #8b5cf6);
-  --color: white;
-  --border-radius: 16px;
-  --box-shadow: 0 8px 24px rgba(99, 102, 241, 0.4);
-  height: 56px;
-  font-weight: 700;
-  font-size: 1.1rem;
-  
-  &:hover {
-    --background: linear-gradient(135deg, #5856eb, #7c3aed);
-    transform: translateY(-2px);
-    --box-shadow: 0 12px 32px rgba(99, 102, 241, 0.5);
-  }
-  
-  &:disabled {
-    opacity: 0.6;
-    transform: none;
-  }
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: white;
   
   ion-icon {
-    font-size: 20px;
-  }
-}
-
-.modern-loading-card {
-  background: white;
-  border-radius: 24px;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.8);
-  
-  .loading-content {
-    padding: 48px 24px;
-    text-align: center;
-    
-    ion-spinner {
-      width: 40px;
-      height: 40px;
-      margin-bottom: 16px;
-    }
-    
-    h3 {
-      font-size: 1.4rem;
-      font-weight: 700;
-      color: #1e293b;
-      margin: 0 0 8px 0;
-    }
-    
-    p {
-      color: #64748b;
-      font-size: 1rem;
-      margin: 0;
-      font-weight: 500;
-    }
-  }
-}
-
-// Animation Classes
-@keyframes slideInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-.animate-slide-up {
-  animation: slideInUp 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-}
-
-.animate-fade-in {
-  animation: fadeIn 0.4s ease-out;
-}
-
-.button-container {
-  margin-top: 24px;
-  padding: 0 16px;
-}
-
-.save-button {
-  --border-radius: 8px;
-  height: 50px;
-  font-size: 1.1rem;
-  font-weight: 600;
-  --box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  
-  &:hover {
-    --box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    color: var(--meal-color, #666);
   }
   
-  &[disabled] {
-    --opacity: 0.6;
-    --box-shadow: none;
+  span {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #666;
+  }
+  
+  &.active {
+    border-color: var(--meal-color, #667eea);
+    background: var(--meal-color, #667eea);
+    color: white;
+    transform: translateY(-2px);
+    
+    ion-icon, span {
+      color: white;
+    }
+  }
+  
+  &:hover:not(.active) {
+    border-color: var(--meal-color, #667eea);
+    transform: translateY(-1px);
   }
 }
 
-.loading-card {
-  text-align: center;
-  margin-top: 50px;
-}
-
+/* Loading */
 .loading-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 16px;
-  padding: 20px;
+  justify-content: center;
+  padding: 3rem;
+  
+  ion-spinner {
+    margin-bottom: 1rem;
+  }
+  
+  p {
+    color: #666;
+    margin: 0;
+    text-align: center;
+  }
 }
 
-.loading-container ion-spinner {
-  width: 40px;
-  height: 40px;
+/* Karenderias Section */
+.karenderias-section {
+  margin: 1rem;
+  
+  h3 {
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #333;
+  }
 }
 
-.loading-container p {
-  font-size: 1rem;
+.karenderia-card {
+  margin-bottom: 1rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.karenderia-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  
+  .karenderia-info {
+    flex: 1;
+    
+    ion-card-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 0.25rem;
+    }
+    
+    ion-card-subtitle {
+      font-size: 0.9rem;
+      color: #666;
+    }
+  }
+  
+  .karenderia-rating {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    
+    span {
+      font-weight: 600;
+      color: #333;
+    }
+  }
+}
+
+.menu-items-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.menu-item-card {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: white;
+  
+  &:hover {
+    border-color: #667eea;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+  }
+}
+
+.menu-item-image {
+  width: 60px;
+  height: 60px;
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+  
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  &.placeholder {
+    background: #f0f0f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    ion-icon {
+      font-size: 1.5rem;
+      color: #999;
+    }
+  }
+}
+
+.menu-item-info {
+  flex: 1;
+  
+  h4 {
+    margin: 0 0 0.25rem 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #333;
+  }
+  
+  .description {
+    margin: 0 0 0.5rem 0;
+    font-size: 0.8rem;
+    color: #666;
+    line-height: 1.3;
+    display: -webkit-box;
+    line-clamp: 2;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  
+  .item-details {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+  }
+  
+  .price-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    
+    .price {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #333;
+    }
+    
+    .special-tag {
+      background: #ff6b6b;
+      color: white;
+      padding: 0.1rem 0.4rem;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      font-weight: 600;
+    }
+  }
+  
+  .quantity-info {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.8rem;
+    color: #666;
+    
+    ion-icon {
+      font-size: 0.9rem;
+    }
+  }
+  
+  .notes {
+    margin: 0;
+    font-size: 0.75rem;
+    color: #999;
+    font-style: italic;
+  }
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 3rem 2rem;
   color: #666;
-  margin: 0;
+  
+  ion-icon {
+    font-size: 4rem;
+    color: #ccc;
+    margin-bottom: 1rem;
+  }
+  
+  h3 {
+    margin: 1rem 0 0.5rem 0;
+    color: #333;
+  }
+  
+  p {
+    margin: 0.25rem 0;
+    line-height: 1.4;
+  }
 }
 
-// Responsive design
+/* Meal Plan Summary */
+.meal-plan-summary {
+  margin: 1rem;
+}
+
+.summary-card {
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  
+  ion-card-header {
+    padding-bottom: 0.5rem;
+    
+    ion-card-title {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 1.1rem;
+      color: #333;
+    }
+  }
+}
+
+.selected-items {
+  .selected-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #f0f0f0;
+    
+    &:last-child {
+      border-bottom: none;
+    }
+    
+    .item-details {
+      flex: 1;
+      
+      .item-name {
+        display: block;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 0.25rem;
+      }
+      
+      .item-source {
+        display: block;
+        font-size: 0.8rem;
+        color: #666;
+        margin-bottom: 0.25rem;
+      }
+      
+      .item-price {
+        display: block;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #667eea;
+      }
+    }
+  }
+}
+
+.total-section {
+  padding-top: 1rem;
+  margin-top: 1rem;
+  border-top: 2px solid #e0e0e0;
+  text-align: right;
+  
+  .total-price {
+    font-size: 1.2rem;
+    color: #333;
+  }
+}
+
+/* Save Section */
+.save-section {
+  margin: 1rem;
+  padding-bottom: 2rem;
+}
+
+.save-btn {
+  --background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+  --color: white;
+  height: 48px;
+  font-weight: 600;
+}
+
+/* Responsive adjustments */
 @media (max-width: 768px) {
-  .meal-planner-container {
-    padding: 12px;
+  .menu-items-grid {
+    grid-template-columns: 1fr;
   }
   
-  .meal-planner-card ion-card-title {
-    font-size: 1.3rem;
+  .menu-item-card {
+    flex-direction: column;
+    text-align: center;
+    
+    .menu-item-image {
+      width: 80px;
+      height: 80px;
+      align-self: center;
+    }
+    
+    .item-details {
+      flex-direction: column;
+      gap: 0.5rem;
+    }
   }
-  
-  .meal-planner-card ion-card-subtitle {
-    font-size: 0.9rem;
-  }
-}
-
-// Animation for smooth transitions
-.meal-item {
-  animation: slideInUp 0.3s ease-out;
-}
-
-@keyframes slideInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.save-button {
-  animation: fadeIn 0.5s ease-out;
 }
 
 @keyframes fadeIn {
@@ -511,5 +427,4 @@
   to {
     opacity: 1;
   }
-}
 }

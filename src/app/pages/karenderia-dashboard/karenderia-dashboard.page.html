@@ -7,6 +7,12 @@
       </div>
     </ion-title>
     <ion-buttons slot="end">
+      <ion-button routerLink="/inventory-management" fill="clear" color="light" class="modern-header-btn">
+        <ion-icon name="cube-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+      <ion-button routerLink="/daily-menu-management" fill="clear" color="light" class="modern-header-btn">
+        <ion-icon name="calendar-outline" slot="icon-only"></ion-icon>
+      </ion-button>
       <ion-button fill="clear" (click)="refreshStatus()" color="light" class="modern-refresh-btn">
         <ion-icon name="refresh" slot="icon-only"></ion-icon>
       </ion-button>
@@ -208,11 +214,19 @@
       </ion-fab-button>
       
       <ion-fab-list side="top">
-        <ion-fab-button color="success" (click)="addMenuItem()">
+        <ion-fab-button color="warning" (click)="navigateToInventory()" title="Inventory Management">
+          <ion-icon name="cube"></ion-icon>
+        </ion-fab-button>
+        
+        <ion-fab-button color="secondary" (click)="navigateToDailyMenu()" title="Daily Menu">
+          <ion-icon name="calendar"></ion-icon>
+        </ion-fab-button>
+        
+        <ion-fab-button color="success" (click)="addMenuItem()" title="Add Menu Item">
           <ion-icon name="restaurant"></ion-icon>
         </ion-fab-button>
         
-        <ion-fab-button color="tertiary" (click)="navigateToAnalytics()">
+        <ion-fab-button color="tertiary" (click)="navigateToAnalytics()" title="Analytics">
           <ion-icon name="bar-chart"></ion-icon>
         </ion-fab-button>
       </ion-fab-list>

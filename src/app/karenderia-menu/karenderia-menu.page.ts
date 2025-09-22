@@ -18,6 +18,7 @@ export class KarenderiaMenuPage implements OnInit, OnDestroy {
   filteredMenuItems: MenuItem[] = [];
   selectedCategory = 'all';
   isAddingItem = false;
+  editingItemId: string | null = null; // Track which item is being edited
   
   private menuSubscription?: Subscription;
   
@@ -179,6 +180,7 @@ export class KarenderiaMenuPage implements OnInit, OnDestroy {
 
   cancelAddingItem() {
     this.isAddingItem = false;
+    this.editingItemId = null; // Reset editing state
     this.resetNewItemForm();
   }
 
@@ -326,25 +328,38 @@ export class KarenderiaMenuPage implements OnInit, OnDestroy {
       isAvailable: true,
       isPopular: false,
       allergens: [],
-      createdAt: new Date(),
       updatedAt: new Date()
     };
 
     try {
-      await this.menuService.addMenuItem(menuItem);
-      
-      const toast = await this.toastController.create({
-        message: 'Menu item added successfully!',
-        duration: 3000,
-        color: 'success'
-      });
-      await toast.present();
+      if (this.editingItemId) {
+        // Update existing item
+        await this.menuService.updateMenuItem(this.editingItemId, menuItem);
+        
+        const toast = await this.toastController.create({
+          message: 'Menu item updated successfully!',
+          duration: 3000,
+          color: 'success'
+        });
+        await toast.present();
+      } else {
+        // Add new item
+        menuItem.createdAt = new Date();
+        await this.menuService.addMenuItem(menuItem);
+        
+        const toast = await this.toastController.create({
+          message: 'Menu item added successfully!',
+          duration: 3000,
+          color: 'success'
+        });
+        await toast.present();
+      }
       
       this.cancelAddingItem();
     } catch (error) {
-      console.error('Error adding menu item:', error);
+      console.error('Error saving menu item:', error);
       const toast = await this.toastController.create({
-        message: 'Failed to add menu item',
+        message: this.editingItemId ? 'Failed to update menu item' : 'Failed to add menu item',
         duration: 3000,
         color: 'danger'
       });
@@ -357,8 +372,143 @@ export class KarenderiaMenuPage implements OnInit, OnDestroy {
   }
 
   async editMenuItem(item: MenuItem) {
-    // Implementation for editing menu items
-    console.log('Edit menu item:', item);
+    // First, show a simple choice: Quick Edit or Advanced Edit
+    const choiceAlert = await this.alertController.create({
+      header: 'Edit Menu Item',
+      message: `How would you like to edit "${item.name}"?`,
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel'
+        },
+        {
+          text: 'Quick Edit',
+          handler: () => {
+            this.showQuickEditModal(item);
+          }
+        },
+        {
+          text: 'Advanced Edit',
+          handler: () => {
+            this.showAdvancedEditModal(item);
+          }
+        }
+      ]
+    });
+
+    await choiceAlert.present();
+  }
+
+  async showQuickEditModal(item: MenuItem) {
+    const alert = await this.alertController.create({
+      header: 'Quick Edit',
+      subHeader: `Update basic details for "${item.name}"`,
+      inputs: [
+        {
+          name: 'name',
+          type: 'text',
+          placeholder: 'Dish Name',
+          value: item.name
+        },
+        {
+          name: 'description',
+          type: 'textarea',
+          placeholder: 'Description',
+          value: item.description
+        },
+        {
+          name: 'price',
+          type: 'number',
+          placeholder: 'Price (₱)',
+          value: item.price.toString(),
+          min: 0
+        },
+        {
+          name: 'preparationTime',
+          type: 'number',
+          placeholder: 'Preparation Time (minutes)',
+          value: item.preparationTime?.toString() || '15',
+          min: 1
+        }
+      ],
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel'
+        },
+        {
+          text: 'Update',
+          handler: async (data) => {
+            if (!data.name || !data.description || !data.price) {
+              const errorToast = await this.toastController.create({
+                message: 'Please fill in all required fields',
+                duration: 3000,
+                color: 'danger'
+              });
+              await errorToast.present();
+              return false;
+            }
+
+            try {
+              const updates = {
+                name: data.name.trim(),
+                description: data.description.trim(),
+                price: parseFloat(data.price),
+                preparationTime: parseInt(data.preparationTime) || 15,
+                updatedAt: new Date()
+              };
+
+              await this.menuService.updateMenuItem(item.id, updates);
+              
+              const toast = await this.toastController.create({
+                message: 'Menu item updated successfully!',
+                duration: 3000,
+                color: 'success'
+              });
+              await toast.present();
+              
+              this.loadMenuItems();
+              return true;
+            } catch (error) {
+              console.error('Error updating menu item:', error);
+              const errorToast = await this.toastController.create({
+                message: 'Failed to update menu item. Please try again.',
+                duration: 3000,
+                color: 'danger'
+              });
+              await errorToast.present();
+              return false;
+            }
+          }
+        }
+      ]
+    });
+
+    await alert.present();
+  }
+
+  async showAdvancedEditModal(item: MenuItem) {
+    // Set the current item data to the form
+    this.newMenuItem = {
+      name: item.name,
+      description: item.description,
+      price: item.price,
+      category: item.category || 'main',
+      preparationTime: item.preparationTime || 15,
+      selectedIngredients: item.ingredients ? [...item.ingredients] : [],
+      customIngredients: []
+    };
+    
+    // Switch to editing mode
+    this.isAddingItem = true;
+    this.editingItemId = item.id; // Add this property to track what we're editing
+    
+    const toast = await this.toastController.create({
+      message: 'Now editing menu item. Make changes and click Save to update.',
+      duration: 4000,
+      color: 'primary'
+    });
+    await toast.present();
   }
 
   async deleteMenuItem(item: MenuItem) {
@@ -517,6 +667,18 @@ export class KarenderiaMenuPage implements OnInit, OnDestroy {
   // Navigation methods
   navigateToDashboard() {
     this.router.navigate(['/karenderia-dashboard']);
+  }
+
+  navigateToInventory() {
+    this.router.navigate(['/inventory-management']);
+  }
+
+  navigateToDailyMenu() {
+    this.router.navigate(['/daily-menu-management']);
+  }
+
+  navigateToAnalytics() {
+    this.router.navigate(['/karenderia-analytics']);
   }
 
   logout() {

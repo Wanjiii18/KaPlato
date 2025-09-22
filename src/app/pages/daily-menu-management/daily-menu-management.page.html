@@ -1,0 +1,279 @@
+<ion-header [translucent]="true">
+  <ion-toolbar class="senior-friendly-toolbar">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/karenderia-dashboard" class="large-back-btn">
+        <ion-icon name="arrow-back" slot="icon-only"></ion-icon>
+      </ion-back-button>
+    </ion-buttons>
+    <ion-title class="large-title">
+      <div class="header-title-large">
+        <ion-icon name="calendar" class="large-header-icon"></ion-icon>
+        <span class="title-text">Daily Menu</span>
+      </div>
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="senior-daily-menu-content">
+  
+  <!-- Simplified Date and Meal Selection -->
+  <div class="senior-selection-section">
+    
+    <!-- Simple Date Navigation -->
+    <div class="large-date-section">
+      <h2 class="section-title">
+        <ion-icon name="calendar-outline" class="section-icon"></ion-icon>
+        Daily Menu Date
+      </h2>
+      
+      <!-- Date Navigation Controls -->
+      <div class="date-navigation-container">
+        <!-- Previous Day Arrow -->
+        <ion-button 
+          fill="clear" 
+          color="medium" 
+          size="large"
+          class="nav-arrow-btn"
+          (click)="goToPreviousDay()"
+          [disabled]="isPreviousDayDisabled()">
+          <ion-icon name="chevron-back-outline" size="large"></ion-icon>
+        </ion-button>
+        
+        <!-- Current Date Display -->
+        <div class="current-date-display">
+          <div class="date-type-label">{{ getDateLabel() }}</div>
+          <div class="date-main-text">{{ getFormattedDate() }}</div>
+        </div>
+        
+        <!-- Next Day Arrow -->
+        <ion-button 
+          fill="clear" 
+          color="medium" 
+          size="large"
+          class="nav-arrow-btn"
+          (click)="goToNextDay()">
+          <ion-icon name="chevron-forward-outline" size="large"></ion-icon>
+        </ion-button>
+      </div>
+      
+      <!-- Quick Action Buttons -->
+      <div class="date-quick-actions">
+        <ion-button 
+          fill="solid" 
+          color="success" 
+          size="large"
+          class="quick-action-btn"
+          (click)="selectToday()"
+          [disabled]="isToday()">
+          <ion-icon name="sunny-outline" slot="start"></ion-icon>
+          Today's Date
+        </ion-button>
+        
+        <ion-button 
+          fill="outline" 
+          color="primary" 
+          size="large"
+          class="quick-action-btn"
+          (click)="openSimpleDatePicker()">
+          <ion-icon name="calendar-outline" slot="start"></ion-icon>
+          Select Date
+        </ion-button>
+      </div>
+    </div>
+
+    <!-- Large Meal Type Selection -->
+    <div class="large-meal-section">
+      <h2 class="section-title">
+        <ion-icon name="restaurant-outline" class="section-icon"></ion-icon>
+        Select Meal Time
+      </h2>
+      <div class="large-meal-buttons">
+        <ion-button 
+          *ngFor="let mealType of mealTypes" 
+          class="large-meal-btn"
+          [class.selected-meal]="selectedMealType === mealType.value"
+          (click)="selectMealType(mealType.value)"
+          expand="block"
+          size="large">
+          <ion-icon [name]="mealType.icon" slot="start" class="meal-icon"></ion-icon>
+          <span class="meal-text">{{ mealType.label }}</span>
+        </ion-button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Large Add Button Section -->
+  <div class="large-add-section">
+    <ion-button 
+      expand="block" 
+      (click)="showMenuItemSelector()"
+      class="large-add-btn"
+      size="large">
+      <ion-icon name="add-circle" slot="start" class="add-icon"></ion-icon>
+      <span class="add-text">Add Food to {{ getCurrentMealTypeLabel() }}</span>
+    </ion-button>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="large-loading-container">
+    <ion-spinner name="crescent" class="large-spinner"></ion-spinner>
+    <p class="loading-text">Loading your menu...</p>
+  </div>
+
+  <!-- Daily Menu Items - Senior Friendly -->
+  <div *ngIf="!isLoading" class="senior-menu-items">
+    
+    <!-- Empty State -->
+    <div *ngIf="dailyMenuItems.length === 0" class="large-empty-state">
+      <ion-icon name="restaurant" class="large-empty-icon"></ion-icon>
+      <h2 class="empty-title">No Food Items Yet</h2>
+      <p class="empty-description">
+        Add food items for {{ getCurrentMealTypeLabel() }}<br>
+        on {{ selectedDate | date:'fullDate' }}
+      </p>
+    </div>
+
+    <!-- Menu Item Cards - Large and Clear -->
+    <div class="senior-menu-cards">
+      <ion-card *ngFor="let item of dailyMenuItems" class="senior-menu-card">
+        <ion-card-header class="senior-card-header">
+          <div class="food-title-section">
+            <h2 class="food-name">{{ item.menu_item?.name }}</h2>
+            <p class="food-description">{{ item.menu_item?.description }}</p>
+          </div>
+          
+          <!-- Large Status Badge -->
+          <div class="large-status-section">
+            <div 
+              class="large-status-badge"
+              [class.status-available]="item.is_available && item.quantity > 0"
+              [class.status-unavailable]="!item.is_available"
+              [class.status-sold-out]="item.is_available && item.quantity === 0">
+              <ion-icon 
+                [name]="item.is_available ? (item.quantity > 0 ? 'checkmark-circle' : 'alert-circle') : 'close-circle'"
+                class="status-icon">
+              </ion-icon>
+              <span class="status-text">
+                {{ item.is_available ? (item.quantity > 0 ? 'AVAILABLE' : 'SOLD OUT') : 'DISABLED' }}
+              </span>
+            </div>
+          </div>
+        </ion-card-header>
+
+        <ion-card-content class="senior-card-content">
+          <!-- Large Info Display -->
+          <div class="large-info-grid">
+            
+            <!-- Servings Info -->
+            <div class="info-item">
+              <div class="info-icon-section">
+                <ion-icon name="restaurant" class="info-icon"></ion-icon>
+              </div>
+              <div class="info-text-section">
+                <span class="info-label">Servings Available</span>
+                <span class="info-value">{{ item.quantity }} of {{ item.original_quantity }}</span>
+              </div>
+              <div class="info-action-section">
+                <ion-button 
+                  fill="solid" 
+                  color="tertiary"
+                  (click)="updateQuantity(item)"
+                  class="large-action-btn">
+                  <ion-icon name="create" slot="start"></ion-icon>
+                  <span>Edit</span>
+                </ion-button>
+              </div>
+            </div>
+
+            <!-- Price Info -->
+            <div class="info-item">
+              <div class="info-icon-section">
+                <ion-icon name="pricetag" class="info-icon"></ion-icon>
+              </div>
+              <div class="info-text-section">
+                <span class="info-label">Price per Serving</span>
+                <span class="info-value">₱{{ getPrice(item) }}</span>
+                <span class="price-type" *ngIf="hasSpecialPrice(item)">Special Price</span>
+                <span class="price-type" *ngIf="!hasSpecialPrice(item)">Regular Price</span>
+              </div>
+            </div>
+
+            <!-- Notes (if any) -->
+            <div *ngIf="item.notes" class="info-item">
+              <div class="info-icon-section">
+                <ion-icon name="document-text" class="info-icon"></ion-icon>
+              </div>
+              <div class="info-text-section">
+                <span class="info-label">Special Notes</span>
+                <span class="info-value">{{ item.notes }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Large Action Buttons -->
+          <div class="large-action-buttons">
+            <ion-button 
+              expand="block"
+              (click)="toggleAvailability(item)"
+              [color]="item.is_available ? 'warning' : 'success'"
+              class="large-toggle-btn"
+              size="large">
+              <ion-icon 
+                [name]="item.is_available ? 'pause-circle' : 'play-circle'" 
+                slot="start" 
+                class="action-icon">
+              </ion-icon>
+              <span class="action-text">
+                {{ item.is_available ? 'Disable Item' : 'Enable Item' }}
+              </span>
+            </ion-button>
+
+            <ion-button 
+              expand="block"
+              color="danger"
+              (click)="removeItem(item)"
+              class="large-remove-btn"
+              size="large">
+              <ion-icon name="trash" slot="start" class="action-icon"></ion-icon>
+              <span class="action-text">Remove Item</span>
+            </ion-button>
+          </div>
+
+        </ion-card-content>
+      </ion-card>
+    </div>
+  </div>
+
+  <!-- Large Summary Section -->
+  <div *ngIf="dailyMenuItems.length > 0" class="large-summary-section">
+    <ion-card class="senior-summary-card">
+      <ion-card-header class="summary-header">
+        <h2 class="summary-title">
+          <ion-icon name="analytics" class="summary-icon"></ion-icon>
+          Daily Summary
+        </h2>
+      </ion-card-header>
+      <ion-card-content class="summary-content">
+        <div class="large-summary-grid">
+          
+          <div class="summary-item">
+            <div class="summary-number">{{ dailyMenuItems.length }}</div>
+            <div class="summary-label">Total Food Items</div>
+          </div>
+          
+          <div class="summary-item available">
+            <div class="summary-number">{{ getAvailableItemsCount() }}</div>
+            <div class="summary-label">Available Items</div>
+          </div>
+          
+          <div class="summary-item servings">
+            <div class="summary-number">{{ getTotalQuantity() }}</div>
+            <div class="summary-label">Total Servings</div>
+          </div>
+          
+        </div>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+</ion-content>

@@ -115,6 +115,166 @@
             </div>
           </div>
 
+          <!-- Business Fields for Karenderia Owner -->
+          <div class="business-fields-section" *ngIf="registerData.role === 'karenderia_owner'">
+            <div class="business-section-header">
+              <ion-icon name="business" class="section-icon"></ion-icon>
+              <h3>Business Information</h3>
+              <p>Please provide your karenderia details</p>
+            </div>
+
+            <div class="modern-form-group">
+              <ion-item class="modern-input-item">
+                <ion-label position="floating">Business Name *</ion-label>
+                <ion-input
+                  type="text"
+                  name="businessName"
+                  [(ngModel)]="registerData.businessName"
+                  required>
+                </ion-input>
+                <ion-icon name="storefront" slot="start" class="input-icon"></ion-icon>
+              </ion-item>
+            </div>
+
+            <div class="modern-form-group">
+              <ion-item class="modern-input-item">
+                <ion-label position="floating">Business Description *</ion-label>
+                <ion-textarea
+                  name="businessDescription"
+                  [(ngModel)]="registerData.businessDescription"
+                  rows="3"
+                  placeholder="Describe your karenderia and specialties..."
+                  required>
+                </ion-textarea>
+                <ion-icon name="document-text" slot="start" class="input-icon"></ion-icon>
+              </ion-item>
+            </div>
+
+            <div class="modern-form-group">
+              <ion-item class="modern-input-item">
+                <ion-label position="floating">Business Address *</ion-label>
+                <ion-input
+                  type="text"
+                  name="businessAddress"
+                  [(ngModel)]="registerData.businessAddress"
+                  required>
+                </ion-input>
+                <ion-icon name="location" slot="start" class="input-icon"></ion-icon>
+              </ion-item>
+            </div>
+
+            <div class="form-row">
+              <div class="modern-form-group half-width">
+                <ion-item class="modern-input-item">
+                  <ion-label position="floating">City *</ion-label>
+                  <ion-input
+                    type="text"
+                    name="city"
+                    [(ngModel)]="registerData.city"
+                    required>
+                  </ion-input>
+                  <ion-icon name="location-outline" slot="start" class="input-icon"></ion-icon>
+                </ion-item>
+              </div>
+
+              <div class="modern-form-group half-width">
+                <ion-item class="modern-input-item">
+                  <ion-label position="floating">Province *</ion-label>
+                  <ion-input
+                    type="text"
+                    name="province"
+                    [(ngModel)]="registerData.province"
+                    required>
+                  </ion-input>
+                  <ion-icon name="map" slot="start" class="input-icon"></ion-icon>
+                </ion-item>
+              </div>
+            </div>
+
+            <div class="modern-form-group">
+              <ion-item class="modern-input-item">
+                <ion-label position="floating">Business Phone *</ion-label>
+                <ion-input
+                  type="tel"
+                  name="businessPhone"
+                  [(ngModel)]="registerData.businessPhone"
+                  required>
+                </ion-input>
+                <ion-icon name="call" slot="start" class="input-icon"></ion-icon>
+              </ion-item>
+            </div>
+
+            <div class="modern-form-group">
+              <ion-item class="modern-input-item">
+                <ion-label position="floating">Business Email *</ion-label>
+                <ion-input
+                  type="email"
+                  name="businessEmail"
+                  [(ngModel)]="registerData.businessEmail"
+                  required>
+                </ion-input>
+                <ion-icon name="mail-outline" slot="start" class="input-icon"></ion-icon>
+              </ion-item>
+            </div>
+
+            <div class="form-row">
+              <div class="modern-form-group half-width">
+                <ion-item class="modern-input-item">
+                  <ion-label position="floating">Opening Time *</ion-label>
+                  <ion-input
+                    type="time"
+                    name="openingTime"
+                    [(ngModel)]="registerData.openingTime"
+                    required>
+                  </ion-input>
+                  <ion-icon name="time" slot="start" class="input-icon"></ion-icon>
+                </ion-item>
+              </div>
+
+              <div class="modern-form-group half-width">
+                <ion-item class="modern-input-item">
+                  <ion-label position="floating">Closing Time *</ion-label>
+                  <ion-input
+                    type="time"
+                    name="closingTime"
+                    [(ngModel)]="registerData.closingTime"
+                    required>
+                  </ion-input>
+                  <ion-icon name="time-outline" slot="start" class="input-icon"></ion-icon>
+                </ion-item>
+              </div>
+            </div>
+
+            <div class="modern-form-group">
+              <div class="file-upload-section">
+                <div class="file-upload-header">
+                  <ion-icon name="document-attach" class="upload-icon"></ion-icon>
+                  <h4>Business Permit *</h4>
+                  <p>Upload your business permit for verification</p>
+                </div>
+                <input
+                  type="file"
+                  id="businessPermit"
+                  name="businessPermit"
+                  accept=".pdf,.jpg,.jpeg,.png"
+                  (change)="onBusinessPermitChange($event)"
+                  required
+                  style="display: none;">
+                <ion-button
+                  fill="outline"
+                  (click)="openFileSelector()"
+                  class="file-upload-btn">
+                  <ion-icon name="cloud-upload" slot="start"></ion-icon>
+                  {{ registerData.businessPermit ? registerData.businessPermit.name : 'Choose File' }}
+                </ion-button>
+                <div class="file-upload-note">
+                  <ion-icon name="information-circle"></ion-icon>
+                  <span>Accepted formats: PDF, JPG, PNG (Max 5MB)</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div class="modern-form-group">
             <ion-item class="modern-input-item">
               <ion-label position="floating">Password</ion-label>

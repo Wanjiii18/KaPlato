@@ -346,6 +346,10 @@ export class KarenderiaDashboardPage implements OnInit, AfterViewInit {
     this.router.navigate(['/inventory-management']);
   }
 
+  navigateToDailyMenu() {
+    this.router.navigate(['/daily-menu-management']);
+  }
+
   navigateToAnalytics() {
     this.router.navigate(['/analytics-dashboard']);
   }

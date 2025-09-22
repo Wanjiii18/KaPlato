@@ -15,7 +15,18 @@ export class RegisterPage implements OnInit {
     email: '',
     password: '',
     confirmPassword: '',
-    role: 'customer' as 'customer' | 'karenderia_owner'
+    role: 'customer' as 'customer' | 'karenderia_owner',
+    // Business fields for Karenderia Owner
+    businessName: '',
+    businessDescription: '',
+    businessAddress: '',
+    city: '',
+    province: '',
+    businessPhone: '',
+    businessEmail: '',
+    openingTime: '',
+    closingTime: '',
+    businessPermit: null as File | null
   };
 
   showPassword = false;
@@ -61,7 +72,17 @@ export class RegisterPage implements OnInit {
           email: '',
           password: '',
           confirmPassword: '',
-          role: 'customer'
+          role: 'customer',
+          businessName: '',
+          businessDescription: '',
+          businessAddress: '',
+          city: '',
+          province: '',
+          businessPhone: '',
+          businessEmail: '',
+          openingTime: '',
+          closingTime: '',
+          businessPermit: null
         };
         form.resetForm();
         
@@ -79,6 +100,20 @@ export class RegisterPage implements OnInit {
 
   toggleConfirmPasswordVisibility() {
     this.showConfirmPassword = !this.showConfirmPassword;
+  }
+
+  onBusinessPermitChange(event: any) {
+    const file = event.target.files[0];
+    if (file) {
+      this.registerData.businessPermit = file;
+    }
+  }
+
+  openFileSelector() {
+    const fileInput = document.getElementById('businessPermit') as HTMLInputElement;
+    if (fileInput) {
+      fileInput.click();
+    }
   }
 
   goToLogin() {

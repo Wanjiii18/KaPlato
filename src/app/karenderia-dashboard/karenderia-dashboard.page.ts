@@ -106,6 +106,10 @@ export class KarenderiaDashboardPage implements OnInit {
     this.router.navigate(['/karenderia-menu']);
   }
 
+  navigateToDailyMenu() {
+    this.router.navigate(['/daily-menu-management']);
+  }
+
   navigateToIngredients() {
     this.router.navigate(['/karenderia-ingredients']);
   }
@@ -116,6 +120,10 @@ export class KarenderiaDashboardPage implements OnInit {
 
   navigateToAnalytics() {
     this.router.navigate(['/karenderia-analytics']);
+  }
+
+  navigateToInventory() {
+    this.router.navigate(['/inventory-management']);
   }
 
   // Helper methods for dynamic karenderia display

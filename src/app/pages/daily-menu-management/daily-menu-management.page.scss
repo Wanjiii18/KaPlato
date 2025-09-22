@@ -1,0 +1,593 @@
+/* Senior-Friendly Daily Menu Management Styles */
+
+// Senior-Friendly Color Palette
+$senior-primary: #2c3e50;      // Dark blue-gray
+$senior-secondary: #3498db;    // Clear blue
+$senior-success: #27ae60;      // Clear green
+$senior-warning: #f39c12;      // Clear orange
+$senior-danger: #e74c3c;       // Clear red
+$senior-light-bg: #ffffff;     // Pure white
+$senior-card-bg: #f8f9fa;      // Very light gray
+$senior-text-dark: #2c3e50;    // Dark text
+$senior-text-light: #7f8c8d;   // Light text
+$senior-border: #bdc3c7;       // Light border
+
+// Senior-Friendly Header
+.senior-friendly-toolbar {
+  --background: #{$senior-primary};
+  --color: white;
+  min-height: 70px; // Extra large header
+  
+  .large-back-btn {
+    --color: white;
+    font-size: 1.8rem;
+    min-width: 60px;
+    min-height: 50px;
+  }
+  
+  .large-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+  
+  .header-title-large {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    
+    .large-header-icon {
+      font-size: 2rem;
+      color: #f39c12;
+    }
+    
+    .title-text {
+      font-size: 1.4rem;
+      font-weight: 600;
+    }
+  }
+  
+  .inventory-btn-large {
+    font-size: 1rem;
+    min-height: 45px;
+    border-radius: 8px;
+    
+    .btn-text {
+      margin-left: 0.5rem;
+      font-size: 1rem;
+      font-weight: 500;
+    }
+  }
+}
+
+// Senior-Friendly Content
+.senior-daily-menu-content {
+  --background: #{$senior-card-bg};
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
+
+// Large Selection Section
+.senior-selection-section {
+  padding: 1.5rem;
+  
+  .large-date-section,
+  .large-meal-section {
+    background: $senior-light-bg;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    border: 2px solid #{$senior-border};
+    
+    .section-title {
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: $senior-text-dark;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      
+      .section-icon {
+        font-size: 1.6rem;
+        color: $senior-secondary;
+      }
+    }
+  }
+  
+  .large-date-item {
+    --padding-start: 1rem;
+    --padding-end: 1rem;
+    min-height: 60px;
+    font-size: 1.2rem;
+    
+    .large-label {
+      font-size: 1.2rem;
+      font-weight: 500;
+      color: $senior-text-dark;
+    }
+    
+    .large-datetime {
+      font-size: 1.2rem;
+    }
+  }
+  
+  .large-meal-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    
+    .large-meal-btn {
+      min-height: 70px;
+      font-size: 1.2rem;
+      font-weight: 600;
+      border-radius: 12px;
+      border: 3px solid transparent;
+      
+      &:not(.selected-meal) {
+        --background: #{$senior-light-bg};
+        --color: #{$senior-text-dark};
+        border: 3px solid #{$senior-border};
+      }
+      
+      &.selected-meal {
+        --background: #{$senior-secondary};
+        --color: white;
+        border: 3px solid #{$senior-secondary};
+        box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+      }
+      
+      .meal-icon {
+        font-size: 1.8rem;
+        margin-right: 0.8rem;
+      }
+      
+      .meal-text {
+        font-size: 1.3rem;
+        font-weight: 600;
+      }
+    }
+  }
+}
+
+// Large Add Button
+.large-add-section {
+  padding: 1.5rem;
+  
+  .large-add-btn {
+    min-height: 80px;
+    font-size: 1.3rem;
+    font-weight: 600;
+    border-radius: 12px;
+    --background: #{$senior-success};
+    --color: white;
+    box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3);
+    
+    .add-icon {
+      font-size: 2rem;
+      margin-right: 0.8rem;
+    }
+    
+    .add-text {
+      font-size: 1.2rem;
+      font-weight: 600;
+    }
+  }
+}
+
+// Large Loading State
+.large-loading-container {
+  text-align: center;
+  padding: 3rem 1.5rem;
+  
+  .large-spinner {
+    --color: #{$senior-secondary};
+    transform: scale(1.5);
+    margin-bottom: 2rem;
+  }
+  
+  .loading-text {
+    font-size: 1.3rem;
+    color: $senior-text-dark;
+    margin: 0;
+    font-weight: 500;
+  }
+}
+
+// Large Empty State
+.large-empty-state {
+  text-align: center;
+  padding: 3rem 2rem;
+  background: $senior-light-bg;
+  border-radius: 12px;
+  margin: 1.5rem;
+  border: 2px solid #{$senior-border};
+  
+  .large-empty-icon {
+    font-size: 4rem;
+    color: $senior-text-light;
+    margin-bottom: 1.5rem;
+  }
+  
+  .empty-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: $senior-text-dark;
+    margin-bottom: 1rem;
+  }
+  
+  .empty-description {
+    font-size: 1.2rem;
+    color: $senior-text-light;
+    line-height: 1.6;
+    margin: 0;
+  }
+}
+
+// Senior Menu Cards
+.senior-menu-items {
+  padding: 0 1.5rem 1.5rem;
+  
+  .senior-menu-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    
+    .senior-menu-card {
+      border-radius: 16px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+      border: 2px solid #{$senior-border};
+      overflow: hidden;
+      
+      .senior-card-header {
+        background: $senior-light-bg;
+        padding: 1.5rem;
+        border-bottom: 2px solid #{$senior-border};
+        
+        .food-title-section {
+          margin-bottom: 1rem;
+          
+          .food-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: $senior-text-dark;
+            margin: 0 0 0.5rem 0;
+          }
+          
+          .food-description {
+            font-size: 1.1rem;
+            color: $senior-text-light;
+            margin: 0;
+            line-height: 1.5;
+          }
+        }
+        
+        .large-status-section {
+          .large-status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.8rem 1.2rem;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            
+            &.status-available {
+              background: rgba(39, 174, 96, 0.1);
+              color: $senior-success;
+              border: 2px solid #{$senior-success};
+            }
+            
+            &.status-unavailable {
+              background: rgba(127, 140, 141, 0.1);
+              color: $senior-text-light;
+              border: 2px solid #{$senior-text-light};
+            }
+            
+            &.status-sold-out {
+              background: rgba(243, 156, 18, 0.1);
+              color: $senior-warning;
+              border: 2px solid #{$senior-warning};
+            }
+            
+            .status-icon {
+              font-size: 1.5rem;
+              margin-right: 0.5rem;
+            }
+            
+            .status-text {
+              font-size: 1.1rem;
+              font-weight: 700;
+            }
+          }
+        }
+      }
+      
+      .senior-card-content {
+        padding: 1.5rem;
+        
+        .large-info-grid {
+          display: flex;
+          flex-direction: column;
+          gap: 1.5rem;
+          margin-bottom: 2rem;
+          
+          .info-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: rgba(52, 152, 219, 0.05);
+            border-radius: 10px;
+            border: 1px solid rgba(52, 152, 219, 0.1);
+            
+            .info-icon-section {
+              flex-shrink: 0;
+              
+              .info-icon {
+                font-size: 1.8rem;
+                color: $senior-secondary;
+              }
+            }
+            
+            .info-text-section {
+              flex-grow: 1;
+              
+              .info-label {
+                display: block;
+                font-size: 1rem;
+                color: $senior-text-light;
+                font-weight: 500;
+                margin-bottom: 0.3rem;
+              }
+              
+              .info-value {
+                display: block;
+                font-size: 1.3rem;
+                color: $senior-text-dark;
+                font-weight: 600;
+              }
+              
+              .price-type {
+                display: block;
+                font-size: 0.9rem;
+                color: $senior-text-light;
+                font-style: italic;
+                margin-top: 0.2rem;
+              }
+            }
+            
+            .info-action-section {
+              flex-shrink: 0;
+              
+              .large-action-btn {
+                min-width: 80px;
+                min-height: 45px;
+                font-size: 1rem;
+                font-weight: 600;
+                border-radius: 8px;
+              }
+            }
+          }
+        }
+        
+        .large-action-buttons {
+          display: flex;
+          flex-direction: column;
+          gap: 1rem;
+          
+          .large-toggle-btn,
+          .large-remove-btn {
+            min-height: 60px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            border-radius: 10px;
+            
+            .action-icon {
+              font-size: 1.6rem;
+              margin-right: 0.8rem;
+            }
+            
+            .action-text {
+              font-size: 1.2rem;
+              font-weight: 600;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+// Large Summary Section
+.large-summary-section {
+  padding: 1.5rem;
+  
+  .senior-summary-card {
+    border-radius: 16px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+    border: 2px solid #{$senior-border};
+    
+    .summary-header {
+      background: linear-gradient(135deg, #{$senior-secondary}, #{$senior-primary});
+      color: white;
+      text-align: center;
+      padding: 1.5rem;
+      
+      .summary-title {
+        font-size: 1.4rem;
+        font-weight: 700;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.8rem;
+        
+        .summary-icon {
+          font-size: 1.8rem;
+        }
+      }
+    }
+    
+    .summary-content {
+      padding: 2rem 1.5rem;
+      
+      .large-summary-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+        
+        @media (min-width: 600px) {
+          grid-template-columns: repeat(3, 1fr);
+        }
+        
+        .summary-item {
+          text-align: center;
+          padding: 1.5rem 1rem;
+          background: $senior-light-bg;
+          border-radius: 12px;
+          border: 2px solid #{$senior-border};
+          
+          &.available {
+            border-color: $senior-success;
+            background: rgba(39, 174, 96, 0.05);
+          }
+          
+          &.servings {
+            border-color: $senior-secondary;
+            background: rgba(52, 152, 219, 0.05);
+          }
+          
+          .summary-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: $senior-text-dark;
+            line-height: 1;
+            margin-bottom: 0.5rem;
+          }
+          
+          .summary-label {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: $senior-text-light;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Responsive adjustments for senior users
+@media (max-width: 768px) {
+  .senior-selection-section {
+    padding: 1rem;
+    
+    .large-date-section,
+    .large-meal-section {
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+  }
+  
+  .large-add-section {
+    padding: 1rem;
+  }
+  
+  .senior-menu-items {
+    padding: 0 1rem 1rem;
+  }
+  
+  .large-summary-section {
+    padding: 1rem;
+  }
+}
+
+// New Date Navigation Styles
+.date-navigation-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin: 1rem 0;
+  padding: 1rem;
+  background: white;
+  border-radius: 12px;
+  border: 2px solid #{$senior-border};
+}
+
+.nav-arrow-btn {
+  --background: transparent;
+  --color: #{$senior-text-dark};
+  --border-radius: 50%;
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --padding-top: 16px;
+  --padding-bottom: 16px;
+  height: 60px;
+  width: 60px;
+  
+  &:hover:not([disabled]) {
+    --background: #{$senior-light-bg};
+  }
+  
+  &[disabled] {
+    --color: #{$senior-text-light};
+  }
+}
+
+.current-date-display {
+  text-align: center;
+  flex: 1;
+  padding: 0 1rem;
+  
+  .date-type-label {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: $senior-primary;
+    margin-bottom: 0.5rem;
+  }
+  
+  .date-main-text {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: $senior-text-dark;
+    line-height: 1.4;
+  }
+}
+
+.date-quick-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+  
+  .quick-action-btn {
+    flex: 1;
+    height: 60px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    --border-radius: 12px;
+    
+    &[color="success"] {
+      --background: #{$senior-success};
+      --color: white;
+      
+      &[disabled] {
+        --background: #{$senior-text-light};
+        --color: white;
+        opacity: 0.6;
+      }
+    }
+    
+    &[fill="outline"] {
+      --border-color: #{$senior-primary};
+      --color: #{$senior-primary};
+      --border-width: 2px;
+      
+      &:hover {
+        --background: #{$senior-primary};
+        --color: white;
+      }
+    }
+  }
+}

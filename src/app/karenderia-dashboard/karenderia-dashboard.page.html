@@ -39,6 +39,18 @@
         <ion-icon name="restaurant-outline"></ion-icon>
         <span>Menu Management</span>
       </div>
+      <div class="nav-item" (click)="navigateToDailyMenu()">
+        <ion-icon name="calendar-outline"></ion-icon>
+        <span>Menu of the Day</span>
+      </div>
+      <div class="nav-item" (click)="navigateToInventory()">
+        <ion-icon name="cube-outline"></ion-icon>
+        <span>Inventory</span>
+      </div>
+      <div class="nav-item" (click)="navigateToAnalytics()">
+        <ion-icon name="analytics-outline"></ion-icon>
+        <span>Analytics</span>
+      </div>
       <div class="nav-item desktop-only" routerLink="/karenderia-settings">
         <ion-icon name="person-outline"></ion-icon>
         <span>Profile</span>

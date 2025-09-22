@@ -13,107 +13,155 @@
 </ion-header>
 
 <ion-content [fullscreen]="true" class="modern-meal-content">
-  <div class="modern-meal-container animate-fade-in">
-    <div class="welcome-section animate-slide-up">
-      <h1>Plan Your Perfect Day 🍽️</h1>
-      <p>Create a balanced meal plan with delicious Filipino cuisine</p>
+  
+  <!-- Date and Meal Type Selection -->
+  <div class="selection-section">
+    <div class="date-selector">
+      <ion-item>
+        <ion-icon name="calendar-outline" slot="start"></ion-icon>
+        <ion-label>Plan for Date</ion-label>
+        <ion-datetime
+          presentation="date"
+          [(ngModel)]="selectedDate"
+          (ionChange)="onDateChange()"
+          [min]="minDate"
+          slot="end">
+        </ion-datetime>
+      </ion-item>
     </div>
-    
-    <ion-card class="modern-meal-planner-card animate-slide-up">
-      <div class="modern-card-header">
-        <div class="header-content">
-          <h2>Today's Meal Plan</h2>
-          <p>Choose your breakfast, lunch, and dinner</p>
+
+    <!-- Meal Type Selection -->
+    <div class="meal-type-selection">
+      <h3>Choose Meal Type</h3>
+      <div class="meal-type-buttons">
+        <div 
+          *ngFor="let mealType of mealTypes" 
+          class="meal-type-card"
+          [class.active]="selectedMealType === mealType.value"
+          [style.--meal-color]="mealType.color"
+          (click)="selectMealType(mealType.value)">
+          <ion-icon [name]="mealType.icon"></ion-icon>
+          <span>{{ mealType.label }}</span>
         </div>
-        <div class="header-decoration">
-          <ion-icon name="restaurant-outline"></ion-icon>
-        </div>
-      </div>
-      
-      <ion-card-content class="modern-card-content">
-        <form (ngSubmit)="saveMealPlan()" #mealForm="ngForm">
-          <div class="modern-meal-item breakfast-item">
-            <div class="meal-icon-container breakfast-icon">
-              <ion-icon name="sunny" color="light"></ion-icon>
-            </div>
-            <div class="meal-content">
-              <ion-label class="meal-label">Breakfast</ion-label>
-              <ion-select 
-                [(ngModel)]="mealPlan.breakfast" 
-                name="breakfast" 
-                required 
-                placeholder="Select your breakfast"
-                interface="popover"
-                class="modern-select">
-                <ion-select-option *ngFor="let meal of mealOptions" [value]="meal">
-                  {{ meal }}
-                </ion-select-option>
-              </ion-select>
-            </div>
-          </div>
-
-          <div class="modern-meal-item lunch-item">
-            <div class="meal-icon-container lunch-icon">
-              <ion-icon name="restaurant" color="light"></ion-icon>
-            </div>
-            <div class="meal-content">
-              <ion-label class="meal-label">Lunch</ion-label>
-              <ion-select 
-                [(ngModel)]="mealPlan.lunch" 
-                name="lunch" 
-                required 
-                placeholder="Select your lunch"
-                interface="popover"
-                class="modern-select">
-                <ion-select-option *ngFor="let meal of mealOptions" [value]="meal">
-                  {{ meal }}
-                </ion-select-option>
-              </ion-select>
-            </div>
-          </div>
-
-          <div class="modern-meal-item dinner-item">
-            <div class="meal-icon-container dinner-icon">
-              <ion-icon name="moon" color="light"></ion-icon>
-            </div>
-            <div class="meal-content">
-              <ion-label class="meal-label">Dinner</ion-label>
-              <ion-select 
-                [(ngModel)]="mealPlan.dinner" 
-                name="dinner" 
-                required 
-                placeholder="Select your dinner"
-                interface="popover"
-                class="modern-select">
-                <ion-select-option *ngFor="let meal of mealOptions" [value]="meal">
-                  {{ meal }}
-                </ion-select-option>
-              </ion-select>
-            </div>
-          </div>
-
-          <div class="modern-button-container">
-            <ion-button 
-              expand="block" 
-              type="submit" 
-              color="primary" 
-              [disabled]="!mealForm.form.valid || isSubmitting"
-              class="modern-save-button">
-              <ion-icon name="checkmark-circle" slot="start"></ion-icon>
-              {{ isSubmitting ? 'Saving...' : 'Save Meal Plan' }}
-            </ion-button>
-          </div>
-        </form>
-      </ion-card-content>
-    </ion-card>
-
-    <!-- Modern Loading state -->
-    <div *ngIf="mealOptions.length === 0" class="modern-loading-card animate-fade-in">
-      <div class="loading-content">
-        <ion-spinner name="crescent" color="primary"></ion-spinner>
-        <h3>Loading meal options...</h3>
-        <p>Finding the best Filipino dishes for you</p>
       </div>
     </div>
   </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Finding available {{ selectedMealType }} options...</p>
+  </div>
+
+  <!-- Available Karenderias -->
+  <div *ngIf="!isLoading && availableKarenderias.length > 0" class="karenderias-section">
+    <h3>Available for {{ getCurrentMealTypeLabel() }}</h3>
+    
+    <ion-card *ngFor="let karenderia of availableKarenderias" class="karenderia-card">
+      <ion-card-header>
+        <div class="karenderia-header">
+          <div class="karenderia-info">
+            <ion-card-title>{{ karenderia.karenderia.name }}</ion-card-title>
+            <ion-card-subtitle>{{ karenderia.karenderia.address }}</ion-card-subtitle>
+          </div>
+          <div class="karenderia-rating" *ngIf="karenderia.karenderia.average_rating">
+            <ion-icon name="star" color="warning"></ion-icon>
+            <span>{{ karenderia.karenderia.average_rating }}</span>
+          </div>
+        </div>
+      </ion-card-header>
+      
+      <ion-card-content>
+        <div class="menu-items-grid">
+          <div 
+            *ngFor="let menuItem of karenderia.menu_items" 
+            class="menu-item-card"
+            (click)="addToMealPlan(karenderia, menuItem)">
+            
+            <div class="menu-item-image" *ngIf="menuItem.menu_item.image_url">
+              <img [src]="menuItem.menu_item.image_url" [alt]="menuItem.menu_item.name">
+            </div>
+            <div class="menu-item-image placeholder" *ngIf="!menuItem.menu_item.image_url">
+              <ion-icon name="restaurant"></ion-icon>
+            </div>
+            
+            <div class="menu-item-info">
+              <h4>{{ menuItem.menu_item.name }}</h4>
+              <p class="description">{{ menuItem.menu_item.description }}</p>
+              <div class="item-details">
+                <div class="price-info">
+                  <span class="price">₱{{ getPrice(menuItem) }}</span>
+                  <span *ngIf="hasSpecialPrice(menuItem)" class="special-tag">Special</span>
+                </div>
+                <div class="quantity-info">
+                  <ion-icon name="restaurant"></ion-icon>
+                  <span>{{ menuItem.quantity }} available</span>
+                </div>
+              </div>
+              <p *ngIf="menuItem.notes" class="notes">{{ menuItem.notes }}</p>
+            </div>
+          </div>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && availableKarenderias.length === 0" class="empty-state">
+    <ion-icon name="restaurant-outline"></ion-icon>
+    <h3>No {{ selectedMealType }} available</h3>
+    <p>No karenderias are offering {{ selectedMealType }} on {{ selectedDate }}</p>
+    <p>Try selecting a different date or meal type</p>
+  </div>
+
+  <!-- Current Meal Plan Summary -->
+  <div *ngIf="getSelectedItemsForCurrentMeal().length > 0" class="meal-plan-summary">
+    <ion-card class="summary-card">
+      <ion-card-header>
+        <ion-card-title>
+          <ion-icon name="list"></ion-icon>
+          Your {{ getCurrentMealTypeLabel() }} Plan
+        </ion-card-title>
+      </ion-card-header>
+      
+      <ion-card-content>
+        <div class="selected-items">
+          <div 
+            *ngFor="let item of getSelectedItemsForCurrentMeal(); let i = index" 
+            class="selected-item">
+            <div class="item-details">
+              <span class="item-name">{{ item.quantity }}x {{ item.menu_item.name }}</span>
+              <span class="item-source">from {{ item.karenderia.name }}</span>
+              <span class="item-price">₱{{ (item.special_price || item.menu_item.price) * item.quantity }}</span>
+            </div>
+            <ion-button 
+              fill="clear" 
+              size="small" 
+              color="danger"
+              (click)="removeFromMealPlan(i)">
+              <ion-icon name="close"></ion-icon>
+            </ion-button>
+          </div>
+        </div>
+        
+        <div class="total-section">
+          <div class="total-price">
+            <strong>Total: ₱{{ getTotalPrice() }}</strong>
+          </div>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+  <!-- Save Meal Plan Button -->
+  <div *ngIf="hasSelectedItems()" class="save-section">
+    <ion-button 
+      expand="block" 
+      (click)="saveMealPlan()"
+      class="save-btn">
+      <ion-icon name="bookmark" slot="start"></ion-icon>
+      Save Meal Plan
+    </ion-button>
+  </div>
+
 </ion-content>

@@ -1,185 +1,274 @@
-.registration-container {
-  padding: 20px;
-  max-width: 800px;
+ion-content {
+  --background: var(--ion-color-light-shade);
+}
+
+.form-container {
+  max-width: 400px;
   margin: 0 auto;
+  padding: 20px;
 }
 
-.registration-header {
+.title {
+  font-size: 24px;
+  font-weight: bold;
+  color: var(--ion-color-dark);
+  margin: 0;
   text-align: center;
-  margin-bottom: 30px;
+}
+
+.subtitle {
+  color: var(--ion-color-medium);
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.input-field {
+  background: white;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  padding: 4px 16px;
   
-  .header-icon {
-    font-size: 48px;
-    color: var(--ion-color-primary);
-    margin-bottom: 10px;
-  }
-  
-  h2 {
-    color: var(--ion-color-primary);
-    margin-bottom: 10px;
-  }
-  
-  p {
+  ion-icon {
     color: var(--ion-color-medium);
-    line-height: 1.5;
+    margin-right: 12px;
+    font-size: 20px;
   }
 }
 
-.form-section {
-  margin-bottom: 30px;
-  
-  h3 {
+.custom-input {
+  --padding-start: 0;
+  --padding-end: 0;
+  --background: transparent;
+  min-height: 48px;
+}
+
+.info-card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  margin: 24px 0;
+
+  .card-header {
     display: flex;
     align-items: center;
-    gap: 8px;
-    color: var(--ion-color-primary);
-    margin-bottom: 15px;
-    font-size: 1.1em;
-    
+    margin-bottom: 16px;
+
     ion-icon {
-      font-size: 20px;
+      font-size: 24px;
+      color: var(--ion-color-primary);
+      margin-right: 12px;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 600;
     }
   }
-  
-  h4 {
-    color: var(--ion-color-dark);
-    margin-bottom: 10px;
+
+  .info-text {
+    color: var(--ion-color-medium);
+    font-size: 14px;
+    line-height: 1.4;
+    margin-bottom: 16px;
+  }
+
+  .warning-box {
+    display: flex;
+    align-items: center;
+    background: rgba(var(--ion-color-warning-rgb), 0.1);
+    padding: 12px;
+    border-radius: 8px;
+
+    ion-icon {
+      color: var(--ion-color-warning);
+      font-size: 20px;
+      margin-right: 8px;
+    }
+
+    span {
+      color: var(--ion-color-warning-shade);
+      font-size: 13px;
+    }
   }
 }
 
-// Map Styles
-.map-section {
-  margin-top: 15px;
-  
-  .map-header {
-    margin-bottom: 15px;
-    
-    h4 {
-      color: var(--ion-color-dark);
-      margin-bottom: 5px;
+.business-fields {
+  margin-top: 24px;
+}
+
+.address-row, .time-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.permit-upload {
+  margin-top: 24px;
+
+  .upload-btn {
+    width: 100%;
+    background: rgba(var(--ion-color-primary-rgb), 0.1);
+    border: 2px dashed var(--ion-color-primary);
+    border-radius: 8px;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--ion-color-primary);
+
+    ion-icon {
+      margin-right: 8px;
+      font-size: 24px;
     }
-    
-    p {
-      color: var(--ion-color-medium);
-      font-size: 0.9em;
+  }
+
+  .file-preview {
+    background: rgba(var(--ion-color-primary-rgb), 0.1);
+    border-radius: 8px;
+    padding: 12px;
+    display: flex;
+    align-items: center;
+
+    ion-icon {
+      &:first-child {
+        color: var(--ion-color-primary);
+        margin-right: 12px;
+        font-size: 24px;
+      }
+
+      &:last-child {
+        color: var(--ion-color-danger);
+        cursor: pointer;
+      }
+    }
+
+    span {
+      flex: 1;
+      margin: 0 12px;
+      color: var(--ion-color-dark);
+    }
+  }
+}
+
+.submit-btn {
+  margin: 24px 0 16px;
+  --background: var(--ion-color-primary);
+  height: 48px;
+  font-weight: 600;
+}
+
+.login-link {
+  text-align: center;
+  color: var(--ion-color-medium);
+  font-size: 14px;
+
+  a {
+    color: var(--ion-color-primary);
+    text-decoration: none;
+    font-weight: 500;
+  }
+}
+
+h1 {
+  font-size: 24px;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+p {
+  color: #6b7280;
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.form-group {
+  margin-bottom: 16px;
+
+  ion-input, ion-select, ion-textarea {
+    --background: #f9fafb;
+    --border-radius: 8px;
+    --padding-start: 16px;
+    --padding-end: 16px;
+    border: 1px solid #e5e7eb;
+    margin-bottom: 8px;
+    height: 48px;
+  }
+
+  ion-textarea {
+    height: auto;
+    --padding-top: 12px;
+    --padding-bottom: 12px;
+  }
+
+  ion-icon {
+    color: #6b7280;
+    margin-right: 8px;
+  }
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.upload-section {
+  margin: 24px 0;
+  
+  ion-button {
+    --background: #f3f4f6;
+    --color: #374151;
+    height: 48px;
+  }
+
+  .file-info {
+    display: flex;
+    align-items: center;
+    background: #f3f4f6;
+    padding: 12px;
+    border-radius: 8px;
+    margin-top: 8px;
+
+    ion-icon {
+      color: #3b82f6;
+      margin-right: 12px;
+      font-size: 24px;
+    }
+
+    span {
+      flex: 1;
+      color: #374151;
+    }
+
+    ion-button {
+      --color: #ef4444;
+      height: auto;
       margin: 0;
     }
   }
 }
 
-.map-container {
-  height: 250px;
-  width: 100%;
-  border-radius: 8px;
-  border: 2px solid var(--ion-color-light);
-  margin-bottom: 10px;
-  background-color: var(--ion-color-light);
-  
-  // Fallback for when maps don't load
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--ion-color-medium);
-  
-  &::before {
-    content: "Loading map...";
+ion-button[type="submit"] {
+  --background: #3b82f6;
+  height: 48px;
+  margin: 24px 0 16px;
+  font-weight: 500;
+}
+
+.login-link {
+  text-align: center;
+  color: #6b7280;
+  font-size: 14px;
+
+  a {
+    color: #3b82f6;
+    text-decoration: none;
+    font-weight: 500;
   }
-}
-
-.coordinates-display {
-  margin: 10px 0;
-  
-  ion-chip {
-    --background: var(--ion-color-success-tint);
-    --color: var(--ion-color-success-shade);
-  }
-}
-
-// Operating Hours
-.operating-hours {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-bottom: 20px;
-}
-
-.operating-days {
-  .days-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    gap: 10px;
-    margin-top: 10px;
-    
-    ion-checkbox {
-      display: flex;
-      align-items: center;
-      padding: 8px;
-      border-radius: 8px;
-      background-color: var(--ion-color-light-tint);
-    }
-  }
-}
-
-// Payment Methods
-.payment-label {
-  margin-left: 15px;
-}
-
-// Submit Section
-.submit-section {
-  margin-top: 40px;
-  
-  .form-note {
-    margin-top: 15px;
-    text-align: center;
-    
-    p {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      font-size: 0.9em;
-      line-height: 1.4;
-      
-      ion-icon {
-        font-size: 16px;
-        color: var(--ion-color-primary);
-      }
-    }
-  }
-}
-
-// Form Validation
-.error {
-  --border-color: var(--ion-color-danger);
-  --highlight-color-focused: var(--ion-color-danger);
-}
-
-ion-item.item-has-focus.error {
-  --border-color: var(--ion-color-danger);
-  --highlight-color-focused: var(--ion-color-danger);
-}
-
-// Responsive Design
-@media (max-width: 768px) {
-  .registration-container {
-    padding: 15px;
-  }
-  
-  .operating-hours {
-    grid-template-columns: 1fr;
-  }
-  
-  .days-grid {
-    grid-template-columns: repeat(2, 1fr) !important;
-  }
-  
-  .map-container {
-    height: 200px;
-  }
-}
-
-// Loading States
-ion-button[disabled] {
-  opacity: 0.6;
 }

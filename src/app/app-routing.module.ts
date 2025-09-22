@@ -35,8 +35,7 @@ const routes: Routes = [
   },
   {
     path: 'karenderia-registration',
-    loadChildren: () => import('./pages/karenderia-registration/karenderia-registration.module').then( m => m.KarenderiaRegistrationPageModule),
-    canActivate: [AuthGuard]
+    loadChildren: () => import('./pages/karenderia-registration/karenderia-registration.module').then( m => m.KarenderiaRegistrationPageModule)
   },
   {
     path: 'profile',
@@ -130,7 +129,17 @@ const routes: Routes = [
     path: 'meals-browse',
     loadComponent: () => import('./meals-browse/meals-browse.page').then(m => m.MealsBrowsePage),
     canActivate: [AuthGuard, CustomerGuard]
+  },
+  {
+    path: 'daily-menu-management',
+    loadChildren: () => import('./pages/daily-menu-management/daily-menu-management.module').then( m => m.DailyMenuManagementPageModule)
+  },
+  {
+    path: 'inventory-management',
+    loadComponent: () => import('./pages/inventory-management/inventory-management.page').then(m => m.InventoryManagementPage),
+    canActivate: [AuthGuard, KarenderiaGuard]
   }
+
 ];
 
 @NgModule({

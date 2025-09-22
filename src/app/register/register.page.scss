@@ -926,3 +926,114 @@
   font-style: italic;
   margin-top: 0.5rem;
 }
+
+// Business Fields Section Styles
+.business-fields-section {
+  margin-top: 1.5rem;
+  animation: slideInUp 0.3s ease-out;
+  
+  .business-section-header {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 12px;
+    color: white;
+    
+    .section-icon {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+    
+    h3 {
+      margin: 0.5rem 0;
+      font-size: 1.4rem;
+      font-weight: 600;
+    }
+    
+    p {
+      margin: 0;
+      font-size: 0.9rem;
+      opacity: 0.9;
+    }
+  }
+}
+
+.form-row {
+  display: flex;
+  gap: 1rem;
+  
+  .half-width {
+    flex: 1;
+  }
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 0;
+  }
+}
+
+.file-upload-section {
+  .file-upload-header {
+    text-align: center;
+    margin-bottom: 1rem;
+    
+    .upload-icon {
+      font-size: 2rem;
+      color: var(--ion-color-primary);
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+    
+    h4 {
+      margin: 0.5rem 0;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--ion-color-dark);
+    }
+    
+    p {
+      margin: 0;
+      font-size: 0.9rem;
+      color: var(--ion-color-medium);
+    }
+  }
+  
+  .file-upload-btn {
+    width: 100%;
+    margin: 1rem 0;
+    --border-color: var(--ion-color-primary);
+    --color: var(--ion-color-primary);
+    
+    &:hover {
+      --background: var(--ion-color-primary);
+      --color: white;
+    }
+  }
+  
+  .file-upload-note {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+    color: var(--ion-color-medium);
+    margin-top: 0.5rem;
+    
+    ion-icon {
+      font-size: 1rem;
+    }
+  }
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

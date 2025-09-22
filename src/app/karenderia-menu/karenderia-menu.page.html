@@ -39,6 +39,18 @@
         <ion-icon name="restaurant-outline"></ion-icon>
         <span>Menu Management</span>
       </div>
+      <div class="nav-item" (click)="navigateToDailyMenu()">
+        <ion-icon name="calendar-outline"></ion-icon>
+        <span>Menu of the Day</span>
+      </div>
+      <div class="nav-item" (click)="navigateToInventory()">
+        <ion-icon name="cube-outline"></ion-icon>
+        <span>Inventory</span>
+      </div>
+      <div class="nav-item" (click)="navigateToAnalytics()">
+        <ion-icon name="analytics-outline"></ion-icon>
+        <span>Analytics</span>
+      </div>
       <div class="nav-item desktop-only" routerLink="/karenderia-settings">
         <ion-icon name="person-outline"></ion-icon>
         <span>Profile</span>
@@ -110,11 +122,11 @@
         <ion-card-header>
           <div class="card-header">
             <div class="header-icon">
-              <ion-icon name="add-circle" color="primary"></ion-icon>
+              <ion-icon [name]="editingItemId ? 'create' : 'add-circle'" color="primary"></ion-icon>
             </div>
             <div class="header-content">
-              <h2>Add New Menu Item</h2>
-              <p>Create a delicious new dish for your customers</p>
+              <h2>{{ editingItemId ? 'Edit Menu Item' : 'Add New Menu Item' }}</h2>
+              <p>{{ editingItemId ? 'Update your dish details' : 'Create a delicious new dish for your customers' }}</p>
             </div>
             <ion-button fill="clear" (click)="cancelAddingItem()" class="close-btn">
               <ion-icon name="close" color="medium"></ion-icon>
@@ -304,7 +316,7 @@
             </ion-button>
             <ion-button expand="block" (click)="saveMenuItem()" [disabled]="!newMenuItem.name || !newMenuItem.description || newMenuItem.price <= 0" class="save-btn">
               <ion-icon name="checkmark" slot="start"></ion-icon>
-              Save Menu Item
+              {{ editingItemId ? 'Update Menu Item' : 'Save Menu Item' }}
             </ion-button>
           </div>
         </form>

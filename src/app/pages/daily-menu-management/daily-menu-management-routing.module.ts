@@ -1,11 +1,10 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-import { KarenderiaRegistrationPage } from './karenderia-registration.page';
 
 const routes: Routes = [
   {
     path: '',
-    component: KarenderiaRegistrationPage
+    loadComponent: () => import('./daily-menu-management.page').then(m => m.DailyMenuManagementPage)
   }
 ];
 
@@ -13,4 +12,4 @@ const routes: Routes = [
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule],
 })
-export class KarenderiaRegistrationPageRoutingModule {}
+export class DailyMenuManagementPageRoutingModule {}
