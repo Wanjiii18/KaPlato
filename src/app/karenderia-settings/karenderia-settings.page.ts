@@ -78,11 +78,6 @@ interface OperatingDay {
 export class KarenderiaSettingsPage implements OnInit {
   selectedTab: string = 'business';
 
-  // Map modal properties
-  showMapModal: boolean = false;
-  tempCoordinates = { lat: 0, lng: 0 };
-  pinPosition = { x: null as number | null, y: null as number | null };
-
   businessInfo: BusinessInfo = {
     name: '',
     phone: '',

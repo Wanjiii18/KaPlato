@@ -105,20 +105,6 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   }
 
   private async onMapClick(e: any): Promise<void> {
-    // In location picker mode, single clicks select the location
-    if (this.isLocationPickerMode) {
-      const lat = e.latlng.lat;
-      const lng = e.latlng.lng;
-      
-      // Add or update location picker marker
-      this.addLocationPickerMarker(lat, lng);
-      
-      // Emit the selected location
-      this.mapDoubleClick.emit({ lat, lng });
-      return;
-    }
-
-    // Normal mode: show confirmation dialog
     const alert = await this.alertController.create({
       header: 'Set Location',
       message: 'Set this as your search location?',
@@ -144,68 +130,6 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     });
 
     await alert.present();
-  }
-
-  private onMapDoubleClick(e: any): void {
-    if (!this.isLocationPickerMode) return;
-    
-    // Prevent default zoom behavior
-    e.originalEvent.preventDefault();
-    e.originalEvent.stopPropagation();
-    
-    const lat = e.latlng.lat;
-    const lng = e.latlng.lng;
-    
-    // Add or update location picker marker
-    this.addLocationPickerMarker(lat, lng);
-    
-    // Emit the selected location
-    this.mapDoubleClick.emit({ lat, lng });
-  }
-
-  private showLocationPreview(lat: number, lng: number): void {
-    // Show a temporary marker and coordinates
-    this.addLocationPickerMarker(lat, lng);
-    this.showToast(`Location: ${lat.toFixed(6)}, ${lng.toFixed(6)} (Double-click to select)`, 'success');
-  }
-
-  private addLocationPickerMarker(lat: number, lng: number): void {
-    // Remove existing location picker marker
-    if (this.locationPickerMarker) {
-      this.map.removeLayer(this.locationPickerMarker);
-    }
-
-    // Create custom icon for location picker
-    const locationIcon = L.icon({
-      iconUrl: 'assets/icons/location-pin.svg',
-      iconSize: [35, 45],
-      iconAnchor: [17, 45],
-      popupAnchor: [0, -45]
-    });
-
-    // Fallback to default marker if custom icon fails
-    const marker = L.marker([lat, lng], {
-      icon: locationIcon
-    }).on('error', function(this: L.Marker) {
-      this.setIcon(L.icon({
-        iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',
-        shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
-        iconSize: [25, 41],
-        iconAnchor: [12, 41],
-        popupAnchor: [1, -34],
-        shadowSize: [41, 41]
-      }));
-    });
-
-    marker.addTo(this.map);
-    this.locationPickerMarker = marker;
-
-    // Add popup with coordinates
-    marker.bindPopup(`
-      <strong>Selected Location</strong><br>
-      Latitude: ${lat.toFixed(6)}<br>
-      Longitude: ${lng.toFixed(6)}
-    `).openPopup();
   }
 
   private async getCurrentLocation(): Promise<void> {
