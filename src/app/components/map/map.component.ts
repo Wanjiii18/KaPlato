@@ -100,7 +100,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
 
     // Add double-click handler for location picker mode
     this.map.on('dblclick', (e: any) => {
-      this.onMapDoubleClick(e);
+      this.mapDoubleClick.emit({ lat: e.latlng.lat, lng: e.latlng.lng });
     });
   }
 

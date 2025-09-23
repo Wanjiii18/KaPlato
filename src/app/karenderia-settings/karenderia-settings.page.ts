@@ -69,6 +69,16 @@ interface OperatingDay {
   closeTime: string;
 }
 
+interface PinPosition {
+  x: number | null;
+  y: number | null;
+}
+
+interface Coordinates {
+  lat: number;
+  lng: number;
+}
+
 @Component({
   selector: 'app-karenderia-settings',
   templateUrl: './karenderia-settings.page.html',
@@ -125,6 +135,11 @@ export class KarenderiaSettingsPage implements OnInit {
     { name: 'Saturday', isOpen: true, openTime: '09:00', closeTime: '21:00' },
     { name: 'Sunday', isOpen: false, openTime: '09:00', closeTime: '18:00' }
   ];
+
+  // Map modal properties
+  showMapModal = false;
+  pinPosition: PinPosition = { x: null, y: null };
+  tempCoordinates: Coordinates = { lat: 0, lng: 0 };
 
   constructor(
     private router: Router, 
