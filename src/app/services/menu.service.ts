@@ -307,12 +307,12 @@ export class MenuService {
   // Get detailed menu item information
   async getMenuItemDetails(id: string): Promise<any> {
     try {
-      const response = await this.http.get<any>(`${this.apiUrl}/menu-items/${id}`, {
+      const response = await this.http.get<any>(`${this.apiUrl}/menu-items/${id}/public`, {
         headers: this.getHeaders()
       }).toPromise();
       
-      // The backend returns the menu item directly, not wrapped in data
-      return response;
+      // The backend returns the menu item wrapped in data
+      return response.data;
     } catch (error) {
       console.error('Error loading menu item details:', error);
       throw error;

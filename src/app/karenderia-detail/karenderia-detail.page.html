@@ -80,7 +80,26 @@
       <ion-card 
         *ngFor="let item of filteredMenuItems" 
         class="menu-item-card"
-        [class.unavailable]="!item.available">
+        [class.unavailable]="!item.available"
+        [class.has-allergens]="getMenuItemAllergenInfo(item).hasAllergens">
+        
+        <!-- Allergen Warning Banner -->
+        <div *ngIf="getMenuItemAllergenInfo(item).hasAllergens" 
+             class="allergen-warning-banner"
+             [class]="'safety-level-' + getMenuItemAllergenInfo(item).safetyLevel">
+          <ion-icon [name]="getAllergenIcon(getMenuItemAllergenInfo(item).safetyLevel)" 
+                    [color]="getAllergenBadgeColor(getMenuItemAllergenInfo(item).safetyLevel)"></ion-icon>
+          <span class="allergen-text">
+            <ng-container *ngIf="getMenuItemAllergenInfo(item).safetyLevel === 'danger'">⚠️ CONTAINS: {{getMenuItemAllergenInfo(item).conflictingAllergens.join(', ')}}</ng-container>
+            <ng-container *ngIf="getMenuItemAllergenInfo(item).safetyLevel === 'caution'">⚠️ Contains: {{getMenuItemAllergenInfo(item).conflictingAllergens.join(', ')}}</ng-container>
+          </span>
+          <ion-button fill="clear" size="small" 
+                      [color]="getAllergenBadgeColor(getMenuItemAllergenInfo(item).safetyLevel)"
+                      (click)="showAllergenWarning(item); $event.stopPropagation()">
+            <ion-icon name="information-circle" slot="icon-only"></ion-icon>
+          </ion-button>
+        </div>
+        
         <div class="menu-item-content">
           <div class="item-image" *ngIf="item.image" (click)="viewMealDetails(item)">
             <img [src]="item.image" [alt]="item.name" />
@@ -101,6 +120,24 @@
                 <ion-icon name="flame" color="danger"></ion-icon>
                 {{ item.spicyLevel }}
               </span>
+              
+              <!-- Allergen Status Badge -->
+              <span *ngIf="userAllergens.length > 0" class="allergen-status">
+                <ion-chip *ngIf="!getMenuItemAllergenInfo(item).hasAllergens" 
+                          color="success" outline="true" class="allergen-safe-chip">
+                  <ion-icon name="checkmark-circle" slot="start"></ion-icon>
+                  <ion-label>Allergen Safe</ion-label>
+                </ion-chip>
+                
+                <ion-chip *ngIf="getMenuItemAllergenInfo(item).hasAllergens" 
+                          [color]="getAllergenBadgeColor(getMenuItemAllergenInfo(item).safetyLevel)" 
+                          class="allergen-warning-chip"
+                          (click)="showAllergenWarning(item); $event.stopPropagation()">
+                  <ion-icon [name]="getAllergenIcon(getMenuItemAllergenInfo(item).safetyLevel)" slot="start"></ion-icon>
+                  <ion-label>{{ getMenuItemAllergenInfo(item).warnings.length }} Allergen(s)</ion-label>
+                </ion-chip>
+              </span>
+              
               <span class="availability" [class.available]="item.available" [class.unavailable]="!item.available">
                 {{ item.available ? 'Available' : 'Unavailable' }}
               </span>

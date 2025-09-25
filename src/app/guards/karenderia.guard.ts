@@ -19,38 +19,22 @@ export class KarenderiaGuard implements CanActivate {
     // First check if we have basic auth
     const currentUser = this.authService.getCurrentUser();
     
+    console.log('KarenderiaGuard: Checking access, currentUser:', currentUser);
+    
     if (!currentUser) {
+      console.log('KarenderiaGuard: No current user, redirecting to login');
       this.router.navigate(['/login']);
       return of(false);
     }
 
     // If we already have role info from auth service, use it directly
     if (currentUser.role === 'karenderia_owner') {
+      console.log('KarenderiaGuard: User is karenderia_owner, access granted');
       return of(true);
     }
 
-    // Otherwise, try to get user profile with timeout
-    return this.userService.currentUserProfile$.pipe(
-      timeout(3000), // 3 second timeout to prevent infinite hanging
-      take(1),
-      map((user: UserProfile | null) => {
-        if (user && user.role === 'karenderia_owner') {
-          return true;
-        } else {
-          this.router.navigate(['/home']);
-          return false;
-        }
-      }),
-      catchError(error => {
-        console.warn('KarenderiaGuard: Profile loading failed or timed out, checking auth service role:', error);
-        // Fallback to auth service role if profile loading fails
-        if (currentUser?.role === 'karenderia_owner') {
-          return of(true);
-        } else {
-          this.router.navigate(['/home']);
-          return of(false);
-        }
-      })
-    );
+    console.log('KarenderiaGuard: User role is', currentUser.role, 'not karenderia_owner, redirecting to home');
+    this.router.navigate(['/home']);
+    return of(false);
   }
 }

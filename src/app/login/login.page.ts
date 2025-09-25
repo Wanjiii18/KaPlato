@@ -70,6 +70,9 @@ export class LoginPage implements OnInit {
           await this.karenderiaInfoService.reloadKarenderiaData();
         }
         
+        // Add a small delay to ensure session storage is set
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
         // Redirect based on user role
         if (response?.user) {
           this.redirectBasedOnRole(response.user);

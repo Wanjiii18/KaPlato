@@ -344,4 +344,103 @@ export class AllergenDetectionService {
   updateUserAllergens(allergens: any[]) {
     this.userAllergens = allergens;
   }
+
+  /**
+   * Check a menu item against user's allergen profile
+   * Returns detailed warning information for display in the UI
+   */
+  checkMenuItemForAllergens(menuItem: any): {
+    hasAllergens: boolean;
+    warnings: AllergenWarning[];
+    safetyLevel: 'safe' | 'caution' | 'danger';
+    conflictingIngredients: string[];
+  } {
+    if (!this.userAllergens || this.userAllergens.length === 0) {
+      return {
+        hasAllergens: false,
+        warnings: [],
+        safetyLevel: 'safe',
+        conflictingIngredients: []
+      };
+    }
+
+    const warnings: AllergenWarning[] = [];
+    const conflictingIngredients: string[] = [];
+    let highestSeverity: 'mild' | 'moderate' | 'severe' = 'mild';
+
+    // Check menu item's direct allergens array
+    if (menuItem.allergens && menuItem.allergens.length > 0) {
+      for (const allergen of menuItem.allergens) {
+        const userAllergen = this.userAllergens.find(ua => 
+          ua.name?.toLowerCase().includes(allergen.toLowerCase()) ||
+          allergen.toLowerCase().includes(ua.name?.toLowerCase())
+        );
+
+        if (userAllergen) {
+          warnings.push({
+            allergen: allergen,
+            severity: userAllergen.severity || 'moderate',
+            foundIn: [allergen],
+            message: `Contains ${allergen} - listed as allergen`
+          });
+
+          if (userAllergen.severity === 'severe') highestSeverity = 'severe';
+          else if (userAllergen.severity === 'moderate' && highestSeverity !== 'severe') highestSeverity = 'moderate';
+        }
+      }
+    }
+
+    // Check menu item's ingredients for potential allergens
+    if (menuItem.ingredients && menuItem.ingredients.length > 0) {
+      for (const ingredient of menuItem.ingredients) {
+        const ingredientLower = ingredient.toLowerCase();
+        
+        // Check each user allergen against ingredient mapping
+        for (const userAllergen of this.userAllergens) {
+          const allergenName = userAllergen.name;
+          const mappedIngredients = this.allergenIngredientMap[allergenName] || [];
+          
+          // Check if ingredient contains any mapped allergen terms
+          const matchingTerms = mappedIngredients.filter(term => 
+            ingredientLower.includes(term.toLowerCase()) || 
+            term.toLowerCase().includes(ingredientLower)
+          );
+
+          if (matchingTerms.length > 0) {
+            conflictingIngredients.push(ingredient);
+            
+            const existingWarning = warnings.find(w => w.allergen === allergenName);
+            if (existingWarning) {
+              existingWarning.foundIn.push(ingredient);
+            } else {
+              warnings.push({
+                allergen: allergenName,
+                severity: userAllergen.severity || 'moderate',
+                foundIn: [ingredient],
+                message: `May contain ${allergenName.toLowerCase()} - found in ${ingredient}`
+              });
+            }
+
+            if (userAllergen.severity === 'severe') highestSeverity = 'severe';
+            else if (userAllergen.severity === 'moderate' && highestSeverity !== 'severe') highestSeverity = 'moderate';
+          }
+        }
+      }
+    }
+
+    // Determine safety level
+    let safetyLevel: 'safe' | 'caution' | 'danger' = 'safe';
+    if (warnings.length > 0) {
+      if (highestSeverity === 'severe') safetyLevel = 'danger';
+      else if (highestSeverity === 'moderate') safetyLevel = 'caution';
+      else safetyLevel = 'caution';
+    }
+
+    return {
+      hasAllergens: warnings.length > 0,
+      warnings,
+      safetyLevel,
+      conflictingIngredients: [...new Set(conflictingIngredients)] // Remove duplicates
+    };
+  }
 }

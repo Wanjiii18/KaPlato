@@ -481,3 +481,150 @@ ion-fab {
     }
   }
 }
+
+// ========== ALLERGEN WARNING STYLES ==========
+
+// Menu item with allergens styling
+.menu-item-card.has-allergens {
+  border-left: 4px solid var(--ion-color-warning);
+  
+  &.safety-level-danger {
+    border-left-color: var(--ion-color-danger);
+  }
+}
+
+// Allergen Warning Banner
+.allergen-warning-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  margin: -16px -16px 12px -16px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  
+  &.safety-level-danger {
+    background: linear-gradient(90deg, rgba(var(--ion-color-danger-rgb), 0.1), rgba(var(--ion-color-danger-rgb), 0.05));
+    border-bottom: 1px solid rgba(var(--ion-color-danger-rgb), 0.2);
+    color: var(--ion-color-danger);
+  }
+  
+  &.safety-level-caution {
+    background: linear-gradient(90deg, rgba(var(--ion-color-warning-rgb), 0.1), rgba(var(--ion-color-warning-rgb), 0.05));
+    border-bottom: 1px solid rgba(var(--ion-color-warning-rgb), 0.2);
+    color: var(--ion-color-warning);
+  }
+  
+  .allergen-text {
+    flex: 1;
+    font-weight: 600;
+  }
+  
+  ion-button {
+    --padding-start: 4px;
+    --padding-end: 4px;
+    height: 24px;
+    margin: 0;
+  }
+}
+
+// Allergen Status Chips in Meta
+.allergen-status {
+  display: flex;
+  align-items: center;
+  
+  .allergen-safe-chip {
+    --background: rgba(var(--ion-color-success-rgb), 0.1);
+    --color: var(--ion-color-success);
+    font-size: 0.7rem;
+    height: 24px;
+    
+    ion-icon {
+      font-size: 0.9rem;
+    }
+  }
+  
+  .allergen-warning-chip {
+    font-size: 0.7rem;
+    height: 24px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      opacity: 0.8;
+      transform: translateY(-1px);
+    }
+    
+    ion-icon {
+      font-size: 0.9rem;
+    }
+  }
+}
+
+// Allergen-specific item meta adjustments
+.item-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  
+  .allergen-status {
+    order: 1; // Show allergen status prominently
+  }
+  
+  .category {
+    order: 2;
+  }
+  
+  .spicy-level {
+    order: 3;
+  }
+  
+  .availability {
+    order: 4;
+  }
+}
+
+// Enhanced visual feedback for allergen warnings
+@keyframes allergen-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(var(--ion-color-danger-rgb), 0.4); }
+  70% { box-shadow: 0 0 0 8px rgba(var(--ion-color-danger-rgb), 0); }
+  100% { box-shadow: 0 0 0 0 rgba(var(--ion-color-danger-rgb), 0); }
+}
+
+.menu-item-card.has-allergens.safety-level-danger {
+  animation: allergen-pulse 2s infinite;
+}
+
+// Alert styling for allergen warnings
+.allergen-alert {
+  .alert-message {
+    font-size: 0.9rem;
+    line-height: 1.4;
+  }
+  
+  ion-chip {
+    margin: 0 4px 4px 0;
+  }
+}
+
+// Mobile responsive adjustments for allergen info
+@media (max-width: 768px) {
+  .allergen-warning-banner {
+    font-size: 0.8rem;
+    padding: 6px 10px;
+    margin: -12px -12px 8px -12px;
+  }
+  
+  .allergen-status {
+    .allergen-safe-chip,
+    .allergen-warning-chip {
+      font-size: 0.65rem;
+      height: 20px;
+      
+      ion-label {
+        margin: 0;
+      }
+    }
+  }
+}

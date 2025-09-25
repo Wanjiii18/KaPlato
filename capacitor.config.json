@@ -1,5 +1,5 @@
 {
-  "appId": "com.kaplato.app",
+  "appId": "io.ionic.starter",
   "appName": "KaPlato",
   "webDir": "www",
   "server": {

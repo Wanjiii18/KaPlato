@@ -7,7 +7,7 @@ export const environment = {
   // apiUrl: 'http://localhost:8000/api',
   
   // Option 2: Local network (other devices on same WiFi)
-  apiUrl: 'http://192.168.1.17:8000/api',
+  apiUrl: 'http://172.20.10.9:8000/api',
   
   // Option 3: Public access via playit.gg (when tunnel is running)
   // apiUrl: 'https://your-tunnel-name.playit.gg/api',

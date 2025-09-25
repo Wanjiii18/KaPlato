@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { LoadingController, ToastController, AlertController, NavController } from '@ionic/angular';
 import { KarenderiaService } from '../services/karenderia.service';
+import { AllergenDetectionService, AllergenWarning } from '../services/allergen-detection.service';
+import { UserService } from '../services/user.service';
 import { Location } from '@angular/common';
 import { timeout, catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
@@ -22,11 +24,17 @@ export class KarenderiaDetailPage implements OnInit {
   categories: string[] = ['all'];
   cart: any[] = [];
   cartTotal = 0;
+  
+  // Allergen tracking properties
+  userAllergens: any[] = [];
+  menuItemAllergenInfo: { [itemId: string]: any } = {};
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private karenderiaService: KarenderiaService,
+    private allergenService: AllergenDetectionService,
+    private userService: UserService,
     private loadingController: LoadingController,
     private toastController: ToastController,
     private alertController: AlertController,
@@ -37,6 +45,9 @@ export class KarenderiaDetailPage implements OnInit {
   ngOnInit() {
     this.karenderiaId = this.route.snapshot.paramMap.get('id') || '';
     console.log('🏪 Loading karenderia details for ID:', this.karenderiaId);
+    
+    // Load user allergens first
+    this.loadUserAllergens();
     
     // Check if karenderia data was passed via router state
     const navigation = this.router.getCurrentNavigation();
@@ -174,8 +185,13 @@ export class KarenderiaDetailPage implements OnInit {
                 category: this.mapToLocalCategory(item.category),
                 image: item.imageUrl || 'assets/images/food-placeholder.jpg',
                 available: item.isAvailable,
-                spicyLevel: 'Mild' // Default value
+                spicyLevel: 'Mild', // Default value
+                ingredients: item.ingredients || [], // Add ingredients for allergen checking
+                allergens: item.allergens || [] // Add allergens for allergen checking
               }));
+              
+              // Check menu items for allergens after loading
+              this.checkMenuItemsForAllergens();
               this.filterMenuItems();
             } else {
               console.log('⚠️ No menu items found - displaying empty menu');
@@ -264,6 +280,60 @@ export class KarenderiaDetailPage implements OnInit {
       return;
     }
 
+    // Check for allergen warnings before adding to cart
+    const allergenInfo = this.getMenuItemAllergenInfo(menuItem);
+    
+    if (allergenInfo.hasAllergens && allergenInfo.safetyLevel === 'danger') {
+      // Show warning for severe allergens
+      const alert = await this.alertController.create({
+        header: '⚠️ SEVERE ALLERGEN WARNING',
+        subHeader: `${menuItem.name} contains allergens that may cause severe reactions`,
+        message: `
+          <div style="text-align: left;">
+            <p><strong>Detected Allergens:</strong></p>
+            <p style="font-size: 14px;">${allergenInfo.warnings.map((w: AllergenWarning) => w.message).join('<br>')}</p>
+            <p style="color: red; font-weight: bold;">Are you sure you want to add this item?</p>
+          </div>
+        `,
+        buttons: [
+          {
+            text: 'Cancel',
+            role: 'cancel'
+          },
+          {
+            text: 'Add Anyway',
+            handler: () => {
+              this.proceedToAddToCart(menuItem);
+            }
+          }
+        ]
+      });
+
+      await alert.present();
+      return;
+    } else if (allergenInfo.hasAllergens) {
+      // Show mild warning for moderate allergens
+      const toast = await this.toastController.create({
+        message: `⚠️ ${menuItem.name} contains allergens you're sensitive to`,
+        duration: 3000,
+        color: 'warning',
+        buttons: [
+          {
+            text: 'Details',
+            handler: () => {
+              this.showAllergenWarning(menuItem);
+            }
+          }
+        ]
+      });
+      await toast.present();
+    }
+
+    // Proceed to add to cart
+    this.proceedToAddToCart(menuItem);
+  }
+
+  private async proceedToAddToCart(menuItem: any) {
     // Check if item already in cart
     const existingItem = this.cart.find(item => item.id === menuItem.id);
     
@@ -365,6 +435,143 @@ export class KarenderiaDetailPage implements OnInit {
   }
 
   goBack() {
-    this.navController.back();
+    this.location.back();
+  }
+
+  // ========== ALLERGEN WARNING METHODS ==========
+
+  /**
+   * Load user's allergen profile and update allergen detection service
+   */
+  private loadUserAllergens() {
+    this.userService.currentUserProfile$.subscribe(userProfile => {
+      if (userProfile && userProfile.allergens) {
+        this.userAllergens = userProfile.allergens;
+        console.log('👤 User allergens loaded:', this.userAllergens);
+        
+        // Update the allergen service with user's allergens
+        this.allergenService.updateUserAllergens(this.userAllergens);
+        
+        // Re-check menu items for allergens if they're already loaded
+        this.checkMenuItemsForAllergens();
+      } else {
+        console.log('👤 No user allergens found');
+        this.userAllergens = [];
+      }
+    });
+  }
+
+  /**
+   * Check all menu items against user's allergen profile
+   */
+  private checkMenuItemsForAllergens() {
+    if (!this.menuItems || this.menuItems.length === 0) return;
+    
+    this.menuItems.forEach(item => {
+      const allergenInfo = this.allergenService.checkMenuItemForAllergens(item);
+      this.menuItemAllergenInfo[item.id] = allergenInfo;
+      
+      if (allergenInfo.hasAllergens) {
+        console.log(`⚠️ Allergen warning for "${item.name}":`, allergenInfo);
+      }
+    });
+  }
+
+  /**
+   * Get allergen information for a specific menu item
+   */
+  getMenuItemAllergenInfo(item: any): any {
+    return this.menuItemAllergenInfo[item.id] || {
+      hasAllergens: false,
+      warnings: [],
+      safetyLevel: 'safe',
+      conflictingIngredients: []
+    };
+  }
+
+  /**
+   * Show detailed allergen warning for a menu item
+   */
+  async showAllergenWarning(item: any) {
+    const allergenInfo = this.getMenuItemAllergenInfo(item);
+    
+    if (!allergenInfo.hasAllergens) {
+      const toast = await this.toastController.create({
+        message: '✅ This item appears safe for your allergen profile',
+        duration: 2000,
+        color: 'success'
+      });
+      await toast.present();
+      return;
+    }
+
+    // Get user's specific allergies that are present in this item
+    const userAllergenNames = this.userAllergens.map(a => a.name.toLowerCase());
+    const conflictingUserAllergies = allergenInfo.conflictingAllergens.filter((allergen: string) => 
+      userAllergenNames.includes(allergen.toLowerCase())
+    );
+
+    const warningMessages = allergenInfo.warnings.map((warning: AllergenWarning) => 
+      `• ${warning.message}\n  Found in: ${warning.foundIn.join(', ')}`
+    ).join('\n\n');
+
+    const userAllergyWarning = conflictingUserAllergies.length > 0 
+      ? `\n<p><strong>⚠️ Your Allergies Detected:</strong> ${conflictingUserAllergies.join(', ')}</p>` 
+      : '';
+
+    const alert = await this.alertController.create({
+      header: '⚠️ Allergen Warning',
+      subHeader: `${item.name} contains allergens that may affect you`,
+      message: `
+        <div style="text-align: left;">
+          ${userAllergyWarning}
+          <p><strong>Allergen Details:</strong></p>
+          <p style="font-size: 14px; white-space: pre-line;">${warningMessages}</p>
+          <p><strong>Safety Level:</strong> 
+            <ion-chip color="${allergenInfo.safetyLevel === 'danger' ? 'danger' : allergenInfo.safetyLevel === 'caution' ? 'warning' : 'success'}">
+              ${allergenInfo.safetyLevel.toUpperCase()}
+            </ion-chip>
+          </p>
+        </div>
+      `,
+      buttons: [
+        {
+          text: 'I Understand',
+          role: 'cancel'
+        },
+        {
+          text: 'Add Anyway',
+          handler: () => {
+            this.addToCart(item);
+          }
+        }
+      ]
+    });
+
+    await alert.present();
+  }
+
+  /**
+   * Get the appropriate color for allergen warning badges
+   */
+  getAllergenBadgeColor(safetyLevel: string): string {
+    switch (safetyLevel) {
+      case 'danger': return 'danger';
+      case 'caution': return 'warning';
+      case 'safe': return 'success';
+      default: return 'medium';
+    }
+  }
+
+  /**
+   * Get the appropriate icon for allergen warnings
+   */
+  getAllergenIcon(safetyLevel: string): string {
+    switch (safetyLevel) {
+      case 'danger': return 'warning';
+      case 'caution': return 'alert-circle';
+      case 'safe': return 'checkmark-circle';
+      default: return 'help-circle';
+    }
   }
 }

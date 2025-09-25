@@ -142,7 +142,7 @@ export class CustomerRegistrationPage implements OnInit {
       await loading.dismiss();
       await this.showToast('Account created successfully! Welcome to KaPlato!', 'success');
       
-      // Navigate to home or dashboard
+      // Navigate to home since customers are auto-logged in
       this.router.navigate(['/home']);
       
     } catch (error: any) {
