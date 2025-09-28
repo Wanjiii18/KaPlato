@@ -204,25 +204,11 @@
               <div class="form-row">
                 <div class="form-group">
                   <label for="latitude">Latitude</label>
-                  <input 
-                    type="number" 
-                    id="latitude"
-                    [(ngModel)]="businessInfo.latitude"
-                    placeholder="e.g., 14.5995"
-                    step="any"
-                    min="-90"
-                    max="90">
+                  <p>{{ businessInfo.latitude || 'Not set' }}</p>
                 </div>
                 <div class="form-group">
                   <label for="longitude">Longitude</label>
-                  <input 
-                    type="number" 
-                    id="longitude"
-                    [(ngModel)]="businessInfo.longitude"
-                    placeholder="e.g., 120.9842"
-                    step="any"
-                    min="-180"
-                    max="180">
+                  <p>{{ businessInfo.longitude || 'Not set' }}</p>
                 </div>
               </div>
               <div class="location-helpers">

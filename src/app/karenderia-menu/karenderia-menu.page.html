@@ -275,6 +275,11 @@
               <ion-item *ngFor="let ingredient of newMenuItem.selectedIngredients; let i = index" class="selected-ingredient-item">
                 <div class="ingredient-details">
                   <h4>{{ ingredient.ingredientName }}</h4>
+                  <div class="ingredient-meta">
+                    <span class="ingredient-quantity">{{ ingredient.quantity }} {{ ingredient.unit }}</span>
+                    <span class="ingredient-cost">₱{{ ingredient.cost }}</span>
+                    <span *ngIf="ingredient.ingredientId" class="ingredient-id">ID: {{ ingredient.ingredientId }}</span>
+                  </div>
                   <div class="ingredient-inputs">
                     <ion-input 
                       type="number" 

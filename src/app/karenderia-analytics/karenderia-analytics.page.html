@@ -203,7 +203,7 @@
           </ion-button>
         </div>
       </div>
-    </div>
+    </div> <!-- Close the extra unclosed div -->
 
     <!-- Modern Empty State -->
     <div *ngIf="!getSelectedAnalytics()" class="modern-empty-state">
@@ -212,10 +212,27 @@
       </div>
       <h3>No Analytics Data Available</h3>
       <p>Add more menu items and engage with customers to see your business analytics and insights here.</p>
-      <ion-button routerLink="/karenderia-menu" color="primary" fill="solid">
+      
+      <!-- Placeholder Graphs -->
+      <div class="placeholder-graphs">
+        <div class="placeholder-graph">
+          <h4>Sales Over Time</h4>
+          <div class="graph-placeholder sales-graph"></div>
+        </div>
+        <div class="placeholder-graph">
+          <h4>Top Categories</h4>
+          <div class="graph-placeholder categories-graph"></div>
+        </div>
+        <div class="placeholder-graph">
+          <h4>Customer Engagement</h4>
+          <div class="graph-placeholder engagement-graph"></div>
+        </div>
+      </div>
+
+      <!-- <ion-button routerLink="/karenderia-menu" color="primary" fill="solid">
         <ion-icon name="restaurant" slot="start"></ion-icon>
         Manage Your Menu
-      </ion-button>
+      </ion-button> -->
     </div>
 
   </div>

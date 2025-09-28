@@ -181,7 +181,7 @@ export class DailyMenuManagementPage implements OnInit {
         {
           name: 'specialPrice',
           type: 'number',
-          placeholder: 'Special price (optional)'
+          placeholder: 'Price'
         },
         {
           name: 'notes',
