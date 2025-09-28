@@ -32,7 +32,10 @@ export class AuthGuard implements CanActivate {
       take(1),
       tap(loggedIn => {
         if (!loggedIn) {
+          console.log('Auth Guard: User not authenticated, redirecting to login');
           this.router.navigate(['/login']);
+        } else {
+          console.log('Auth Guard: User authenticated, allowing access');
         }
       })
     ) as Observable<boolean>;

@@ -1,9 +1,8 @@
-import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { MenuService } from '../services/menu.service';
 import { SpoonacularService } from '../services/spoonacular.service';
 import { KarenderiaInfoService } from '../services/karenderia-info.service';
-import { AuthService } from '../services/auth.service';
 import { MenuItem, MenuIngredient } from '../models/menu.model';
 import { AlertController, ToastController, ModalController } from '@ionic/angular';
 import { Subscription } from 'rxjs';
@@ -23,46 +22,16 @@ export class KarenderiaMenuPage implements OnInit, OnDestroy {
   
   private menuSubscription?: Subscription;
   
-  // New menu item form with all required fields
+  // New menu item form
   newMenuItem = {
     name: '',
     description: '',
     price: 0,
-    cost_price: 0,
     category: 'main',
-    preparation_time_minutes: 15,
-    calories: 0,
-    ingredients: [] as string[],
-    allergens: [] as string[],
-    dietary_info: '',
-    spice_level: 1,
-    serving_size: 1,
-    is_available: true,
-    is_featured: false,
-    image_url: ''
+    preparationTime: 15,
+    selectedIngredients: [] as MenuIngredient[],
+    customIngredients: [] as MenuIngredient[]
   };
-
-  // Form helpers
-  newIngredient = '';
-  newAllergen = '';
-  availableAllergens = [
-    'Dairy', 'Eggs', 'Fish', 'Shellfish', 'Tree Nuts', 'Peanuts', 
-    'Wheat', 'Soy', 'Sesame', 'Gluten', 'Corn', 'Sulphites'
-  ];
-  
-  categories = [
-    { value: 'main', label: 'Main Course' },
-    { value: 'dessert', label: 'Dessert' },
-    { value: 'beverage', label: 'Beverage' },
-  ];
-
-  spiceLevels = [
-    { value: 1, label: 'Mild' },
-    { value: 2, label: 'Medium' },
-    { value: 3, label: 'Spicy' },
-    { value: 4, label: 'Very Spicy' },
-    { value: 5, label: 'Extremely Spicy' }
-  ];
 
   // Common ingredients for different dish types
   commonIngredients: { [key: string]: { name: string; quantity: number; unit: string; cost: number; }[] } = {
@@ -151,28 +120,10 @@ export class KarenderiaMenuPage implements OnInit, OnDestroy {
     private alertController: AlertController,
     private toastController: ToastController,
     private modalController: ModalController,
-    private karenderiaInfoService: KarenderiaInfoService,
-    private authService: AuthService,
-    private cdr: ChangeDetectorRef
+    private karenderiaInfoService: KarenderiaInfoService
   ) { }
 
-  async ngOnInit() {
-    // Check authentication status
-    const isAuthenticated = this.authService.isAuthenticated();
-    
-    if (isAuthenticated) {
-      const currentUser = this.authService.getCurrentUser();
-      
-      // Force reload karenderia data if user is a karenderia owner
-      if (currentUser?.role === 'karenderia_owner') {
-        this.karenderiaInfoService.reloadKarenderiaData();
-        
-        // Force reload menu data to ensure fresh data for this user
-        await this.menuService.forceReload();
-      }
-    }
-    
-    // Always set up the subscription to menu items
+  ngOnInit() {
     this.loadMenuItems();
   }
 
@@ -192,6 +143,8 @@ export class KarenderiaMenuPage implements OnInit, OnDestroy {
     }
     
     this.menuSubscription = this.menuService.menuItems$.subscribe(items => {
+      console.log('Menu items received in component:', items);
+      
       // Remove any potential duplicates based on ID and name
       const uniqueItems = items.filter((item, index, self) => {
         return index === self.findIndex(i => 
@@ -200,6 +153,7 @@ export class KarenderiaMenuPage implements OnInit, OnDestroy {
         );
       });
       
+      console.log('Unique menu items after deduplication:', uniqueItems);
       this.menuItems = uniqueItems;
       this.filterByCategory();
     });
@@ -228,7 +182,6 @@ export class KarenderiaMenuPage implements OnInit, OnDestroy {
     this.isAddingItem = false;
     this.editingItemId = null; // Reset editing state
     this.resetNewItemForm();
-    this.cdr.detectChanges();
   }
 
   resetNewItemForm() {
@@ -236,88 +189,54 @@ export class KarenderiaMenuPage implements OnInit, OnDestroy {
       name: '',
       description: '',
       price: 0,
-      cost_price: 0,
       category: 'main',
-      preparation_time_minutes: 15,
-      calories: 0,
-      ingredients: [],
-      allergens: [],
-      dietary_info: '',
-      spice_level: 1,
-      serving_size: 1,
-      is_available: true,
-      is_featured: false,
-      image_url: ''
+      preparationTime: 15,
+      selectedIngredients: [],
+      customIngredients: []
     };
-    this.newIngredient = '';
-    this.newAllergen = '';
+    this.selectedDishType = '';
     this.showIngredientSelection = false;
-  }
-
-  // New ingredient management methods
-  addIngredient() {
-    if (this.newIngredient.trim() && !this.newMenuItem.ingredients.includes(this.newIngredient.trim())) {
-      this.newMenuItem.ingredients.push(this.newIngredient.trim());
-      this.newIngredient = '';
-    }
-  }
-
-  removeIngredient(index: number) {
-    this.newMenuItem.ingredients.splice(index, 1);
-  }
-
-  // New allergen management methods
-  addAllergen() {
-    if (this.newAllergen && !this.newMenuItem.allergens.includes(this.newAllergen)) {
-      this.newMenuItem.allergens.push(this.newAllergen);
-      this.newAllergen = '';
-    }
-  }
-
-  removeAllergen(index: number) {
-    this.newMenuItem.allergens.splice(index, 1);
-  }
-
-  toggleAllergen(allergen: string) {
-    const index = this.newMenuItem.allergens.indexOf(allergen);
-    if (index > -1) {
-      this.newMenuItem.allergens.splice(index, 1);
-    } else {
-      this.newMenuItem.allergens.push(allergen);
-    }
-  }
-
-  isAllergenSelected(allergen: string): boolean {
-    return this.newMenuItem.allergens.includes(allergen);
   }
 
   onDishTypeChange() {
     if (this.selectedDishType && this.commonIngredients[this.selectedDishType]) {
       this.showIngredientSelection = true;
       // Pre-select common ingredients
-      this.newMenuItem.ingredients = this.commonIngredients[this.selectedDishType].map((ing: any) => ing.name);
+      this.newMenuItem.selectedIngredients = this.commonIngredients[this.selectedDishType].map((ing: any) => ({
+        ingredientId: this.generateTempId(),
+        ingredientName: ing.name,
+        quantity: ing.quantity,
+        unit: ing.unit,
+        cost: ing.cost
+      }));
     } else {
       this.showIngredientSelection = false;
-      this.newMenuItem.ingredients = [];
+      this.newMenuItem.selectedIngredients = [];
     }
   }
 
   toggleIngredient(ingredient: any, checked: boolean) {
     if (checked) {
-      // Add ingredient if not already in the list
-      if (!this.newMenuItem.ingredients.includes(ingredient.name)) {
-        this.newMenuItem.ingredients.push(ingredient.name);
+      // Add ingredient if not already selected
+      if (!this.newMenuItem.selectedIngredients.find(ing => ing.ingredientName === ingredient.name)) {
+        this.newMenuItem.selectedIngredients.push({
+          ingredientId: this.generateTempId(),
+          ingredientName: ingredient.name,
+          quantity: ingredient.quantity,
+          unit: ingredient.unit,
+          cost: ingredient.cost
+        });
       }
     } else {
       // Remove ingredient
-      this.newMenuItem.ingredients = this.newMenuItem.ingredients.filter(
-        ing => ing !== ingredient.name
+      this.newMenuItem.selectedIngredients = this.newMenuItem.selectedIngredients.filter(
+        ing => ing.ingredientName !== ingredient.name
       );
     }
   }
 
   isIngredientSelected(ingredientName: string): boolean {
-    return this.newMenuItem.ingredients.includes(ingredientName);
+    return this.newMenuItem.selectedIngredients.some(ing => ing.ingredientName === ingredientName);
   }
 
   async addCustomIngredient() {
@@ -328,6 +247,21 @@ export class KarenderiaMenuPage implements OnInit, OnDestroy {
           name: 'name',
           type: 'text',
           placeholder: 'Ingredient name'
+        },
+        {
+          name: 'quantity',
+          type: 'number',
+          placeholder: 'Quantity'
+        },
+        {
+          name: 'unit',
+          type: 'text',
+          placeholder: 'Unit (g, ml, pieces, etc.)'
+        },
+        {
+          name: 'cost',
+          type: 'number',
+          placeholder: 'Cost in PHP'
         }
       ],
       buttons: [
@@ -338,10 +272,14 @@ export class KarenderiaMenuPage implements OnInit, OnDestroy {
         {
           text: 'Add',
           handler: (data) => {
-            if (data.name) {
-              if (!this.newMenuItem.ingredients.includes(data.name)) {
-                this.newMenuItem.ingredients.push(data.name);
-              }
+            if (data.name && data.quantity && data.unit && data.cost) {
+              this.newMenuItem.selectedIngredients.push({
+                ingredientId: this.generateTempId(),
+                ingredientName: data.name,
+                quantity: parseFloat(data.quantity),
+                unit: data.unit,
+                cost: parseFloat(data.cost)
+              });
               return true;
             }
             return false;
@@ -353,19 +291,23 @@ export class KarenderiaMenuPage implements OnInit, OnDestroy {
     await alert.present();
   }
 
-  async saveMenuItem() {
-    // Check authentication first
-    if (!this.authService.isAuthenticated()) {
-      const toast = await this.toastController.create({
-        message: 'You must be logged in to save menu items',
-        duration: 3000,
-        color: 'danger'
-      });
-      await toast.present();
-      this.router.navigate(['/login']);
-      return;
-    }
+  removeIngredient(index: number) {
+    this.newMenuItem.selectedIngredients.splice(index, 1);
+  }
 
+  updateIngredientQuantity(index: number, quantity: number) {
+    this.newMenuItem.selectedIngredients[index].quantity = quantity;
+  }
+
+  updateIngredientCost(index: number, cost: number) {
+    this.newMenuItem.selectedIngredients[index].cost = cost;
+  }
+
+  getTotalCost(): number {
+    return this.newMenuItem.selectedIngredients.reduce((total, ing) => total + ing.cost, 0);
+  }
+
+  async saveMenuItem() {
     if (!this.newMenuItem.name || !this.newMenuItem.description || this.newMenuItem.price <= 0) {
       const toast = await this.toastController.create({
         message: 'Please fill in all required fields',
@@ -376,7 +318,7 @@ export class KarenderiaMenuPage implements OnInit, OnDestroy {
       return;
     }
 
-    const menuItem: any = {
+    const menuItem: Partial<MenuItem> = {
       name: this.newMenuItem.name,
       description: this.newMenuItem.description,
       price: this.newMenuItem.price,
@@ -414,7 +356,6 @@ export class KarenderiaMenuPage implements OnInit, OnDestroy {
       }
       
       this.cancelAddingItem();
-      this.loadMenuItems(); // Reload menu items
     } catch (error) {
       console.error('Error saving menu item:', error);
       const toast = await this.toastController.create({
@@ -626,40 +567,6 @@ export class KarenderiaMenuPage implements OnInit, OnDestroy {
         message: 'Failed to update menu item',
         duration: 3000,
         color: 'danger'
-      });
-      await toast.present();
-    }
-  }
-
-  /**
-   * Toggle menu item availability from toggle switch
-   */
-  async toggleItemAvailability(item: MenuItem, event: any) {
-    try {
-      const newAvailabilityState = event.detail.checked;
-      
-      // Call the API to update the backend
-      await this.menuService.updateMenuItemAvailability(item.id, newAvailabilityState);
-      
-      const toast = await this.toastController.create({
-        message: `${item.name} ${newAvailabilityState ? 'is now available' : 'is now unavailable'}`,
-        duration: 2000,
-        color: newAvailabilityState ? 'success' : 'warning',
-        position: 'top'
-      });
-      await toast.present();
-    } catch (error) {
-      console.error('Error updating menu item availability:', error);
-      
-      // Revert the toggle state if API call failed
-      const toggle = event.target;
-      toggle.checked = !event.detail.checked;
-      
-      const toast = await this.toastController.create({
-        message: 'Failed to update item availability',
-        duration: 3000,
-        color: 'danger',
-        position: 'top'
       });
       await toast.present();
     }

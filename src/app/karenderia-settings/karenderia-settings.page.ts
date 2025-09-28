@@ -5,9 +5,10 @@ import { AdminService } from '../services/admin.service';
 import { KarenderiaService } from '../services/karenderia.service';
 
 interface BusinessInfo {
-  id?: number;
   name: string;
-  business_name?: string;
+  phone: string;
+  email: string;
+  cuisineType: string;
   description: string;
   address: string;
   latitude?: number;
@@ -44,16 +45,6 @@ interface OperatingDay {
   isOpen: boolean;
   openTime: string;
   closeTime: string;
-}
-
-interface PinPosition {
-  x: number | null;
-  y: number | null;
-}
-
-interface Coordinates {
-  lat: number;
-  lng: number;
 }
 
 @Component({
@@ -94,8 +85,8 @@ export class KarenderiaSettingsPage implements OnInit {
   };
 
   accountSettings: AccountSettings = {
-    firstName: '',
-    lastName: ''
+    firstName: 'Rosa',
+    lastName: 'Santos'
   };
 
   passwordChange: PasswordChange = {
@@ -338,54 +329,10 @@ export class KarenderiaSettingsPage implements OnInit {
 
   // Dynamic karenderia display methods
   getKarenderiaDisplayName(): string {
-    // Use the current form value if available, otherwise fallback to service
-    if (this.businessInfo.name && this.businessInfo.name.trim()) {
-      let displayName = this.businessInfo.name.trim();
-      
-      // Add "'s Kitchen" suffix if the name doesn't already have it
-      if (!displayName.toLowerCase().includes('kitchen') && 
-          !displayName.toLowerCase().includes('karenderia') &&
-          !displayName.toLowerCase().includes('restaurant')) {
-        // Check if it ends with 's already (like "Rosa's" -> "Rosa's Kitchen")
-        if (displayName.endsWith("'s") || displayName.endsWith('s')) {
-          displayName = displayName.endsWith("'s") ? displayName : displayName + "'s";
-          displayName += " Kitchen";
-        } else {
-          displayName += "'s Kitchen";
-        }
-      }
-      
-      return displayName;
-    }
-    
-    // Fallback to service if no form data
     return this.karenderiaInfoService.getKarenderiaDisplayName();
   }
 
   getKarenderiaBrandInitials(): string {
-    // Use the current form value if available
-    if (this.businessInfo.name && this.businessInfo.name.trim()) {
-      const name = this.businessInfo.name.trim();
-      const words = name.split(' ').filter(word => word.length > 0);
-      
-      if (words.length === 0) return 'YK';
-      if (words.length === 1) return words[0].substring(0, 2).toUpperCase();
-      
-      // Take first letter of first two meaningful words (skip common words)
-      const meaningfulWords = words.filter(word => 
-        !['the', 'and', 'of', 'a', 'an', 'in', 'on', 'at', 'to', 'for', 'with'].includes(word.toLowerCase())
-      );
-      
-      if (meaningfulWords.length >= 2) {
-        return (meaningfulWords[0][0] + meaningfulWords[1][0]).toUpperCase();
-      } else if (meaningfulWords.length === 1) {
-        return meaningfulWords[0].substring(0, 2).toUpperCase();
-      }
-      
-      return (words[0][0] + words[1][0]).toUpperCase();
-    }
-    
-    // Fallback to service if no form data
     return this.karenderiaInfoService.getKarenderiaBrandInitials();
   }
 

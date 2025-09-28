@@ -45,23 +45,6 @@ export class MenuService {
     this.loadMenuItems().catch(err => console.warn('Menu items loading failed:', err));
   }
 
-  // Method to clear all cached data (useful for logout/user switching)
-  clearCache(): void {
-    this.menuItemsSubject.next([]);
-    this.ingredientsSubject.next([]);
-    this.categoriesSubject.next([]);
-    this.ordersSubject.next([]);
-  }
-
-  // Method to force reload all data (useful for user switching)
-  forceReload(): void {
-    this.clearCache();
-    this.loadCategories().catch(err => console.warn('Categories loading failed:', err));
-    this.loadIngredients().catch(err => console.warn('Ingredients loading failed:', err));
-    this.loadMenuItems().catch(err => console.warn('Menu items loading failed:', err));
-    this.loadOrders().catch(err => console.warn('Orders loading failed:', err));
-  }
-
   private getHeaders(): HttpHeaders {
     const token = sessionStorage.getItem('auth_token');
     const headers: any = {
@@ -88,15 +71,19 @@ export class MenuService {
   // MENU ITEMS
   async loadMenuItems(): Promise<void> {
     try {
-      // Check authentication
-      const token = localStorage.getItem('auth_token');
-      
-      const response = await this.http.get<{ data: any[], debug?: any, karenderia?: any }>(`${this.apiUrl}/menu-items/my-menu`, {
+      console.log('Loading menu items from API...');
+      const response = await this.http.get<{ data: any[] }>(`${this.apiUrl}/menu-items`, {
         headers: this.getHeaders()
       }).toPromise();
       
+      console.log('Raw API response:', response);
+      console.log('Menu items from API:', response?.data);
+      
       // Map backend field names to frontend field names
       const mappedItems: MenuItem[] = (response?.data || []).map(item => {
+        console.log('Processing menu item:', item);
+        console.log('Item ingredients:', item.ingredients);
+        
         return {
           ...item,
           isAvailable: item.is_available !== undefined ? item.is_available : item.isAvailable,
@@ -107,13 +94,15 @@ export class MenuService {
         };
       });
       
+      console.log('Mapped menu items:', mappedItems);
+      
       // Clear any existing items before setting new ones to prevent duplicates
       this.menuItemsSubject.next([]);
       
       // Set the new items
       this.menuItemsSubject.next(mappedItems);
     } catch (error) {
-      console.error('❌ Error loading menu items:', error);
+      console.error('Error loading menu items:', error);
     }
   }
 
@@ -188,21 +177,6 @@ export class MenuService {
     }).toPromise();
     
     this.loadMenuItems();
-  }
-
-  async updateMenuItemAvailability(id: string, isAvailable: boolean): Promise<void> {
-    await this.http.put(`${this.apiUrl}/menu-items/${id}/availability`, {
-      is_available: isAvailable
-    }, {
-      headers: this.getHeaders()
-    }).toPromise();
-    
-    // Update the local state immediately for better UX
-    const currentItems = this.menuItemsSubject.value;
-    const updatedItems = currentItems.map(item => 
-      item.id === id ? { ...item, isAvailable, is_available: isAvailable } : item
-    );
-    this.menuItemsSubject.next(updatedItems);
   }
 
   async deleteMenuItem(id: string): Promise<void> {
@@ -489,6 +463,7 @@ export class MenuService {
       });
 
       await Promise.all(promises);
+      console.log('Nutrition data generated for all menu items');
     } catch (error) {
       console.error('Error generating nutrition for existing items:', error);
       throw error;

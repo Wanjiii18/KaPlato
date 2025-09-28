@@ -96,11 +96,6 @@ export class MealFilterService {
       );
     }
 
-    // Apply availability filter - only show available items to customers
-    filteredMeals = filteredMeals.filter(meal => 
-      meal.available === true || meal.available === undefined
-    );
-
     // Apply dietary filters
     if (filters.isVegetarian) {
       filteredMeals = filteredMeals.filter(meal => 

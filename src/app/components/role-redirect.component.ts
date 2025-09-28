@@ -31,6 +31,13 @@ export class RoleRedirectComponent implements OnInit {
       return;
     }
     
+    // Temporarily redirect directly to home for UI testing
+    console.log('RoleRedirect: Redirecting to home for UI testing');
+    this.router.navigate(['/home'], { replaceUrl: true });
+    return;
+    
+    // Original authentication logic (commented out for testing)
+    /*
     // Check authentication immediately using synchronous methods
     const token = this.authService.getAuthToken();
     const currentUser = this.authService.getCurrentUser();
@@ -38,29 +45,58 @@ export class RoleRedirectComponent implements OnInit {
     console.log('RoleRedirect: Token exists:', !!token);
     console.log('RoleRedirect: Current user:', currentUser);
 
-    if (!token || !currentUser) {
-      // No token or user data, redirect to login immediately
-      console.log('RoleRedirect: No authentication, redirecting to login');
-      this.router.navigate(['/login'], { replaceUrl: true });
+    if (!token) {
+      // No token, redirect to login immediately
+      console.log('RoleRedirect: No token, redirecting to login');
+      this.router.navigate(['/login']);
       return;
     }
 
-    // User is authenticated, redirect based on role
-    console.log('RoleRedirect: User authenticated, redirecting based on role:', currentUser.role);
+    if (currentUser) {
+      // User data is available, redirect based on role
+      console.log('RoleRedirect: User data available, redirecting based on role:', currentUser.role);
+      this.redirectBasedOnRole(currentUser);
+      return;
+    }
+
+    // Token exists but user data not loaded yet, give it a very short time
+    console.log('RoleRedirect: Token exists but user not loaded, waiting briefly...');
+    setTimeout(() => {
+      const user = this.authService.getCurrentUser();
+      if (user) {
+        console.log('RoleRedirect: User loaded after brief wait:', user.role);
+        this.redirectBasedOnRole(user);
+      } else {
+        console.log('RoleRedirect: User still not loaded, redirecting to login');
+        this.router.navigate(['/login']);
+      }
+    }, 100); // Very short 100ms wait
+    */
+    setTimeout(() => {
+      const user = this.authService.getCurrentUser();
+      if (user) {
+        console.log('RoleRedirect: User loaded after brief wait:', user.role);
+        this.redirectBasedOnRole(user);
+      } else {
+        console.log('RoleRedirect: User still not loaded, redirecting to login');
+        this.router.navigate(['/login']);
+      }
+    }, 100); // Very short 100ms wait
+  }
+
+  private redirectBasedOnRole(user: any) {
+    console.log('RoleRedirect: Redirecting user with role:', user?.role);
     
-    switch (currentUser.role) {
-      case 'customer':
-        this.router.navigate(['/home'], { replaceUrl: true });
+    switch (user?.role) {
+      case 'admin':
+        this.router.navigate(['/admin-dashboard']);
         break;
       case 'karenderia_owner':
-        this.router.navigate(['/karenderia-dashboard'], { replaceUrl: true });
+        this.router.navigate(['/karenderia-dashboard']);
         break;
-      case 'admin':
-        this.router.navigate(['/admin-dashboard'], { replaceUrl: true });
-        break;
+      case 'customer':
       default:
-        console.log('RoleRedirect: Unknown role, redirecting to login');
-        this.router.navigate(['/login'], { replaceUrl: true });
+        this.router.navigate(['/home']);
         break;
     }
   }

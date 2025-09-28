@@ -1,0 +1,567 @@
+<ion-header [translucent]="true" class="modern-admin-header">
+  <ion-toolbar class="gradient-admin-toolbar">
+    <ion-title>
+      <div class="modern-admin-title">
+        <ion-icon name="shield-checkmark" color="light"></ion-icon>
+        <span>Admin Dashboard</span>
+      </div>
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="logout()" fill="clear" color="light">
+        <ion-icon name="log-out-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="modern-admin-content">
+  <div class="modern-admin-dashboard animate-fade-in">
+    
+    <!-- Modern Welcome Header -->
+    <div class="modern-welcome-section animate-slide-up">
+      <div class="welcome-card">
+        <div class="admin-avatar">
+          <ion-icon name="shield-checkmark" color="primary"></ion-icon>
+        </div>
+        <div class="welcome-content">
+          <h1>Welcome back, {{currentUser?.name}}</h1>
+          <p>KaPlato Administrative Control Panel</p>
+          <div class="date-time-info">
+            <ion-chip class="date-chip">
+              <ion-icon name="calendar" color="primary"></ion-icon>
+              <ion-label>{{currentDate | date:'fullDate'}}</ion-label>
+            </ion-chip>
+            <ion-chip class="time-chip">
+              <ion-icon name="time" color="success"></ion-icon>
+              <ion-label>{{currentTime}}</ion-label>
+            </ion-chip>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modern Navigation Tabs -->
+    <div class="modern-navigation-section">
+      <ion-segment [(ngModel)]="selectedTab" (ionChange)="onTabChange($event)" class="modern-admin-segment">
+        <ion-segment-button value="overview" class="modern-segment-btn">
+          <ion-icon name="analytics"></ion-icon>
+          <ion-label>Overview</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="customers" class="modern-segment-btn">
+          <ion-icon name="people"></ion-icon>
+          <ion-label>Customers</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="owners" class="modern-segment-btn">
+          <ion-icon name="business"></ion-icon>
+          <ion-label>Owners</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="karenderias" class="modern-segment-btn">
+          <ion-icon name="restaurant"></ion-icon>
+          <ion-label>Applications</ion-label>
+        </ion-segment-button>
+      </ion-segment>
+    </div>
+
+    <!-- Modern Overview Tab -->
+    <div *ngIf="selectedTab === 'overview'" class="modern-tab-content">
+      
+      <!-- Modern Stats Cards -->
+      <div class="modern-stats-section">
+        <div class="section-header">
+          <ion-icon name="analytics" color="primary"></ion-icon>
+          <h2>Platform Overview</h2>
+          <p>Real-time system statistics and insights</p>
+        </div>
+        
+        <div class="modern-stats-grid">
+          <ion-card class="modern-stat-card applications-card">
+            <ion-card-content>
+              <div class="stat-icon-wrapper applications">
+                <ion-icon name="document-text" color="warning"></ion-icon>
+              </div>
+              <div class="stat-content">
+                <div class="stat-number">{{dashboardStats?.pending_karenderias || 0}}</div>
+                <div class="stat-label">Pending Applications</div>
+                <div class="stat-sublabel">Require Review</div>
+              </div>
+              <div class="stat-trend">
+                <ion-chip color="warning" class="trend-chip">
+                  <ion-icon name="time"></ion-icon>
+                  <ion-label>Urgent</ion-label>
+                </ion-chip>
+              </div>
+            </ion-card-content>
+          </ion-card>
+
+          <ion-card class="modern-stat-card karenderias-card">
+            <ion-card-content>
+              <div class="stat-icon-wrapper karenderias">
+                <ion-icon name="restaurant" color="success"></ion-icon>
+              </div>
+              <div class="stat-content">
+                <div class="stat-number">{{dashboardStats?.active_karenderias || 0}}</div>
+                <div class="stat-label">Active Karenderias</div>
+                <div class="stat-sublabel">Serving Customers</div>
+              </div>
+              <div class="stat-trend">
+                <ion-chip color="success" class="trend-chip">
+                  <ion-icon name="trending-up"></ion-icon>
+                  <ion-label>Growing</ion-label>
+                </ion-chip>
+              </div>
+            </ion-card-content>
+          </ion-card>
+
+          <ion-card class="modern-stat-card customers-card">
+            <ion-card-content>
+              <div class="stat-icon-wrapper customers">
+                <ion-icon name="people" color="primary"></ion-icon>
+              </div>
+              <div class="stat-content">
+                <div class="stat-number">{{dashboardStats?.total_users || 0}}</div>
+                <div class="stat-label">Registered Customers</div>
+                <div class="stat-sublabel">Platform Users</div>
+              </div>
+              <div class="stat-trend">
+                <ion-chip color="primary" class="trend-chip">
+                  <ion-icon name="people"></ion-icon>
+                  <ion-label>Active</ion-label>
+                </ion-chip>
+              </div>
+            </ion-card-content>
+          </ion-card>
+
+          <ion-card class="modern-stat-card orders-card">
+            <ion-card-content>
+              <div class="stat-icon-wrapper orders">
+                <ion-icon name="bag-handle" color="tertiary"></ion-icon>
+              </div>
+              <div class="stat-content">
+                <div class="stat-number">{{dashboardStats?.todays_orders || 0}}</div>
+                <div class="stat-label">Today's Orders</div>
+                <div class="stat-sublabel">24h Activity</div>
+              </div>
+              <div class="stat-trend">
+                <ion-chip color="tertiary" class="trend-chip">
+                  <ion-icon name="flash"></ion-icon>
+                  <ion-label>Live</ion-label>
+                </ion-chip>
+              </div>
+            </ion-card-content>
+          </ion-card>
+        </div>
+      </div>
+
+      <!-- Modern Quick Actions -->
+      <div class="modern-actions-section">
+        <div class="section-header">
+          <ion-icon name="flash" color="tertiary"></ion-icon>
+          <h2>Quick Actions</h2>
+          <p>Streamlined administrative tasks</p>
+        </div>
+        
+        <div class="modern-actions-grid">
+          <ion-button 
+            expand="block" 
+            fill="clear" 
+            class="modern-action-button urgent"
+            (click)="selectedTab = 'karenderias'">
+            <div class="action-content">
+              <div class="action-icon">
+                <ion-icon name="document-text" color="warning"></ion-icon>
+              </div>
+              <div class="action-text">
+                <div class="action-title">Review Applications</div>
+                <div class="action-subtitle">{{dashboardStats?.pending_karenderias || 0}} pending approvals</div>
+              </div>
+              <div class="action-badge">
+                <ion-badge color="warning">{{dashboardStats?.pending_karenderias || 0}}</ion-badge>
+              </div>
+            </div>
+          </ion-button>
+
+          <ion-button 
+            expand="block" 
+            fill="clear" 
+            class="modern-action-button location"
+            routerLink="/admin-location-management">
+            <div class="action-content">
+              <div class="action-icon">
+                <ion-icon name="map" color="primary"></ion-icon>
+              </div>
+              <div class="action-text">
+                <div class="action-title">Manage Locations</div>
+                <div class="action-subtitle">Set karenderia map coordinates</div>
+              </div>
+              <div class="action-arrow">
+                <ion-icon name="chevron-forward" color="medium"></ion-icon>
+              </div>
+            </div>
+          </ion-button>
+
+          <ion-button 
+            expand="block" 
+            fill="clear" 
+            class="modern-action-button customers"
+            (click)="selectedTab = 'customers'">
+            <div class="action-content">
+              <div class="action-icon">
+                <ion-icon name="people" color="success"></ion-icon>
+              </div>
+              <div class="action-text">
+                <div class="action-title">Customer Management</div>
+                <div class="action-subtitle">{{dashboardStats?.total_users || 0}} active users</div>
+              </div>
+              <div class="action-badge">
+                <ion-badge color="success">{{dashboardStats?.total_users || 0}}</ion-badge>
+              </div>
+            </div>
+          </ion-button>
+
+          <ion-button 
+            expand="block" 
+            fill="clear" 
+            class="modern-action-button owners"
+            (click)="selectedTab = 'owners'">
+            <div class="action-content">
+              <div class="action-icon">
+                <ion-icon name="business" color="tertiary"></ion-icon>
+              </div>
+              <div class="action-text">
+                <div class="action-title">Owner Management</div>
+                <div class="action-subtitle">{{dashboardStats?.total_owners || 0}} business owners</div>
+              </div>
+              <div class="action-badge">
+                <ion-badge color="tertiary">{{dashboardStats?.total_owners || 0}}</ion-badge>
+              </div>
+            </div>
+          </ion-button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modern Customers Tab -->
+    <div *ngIf="selectedTab === 'customers'" class="modern-tab-content">
+      <div class="modern-users-section">
+        <div class="section-header">
+          <ion-icon name="people" color="success"></ion-icon>
+          <h2>Customer Management</h2>
+          <p>Manage and monitor customer accounts</p>
+          <ion-button 
+            fill="solid" 
+            size="small"
+            color="success"
+            (click)="loadCustomers()"
+            class="refresh-btn">
+            <ion-icon name="refresh" slot="start"></ion-icon>
+            Refresh Data
+          </ion-button>
+        </div>
+
+        <div *ngIf="!customers || customers.length === 0" class="modern-empty-state">
+          <div class="empty-icon">
+            <ion-icon name="people" color="medium"></ion-icon>
+          </div>
+          <h3>No customers found</h3>
+          <p>Customer accounts will appear here once users register</p>
+        </div>
+
+        <div class="modern-users-grid">
+          <ion-card *ngFor="let customer of customers" class="modern-user-card customer-card">
+            <ion-card-content>
+              <div class="user-card-header">
+                <div class="user-avatar">
+                  <ion-icon name="person" color="success"></ion-icon>
+                </div>
+                <div class="user-basic-info">
+                  <h3>{{customer.name}}</h3>
+                  <p>{{customer.email}}</p>
+                  <ion-chip [color]="customer.status === 'verified' ? 'success' : 'warning'" class="status-chip">
+                    <ion-icon [name]="customer.status === 'verified' ? 'checkmark-circle' : 'time'"></ion-icon>
+                    <ion-label>{{customer.status}}</ion-label>
+                  </ion-chip>
+                </div>
+                <div class="user-stats-summary">
+                  <div class="stat-item">
+                    <span class="stat-number">{{customer.total_orders}}</span>
+                    <span class="stat-label">Orders</span>
+                  </div>
+                  <div class="stat-item">
+                    <span class="stat-number">₱{{customer.total_spent | number:'1.0-0'}}</span>
+                    <span class="stat-label">Spent</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="user-details-grid">
+                <div class="detail-item">
+                  <ion-icon name="call" color="primary"></ion-icon>
+                  <span>{{customer.phone || 'No phone number'}}</span>
+                </div>
+                <div class="detail-item">
+                  <ion-icon name="calendar" color="tertiary"></ion-icon>
+                  <span>Joined: {{customer.created_at | date:'mediumDate'}}</span>
+                </div>
+                <div class="detail-item">
+                  <ion-icon name="time" color="warning"></ion-icon>
+                  <span>Last active: {{customer.last_login | date:'short'}}</span>
+                </div>
+              </div>
+
+              <div class="user-actions-grid">
+                <ion-button 
+                  size="small" 
+                  fill="solid"
+                  [color]="customer.status === 'verified' ? 'warning' : 'success'"
+                  (click)="toggleUserStatus(customer.id, 'customer')">
+                  <ion-icon [name]="customer.status === 'verified' ? 'ban' : 'checkmark-circle'" slot="start"></ion-icon>
+                  {{customer.status === 'verified' ? 'Disable' : 'Enable'}}
+                </ion-button>
+                <ion-button 
+                  size="small" 
+                  fill="outline" 
+                  color="tertiary"
+                  (click)="changeUserRole(customer.id, customer.name)">
+                  <ion-icon name="swap-horizontal" slot="start"></ion-icon>
+                  Change Role
+                </ion-button>
+                <ion-button 
+                  size="small" 
+                  fill="outline" 
+                  color="danger"
+                  (click)="deleteUser(customer.id, customer.name, 'customer')">
+                  <ion-icon name="trash" slot="start"></ion-icon>
+                  Delete
+                </ion-button>
+              </div>
+            </ion-card-content>
+          </ion-card>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modern Karenderia Owners Tab -->
+    <div *ngIf="selectedTab === 'owners'" class="modern-tab-content">
+      <div class="modern-users-section">
+        <div class="section-header">
+          <ion-icon name="business" color="tertiary"></ion-icon>
+          <h2>Karenderia Owner Management</h2>
+          <p>Manage business owners and their establishments</p>
+          <ion-button 
+            fill="solid" 
+            size="small"
+            color="tertiary"
+            (click)="loadKarenderiaOwners()"
+            class="refresh-btn">
+            <ion-icon name="refresh" slot="start"></ion-icon>
+            Refresh Data
+          </ion-button>
+        </div>
+
+        <div *ngIf="!karenderiaOwners || karenderiaOwners.length === 0" class="modern-empty-state">
+          <div class="empty-icon">
+            <ion-icon name="business" color="medium"></ion-icon>
+          </div>
+          <h3>No karenderia owners found</h3>
+          <p>Business owner accounts will appear here once they register</p>
+        </div>
+
+        <div class="modern-users-grid">
+          <ion-card *ngFor="let owner of karenderiaOwners" class="modern-user-card owner-card">
+            <ion-card-content>
+              <div class="user-card-header">
+                <div class="user-avatar">
+                  <ion-icon name="business" color="tertiary"></ion-icon>
+                </div>
+                <div class="user-basic-info">
+                  <h3>{{owner.name}}</h3>
+                  <p>{{owner.email}}</p>
+                  <ion-chip [color]="getOwnerStatusColor(owner)" class="status-chip">
+                    <ion-icon [name]="owner.status === 'verified' ? 'checkmark-circle' : 'time'"></ion-icon>
+                    <ion-label>{{getOwnerStatusText(owner)}}</ion-label>
+                  </ion-chip>
+                </div>
+                <div class="business-summary" *ngIf="owner.karenderia">
+                  <div class="business-info">
+                    <div class="business-name">
+                      <ion-icon name="restaurant" color="success"></ion-icon>
+                      <span>{{owner.karenderia.business_name}}</span>
+                    </div>
+                    <div class="business-location">
+                      <ion-icon name="location" color="primary"></ion-icon>
+                      <span>{{owner.karenderia.location}}</span>
+                    </div>
+                  </div>
+                  <ion-chip [color]="owner.karenderia.status === 'approved' ? 'success' : owner.karenderia.status === 'pending' ? 'warning' : 'danger'" class="business-status-chip">
+                    <ion-icon [name]="owner.karenderia.status === 'approved' ? 'checkmark-circle' : owner.karenderia.status === 'pending' ? 'time' : 'close-circle'"></ion-icon>
+                    <ion-label>{{owner.karenderia.status}}</ion-label>
+                  </ion-chip>
+                </div>
+              </div>
+              
+              <div class="user-details-grid">
+                <div class="detail-item">
+                  <ion-icon name="call" color="primary"></ion-icon>
+                  <span>{{owner.phone || 'No phone number'}}</span>
+                </div>
+                <div class="detail-item">
+                  <ion-icon name="calendar" color="tertiary"></ion-icon>
+                  <span>Joined: {{owner.created_at | date:'mediumDate'}}</span>
+                </div>
+                <div class="detail-item" *ngIf="owner.karenderia?.approved_at">
+                  <ion-icon name="checkmark-circle" color="success"></ion-icon>
+                  <span>Approved: {{owner.karenderia.approved_at | date:'mediumDate'}}</span>
+                </div>
+                <div class="detail-item">
+                  <ion-icon name="map" color="warning"></ion-icon>
+                  <span>{{owner.karenderia?.has_location ? 'Location Set' : 'No Location'}}</span>
+                </div>
+              </div>
+
+              <div class="user-actions-grid">
+                <ion-button 
+                  size="small" 
+                  fill="solid"
+                  color="success"
+                  *ngIf="owner.karenderia?.status === 'pending'"
+                  (click)="approveKarenderia(owner.karenderia)">
+                  <ion-icon name="checkmark" slot="start"></ion-icon>
+                  Approve Business
+                </ion-button>
+                <ion-button 
+                  size="small" 
+                  fill="outline"
+                  color="primary"
+                  routerLink="/admin-location-management"
+                  *ngIf="owner.karenderia && !owner.karenderia.has_location">
+                  <ion-icon name="map" slot="start"></ion-icon>
+                  Set Location
+                </ion-button>
+                <ion-button 
+                  size="small" 
+                  fill="solid"
+                  [color]="owner.status === 'verified' ? 'warning' : 'success'"
+                  (click)="toggleUserStatus(owner.id, 'owner')">
+                  <ion-icon [name]="owner.status === 'verified' ? 'ban' : 'checkmark-circle'" slot="start"></ion-icon>
+                  {{owner.status === 'verified' ? 'Disable' : 'Enable'}}
+                </ion-button>
+                <ion-button 
+                  size="small" 
+                  fill="outline" 
+                  color="tertiary"
+                  (click)="changeUserRole(owner.id, owner.name)">
+                  <ion-icon name="swap-horizontal" slot="start"></ion-icon>
+                  Change Role
+                </ion-button>
+                <ion-button 
+                  size="small" 
+                  fill="outline" 
+                  color="danger"
+                  (click)="deleteUser(owner.id, owner.name, 'owner')">
+                  <ion-icon name="trash" slot="start"></ion-icon>
+                  Delete
+                </ion-button>
+              </div>
+            </ion-card-content>
+          </ion-card>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modern Karenderias Applications Tab -->
+    <div *ngIf="selectedTab === 'karenderias'" class="modern-tab-content">
+      <div class="modern-applications-section">
+        <div class="section-header">
+          <ion-icon name="restaurant" color="warning"></ion-icon>
+          <h2>Business Applications</h2>
+          <p>Review and approve karenderia registration requests</p>
+          <ion-button 
+            fill="solid" 
+            size="small"
+            color="warning"
+            (click)="loadRecentApplications()"
+            class="refresh-btn">
+            <ion-icon name="refresh" slot="start"></ion-icon>
+            Refresh Data
+          </ion-button>
+        </div>
+
+        <div *ngIf="!recentApplications || recentApplications.length === 0" class="modern-empty-state">
+          <div class="empty-icon">
+            <ion-icon name="checkmark-circle" color="success"></ion-icon>
+          </div>
+          <h3>All applications reviewed!</h3>
+          <p>No pending business applications at this time</p>
+        </div>
+
+        <div class="modern-applications-grid">
+          <ion-card *ngFor="let application of recentApplications" class="modern-application-card">
+            <ion-card-content>
+              <div class="application-card-header">
+                <div class="business-identity">
+                  <div class="business-avatar">
+                    <ion-icon name="restaurant" color="warning"></ion-icon>
+                  </div>
+                  <div class="business-info">
+                    <h3>{{application.business_name}}</h3>
+                    <p>{{application.owner_name}} • {{application.owner_email}}</p>
+                  </div>
+                </div>
+                <ion-chip [color]="application.status === 'approved' ? 'success' : 'warning'" class="application-status-chip">
+                  <ion-icon [name]="application.status === 'approved' ? 'checkmark-circle' : 'time'"></ion-icon>
+                  <ion-label>{{application.status}}</ion-label>
+                </ion-chip>
+              </div>
+              
+              <div class="application-details-grid">
+                <div class="detail-item">
+                  <ion-icon name="location" color="primary"></ion-icon>
+                  <span>{{application.city}}, {{application.province}}</span>
+                </div>
+                <div class="detail-item">
+                  <ion-icon name="mail" color="secondary"></ion-icon>
+                  <span>{{application.business_email || 'No business email'}}</span>
+                </div>
+                <div class="detail-item">
+                  <ion-icon name="call" color="success"></ion-icon>
+                  <span>{{application.phone || 'No phone number'}}</span>
+                </div>
+                <div class="detail-item">
+                  <ion-icon name="time" color="warning"></ion-icon>
+                  <span>Applied: {{application.created_at | date:'medium'}}</span>
+                </div>
+              </div>
+
+              <div class="application-actions-grid" *ngIf="application.status === 'pending'">
+                <ion-button 
+                  fill="solid" 
+                  color="success"
+                  expand="block"
+                  (click)="quickApprove(application.id)">
+                  <ion-icon name="checkmark" slot="start"></ion-icon>
+                  Quick Approve
+                </ion-button>
+                <ion-button 
+                  fill="outline" 
+                  color="primary"
+                  expand="block"
+                  routerLink="/admin-location-management">
+                  <ion-icon name="eye" slot="start"></ion-icon>
+                  Review Details
+                </ion-button>
+              </div>
+              
+              <div class="approved-notice" *ngIf="application.status === 'approved'">
+                <ion-chip color="success">
+                  <ion-icon name="checkmark-circle"></ion-icon>
+                  <ion-label>Application Approved</ion-label>
+                </ion-chip>
+              </div>
+            </ion-card-content>
+          </ion-card>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</ion-content>
