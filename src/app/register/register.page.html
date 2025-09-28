@@ -336,7 +336,7 @@
           <ion-button
             expand="block"
             type="submit"
-            [disabled]="!registerForm.valid || registerData.password !== registerData.confirmPassword || isLoading"
+            [disabled]="!registerForm.valid || registerData.password !== registerData.confirmPassword || !isKarenderiaFormValid() || isLoading"
             class="modern-primary-btn">
             <ion-spinner name="crescent" *ngIf="isLoading" class="btn-spinner"></ion-spinner>
             <span *ngIf="!isLoading">Create Account</span>
@@ -346,6 +346,11 @@
         <div class="modern-error-alert" *ngIf="errorMessage">
           <ion-icon name="alert-circle" class="alert-icon"></ion-icon>
           <span>{{ errorMessage }}</span>
+        </div>
+
+        <div class="modern-success-alert" *ngIf="successMessage">
+          <ion-icon name="checkmark-circle" class="alert-icon"></ion-icon>
+          <span>{{ successMessage }}</span>
         </div>
 
         <div class="modern-auth-footer">

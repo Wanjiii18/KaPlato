@@ -238,11 +238,16 @@ export class KarenderiaDetailPage implements OnInit {
 
   filterMenuItems() {
     if (this.selectedCategory === 'all') {
-      this.filteredMenuItems = [...this.menuItems];
+      // Filter to show only available items
+      this.filteredMenuItems = this.menuItems.filter(item => item.available === true || item.available === undefined);
     } else {
-      this.filteredMenuItems = this.menuItems.filter(item => item.category === this.selectedCategory);
+      // Filter by category AND availability
+      this.filteredMenuItems = this.menuItems.filter(item => 
+        item.category === this.selectedCategory && 
+        (item.available === true || item.available === undefined)
+      );
     }
-    console.log(`🔍 Filtered menu items for category "${this.selectedCategory}":`, this.filteredMenuItems.length);
+    console.log(`🔍 Filtered menu items for category "${this.selectedCategory}" (available only):`, this.filteredMenuItems.length);
   }
 
   async viewMealDetails(menuItem: any) {

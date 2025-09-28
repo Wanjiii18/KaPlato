@@ -28,6 +28,30 @@ export interface RegisterData {
   role?: 'customer' | 'karenderia_owner';
 }
 
+export interface KarenderiaOwnerRegisterData {
+  // User account data
+  name: string;
+  email: string;
+  password: string;
+  password_confirmation: string;
+  
+  // Business data
+  business_name: string;
+  description: string;
+  address: string;
+  city: string;
+  province: string;
+  phone?: string | null;
+  business_email?: string | null;
+  opening_time?: string;
+  closing_time?: string;
+  operating_days?: string[];
+  delivery_fee?: number;
+  delivery_time_minutes?: number;
+  accepts_cash?: boolean;
+  accepts_online_payment?: boolean;
+}
+
 export interface AuthResponse {
   user: User;
   access_token?: string;
@@ -153,7 +177,7 @@ export class AuthService {
       );
   }
 
-  registerKarenderiaOwner(registrationData: any): Observable<AuthResponse> {
+  registerKarenderiaOwner(registrationData: KarenderiaOwnerRegisterData): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/auth/register-karenderia-owner`, registrationData)
       .pipe(
         tap(response => {
@@ -202,8 +226,17 @@ export class AuthService {
 
   // Simple logout with navigation - use this in components
   async logoutAndRedirect(): Promise<void> {
+    // First, clear the authentication state
     this.logout();
-    await this.router.navigate(['/login'], { replaceUrl: true });
+    
+    // Wait a small moment for the observable to update
+    await new Promise(resolve => setTimeout(resolve, 50));
+    
+    // Navigate to login with replace to prevent going back to protected route
+    await this.router.navigate(['/login'], { 
+      replaceUrl: true,
+      skipLocationChange: false 
+    });
   }
 
   // Logout with simple confirmation

@@ -71,7 +71,6 @@
     <div class="top-header">
       <div class="header-left">
         <h1>Menu Management</h1>
-        <span class="header-subtitle">Manage your meals</span>
       </div>
       <div class="header-right">
         <ion-button fill="solid" color="primary" (click)="startAddingItem()" *ngIf="!isAddingItem" class="add-meal-btn">
@@ -87,9 +86,6 @@
       <div class="menu-tabs">
         <div class="tab-item active">
           <span>Menu Items</span>
-        </div>
-        <div class="tab-item">
-          <span>Inventory</span>
         </div>
       </div>
 
@@ -108,7 +104,6 @@
             interface="popover"
             class="category-select">
             <ion-select-option value="all">All Categories</ion-select-option>
-            <ion-select-option value="appetizers">Appetizers</ion-select-option>
             <ion-select-option value="main">Main Course</ion-select-option>
             <ion-select-option value="desserts">Desserts</ion-select-option>
             <ion-select-option value="beverages">Beverages</ion-select-option>
@@ -116,8 +111,8 @@
         </div>
       </div>
 
-      <!-- Modern Add Menu Item Form -->
-      <div *ngIf="isAddingItem" class="modern-add-item-section animate-slide-up">
+      <!-- Modern Add/Edit Menu Item Form -->
+      <div *ngIf="isAddingItem || isEditingItem" class="modern-add-item-section animate-slide-up">
       <ion-card class="modern-add-item-card">
         <ion-card-header>
           <div class="card-header">
@@ -147,7 +142,8 @@
             <div class="input-group">
               <ion-item class="modern-item">
                 <ion-input 
-                  [(ngModel)]="newMenuItem.name" 
+                  [(ngModel)]="newMenuItem.name"
+                  type="text"
                   label="Dish Name *"
                   labelPlacement="stacked"
                   placeholder="Enter delicious dish name"
@@ -157,7 +153,7 @@
               
               <ion-item class="modern-item">
                 <ion-textarea 
-                  [(ngModel)]="newMenuItem.description" 
+                  [(ngModel)]="newMenuItem.description"
                   label="Description *"
                   labelPlacement="stacked"
                   placeholder="Describe your dish in detail"
@@ -178,7 +174,7 @@
             <div class="form-grid">
               <ion-item class="modern-item">
                 <ion-input 
-                  [(ngModel)]="newMenuItem.price" 
+                  [(ngModel)]="newMenuItem.price"
                   type="number" 
                   label="Price (PHP) *"
                   labelPlacement="stacked"
@@ -204,7 +200,7 @@
             
             <ion-item class="modern-item">
               <ion-input 
-                [(ngModel)]="newMenuItem.preparationTime" 
+                [(ngModel)]="newMenuItem.preparation_time_minutes"
                 type="number" 
                 label="Preparation Time (minutes)"
                 labelPlacement="stacked"
@@ -261,7 +257,7 @@
           </div>
 
           <!-- Selected Ingredients -->
-          <div class="form-section" *ngIf="newMenuItem.selectedIngredients.length > 0">
+          <div class="form-section" *ngIf="newMenuItem.ingredients.length > 0">
             <div class="section-header">
               <ion-icon name="checkmark-done" color="success"></ion-icon>
               <h3>Selected Ingredients</h3>
@@ -272,7 +268,7 @@
             </div>
             
             <div class="selected-ingredients">
-              <ion-item *ngFor="let ingredient of newMenuItem.selectedIngredients; let i = index" class="selected-ingredient-item">
+              <ion-item *ngFor="let ingredient of newMenuItem.ingredients; let i = index" class="selected-ingredient-item">
                 <div class="ingredient-details">
                   <h4>{{ ingredient.ingredientName }}</h4>
                   <div class="ingredient-meta">
@@ -305,11 +301,6 @@
                   <ion-icon name="trash"></ion-icon>
                 </ion-button>
               </ion-item>
-              
-              <div class="total-cost">
-                <h3>Total Ingredient Cost: {{ formatPhp(getTotalCost()) }}</h3>
-                <p>Suggested selling price: {{ formatPhp(getTotalCost() * 2.5) }}</p>
-              </div>
             </div>
           </div>
 
@@ -330,18 +321,33 @@
     </div>
     
     <!-- Menu Management Dashboard -->
-    <div class="menu-dashboard" *ngIf="!isAddingItem">
+    <div class="menu-dashboard" *ngIf="!isAddingItem && !isEditingItem">
       <!-- Menu Items Grid -->
       <div class="menu-items-grid">
-        <div class="menu-item-card" *ngFor="let item of filteredMenuItems">
+        <div class="menu-item-card" 
+             *ngFor="let item of filteredMenuItems"
+             [class.unavailable]="!item.isAvailable">
           <div class="card-image">
             <img [src]="getItemImage(item)" [alt]="item.name">
           </div>
           
           <div class="card-content">
             <div class="card-header">
-              <h3 class="item-name">{{ item.name }}</h3>
-              <div class="category-badge">{{ item.category | titlecase }}</div>
+              <div class="header-left">
+                <h3 class="item-name">{{ item.name }}</h3>
+                <div class="category-badge">{{ getCategoryDisplayName(item.category) }}</div>
+              </div>
+              <div class="header-right">
+                <div class="availability-toggle">
+                  <ion-label class="toggle-label">Available</ion-label>
+                  <ion-toggle 
+                    [checked]="item.isAvailable" 
+                    (ionChange)="toggleItemAvailability(item, $event)"
+                    color="success"
+                    class="availability-switch">
+                  </ion-toggle>
+                </div>
+              </div>
             </div>
             
             <p class="item-description">{{ item.description }}</p>
@@ -360,11 +366,6 @@
               <div class="detail-row">
                 <span class="detail-label">Profit:</span>
                 <span class="detail-value profit">₱{{ getItemProfit(item) }}</span>
-              </div>
-              
-              <div class="detail-row">
-                <span class="detail-label">Prep Time:</span>
-                <span class="detail-value">{{ item.preparationTime || '15-20' }} min</span>
               </div>
             </div>
             
@@ -398,7 +399,6 @@
           <ion-icon name="restaurant-outline"></ion-icon>
         </div>
         <h2>No menu items found</h2>
-        <p>Start building your menu by adding your first delicious item</p>
         <ion-button (click)="startAddingItem()" class="add-first-item-btn">
           <ion-icon name="add" slot="start"></ion-icon>
           Add Your First Menu Item
@@ -407,3 +407,4 @@
     </div>
   </div>
 </div>
+#ffffff

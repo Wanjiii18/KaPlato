@@ -14,15 +14,12 @@ export class KarenderiaInfoService {
     // Load data immediately if user is already logged in
     const token = sessionStorage.getItem('auth_token');
     if (token) {
-      console.log('🔄 User already logged in, loading karenderia data...');
       this.loadKarenderiaData();
     }
   }
 
   async loadKarenderiaData() {
     try {
-      console.log('🔍 KarenderiaInfoService: Attempting to load karenderia data from backend...');
-      
       // Check if user is logged in
       const token = sessionStorage.getItem('auth_token');
       if (!token) {
@@ -34,7 +31,6 @@ export class KarenderiaInfoService {
       console.log('🔍 Loading karenderia data from backend...');
       // Try to get real data from backend
       const karenderiaData = await this.karenderiaService.getCurrentUserKarenderia().toPromise();
-      console.log('📡 API Response:', karenderiaData);
       
       console.log('🔍 Backend response:', karenderiaData);
       
@@ -92,6 +88,7 @@ export class KarenderiaInfoService {
 
   getKarenderiaDisplayName(): string {
     const karenderia = this.getCurrentKarenderia();
+    
     if (!karenderia) {
       // Check if user is logged in
       const token = sessionStorage.getItem('auth_token');

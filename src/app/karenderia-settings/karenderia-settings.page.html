@@ -72,10 +72,10 @@
       <div class="settings-header">
         <div class="header-content">
           <h1>Settings</h1>
-          <p>Manage your carinderia settings and preferences</p>
+          <p>Manage your karenderia settings and preferences</p>
         </div>
         <div class="header-actions">
-          <button class="save-btn" (click)="saveChanges()">
+          <button class="save-btn" (click)="saveSettings()">
             <ion-icon name="save-outline"></ion-icon>
             Save Changes
           </button>
@@ -91,7 +91,7 @@
               class="tab-btn active" 
               [class.active]="selectedTab === 'business'"
               (click)="selectTab('business')">
-              Business Info
+              Personalization
             </button>
             <button 
               class="tab-btn" 
@@ -114,10 +114,11 @@
           </div>
         </div>
 
-        <!-- Business Information Tab -->
+        <!-- Personalization Tab -->
         <div *ngIf="selectedTab === 'business'" class="tab-content">
           <div class="settings-section">
-            <h2>Business Information</h2>
+            <h2>Personalization</h2>
+            <p class="section-description">Customize your karenderia's appearance and branding</p>
             
             <!-- Business Logo Section -->
             <div class="form-group logo-section">
@@ -125,7 +126,7 @@
               <div class="logo-upload-area">
                 <div class="current-logo">
                   <div class="logo-preview">
-                    <span class="logo-text">LR</span>
+                    <span class="logo-text">{{getKarenderiaBrandInitials()}}</span>
                   </div>
                 </div>
                 <div class="upload-controls">
@@ -133,67 +134,98 @@
                     <ion-icon name="cloud-upload-outline"></ion-icon>
                     Upload Logo
                   </button>
-                  <p class="upload-hint">Recommended size: 200x200px</p>
+                  <p class="upload-hint">Recommended size: 200x200px (JPG, PNG)</p>
                 </div>
               </div>
+            </div>
+
+            <!-- Business Photos Section -->
+            <div class="form-group photos-section">
+              <label>Business Photos</label>
+              <p class="form-description">Showcase your karenderia with attractive photos</p>
+              <div class="photos-grid">
+                <div class="photo-upload-slot" (click)="uploadBusinessPhoto()">
+                  <ion-icon name="camera-outline"></ion-icon>
+                  <span>Add Photo</span>
+                </div>
+                <!-- Dynamic photo slots -->
+                <div class="photo-slot empty-slot">
+                  <ion-icon name="image-outline"></ion-icon>
+                  <span>Photo 1</span>
+                </div>
+                <div class="photo-slot empty-slot">
+                  <ion-icon name="image-outline"></ion-icon>
+                  <span>Photo 2</span>
+                </div>
+                <div class="photo-slot empty-slot">
+                  <ion-icon name="image-outline"></ion-icon>
+                  <span>Photo 3</span>
+                </div>
+              </div>
+              <p class="photo-guidelines">
+                <ion-icon name="information-circle-outline"></ion-icon>
+                Upload high-quality photos of your exterior, interior, and signature dishes (Max 5 photos, 5MB each)
+              </p>
             </div>
 
             <!-- Business Details Form -->
             <div class="form-row">
               <div class="form-group">
-                <label for="businessName">Business Name</label>
+                <label for="businessName">Karenderia Name</label>
                 <input 
                   type="text" 
                   id="businessName"
                   [(ngModel)]="businessInfo.name"
-                  placeholder="Enter business name">
+                  placeholder="Enter your karenderia name">
               </div>
               <div class="form-group">
-                <label for="phoneNumber">Phone Number</label>
+                <label for="phoneNumber">Contact Number</label>
                 <input 
                   type="tel" 
                   id="phoneNumber"
                   [(ngModel)]="businessInfo.phone"
-                  placeholder="Enter phone number">
+                  placeholder="Enter your contact number">
               </div>
             </div>
 
             <div class="form-row">
               <div class="form-group">
-                <label for="emailAddress">Email Address</label>
+                <label for="emailAddress">Email Address (Optional)</label>
                 <input 
                   type="email" 
                   id="emailAddress"
                   [(ngModel)]="businessInfo.email"
-                  placeholder="Enter email address">
+                  placeholder="Enter your email address">
               </div>
               <div class="form-group">
-                <label for="cuisineType">Cuisine Type</label>
+                <label for="cuisineType">Food Specialty</label>
                 <select id="cuisineType" [(ngModel)]="businessInfo.cuisineType">
-                  <option value="filipino">Filipino</option>
-                  <option value="chinese">Chinese</option>
-                  <option value="korean">Korean</option>
-                  <option value="japanese">Japanese</option>
-                  <option value="fusion">Fusion</option>
+                  <option value="filipino">Filipino Traditional</option>
+                  <option value="lutong-bahay">Lutong Bahay</option>
+                  <option value="provincial">Provincial Dishes</option>
+                  <option value="street-food">Street Food</option>
+                  <option value="carinderia-style">Carinderia Style</option>
+                  <option value="regional">Regional Specialties</option>
+                  <option value="mixed">Mixed Filipino & Others</option>
                 </select>
               </div>
             </div>
 
             <div class="form-group">
-              <label for="businessDescription">Business Description</label>
+              <label for="businessDescription">About Your Karenderia</label>
               <textarea 
                 id="businessDescription"
                 [(ngModel)]="businessInfo.description"
-                placeholder="Describe your restaurant..."
+                placeholder="Tell customers about your karenderia, specialties, and what makes you unique..."
                 rows="4"></textarea>
             </div>
 
             <div class="form-group">
-              <label for="address">Address</label>
+              <label for="address">Complete Address</label>
               <textarea 
                 id="address"
                 [(ngModel)]="businessInfo.address"
-                placeholder="Enter complete business address..."
+                placeholder="Enter your complete business address with landmarks"
                 rows="3"></textarea>
             </div>
 
@@ -299,7 +331,8 @@
             
             <!-- Operating Hours -->
             <div class="form-group">
-              <label>Operating Hours</label>
+              <label>Karenderia Operating Hours</label>
+              <p class="form-description">Set your daily operating schedule. Customers will see when you're open for orders.</p>
               <div class="operating-hours">
                 <div *ngFor="let day of operatingHours" class="day-schedule">
                   <div class="day-name">{{ day.name }}</div>

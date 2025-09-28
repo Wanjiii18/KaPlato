@@ -14,7 +14,7 @@ const routes: Routes = [
   },
   {
     path: '',
-    redirectTo: '/home',
+    redirectTo: '/role-redirect',
     pathMatch: 'full'
   },
   {
@@ -90,16 +90,6 @@ const routes: Routes = [
     path: 'karenderias-browse',
     loadChildren: () => import('./karenderias-browse/karenderias-browse.module').then(m => m.KarenderiasBrowsePageModule),
     canActivate: [AuthGuard, CustomerGuard]
-  },
-  {
-    path: 'admin-dashboard',
-    loadChildren: () => import('./pages/admin-dashboard/admin-dashboard.module').then(m => m.AdminDashboardPageModule),
-    canActivate: [AuthGuard, AdminGuard]
-  },
-  {
-    path: 'admin-location-management',
-    loadChildren: () => import('./pages/admin-location-management/admin-location-management.module').then(m => m.AdminLocationManagementPageModule),
-    canActivate: [AuthGuard, AdminGuard]
   },
   {
     path: 'meal-details/:id',

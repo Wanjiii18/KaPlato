@@ -399,20 +399,33 @@ ion-content.settings-content {
 
         label {
           display: block;
-          font-weight: 600;
-          color: #495057;
-          margin-bottom: 8px;
-          font-size: 0.95rem;
+          font-weight: 700;
+          color: #2c3e50;
+          margin-bottom: 12px;
+          font-size: 1rem;
+          text-transform: capitalize;
+          letter-spacing: 0.5px;
+          line-height: 1.4;
+          position: relative;
+          z-index: 1;
+          
+          // Ensure labels are always visible
+          &:not(.sr-only) {
+            opacity: 1;
+            visibility: visible;
+            background: transparent;
+          }
         }
 
         input, select, textarea {
           width: 100%;
           padding: 12px 16px;
-          border: 1px solid #dee2e6;
+          border: 2px solid #e9ecef;
           border-radius: 8px;
-          font-size: 1rem;
+          font-size: 14px;
+          color: #212529;
+          background: #ffffff;
           transition: all 0.3s ease;
-          background: #fff;
 
           &:focus {
             outline: none;
@@ -421,7 +434,19 @@ ion-content.settings-content {
           }
 
           &::placeholder {
-            color: #95a5a6;
+            color: #6c757d;
+            font-style: italic;
+          }
+        }
+
+        // Ensure label visibility on all screen sizes
+        @media (max-width: 768px) {
+          label {
+            font-size: 1.1rem !important;
+            font-weight: 800 !important;
+            margin-bottom: 10px !important;
+            color: #1a202c !important;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.1);
           }
         }
 
