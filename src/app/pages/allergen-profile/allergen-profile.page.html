@@ -110,33 +110,6 @@
                         (ionChange)="toggleAllergen(allergen.name)">
                       </ion-checkbox>
                     </div>
-                    
-                    <div *ngIf="isAllergenSelected(allergen.name)" class="severity-controls">
-                      <div class="severity-label">Reaction Severity:</div>
-                      <div class="severity-buttons">
-                        <ion-button 
-                          size="small" 
-                          fill="outline"
-                          [color]="getSeverity(allergen.name) === 'mild' ? 'primary' : 'light'"
-                          (click)="updateSeverity(allergen.name, 'mild')">
-                          Mild
-                        </ion-button>
-                        <ion-button 
-                          size="small" 
-                          fill="outline"
-                          [color]="getSeverity(allergen.name) === 'moderate' ? 'warning' : 'light'"
-                          (click)="updateSeverity(allergen.name, 'moderate')">
-                          Moderate
-                        </ion-button>
-                        <ion-button 
-                          size="small" 
-                          fill="outline"
-                          [color]="getSeverity(allergen.name) === 'severe' ? 'danger' : 'light'"
-                          (click)="updateSeverity(allergen.name, 'severe')">
-                          Severe
-                        </ion-button>
-                      </div>
-                    </div>
                   </div>
                 </ion-col>
               </ion-row>
@@ -317,3 +290,4 @@
 
   </div>
 </ion-content>
+    

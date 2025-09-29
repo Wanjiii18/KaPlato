@@ -29,10 +29,11 @@ interface AvailableKarenderia {
 export class MealPlannerPage implements OnInit {
   selectedDate: string = new Date().toISOString().split('T')[0];
   selectedMealType: 'breakfast' | 'lunch' | 'dinner' = 'breakfast';
-  
-  availableKarenderias: AvailableKarenderia[] = [];
-  selectedItems: { [key: string]: any } = {}; // Store selected items for each meal
-  
+
+  availableMenuItems: any[] = []; // Flattened menu items for easy selection
+  selectedMenuItemIds: Set<number> = new Set(); // Track selected menu item IDs
+  availableKarenderias: any[] = [];
+
   isLoading = false;
   minDate = new Date().toISOString();
   
@@ -68,24 +69,42 @@ export class MealPlannerPage implements OnInit {
 
   async loadAvailableKarenderias() {
     this.isLoading = true;
+    console.log('Loading available karenderias for:', this.selectedDate, this.selectedMealType);
+    
     try {
       const response = await this.dailyMenuService.getAvailableForCustomers(
         this.selectedDate, 
         this.selectedMealType
       ).toPromise();
-      
-      this.availableKarenderias = response.data || [];
-      
-      if (this.availableKarenderias.length === 0) {
-        this.showToast('No karenderias available for this meal type and date', 'warning');
+
+      console.log('Response received:', response);
+
+      // Flatten all menu items for easy selection
+      this.availableMenuItems = (response.data || []).flatMap((k: AvailableKarenderia) =>
+        k.menu_items.map(mi => ({
+          ...mi,
+          karenderia: k.karenderia
+        }))
+      );
+
+      console.log('Available menu items:', this.availableMenuItems.length);
+
+      if (this.availableMenuItems.length === 0) {
+        this.showToast('No menu items available for this meal type and date', 'warning');
       }
     } catch (error: any) {
       console.error('Error loading available karenderias:', error);
+      console.error('Error status:', error.status);
+      console.error('Error response:', error.error);
       
       if (error.status === 401) {
         this.showToast('Authentication failed. Please log in again.', 'danger');
       } else if (error.status === 0) {
         this.showToast('Unable to connect to server. Please check your internet connection.', 'danger');
+      } else if (error.status === 500) {
+        const errorMsg = error.error?.message || 'Server error occurred';
+        this.showToast(`Server error: ${errorMsg}`, 'danger');
+        console.error('Server error details:', error.error);
       } else {
         this.showToast('Error loading available options. Please try again.', 'danger');
       }
@@ -102,110 +121,26 @@ export class MealPlannerPage implements OnInit {
     this.loadAvailableKarenderias();
   }
 
-  selectMenuItem(karenderia: AvailableKarenderia, menuItem: KarenderiaMenuItem) {
-    const key = `${this.selectedMealType}_${this.selectedDate}`;
-    this.selectedItems[key] = {
-      date: this.selectedDate,
-      meal_type: this.selectedMealType,
-      karenderia: karenderia.karenderia,
-      menu_item: menuItem.menu_item,
-      daily_menu_id: menuItem.id,
-      quantity: 1, // Default quantity
-      special_price: menuItem.special_price,
-      notes: menuItem.notes
-    };
-    
-    this.showToast(`${menuItem.menu_item.name} selected for ${this.selectedMealType}`, 'success');
-  }
-
-  async addToMealPlan(karenderia: AvailableKarenderia, menuItem: KarenderiaMenuItem) {
-    const alert = await this.alertController.create({
-      header: 'Add to Meal Plan',
-      subHeader: `${menuItem.menu_item.name} from ${karenderia.karenderia.name}`,
-      message: `Price: ₱${menuItem.special_price || menuItem.menu_item.price}`,
-      inputs: [
-        {
-          name: 'quantity',
-          type: 'number',
-          placeholder: 'How many servings?',
-          value: 1,
-          min: 1,
-          max: menuItem.quantity
-        }
-      ],
-      buttons: [
-        {
-          text: 'Cancel',
-          role: 'cancel'
-        },
-        {
-          text: 'Add to Plan',
-          handler: (data) => {
-            if (data.quantity && data.quantity > 0) {
-              this.addItemToMealPlan(karenderia, menuItem, parseInt(data.quantity));
-            }
-          }
-        }
-      ]
-    });
-
-    await alert.present();
-  }
-
-  addItemToMealPlan(karenderia: AvailableKarenderia, menuItem: KarenderiaMenuItem, quantity: number) {
-    const key = `${this.selectedMealType}_${this.selectedDate}`;
-    
-    if (!this.selectedItems[key]) {
-      this.selectedItems[key] = [];
-    }
-    
-    if (Array.isArray(this.selectedItems[key])) {
-      this.selectedItems[key].push({
-        date: this.selectedDate,
-        meal_type: this.selectedMealType,
-        karenderia: karenderia.karenderia,
-        menu_item: menuItem.menu_item,
-        daily_menu_id: menuItem.id,
-        quantity: quantity,
-        special_price: menuItem.special_price,
-        notes: menuItem.notes
-      });
+  toggleMenuItemSelection(menuItemId: number) {
+    if (this.selectedMenuItemIds.has(menuItemId)) {
+      this.selectedMenuItemIds.delete(menuItemId);
     } else {
-      this.selectedItems[key] = [{
-        date: this.selectedDate,
-        meal_type: this.selectedMealType,
-        karenderia: karenderia.karenderia,
-        menu_item: menuItem.menu_item,
-        daily_menu_id: menuItem.id,
-        quantity: quantity,
-        special_price: menuItem.special_price,
-        notes: menuItem.notes
-      }];
+      this.selectedMenuItemIds.add(menuItemId);
     }
-    
-    this.showToast(`${quantity}x ${menuItem.menu_item.name} added to your meal plan`, 'success');
   }
 
   getSelectedItemsForCurrentMeal() {
-    const key = `${this.selectedMealType}_${this.selectedDate}`;
-    const items = this.selectedItems[key];
-    return Array.isArray(items) ? items : (items ? [items] : []);
+    return this.availableMenuItems.filter(item => this.selectedMenuItemIds.has(item.id));
   }
 
   removeFromMealPlan(index: number) {
-    const key = `${this.selectedMealType}_${this.selectedDate}`;
-    const items = this.selectedItems[key];
+    const items = this.getSelectedItemsForCurrentMeal();
     
-    if (Array.isArray(items)) {
-      items.splice(index, 1);
-      if (items.length === 0) {
-        delete this.selectedItems[key];
-      }
-    } else {
-      delete this.selectedItems[key];
+    if (index >= 0 && index < items.length) {
+      const item = items[index];
+      this.selectedMenuItemIds.delete(item.id);
+      this.showToast('Item removed from meal plan', 'success');
     }
-    
-    this.showToast('Item removed from meal plan', 'success');
   }
 
   getTotalPrice(): number {
@@ -217,7 +152,7 @@ export class MealPlannerPage implements OnInit {
   }
 
   async saveMealPlan() {
-    const allSelectedItems = Object.values(this.selectedItems).flat();
+    const allSelectedItems = this.getSelectedItemsForCurrentMeal();
     
     if (allSelectedItems.length === 0) {
       this.showToast('Please select at least one meal item', 'warning');
@@ -291,6 +226,23 @@ export class MealPlannerPage implements OnInit {
   }
 
   hasSelectedItems(): boolean {
-    return Object.keys(this.selectedItems).length > 0;
+    return this.selectedMenuItemIds.size > 0;
+  }
+
+  async debugDailyMenuService() {
+    console.log('=== DEBUG: Testing Daily Menu Service ===');
+    console.log('Selected date:', this.selectedDate);
+    console.log('Selected meal type:', this.selectedMealType);
+    console.log('Auth token:', sessionStorage.getItem('auth_token') ? 'Present' : 'Missing');
+    
+    try {
+      const response = await this.dailyMenuService.getAvailableForCustomers(
+        this.selectedDate, 
+        this.selectedMealType
+      ).toPromise();
+      console.log('Success response:', response);
+    } catch (error) {
+      console.error('Debug error:', error);
+    }
   }
 }

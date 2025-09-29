@@ -112,11 +112,6 @@ export class DailyMenuManagementPage implements OnInit {
           min: 1
         },
         {
-          name: 'specialPrice',
-          type: 'number',
-          placeholder: 'Special Price (optional)'
-        },
-        {
           name: 'notes',
           type: 'textarea',
           placeholder: 'Notes (optional)'
@@ -176,17 +171,12 @@ export class DailyMenuManagementPage implements OnInit {
           type: 'number',
           placeholder: 'Number of servings',
           min: 1,
-          value: 10
-        },
-        {
-          name: 'specialPrice',
-          type: 'number',
-          placeholder: 'Price'
+          value: null
         },
         {
           name: 'notes',
           type: 'textarea',
-          placeholder: 'Special notes (optional)'
+          placeholder: 'notes (optional)'
         }
       ],
       buttons: [
@@ -200,7 +190,6 @@ export class DailyMenuManagementPage implements OnInit {
             this.addMenuItemToDailyMenu({
               menuItemId: menuItemId,
               quantity: parseInt(data.quantity),
-              specialPrice: data.specialPrice ? parseFloat(data.specialPrice) : undefined,
               notes: data.notes || undefined
             });
           }
@@ -223,7 +212,6 @@ export class DailyMenuManagementPage implements OnInit {
         date: this.selectedDate,
         meal_type: this.selectedMealType,
         quantity: parseInt(data.quantity),
-        special_price: data.specialPrice ? parseFloat(data.specialPrice) : undefined,
         notes: data.notes || undefined
       };
 
@@ -356,11 +344,11 @@ export class DailyMenuManagementPage implements OnInit {
   }
 
   getPrice(item: DailyMenuItem): number {
-    return item.special_price || item.menu_item?.price || 0;
+    return item.menu_item?.price || 0;
   }
 
   hasSpecialPrice(item: DailyMenuItem): boolean {
-    return item.special_price !== null && item.special_price !== undefined;
+    return false;
   }
 
   // Helper methods for template
@@ -514,3 +502,4 @@ export class DailyMenuManagementPage implements OnInit {
     return currentDate <= yesterday;
   }
 }
+

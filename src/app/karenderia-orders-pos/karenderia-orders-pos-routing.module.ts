@@ -1,12 +1,12 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
-import { KarenderiaPosPage } from './karenderia-pos.page';
+import { KarenderiaOrdersPosPage } from './karenderia-orders-pos.page';
 
 const routes: Routes = [
   {
     path: '',
-    component: KarenderiaPosPage
+    component: KarenderiaOrdersPosPage
   }
 ];
 
@@ -14,4 +14,4 @@ const routes: Routes = [
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule],
 })
-export class KarenderiaPosPageRoutingModule {}
+export class KarenderiaOrdersPosPageRoutingModule {}

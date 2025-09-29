@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { MenuService } from '../services/menu.service';
 import { SpoonacularService } from '../services/spoonacular.service';
 import { KarenderiaInfoService } from '../services/karenderia-info.service';
+import { DailyMenuService, DailyMenuItem } from '../services/daily-menu.service';
 import { MenuItem, MenuIngredient } from '../models/menu.model';
 import { AlertController, ToastController, ModalController } from '@ionic/angular';
 import { Subscription } from 'rxjs';
@@ -21,7 +22,11 @@ export class KarenderiaMenuPage implements OnInit, OnDestroy {
   editingItemId: string | null = null; // Track which item is being edited
   
   private menuSubscription?: Subscription;
-  
+  todaysDailyMenuItems: DailyMenuItem[] = [];
+  private dailyMenuSubscription?: Subscription;
+  selectedDate: string = new Date().toISOString().split('T')[0];
+  selectedMealType: 'breakfast' | 'lunch' | 'dinner' = 'breakfast';
+
   // New menu item form
   newMenuItem = {
     name: '',
@@ -120,7 +125,8 @@ export class KarenderiaMenuPage implements OnInit, OnDestroy {
     private alertController: AlertController,
     private toastController: ToastController,
     private modalController: ModalController,
-    private karenderiaInfoService: KarenderiaInfoService
+    private karenderiaInfoService: KarenderiaInfoService,
+    private dailyMenuService: DailyMenuService
   ) { }
 
   ngOnInit() {
@@ -131,6 +137,9 @@ export class KarenderiaMenuPage implements OnInit, OnDestroy {
     // Clean up subscription to prevent memory leaks
     if (this.menuSubscription) {
       this.menuSubscription.unsubscribe();
+    }
+    if (this.dailyMenuSubscription) {
+      this.dailyMenuSubscription.unsubscribe();
     }
   }
 
@@ -163,14 +172,12 @@ export class KarenderiaMenuPage implements OnInit, OnDestroy {
     if (category) {
       this.selectedCategory = category;
     }
-    
-    if (this.selectedCategory === 'all') {
-      this.filteredMenuItems = this.menuItems;
-    } else {
-      this.filteredMenuItems = this.menuItems.filter(item => 
-        item.category === this.selectedCategory
-      );
+    // Show all menu items, filter only by category
+    let filtered = this.menuItems;
+    if (this.selectedCategory !== 'all') {
+      filtered = filtered.filter(item => item.category === this.selectedCategory);
     }
+    this.filteredMenuItems = filtered;
   }
 
   startAddingItem() {

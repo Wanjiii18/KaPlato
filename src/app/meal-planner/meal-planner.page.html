@@ -54,60 +54,28 @@
   </div>
 
   <!-- Available Karenderias -->
-  <div *ngIf="!isLoading && availableKarenderias.length > 0" class="karenderias-section">
+  <div *ngIf="!isLoading && availableMenuItems.length > 0" class="karenderias-section">
     <h3>Available for {{ getCurrentMealTypeLabel() }}</h3>
-    
-    <ion-card *ngFor="let karenderia of availableKarenderias" class="karenderia-card">
-      <ion-card-header>
-        <div class="karenderia-header">
-          <div class="karenderia-info">
-            <ion-card-title>{{ karenderia.karenderia.name }}</ion-card-title>
-            <ion-card-subtitle>{{ karenderia.karenderia.address }}</ion-card-subtitle>
-          </div>
-          <div class="karenderia-rating" *ngIf="karenderia.karenderia.average_rating">
-            <ion-icon name="star" color="warning"></ion-icon>
-            <span>{{ karenderia.karenderia.average_rating }}</span>
-          </div>
-        </div>
-      </ion-card-header>
-      
-      <ion-card-content>
-        <div class="menu-items-grid">
-          <div 
-            *ngFor="let menuItem of karenderia.menu_items" 
-            class="menu-item-card"
-            (click)="addToMealPlan(karenderia, menuItem)">
-            
-            <div class="menu-item-image" *ngIf="menuItem.menu_item.image_url">
-              <img [src]="menuItem.menu_item.image_url" [alt]="menuItem.menu_item.name">
-            </div>
-            <div class="menu-item-image placeholder" *ngIf="!menuItem.menu_item.image_url">
-              <ion-icon name="restaurant"></ion-icon>
-            </div>
-            
-            <div class="menu-item-info">
-              <h4>{{ menuItem.menu_item.name }}</h4>
-              <p class="description">{{ menuItem.menu_item.description }}</p>
-              <div class="item-details">
-                <div class="price-info">
-                  <span class="price">₱{{ getPrice(menuItem) }}</span>
-                  <span *ngIf="hasSpecialPrice(menuItem)" class="special-tag">Special</span>
-                </div>
-                <div class="quantity-info">
-                  <ion-icon name="restaurant"></ion-icon>
-                  <span>{{ menuItem.quantity }} available</span>
-                </div>
-              </div>
-              <p *ngIf="menuItem.notes" class="notes">{{ menuItem.notes }}</p>
-            </div>
-          </div>
-        </div>
-      </ion-card-content>
-    </ion-card>
+    <ion-list>
+      <ion-item *ngFor="let menuItem of availableMenuItems">
+        <ion-checkbox
+          slot="start"
+          [checked]="selectedMenuItemIds.has(menuItem.id)"
+          (ionChange)="toggleMenuItemSelection(menuItem.id)">
+        </ion-checkbox>
+        <ion-label>
+          <strong>{{ menuItem.menu_item.name }}</strong>
+          <span>from {{ menuItem.karenderia.name }}</span>
+          <span>₱{{ getPrice(menuItem) }}</span>
+          <span *ngIf="hasSpecialPrice(menuItem)" class="special-tag">Special</span>
+          <span>{{ menuItem.quantity }} available</span>
+        </ion-label>
+      </ion-item>
+    </ion-list>
   </div>
 
   <!-- Empty State -->
-  <div *ngIf="!isLoading && availableKarenderias.length === 0" class="empty-state">
+  <div *ngIf="!isLoading && availableMenuItems.length === 0" class="empty-state">
     <ion-icon name="restaurant-outline"></ion-icon>
     <h3>No {{ selectedMealType }} available</h3>
     <p>No karenderias are offering {{ selectedMealType }} on {{ selectedDate }}</p>
