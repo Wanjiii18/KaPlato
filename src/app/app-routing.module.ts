@@ -138,7 +138,15 @@ const routes: Routes = [
     path: 'inventory-management',
     loadComponent: () => import('./pages/inventory-management/inventory-management.page').then(m => m.InventoryManagementPage),
     canActivate: [AuthGuard, KarenderiaGuard]
+  },  {
+    path: 'karenderia-pos',
+    loadChildren: () => import('./karenderia-pos/karenderia-pos.module').then( m => m.KarenderiaPosPageModule)
   },
+  {
+    path: 'karenderia-pos',
+    loadChildren: () => import('./karenderia-pos/karenderia-pos.module').then( m => m.KarenderiaPosPageModule)
+  },
+
   // {
   //   path: 'pos-mode',
   //   loadChildren: () => import('./pages/pos-mode/pos-mode.module').then( m => m.PosModePageModule)
