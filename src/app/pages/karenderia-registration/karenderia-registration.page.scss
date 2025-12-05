@@ -1,274 +1,368 @@
+/* Modern Karenderia Registration - Same as Customer Registration */
+
+// Modern Auth Header
+.modern-auth-header {
+  .gradient-auth-toolbar {
+    --background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #d946ef 100%);
+    --color: white;
+    position: relative;
+    
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, 
+        rgba(99, 102, 241, 0.9) 0%, 
+        rgba(139, 92, 246, 0.9) 50%, 
+        rgba(217, 70, 239, 0.9) 100%);
+      backdrop-filter: blur(10px);
+      z-index: -1;
+    }
+
+    ion-title {
+      .modern-auth-title {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        font-weight: 600;
+        
+        ion-icon {
+          font-size: 1.5rem;
+        }
+      }
+    }
+
+    .modern-back-btn {
+      --border-radius: 12px;
+      --background: rgba(255, 255, 255, 0.1);
+      --color: white;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+  }
+}
+
+// Modern Auth Content
+.modern-auth-content {
+  --background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+}
+
 ion-content {
-  --background: var(--ion-color-light-shade);
+  --background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
 }
 
 .form-container {
-  max-width: 400px;
+  max-width: 500px;
   margin: 0 auto;
-  padding: 20px;
+  background: white;
+  border-radius: 24px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
+  
+  @media (max-width: 767px) {
+    padding: 1.5rem 1rem;
+    margin: 1rem;
+    border-radius: 20px;
+  }
+  
+  @media (min-width: 768px) {
+    padding: 2.5rem 2rem;
+    margin: 2rem auto;
+  }
 }
 
 .title {
-  font-size: 24px;
-  font-weight: bold;
-  color: var(--ion-color-dark);
-  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #1e293b, #475569);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin: 0 0 0.5rem 0;
   text-align: center;
+  letter-spacing: -0.02em;
+  
+  @media (max-width: 767px) {
+    font-size: 1.5rem;
+  }
 }
 
 .subtitle {
-  color: var(--ion-color-medium);
+  color: #64748b;
   text-align: center;
-  margin-bottom: 32px;
+  margin-bottom: 2rem;
+  font-size: 1rem;
+  font-weight: 500;
+  
+  @media (max-width: 767px) {
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+  }
 }
 
+// Modern Input Fields
 .input-field {
-  background: white;
-  border-radius: 8px;
-  margin-bottom: 16px;
-  display: flex;
-  align-items: center;
-  padding: 4px 16px;
+  position: relative;
+  margin-bottom: 1.25rem;
   
   ion-icon {
-    color: var(--ion-color-medium);
-    margin-right: 12px;
-    font-size: 20px;
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6366f1;
+    font-size: 1.25rem;
+    z-index: 10;
+    pointer-events: none;
+  }
+  
+  ion-input,
+  ion-select,
+  ion-textarea {
+    --background: #f8fafc;
+    --border-radius: 12px;
+    --padding-start: 3rem;
+    --padding-end: 1rem;
+    --color: #1e293b;
+    --placeholder-color: #94a3b8;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    font-size: 0.95rem;
+    
+    &:focus-within,
+    &.has-focus {
+      --background: white;
+      border-color: #6366f1;
+      box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+    }
+  }
+  
+  ion-input {
+    min-height: 52px;
+  }
+  
+  ion-select {
+    min-height: 52px;
+  }
+  
+  ion-textarea {
+    --padding-top: 1rem;
+    --padding-bottom: 1rem;
+    min-height: 100px;
   }
 }
 
 .custom-input {
-  --padding-start: 0;
-  --padding-end: 0;
-  --background: transparent;
-  min-height: 48px;
+  --padding-start: 3rem;
+  --padding-end: 1rem;
+  --background: #f8fafc;
+  --color: #1e293b;
+  min-height: 52px;
+  font-size: 0.95rem;
 }
 
+// Info Card Styling
 .info-card {
-  background: white;
-  border-radius: 12px;
-  padding: 20px;
-  margin: 24px 0;
+  background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%);
+  border-radius: 16px;
+  padding: 1.5rem;
+  margin: 1.5rem 0;
+  border: 2px solid #c4b5fd;
 
   .card-header {
     display: flex;
     align-items: center;
-    margin-bottom: 16px;
+    margin-bottom: 1rem;
 
     ion-icon {
-      font-size: 24px;
-      color: var(--ion-color-primary);
-      margin-right: 12px;
+      font-size: 2rem;
+      color: #6366f1;
+      margin-right: 0.75rem;
     }
 
     h2 {
       margin: 0;
-      font-size: 18px;
-      font-weight: 600;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #1e293b;
+      letter-spacing: -0.01em;
     }
   }
 
   .info-text {
-    color: var(--ion-color-medium);
-    font-size: 14px;
-    line-height: 1.4;
-    margin-bottom: 16px;
+    color: #475569;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    margin-bottom: 1rem;
   }
 
   .warning-box {
     display: flex;
-    align-items: center;
-    background: rgba(var(--ion-color-warning-rgb), 0.1);
-    padding: 12px;
-    border-radius: 8px;
+    align-items: flex-start;
+    background: linear-gradient(135deg, rgba(251, 191, 36, 0.15), rgba(245, 158, 11, 0.1));
+    padding: 0.875rem;
+    border-radius: 10px;
+    border-left: 4px solid #f59e0b;
 
     ion-icon {
-      color: var(--ion-color-warning);
-      font-size: 20px;
-      margin-right: 8px;
+      color: #f59e0b;
+      font-size: 1.25rem;
+      margin-right: 0.625rem;
+      flex-shrink: 0;
+      margin-top: 2px;
     }
 
     span {
-      color: var(--ion-color-warning-shade);
-      font-size: 13px;
+      color: #92400e;
+      font-size: 0.85rem;
+      line-height: 1.5;
+      font-weight: 500;
     }
   }
 }
 
 .business-fields {
-  margin-top: 24px;
+  margin-top: 1.5rem;
 }
 
 .address-row, .time-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  gap: 1rem;
+  
+  @media (max-width: 576px) {
+    grid-template-columns: 1fr;
+  }
 }
 
 .permit-upload {
-  margin-top: 24px;
+  margin: 1.5rem 0;
 
   .upload-btn {
     width: 100%;
-    background: rgba(var(--ion-color-primary-rgb), 0.1);
-    border: 2px dashed var(--ion-color-primary);
-    border-radius: 8px;
-    padding: 16px;
+    background: #f8fafc;
+    border: 2px dashed #cbd5e1;
+    border-radius: 12px;
+    padding: 1.25rem;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    color: var(--ion-color-primary);
+    color: #64748b;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    font-size: 0.95rem;
+
+    &:hover {
+      background: white;
+      border-color: #6366f1;
+      color: #6366f1;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
+    }
 
     ion-icon {
-      margin-right: 8px;
-      font-size: 24px;
+      margin-right: 0.625rem;
+      font-size: 1.5rem;
     }
   }
 
   .file-preview {
-    background: rgba(var(--ion-color-primary-rgb), 0.1);
-    border-radius: 8px;
-    padding: 12px;
+    background: #f0fdf4;
+    border-radius: 12px;
+    padding: 1rem;
     display: flex;
     align-items: center;
+    border: 2px solid #86efac;
 
     ion-icon {
       &:first-child {
-        color: var(--ion-color-primary);
-        margin-right: 12px;
-        font-size: 24px;
+        color: #16a34a;
+        margin-right: 0.875rem;
+        font-size: 1.5rem;
       }
 
       &:last-child {
-        color: var(--ion-color-danger);
+        color: #dc2626;
         cursor: pointer;
+        font-size: 1.25rem;
+        transition: all 0.3s ease;
+        
+        &:hover {
+          transform: scale(1.15);
+        }
       }
     }
 
     span {
       flex: 1;
-      margin: 0 12px;
-      color: var(--ion-color-dark);
+      margin: 0 0.875rem;
+      color: #166534;
+      font-weight: 500;
+      font-size: 0.9rem;
     }
   }
 }
 
+// Modern Submit Button - Same as customer registration
 .submit-btn {
-  margin: 24px 0 16px;
-  --background: var(--ion-color-primary);
-  height: 48px;
-  font-weight: 600;
-}
-
-.login-link {
-  text-align: center;
-  color: var(--ion-color-medium);
-  font-size: 14px;
-
-  a {
-    color: var(--ion-color-primary);
-    text-decoration: none;
-    font-weight: 500;
-  }
-}
-
-h1 {
-  font-size: 24px;
-  font-weight: 600;
-  color: #1f2937;
-  margin-bottom: 8px;
-  text-align: center;
-}
-
-p {
-  color: #6b7280;
-  text-align: center;
-  margin-bottom: 32px;
-}
-
-.form-group {
-  margin-bottom: 16px;
-
-  ion-input, ion-select, ion-textarea {
-    --background: #f9fafb;
-    --border-radius: 8px;
-    --padding-start: 16px;
-    --padding-end: 16px;
-    border: 1px solid #e5e7eb;
-    margin-bottom: 8px;
-    height: 48px;
-  }
-
-  ion-textarea {
-    height: auto;
-    --padding-top: 12px;
-    --padding-bottom: 12px;
-  }
-
-  ion-icon {
-    color: #6b7280;
-    margin-right: 8px;
-  }
-}
-
-.form-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
-
-.upload-section {
-  margin: 24px 0;
+  margin: 2rem 0 1.25rem;
+  --background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+  --border-radius: 12px;
+  --box-shadow: 0 8px 25px rgba(96, 165, 250, 0.6);
+  height: 56px;
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  transition: all 0.3s ease;
+  --color: white;
   
-  ion-button {
-    --background: #f3f4f6;
-    --color: #374151;
-    height: 48px;
+  &:hover {
+    --box-shadow: 0 12px 30px rgba(96, 165, 250, 0.7);
+    transform: translateY(-2px);
   }
-
-  .file-info {
-    display: flex;
-    align-items: center;
-    background: #f3f4f6;
-    padding: 12px;
-    border-radius: 8px;
-    margin-top: 8px;
-
-    ion-icon {
-      color: #3b82f6;
-      margin-right: 12px;
-      font-size: 24px;
-    }
-
-    span {
-      flex: 1;
-      color: #374151;
-    }
-
-    ion-button {
-      --color: #ef4444;
-      height: auto;
-      margin: 0;
-    }
+  
+  &:active {
+    transform: translateY(0);
   }
 }
 
-ion-button[type="submit"] {
-  --background: #3b82f6;
-  height: 48px;
-  margin: 24px 0 16px;
-  font-weight: 500;
-}
-
+// Modern Login Link - Same as customer registration
 .login-link {
   text-align: center;
-  color: #6b7280;
-  font-size: 14px;
+  margin-top: 0.5rem;
+  padding-bottom: 1.25rem;
 
-  a {
-    color: #3b82f6;
-    text-decoration: none;
-    font-weight: 500;
+  span {
+    display: block;
+    color: #1e293b;
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+  }
+  
+  .modern-link-btn {
+    --color: white;
+    --background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+    --border-radius: 12px;
+    --box-shadow: 0 4px 15px rgba(96, 165, 250, 0.4);
+    height: 56px;
+    font-weight: 700;
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    
+    &:hover {
+      --background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      --box-shadow: 0 6px 20px rgba(96, 165, 250, 0.5);
+      transform: translateY(-2px);
+    }
   }
 }
+
+// Remove duplicate/old styles - keeping only the modern design above
+// All form elements use the unified .input-field and .custom-input styles

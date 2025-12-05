@@ -1,7 +1,23 @@
-<ion-content class="ion-padding">
+<ion-header class="modern-auth-header">
+  <ion-toolbar class="gradient-auth-toolbar">
+    <ion-buttons slot="start">
+      <ion-button class="modern-back-btn" fill="clear" routerLink="/register">
+        <ion-icon name="arrow-back-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>
+      <div class="modern-auth-title">
+        <ion-icon name="storefront"></ion-icon>
+        <span>Karenderia Registration</span>
+      </div>
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="modern-auth-content">
   <div class="form-container">
-    <h1 class="title">Create Account</h1>
-    <p class="subtitle">Start your culinary journey with us</p>
+    <h1 class="title">Register Your Business</h1>
+    <p class="subtitle">Join our network of local karenderias</p>
 
     <form #registrationForm="ngForm" (ngSubmit)="onRegister(registrationForm)">
       <!-- Basic Info -->
@@ -43,46 +59,30 @@
       </div>
 
       <!-- Karenderia Owner Section -->
-      <!-- TEMPORARY: Always show for testing -->
-      <div style="border: 2px solid red; padding: 10px;">
-        <p style="color: red;">DEBUG: Role value is: "{{ registerData.role }}"</p>
-        <p style="color: blue;">Is equal to 'Karenderia Owner'? {{ registerData.role === 'Karenderia Owner' }}</p>
-        
+      <div *ngIf="registerData.role === 'Karenderia Owner'">
         <!-- Info Card -->
         <div class="info-card">
           <div class="card-header">
             <ion-icon name="storefront-outline"></ion-icon>
-            <h2>Karenderia Owner</h2>
+            <h2>Karenderia Owner Registration</h2>
           </div>
           <p class="info-text">Submit your business for approval, manage your karenderia listing, and reach more customers.</p>
           <div class="warning-box">
-            <ion-icon name="warning-outline"></ion-icon>
-            <span>Business permit required for verification.</span>
+            <ion-icon name="information-circle-outline"></ion-icon>
+            <span>Your application will be reviewed by admin before you can access your account.</span>
           </div>
         </div>
 
         <!-- Business Name -->
-        <div class="input-field" style="border: 1px solid blue; margin: 10px 0;">
+        <div class="input-field">
           <ion-icon name="business-outline"></ion-icon>
           <ion-input
             [(ngModel)]="registerData.business_name"
             name="business_name"
-            placeholder="Business Name"
+            placeholder="Business Name *"
             class="custom-input"
             required>
           </ion-input>
-        </div>
-
-        <!-- Description -->
-        <div class="input-field" style="border: 1px solid green; margin: 10px 0;">
-          <ion-icon name="document-text-outline"></ion-icon>
-          <ion-textarea
-            [(ngModel)]="registerData.description"
-            name="description"
-            placeholder="Description"
-            class="custom-input"
-            required>
-          </ion-textarea>
         </div>
 
         <!-- Description -->
@@ -91,8 +91,9 @@
           <ion-textarea
             [(ngModel)]="registerData.description"
             name="description"
-            placeholder="Description"
+            placeholder="Business Description (min 10 characters) *"
             class="custom-input"
+            rows="3"
             required>
           </ion-textarea>
         </div>
@@ -103,7 +104,7 @@
           <ion-input
             [(ngModel)]="registerData.address"
             name="address"
-            placeholder="Full Address"
+            placeholder="Full Business Address (min 10 characters) *"
             class="custom-input"
             required>
           </ion-input>
@@ -116,7 +117,7 @@
             <ion-input
               [(ngModel)]="registerData.city"
               name="city"
-              placeholder="City"
+              placeholder="City *"
               class="custom-input"
               required>
             </ion-input>
@@ -127,7 +128,7 @@
             <ion-input
               [(ngModel)]="registerData.province"
               name="province"
-              placeholder="Province"
+              placeholder="Province *"
               class="custom-input"
               required>
             </ion-input>
@@ -141,9 +142,8 @@
             [(ngModel)]="registerData.phone"
             name="phone"
             type="tel"
-            placeholder="Phone Number"
-            class="custom-input"
-            required>
+            placeholder="Phone Number (Optional)"
+            class="custom-input">
           </ion-input>
         </div>
 
@@ -154,9 +154,8 @@
             [(ngModel)]="registerData.business_email"
             name="business_email"
             type="email"
-            placeholder="Business Email"
-            class="custom-input"
-            required>
+            placeholder="Business Email (Optional)"
+            class="custom-input">
           </ion-input>
         </div>
 
@@ -168,9 +167,8 @@
               [(ngModel)]="registerData.opening_time"
               name="opening_time"
               type="time"
-              placeholder="Opening Time"
-              class="custom-input"
-              required>
+              placeholder="Opening Time (Optional)"
+              class="custom-input">
             </ion-input>
           </div>
 
@@ -180,18 +178,17 @@
               [(ngModel)]="registerData.closing_time"
               name="closing_time"
               type="time"
-              placeholder="Closing Time"
-              class="custom-input"
-              required>
+              placeholder="Closing Time (Optional)"
+              class="custom-input">
             </ion-input>
           </div>
         </div>
 
-        <!-- Business Permit Upload -->
+        <!-- Business Permit Upload (Optional) -->
         <div class="permit-upload">
           <button type="button" class="upload-btn" (click)="uploadBusinessPermit()" *ngIf="!registerData.business_permit_file">
             <ion-icon name="cloud-upload-outline"></ion-icon>
-            <span>Upload Business Permit</span>
+            <span>Upload Business Permit (Optional)</span>
           </button>
           <div class="file-preview" *ngIf="registerData.business_permit_file">
             <ion-icon name="document-outline"></ion-icon>
@@ -233,7 +230,10 @@
 
       <!-- Login Link -->
       <div class="login-link">
-        Already have an account? <a routerLink="/login">Sign in</a>
+        <span>Already have an account?</span>
+        <ion-button expand="block" fill="solid" (click)="goToLogin()" class="modern-link-btn">
+          SIGN IN
+        </ion-button>
       </div>
     </form>
   </div>

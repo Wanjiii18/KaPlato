@@ -49,7 +49,7 @@
 
 // Modern Auth Content
 .modern-auth-content {
-  --background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+  --background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
   
   .modern-auth-container {
     min-height: 100vh;
@@ -647,43 +647,50 @@
 
 // Modern Buttons (same as login but with responsive updates)
 .modern-primary-btn {
-  --background: linear-gradient(135deg, #6366f1, #8b5cf6);
-  --background-hover: linear-gradient(135deg, #5855eb, #7c3aed);
+  --background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+  --background-hover: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
   --color: white;
   --border-radius: 12px;
-  --box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
-  font-weight: 600;
+  --box-shadow: 0 8px 25px rgba(96, 165, 250, 0.6);
+  font-weight: 700;
   margin-top: 1rem;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
   
   // Mobile: Touch-friendly button
   @media (max-width: 767px) {
-    height: 46px;
-    font-size: 0.9rem;
+    height: 52px;
+    font-size: 1rem;
     --border-radius: 10px;
     margin-top: 0.75rem;
   }
   
   // Tablet: Medium button
   @media (min-width: 768px) and (max-width: 1023px) {
-    height: 48px;
-    font-size: 0.95rem;
+    height: 54px;
+    font-size: 1rem;
   }
   
   // Desktop: Full size button
   @media (min-width: 1024px) {
-    height: 52px;
+    height: 56px;
     font-size: 1rem;
   }
   
   &:hover {
     transform: translateY(-2px);
-    --box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
+    --box-shadow: 0 10px 30px rgba(96, 165, 250, 0.7);
+  }
+  
+  &:active {
+    transform: translateY(0);
   }
   
   &:disabled {
-    opacity: 0.6;
+    opacity: 0.5;
     transform: none;
+    --box-shadow: none;
   }
   
   .btn-spinner {
@@ -692,28 +699,47 @@
 }
 
 .modern-link-btn {
-  --color: #6366f1;
-  --background: transparent;
-  font-weight: 600;
+  --color: white;
+  --background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+  --border-radius: 12px;
+  --box-shadow: 0 4px 15px rgba(96, 165, 250, 0.4);
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
   
   // Mobile: Larger touch target
   @media (max-width: 767px) {
-    font-size: 0.8rem;
-    --min-height: 42px;
+    font-size: 1rem;
+    --min-height: 52px;
   }
   
   // Tablet: Medium size
   @media (min-width: 768px) and (max-width: 1023px) {
-    font-size: 0.85rem;
+    font-size: 1rem;
+    --min-height: 54px;
   }
   
   // Desktop: Standard size
   @media (min-width: 1024px) {
-    font-size: 0.9rem;
+    font-size: 1rem;
+    --min-height: 56px;
   }
   
   &:hover {
-    --background: rgba(99, 102, 241, 0.1);
+    --background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    --box-shadow: 0 6px 20px rgba(96, 165, 250, 0.5);
+    transform: translateY(-2px);
+  }
+  
+  &[color="secondary"] {
+    --color: white;
+    --background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+    
+    &:hover {
+      --background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      --box-shadow: 0 6px 20px rgba(96, 165, 250, 0.5);
+      transform: translateY(-2px);
+    }
   }
 }
 
@@ -762,24 +788,24 @@
   
   .auth-link-text {
     margin: 0 0 0.5rem 0;
-    color: #64748b;
-    font-weight: 500;
+    color: #475569;
+    font-weight: 600;
     
     // Mobile: Smaller text
     @media (max-width: 767px) {
-      font-size: 0.75rem;
+      font-size: 0.85rem;
       margin-bottom: 0.25rem;
     }
     
     // Tablet: Medium text
     @media (min-width: 768px) and (max-width: 1023px) {
-      font-size: 0.85rem;
+      font-size: 0.9rem;
       margin-bottom: 0.375rem;
     }
     
     // Desktop: Standard size
     @media (min-width: 1024px) {
-      font-size: 0.9rem;
+      font-size: 0.95rem;
       margin-bottom: 0.5rem;
     }
   }

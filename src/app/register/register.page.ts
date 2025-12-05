@@ -14,19 +14,7 @@ export class RegisterPage implements OnInit {
     username: '',
     email: '',
     password: '',
-    confirmPassword: '',
-    role: 'customer' as 'customer' | 'karenderia_owner',
-    // Business fields for Karenderia Owner
-    businessName: '',
-    businessDescription: '',
-    businessAddress: '',
-    city: '',
-    province: '',
-    businessPhone: '',
-    businessEmail: '',
-    openingTime: '',
-    closingTime: '',
-    businessPermit: null as File | null
+    confirmPassword: ''
   };
 
   showPassword = false;
@@ -54,13 +42,15 @@ export class RegisterPage implements OnInit {
       this.successMessage = '';
 
       try {
+        // Register as customer only
         const registerData = {
           name: this.registerData.username,
           email: this.registerData.email,
           password: this.registerData.password,
           password_confirmation: this.registerData.confirmPassword,
-          role: this.registerData.role as 'customer' | 'karenderia_owner'
+          role: 'customer' as 'customer'
         };
+        
         await this.authService.register(registerData).toPromise();
         
         // Show success message
@@ -71,26 +61,26 @@ export class RegisterPage implements OnInit {
           username: '',
           email: '',
           password: '',
-          confirmPassword: '',
-          role: 'customer',
-          businessName: '',
-          businessDescription: '',
-          businessAddress: '',
-          city: '',
-          province: '',
-          businessPhone: '',
-          businessEmail: '',
-          openingTime: '',
-          closingTime: '',
-          businessPermit: null
+          confirmPassword: ''
         };
         form.resetForm();
         
       } catch (error: any) {
-        this.errorMessage = error.message;
+        console.error('Registration error:', error);
+        // Display server error messages
+        if (error.error && error.error.errors) {
+          const errors = Object.values(error.error.errors).flat();
+          this.errorMessage = errors.join(' ');
+        } else if (error.error && error.error.message) {
+          this.errorMessage = error.error.message;
+        } else {
+          this.errorMessage = error.message || 'Registration failed. Please try again.';
+        }
       } finally {
         this.isLoading = false;
       }
+    } else if (this.registerData.password !== this.registerData.confirmPassword) {
+      this.errorMessage = 'Passwords do not match.';
     }
   }
 
@@ -102,21 +92,11 @@ export class RegisterPage implements OnInit {
     this.showConfirmPassword = !this.showConfirmPassword;
   }
 
-  onBusinessPermitChange(event: any) {
-    const file = event.target.files[0];
-    if (file) {
-      this.registerData.businessPermit = file;
-    }
-  }
-
-  openFileSelector() {
-    const fileInput = document.getElementById('businessPermit') as HTMLInputElement;
-    if (fileInput) {
-      fileInput.click();
-    }
-  }
-
   goToLogin() {
     this.router.navigate(['/login']);
+  }
+  
+  goToKarenderiaRegistration() {
+    this.router.navigate(['/karenderia-registration']);
   }
 }

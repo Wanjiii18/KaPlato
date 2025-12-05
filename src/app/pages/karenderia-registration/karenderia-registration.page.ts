@@ -52,7 +52,7 @@ export class KarenderiaRegistrationPage implements OnInit {
   registerData = {
     username: '',
     email: '',
-    role: '',
+    role: 'Karenderia Owner', // Default to Karenderia Owner since this is the karenderia registration page
     password: '',
     confirmPassword: '',
     business_name: '',
@@ -93,6 +93,10 @@ export class KarenderiaRegistrationPage implements OnInit {
       this.registerData.closing_time = '';
       this.registerData.business_permit_file = null;
     }
+
+
+
+
   }
 
   uploadBusinessPermit() {
@@ -116,89 +120,111 @@ export class KarenderiaRegistrationPage implements OnInit {
   async onRegister(form: any) {
     if (form.valid) {
       try {
-        if (this.registerData.role === 'Karenderia Owner') {
-          console.log('Registering karenderia owner:', this.registerData);
-          
-          // Map the form data to match the API expectations
-          const karenderiaData = {
-            name: this.registerData.username,
-            email: this.registerData.email,
-            password: this.registerData.password,
-            password_confirmation: this.registerData.confirmPassword,
-            business_name: this.registerData.business_name,
-            description: this.registerData.description,
-            address: this.registerData.address,
-            city: this.registerData.city,
-            province: this.registerData.province,
-            phone: this.registerData.phone,
-            business_email: this.registerData.business_email,
-            opening_time: this.registerData.opening_time,
-            closing_time: this.registerData.closing_time
-          };
-          
-          // Call the karenderia owner registration API
-          const response = await this.authService.registerKarenderiaOwner(karenderiaData).toPromise();
-          
-          if (response && response.status === 'pending_approval') {
-            // Show success alert with approval message
-            const alert = await this.alertController.create({
-              header: '✅ Registration Successful!',
-              message: response.message || 'Your karenderia application has been submitted and is now pending admin approval. You will be able to login once an admin approves your application.',
-              buttons: [
-                {
-                  text: 'OK',
-                  handler: () => {
-                    // Redirect to login page
-                    this.router.navigate(['/login']);
-                  }
-                }
-              ]
-            });
-            await alert.present();
-          } else if (response) {
-            // Handle unexpected response
-            const alert = await this.alertController.create({
-              header: 'Registration Complete',
-              message: response.message || 'Registration completed successfully.',
-              buttons: ['OK']
-            });
-            await alert.present();
-          }
-        } else {
-          // Regular user registration
-          console.log('Registering regular user:', this.registerData);
-          
-          // Map the form data to match the API expectations
-          const userData = {
-            name: this.registerData.username,
-            email: this.registerData.email,
-            password: this.registerData.password,
-            password_confirmation: this.registerData.confirmPassword,
-            role: 'customer' as 'customer'
-          };
-          
-          const response = await this.authService.register(userData).toPromise();
-          
+        // Validate business fields before sending
+        if (!this.registerData.business_name || this.registerData.business_name.trim().length === 0) {
           const alert = await this.alertController.create({
-            header: 'Registration Successful',
-            message: 'Your account has been created successfully!',
-            buttons: [
-              {
-                text: 'OK',
-                handler: () => {
-                  this.router.navigate(['/login']);
-                }
-              }
-            ]
+            header: 'Missing Information',
+            message: 'Please enter your business name.',
+            buttons: ['OK']
           });
           await alert.present();
+          return;
         }
+        
+        if (!this.registerData.description || this.registerData.description.trim().length < 10) {
+          const alert = await this.alertController.create({
+            header: 'Missing Information',
+            message: 'Please enter a business description (at least 10 characters).',
+            buttons: ['OK']
+          });
+          await alert.present();
+          return;
+        }
+        
+        if (!this.registerData.address || this.registerData.address.trim().length < 10) {
+          const alert = await this.alertController.create({
+            header: 'Missing Information',
+            message: 'Please enter your complete business address (at least 10 characters).',
+            buttons: ['OK']
+          });
+          await alert.present();
+          return;
+        }
+        
+        if (!this.registerData.city || !this.registerData.province) {
+          const alert = await this.alertController.create({
+            header: 'Missing Information',
+            message: 'Please enter your city and province.',
+            buttons: ['OK']
+          });
+          await alert.present();
+          return;
+        }
+        
+        // Map the form data to match the API expectations
+        const karenderiaData = {
+          name: this.registerData.username,
+          email: this.registerData.email,
+          password: this.registerData.password,
+          password_confirmation: this.registerData.confirmPassword,
+          business_name: this.registerData.business_name,
+          description: this.registerData.description,
+          address: this.registerData.address,
+          city: this.registerData.city,
+          province: this.registerData.province,
+          phone: this.registerData.phone,
+          business_email: this.registerData.business_email,
+          opening_time: this.registerData.opening_time,
+          closing_time: this.registerData.closing_time
+        };
+        
+        console.log('📤 Registering karenderia owner:', karenderiaData);
+        
+        // Call the karenderia owner registration API
+        const response = await this.authService.registerKarenderiaOwner(karenderiaData).toPromise();
+        
+        // Show success alert with approval message
+        const alert = await this.alertController.create({
+          header: '✅ Registration Successful!',
+          message: response?.message || 'Your karenderia application has been submitted and is now pending admin approval. You will be able to login once an admin approves your application.',
+          buttons: [
+            {
+              text: 'OK',
+              handler: () => {
+                // Redirect to login page
+                this.router.navigate(['/login']);
+              }
+            }
+          ]
+        });
+        await alert.present();
+        
       } catch (error: any) {
-        console.error('Registration error:', error);
+        console.error('❌ Registration error:', error);
+        console.error('❌ Error details:', error.error);
+        
+        let errorMessage = 'An error occurred during registration. Please try again.';
+        
+        // Check if there are validation errors from the server
+        if (error.error && error.error.errors) {
+          console.error('❌ Validation errors:', error.error.errors);
+          
+          // Format validation errors for display
+          const errorList = Object.entries(error.error.errors)
+            .map(([field, messages]: [string, any]) => {
+              const fieldName = field.replace(/_/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase());
+              return `${fieldName}: ${Array.isArray(messages) ? messages.join(', ') : messages}`;
+            })
+            .join('\n');
+          
+          errorMessage = `Please fix the following errors:\n\n${errorList}`;
+        } else if (error.error && error.error.message) {
+          errorMessage = error.error.message;
+        }
         
         const alert = await this.alertController.create({
           header: 'Registration Failed',
-          message: error.error?.message || 'An error occurred during registration. Please try again.',
+          message: errorMessage,
           buttons: ['OK']
         });
         await alert.present();
@@ -211,5 +237,9 @@ export class KarenderiaRegistrationPage implements OnInit {
       });
       await alert.present();
     }
+  }
+
+  goToLogin() {
+    this.router.navigate(['/login']);
   }
 }
