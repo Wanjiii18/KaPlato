@@ -13,7 +13,7 @@ export interface UserProfile {
   phoneNumber?: string;
   address?: string;
   applicationStatus?: string;
-  role?: 'customer' | 'karenderia_owner' | 'admin';
+  role?: 'customer' | 'karenderia_owner' | 'admin' | 'supplier';
   photoURL?: string;
   age?: number;
   height?: number; // in cm

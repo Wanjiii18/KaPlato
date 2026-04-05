@@ -2,7 +2,20 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { IonicModule, AlertController, LoadingController, ToastController } from '@ionic/angular';
-import { InventoryService, InventoryItem, InventoryStats, CreateInventoryData } from '../../services/inventory.service';
+import {
+  InventoryService,
+  InventoryItem,
+  InventoryStats,
+  CreateInventoryData,
+  SupplierListing,
+  SupplyOrder,
+} from '../../services/inventory.service';
+import { AuthService } from '../../services/auth.service';
+
+interface CartItem {
+  listing: SupplierListing;
+  quantity: number;
+}
 
 @Component({
   selector: 'app-inventory-management',
@@ -12,6 +25,8 @@ import { InventoryService, InventoryItem, InventoryStats, CreateInventoryData } 
   imports: [CommonModule, FormsModule, IonicModule]
 })
 export class InventoryManagementPage implements OnInit {
+  userRole: 'customer' | 'karenderia_owner' | 'admin' | 'supplier' = 'customer';
+
   inventoryItems: InventoryItem[] = [];
   stats: InventoryStats = {
     total_items: 0,
@@ -25,24 +40,52 @@ export class InventoryManagementPage implements OnInit {
   filteredItems: InventoryItem[] = [];
   selectedCategory = 'all';
 
+  marketplaceListings: SupplierListing[] = [];
+  supplierListings: SupplierListing[] = [];
+  ownerOrders: SupplyOrder[] = [];
+  supplierOrders: SupplyOrder[] = [];
+  cart: CartItem[] = [];
+  marketplaceSearch = '';
+  marketplaceCategory = '';
+
   constructor(
     private inventoryService: InventoryService,
+    private authService: AuthService,
     private alertController: AlertController,
     private loadingController: LoadingController,
     private toastController: ToastController
   ) { }
 
+  getBackRoute(): string {
+    return this.userRole === 'supplier' ? '/home' : '/karenderia-dashboard';
+  }
+
   ngOnInit() {
     this.checkAuthentication();
-    this.loadInventory();
+
+    if (this.userRole === 'karenderia_owner') {
+      this.selectedSegment = 'inventory';
+      this.loadInventory();
+      this.loadMarketplaceListings();
+      this.loadOwnerOrders();
+      return;
+    }
+
+    if (this.userRole === 'supplier') {
+      this.selectedSegment = 'supplier-listings';
+      this.loadSupplierListings();
+      this.loadSupplierOrders();
+      return;
+    }
+
+    this.showToast('This page is only available for karenderia owners and suppliers.', 'warning');
   }
 
   private checkAuthentication() {
     const token = sessionStorage.getItem('auth_token');
-    console.log('Auth token exists:', !!token);
+    this.userRole = (this.authService.getCurrentUser()?.role as any) || 'customer';
     
     if (!token) {
-      console.error('No authentication token found');
       this.showToast('Please log in to access inventory management', 'danger');
     }
   }
@@ -77,18 +120,84 @@ export class InventoryManagementPage implements OnInit {
 
   onSegmentChanged(event: any) {
     this.selectedSegment = event.detail.value;
+
     if (this.selectedSegment === 'alerts') {
       this.loadAlerts();
+    } else if (this.selectedSegment === 'marketplace') {
+      this.loadMarketplaceListings();
+    } else if (this.selectedSegment === 'owner-orders') {
+      this.loadOwnerOrders();
+    } else if (this.selectedSegment === 'supplier-listings') {
+      this.loadSupplierListings();
+    } else if (this.selectedSegment === 'supplier-orders') {
+      this.loadSupplierOrders();
     }
   }
 
   async loadAlerts() {
     try {
-      const response = await this.inventoryService.getLowStockAlerts().toPromise();
-      // Handle alerts if needed
+      await this.inventoryService.getLowStockAlerts().toPromise();
     } catch (error: any) {
       console.error('Error loading alerts:', error);
       this.showToast('Error loading stock alerts', 'danger');
+    }
+  }
+
+  async loadMarketplaceListings() {
+    if (this.userRole !== 'karenderia_owner') {
+      return;
+    }
+
+    try {
+      const response = await this.inventoryService
+        .getMarketplaceListings(this.marketplaceSearch || undefined, this.marketplaceCategory || undefined)
+        .toPromise();
+      this.marketplaceListings = response?.data || [];
+    } catch (error: any) {
+      console.error('Error loading marketplace listings:', error);
+      this.showToast('Unable to load supplier marketplace listings', 'danger');
+    }
+  }
+
+  async loadOwnerOrders() {
+    if (this.userRole !== 'karenderia_owner') {
+      return;
+    }
+
+    try {
+      const response = await this.inventoryService.getOwnerSupplyOrders().toPromise();
+      this.ownerOrders = response?.data || [];
+    } catch (error: any) {
+      console.error('Error loading owner supply orders:', error);
+      this.showToast('Unable to load your supply orders', 'danger');
+    }
+  }
+
+  async loadSupplierListings() {
+    if (this.userRole !== 'supplier') {
+      return;
+    }
+
+    try {
+      const response = await this.inventoryService.getSupplierListings().toPromise();
+      this.supplierListings = response?.data || [];
+    } catch (error: any) {
+      console.error('Error loading supplier listings:', error);
+      this.showToast('Unable to load your supplier listings', 'danger');
+    }
+  }
+
+  async loadSupplierOrders() {
+    if (this.userRole !== 'supplier') {
+      return;
+    }
+
+    try {
+      const response = await this.inventoryService.getSupplierSupplyOrders().toPromise();
+      this.supplierOrders = response?.data || [];
+    } catch (error: any) {
+      console.error('Error loading supplier orders:', error);
+      this.showToast('Unable to load supplier orders', 'danger');
     }
   }
 
@@ -124,6 +233,292 @@ export class InventoryManagementPage implements OnInit {
       case 'out_of_stock': return 'close-circle';
       case 'expired': return 'time';
       default: return 'help-circle';
+    }
+  }
+
+  getOrderStatusColor(status: string): string {
+    switch (status) {
+      case 'pending': return 'warning';
+      case 'confirmed': return 'primary';
+      case 'delivered': return 'success';
+      case 'cancelled': return 'danger';
+      default: return 'medium';
+    }
+  }
+
+  formatOrderItems(order: SupplyOrder): string {
+    return (order.items || [])
+      .map(item => `${item.supplier_item?.item_name || 'Item'} x ${item.quantity}`)
+      .join(', ');
+  }
+
+  addToCart(listing: SupplierListing) {
+    if (listing.available_stock <= 0) {
+      this.showToast('This listing is out of stock', 'warning');
+      return;
+    }
+
+    const existingSupplierId = this.cart[0]?.listing.supplier_id;
+    if (existingSupplierId && existingSupplierId !== listing.supplier_id) {
+      this.showToast('Cart supports one supplier per order. Clear cart first.', 'warning');
+      return;
+    }
+
+    const existing = this.cart.find(entry => entry.listing.id === listing.id);
+    if (existing) {
+      if (existing.quantity + 1 > listing.available_stock) {
+        this.showToast('Quantity exceeds supplier stock', 'warning');
+        return;
+      }
+      existing.quantity += 1;
+    } else {
+      this.cart.push({
+        listing,
+        quantity: Math.max(1, Number(listing.minimum_order_quantity || 1)),
+      });
+    }
+
+    this.showToast('Added to supply cart', 'success');
+  }
+
+  increaseCartQuantity(item: CartItem) {
+    if (item.quantity + 1 > item.listing.available_stock) {
+      this.showToast('Quantity exceeds supplier stock', 'warning');
+      return;
+    }
+    item.quantity += 1;
+  }
+
+  decreaseCartQuantity(item: CartItem) {
+    const minQuantity = Number(item.listing.minimum_order_quantity || 1);
+    if (item.quantity - 1 < minQuantity) {
+      this.showToast(`Minimum order is ${minQuantity} ${item.listing.unit}`, 'warning');
+      return;
+    }
+    item.quantity -= 1;
+  }
+
+  removeFromCart(listingId: number) {
+    this.cart = this.cart.filter(item => item.listing.id !== listingId);
+  }
+
+  clearCart() {
+    this.cart = [];
+  }
+
+  getCartTotal(): number {
+    return this.cart.reduce((sum, item) => sum + (item.quantity * Number(item.listing.price_per_unit)), 0);
+  }
+
+  async submitSupplyOrder() {
+    if (!this.cart.length) {
+      this.showToast('Your supply cart is empty', 'warning');
+      return;
+    }
+
+    const alert = await this.alertController.create({
+      header: 'Submit Supply Order',
+      message: `Total: ₱${this.getCartTotal().toFixed(2)}`,
+      inputs: [
+        {
+          name: 'notes',
+          type: 'textarea',
+          placeholder: 'Notes for supplier (optional)'
+        },
+        {
+          name: 'delivery_date',
+          type: 'date',
+          placeholder: 'Preferred delivery date (optional)'
+        }
+      ],
+      buttons: [
+        { text: 'Cancel', role: 'cancel' },
+        {
+          text: 'Submit Order',
+          handler: async (data) => {
+            const loading = await this.loadingController.create({
+              message: 'Submitting order...'
+            });
+            await loading.present();
+
+            try {
+              await this.inventoryService.createSupplyOrder({
+                items: this.cart.map(item => ({
+                  supplier_inventory_item_id: item.listing.id,
+                  quantity: item.quantity,
+                })),
+                notes: data?.notes || undefined,
+                delivery_date: data?.delivery_date || undefined,
+              }).toPromise();
+
+              this.showToast('Supply order submitted successfully', 'success');
+              this.clearCart();
+              this.loadOwnerOrders();
+              this.loadMarketplaceListings();
+            } catch (error: any) {
+              console.error('Error submitting supply order:', error);
+              this.showToast(error?.error?.error || 'Failed to submit order', 'danger');
+            } finally {
+              loading.dismiss();
+            }
+          }
+        }
+      ]
+    });
+
+    await alert.present();
+  }
+
+  async cancelOwnerOrder(order: SupplyOrder) {
+    if (order.status === 'cancelled' || order.status === 'delivered') {
+      this.showToast('This order can no longer be cancelled', 'warning');
+      return;
+    }
+
+    const loading = await this.loadingController.create({
+      message: 'Cancelling order...'
+    });
+    await loading.present();
+
+    try {
+      await this.inventoryService.updateSupplyOrderStatus(order.id, 'cancelled').toPromise();
+      this.showToast('Order cancelled', 'success');
+      this.loadOwnerOrders();
+      this.loadMarketplaceListings();
+    } catch (error: any) {
+      console.error('Error cancelling order:', error);
+      this.showToast(error?.error?.error || 'Unable to cancel order', 'danger');
+    } finally {
+      loading.dismiss();
+    }
+  }
+
+  async updateSupplierOrderStatus(order: SupplyOrder, status: 'confirmed' | 'delivered' | 'cancelled') {
+    const loading = await this.loadingController.create({
+      message: 'Updating order status...'
+    });
+    await loading.present();
+
+    try {
+      await this.inventoryService.updateSupplyOrderStatus(order.id, status).toPromise();
+      this.showToast('Order status updated', 'success');
+      this.loadSupplierOrders();
+    } catch (error: any) {
+      console.error('Error updating supplier order status:', error);
+      this.showToast(error?.error?.error || 'Failed to update order status', 'danger');
+    } finally {
+      loading.dismiss();
+    }
+  }
+
+  async addSupplierListing() {
+    if (this.userRole !== 'supplier') {
+      return;
+    }
+
+    const alert = await this.alertController.create({
+      header: 'New Supplier Listing',
+      inputs: [
+        { name: 'item_name', type: 'text', placeholder: 'Item Name *' },
+        { name: 'description', type: 'textarea', placeholder: 'Description (optional)' },
+        { name: 'category', type: 'text', placeholder: 'Category *' },
+        { name: 'unit', type: 'text', placeholder: 'Unit (kg, pcs, liters) *' },
+        { name: 'price_per_unit', type: 'number', placeholder: 'Price per unit *' },
+        { name: 'available_stock', type: 'number', placeholder: 'Available stock *' },
+        { name: 'minimum_order_quantity', type: 'number', placeholder: 'Minimum order quantity (default: 1)' },
+      ],
+      buttons: [
+        { text: 'Cancel', role: 'cancel' },
+        {
+          text: 'Create',
+          handler: (data) => this.performAddSupplierListing(data)
+        }
+      ]
+    });
+
+    await alert.present();
+  }
+
+  async performAddSupplierListing(data: any) {
+    if (!data.item_name || !data.category || !data.unit || !data.price_per_unit || !data.available_stock) {
+      this.showToast('Please complete all required listing fields', 'danger');
+      return;
+    }
+
+    const loading = await this.loadingController.create({
+      message: 'Creating listing...'
+    });
+    await loading.present();
+
+    try {
+      await this.inventoryService.createSupplierListing({
+        item_name: data.item_name.trim(),
+        description: data.description ? data.description.trim() : undefined,
+        category: data.category.trim(),
+        unit: data.unit.trim(),
+        price_per_unit: Number(data.price_per_unit),
+        available_stock: Number(data.available_stock),
+        minimum_order_quantity: data.minimum_order_quantity ? Number(data.minimum_order_quantity) : 1,
+      }).toPromise();
+
+      this.showToast('Supplier listing created', 'success');
+      this.loadSupplierListings();
+    } catch (error: any) {
+      console.error('Error creating supplier listing:', error);
+      this.showToast(error?.error?.error || 'Unable to create listing', 'danger');
+    } finally {
+      loading.dismiss();
+    }
+  }
+
+  async editSupplierListing(listing: SupplierListing) {
+    const alert = await this.alertController.create({
+      header: 'Edit Supplier Listing',
+      inputs: [
+        { name: 'item_name', type: 'text', value: listing.item_name, placeholder: 'Item Name *' },
+        { name: 'description', type: 'textarea', value: listing.description || '', placeholder: 'Description (optional)' },
+        { name: 'category', type: 'text', value: listing.category, placeholder: 'Category *' },
+        { name: 'unit', type: 'text', value: listing.unit, placeholder: 'Unit *' },
+        { name: 'price_per_unit', type: 'number', value: String(listing.price_per_unit), placeholder: 'Price per unit *' },
+        { name: 'available_stock', type: 'number', value: String(listing.available_stock), placeholder: 'Available stock *' },
+        { name: 'minimum_order_quantity', type: 'number', value: String(listing.minimum_order_quantity), placeholder: 'Minimum order quantity' },
+      ],
+      buttons: [
+        { text: 'Cancel', role: 'cancel' },
+        {
+          text: 'Save',
+          handler: (data) => this.performEditSupplierListing(listing.id, data)
+        }
+      ]
+    });
+
+    await alert.present();
+  }
+
+  async performEditSupplierListing(listingId: number, data: any) {
+    const loading = await this.loadingController.create({
+      message: 'Updating listing...'
+    });
+    await loading.present();
+
+    try {
+      await this.inventoryService.updateSupplierListing(listingId, {
+        item_name: data.item_name?.trim(),
+        description: data.description ? data.description.trim() : undefined,
+        category: data.category?.trim(),
+        unit: data.unit?.trim(),
+        price_per_unit: data.price_per_unit ? Number(data.price_per_unit) : undefined,
+        available_stock: data.available_stock ? Number(data.available_stock) : undefined,
+        minimum_order_quantity: data.minimum_order_quantity ? Number(data.minimum_order_quantity) : undefined,
+      }).toPromise();
+
+      this.showToast('Listing updated', 'success');
+      this.loadSupplierListings();
+    } catch (error: any) {
+      console.error('Error updating supplier listing:', error);
+      this.showToast(error?.error?.error || 'Unable to update listing', 'danger');
+    } finally {
+      loading.dismiss();
     }
   }
 
@@ -318,8 +713,12 @@ export class InventoryManagementPage implements OnInit {
     }
   }
 
-  // ADD NEW ITEM FUNCTIONALITY
   async addNewItem() {
+    if (this.userRole === 'supplier') {
+      this.addSupplierListing();
+      return;
+    }
+
     const alert = await this.alertController.create({
       header: 'Add New Inventory Item',
       inputs: [
@@ -464,7 +863,6 @@ export class InventoryManagementPage implements OnInit {
     }
   }
 
-  // EDIT ITEM FUNCTIONALITY
   async editItem(item: InventoryItem) {
     const alert = await this.alertController.create({
       header: 'Edit Inventory Item',
@@ -621,7 +1019,6 @@ export class InventoryManagementPage implements OnInit {
     }
   }
 
-  // VIEW ITEM DETAILS
   async viewItemDetails(item: InventoryItem) {
     try {
       console.log('View item details called for:', item);

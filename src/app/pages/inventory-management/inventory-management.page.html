@@ -1,7 +1,7 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/karenderia-dashboard"></ion-back-button>
+      <ion-back-button [defaultHref]="getBackRoute()"></ion-back-button>
     </ion-buttons>
     <ion-title>Inventory Management</ion-title>
     <ion-buttons slot="end">
@@ -13,8 +13,7 @@
 </ion-header>
 
 <ion-content [fullscreen]="true">
-  <!-- Stats Cards -->
-  <div class="stats-container">
+  <div class="stats-container" *ngIf="userRole === 'karenderia_owner'">
     <div class="stats-grid">
       <ion-card class="stat-card">
         <ion-card-content>
@@ -46,20 +45,30 @@
     </div>
   </div>
 
-  <!-- Segment -->
-  <ion-segment value="inventory" (ionChange)="onSegmentChanged($event)">
-    <ion-segment-button value="inventory">
+  <ion-segment [value]="selectedSegment" (ionChange)="onSegmentChanged($event)">
+    <ion-segment-button value="inventory" *ngIf="userRole === 'karenderia_owner'">
       <ion-label>Inventory</ion-label>
     </ion-segment-button>
-    <ion-segment-button value="alerts">
+    <ion-segment-button value="alerts" *ngIf="userRole === 'karenderia_owner'">
       <ion-label>Alerts</ion-label>
       <ion-badge *ngIf="stats.low_stock_count + stats.out_of_stock_count > 0" color="danger">
         {{ stats.low_stock_count + stats.out_of_stock_count }}
       </ion-badge>
     </ion-segment-button>
+    <ion-segment-button value="marketplace" *ngIf="userRole === 'karenderia_owner'">
+      <ion-label>Suppliers</ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="owner-orders" *ngIf="userRole === 'karenderia_owner'">
+      <ion-label>Orders</ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="supplier-listings" *ngIf="userRole === 'supplier'">
+      <ion-label>My Listings</ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="supplier-orders" *ngIf="userRole === 'supplier'">
+      <ion-label>Incoming Orders</ion-label>
+    </ion-segment-button>
   </ion-segment>
 
-  <!-- Category Filter -->
   <div *ngIf="selectedSegment === 'inventory'" class="filter-container">
     <ion-item>
       <ion-select value="all" (selectionChange)="onCategoryChanged($event)" placeholder="Filter by Category">
@@ -71,13 +80,25 @@
     </ion-item>
   </div>
 
-  <!-- Loading -->
+  <div *ngIf="selectedSegment === 'marketplace'" class="filter-container">
+    <ion-item>
+      <ion-input
+        label="Search"
+        labelPlacement="stacked"
+        placeholder="Search supplier item"
+        [(ngModel)]="marketplaceSearch">
+      </ion-input>
+    </ion-item>
+    <ion-button expand="block" fill="outline" size="small" (click)="loadMarketplaceListings()">
+      Refresh Listings
+    </ion-button>
+  </div>
+
   <div *ngIf="isLoading" class="loading-container">
     <ion-spinner name="crescent"></ion-spinner>
     <p>Loading inventory...</p>
   </div>
 
-  <!-- Inventory List -->
   <div *ngIf="!isLoading && selectedSegment === 'inventory'">
     <div *ngIf="filteredItems.length === 0" class="empty-state">
       <ion-icon name="cube-outline" size="large"></ion-icon>
@@ -181,7 +202,6 @@
     </ion-card>
   </div>
 
-  <!-- Stock Alerts -->
   <div *ngIf="!isLoading && selectedSegment === 'alerts'">
     <div class="alerts-section">
       <h3>Stock Alerts</h3>
@@ -246,5 +266,196 @@
         </ion-card-content>
       </ion-card>
     </div>
+  </div>
+
+  <div *ngIf="selectedSegment === 'marketplace'" class="workflow-section">
+    <ion-card class="cart-card" *ngIf="cart.length > 0">
+      <ion-card-header>
+        <ion-card-title>Supply Cart</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <div class="cart-item" *ngFor="let cartItem of cart">
+          <div>
+            <strong>{{ cartItem.listing.item_name }}</strong>
+            <p>{{ cartItem.quantity }} {{ cartItem.listing.unit }} • ₱{{ cartItem.listing.price_per_unit | number:'1.2-2' }}</p>
+          </div>
+          <div class="cart-actions">
+            <ion-button fill="clear" size="small" (click)="decreaseCartQuantity(cartItem)">
+              <ion-icon name="remove"></ion-icon>
+            </ion-button>
+            <ion-button fill="clear" size="small" (click)="increaseCartQuantity(cartItem)">
+              <ion-icon name="add"></ion-icon>
+            </ion-button>
+            <ion-button fill="clear" color="danger" size="small" (click)="removeFromCart(cartItem.listing.id)">
+              <ion-icon name="trash-outline"></ion-icon>
+            </ion-button>
+          </div>
+        </div>
+        <div class="cart-total">Total: ₱{{ getCartTotal() | number:'1.2-2' }}</div>
+        <div class="cart-buttons">
+          <ion-button fill="outline" color="medium" (click)="clearCart()">Clear</ion-button>
+          <ion-button fill="solid" color="success" (click)="submitSupplyOrder()">Submit Order</ion-button>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <div *ngIf="marketplaceListings.length === 0" class="empty-state">
+      <ion-icon name="storefront-outline" size="large"></ion-icon>
+      <h3>No Supplier Listings Yet</h3>
+      <p>Try again later or adjust your search</p>
+    </div>
+
+    <ion-card class="inventory-card" *ngFor="let listing of marketplaceListings">
+      <ion-card-header>
+        <ion-card-title>{{ listing.item_name }}</ion-card-title>
+        <ion-card-subtitle>
+          {{ listing.category }} • Supplier: {{ listing.supplier?.name || 'Unknown' }}
+        </ion-card-subtitle>
+      </ion-card-header>
+      <ion-card-content>
+        <p>{{ listing.description || 'No description' }}</p>
+        <div class="stock-row">
+          <span class="label">Price:</span>
+          <span class="value">₱{{ listing.price_per_unit | number:'1.2-2' }} / {{ listing.unit }}</span>
+        </div>
+        <div class="stock-row">
+          <span class="label">Available Stock:</span>
+          <span class="value">{{ listing.available_stock }} {{ listing.unit }}</span>
+        </div>
+        <div class="stock-row">
+          <span class="label">Minimum Order:</span>
+          <span class="value">{{ listing.minimum_order_quantity }} {{ listing.unit }}</span>
+        </div>
+        <ion-button expand="block" color="primary" (click)="addToCart(listing)">
+          <ion-icon name="cart-outline" slot="start"></ion-icon>
+          Add To Cart
+        </ion-button>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+  <div *ngIf="selectedSegment === 'owner-orders'" class="workflow-section">
+    <div *ngIf="ownerOrders.length === 0" class="empty-state">
+      <ion-icon name="receipt-outline" size="large"></ion-icon>
+      <h3>No Supply Orders Yet</h3>
+      <p>Start by ordering from supplier marketplace</p>
+    </div>
+
+    <ion-card class="inventory-card" *ngFor="let order of ownerOrders">
+      <ion-card-header>
+        <div class="card-header">
+          <div class="item-info">
+            <ion-card-title>Order #{{ order.id }}</ion-card-title>
+            <ion-card-subtitle>
+              {{ order.supplier?.name || 'Supplier' }} • {{ order.created_at | date:'mediumDate' }}
+            </ion-card-subtitle>
+          </div>
+          <ion-chip [color]="getOrderStatusColor(order.status)">
+            <ion-label>{{ order.status | titlecase }}</ion-label>
+          </ion-chip>
+        </div>
+      </ion-card-header>
+      <ion-card-content>
+        <p><strong>Items:</strong> {{ formatOrderItems(order) }}</p>
+        <p><strong>Total:</strong> ₱{{ order.total_amount | number:'1.2-2' }}</p>
+        <p *ngIf="order.notes"><strong>Notes:</strong> {{ order.notes }}</p>
+        <div class="card-actions">
+          <ion-button
+            fill="outline"
+            color="danger"
+            [disabled]="order.status === 'cancelled' || order.status === 'delivered'"
+            (click)="cancelOwnerOrder(order)">
+            Cancel Order
+          </ion-button>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+  <div *ngIf="selectedSegment === 'supplier-listings'" class="workflow-section">
+    <div *ngIf="supplierListings.length === 0" class="empty-state">
+      <ion-icon name="cube-outline" size="large"></ion-icon>
+      <h3>No Supplier Listings</h3>
+      <p>Create your first listing to start receiving orders</p>
+      <ion-button (click)="addSupplierListing()">Create Listing</ion-button>
+    </div>
+
+    <ion-card class="inventory-card" *ngFor="let listing of supplierListings">
+      <ion-card-header>
+        <ion-card-title>{{ listing.item_name }}</ion-card-title>
+        <ion-card-subtitle>{{ listing.category }} • {{ listing.unit }}</ion-card-subtitle>
+      </ion-card-header>
+      <ion-card-content>
+        <div class="stock-row">
+          <span class="label">Price:</span>
+          <span class="value">₱{{ listing.price_per_unit | number:'1.2-2' }}</span>
+        </div>
+        <div class="stock-row">
+          <span class="label">Available Stock:</span>
+          <span class="value">{{ listing.available_stock }}</span>
+        </div>
+        <div class="stock-row">
+          <span class="label">Minimum Order:</span>
+          <span class="value">{{ listing.minimum_order_quantity }}</span>
+        </div>
+        <div class="card-actions">
+          <ion-button fill="outline" color="primary" (click)="editSupplierListing(listing)">
+            Edit Listing
+          </ion-button>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+  <div *ngIf="selectedSegment === 'supplier-orders'" class="workflow-section">
+    <div *ngIf="supplierOrders.length === 0" class="empty-state">
+      <ion-icon name="document-text-outline" size="large"></ion-icon>
+      <h3>No Incoming Orders</h3>
+      <p>Your incoming supply orders will appear here</p>
+    </div>
+
+    <ion-card class="inventory-card" *ngFor="let order of supplierOrders">
+      <ion-card-header>
+        <div class="card-header">
+          <div class="item-info">
+            <ion-card-title>Order #{{ order.id }}</ion-card-title>
+            <ion-card-subtitle>
+              {{ order.karenderia?.business_name || order.karenderia?.name || 'Karenderia' }}
+            </ion-card-subtitle>
+          </div>
+          <ion-chip [color]="getOrderStatusColor(order.status)">
+            <ion-label>{{ order.status | titlecase }}</ion-label>
+          </ion-chip>
+        </div>
+      </ion-card-header>
+      <ion-card-content>
+        <p><strong>Items:</strong> {{ formatOrderItems(order) }}</p>
+        <p><strong>Total:</strong> ₱{{ order.total_amount | number:'1.2-2' }}</p>
+        <p><strong>Date:</strong> {{ order.created_at | date:'mediumDate' }}</p>
+        <div class="card-actions">
+          <ion-button
+            fill="outline"
+            color="primary"
+            [disabled]="order.status !== 'pending'"
+            (click)="updateSupplierOrderStatus(order, 'confirmed')">
+            Confirm
+          </ion-button>
+          <ion-button
+            fill="outline"
+            color="success"
+            [disabled]="order.status !== 'confirmed'"
+            (click)="updateSupplierOrderStatus(order, 'delivered')">
+            Mark Delivered
+          </ion-button>
+          <ion-button
+            fill="outline"
+            color="danger"
+            [disabled]="order.status === 'cancelled' || order.status === 'delivered'"
+            (click)="updateSupplierOrderStatus(order, 'cancelled')">
+            Cancel
+          </ion-button>
+        </div>
+      </ion-card-content>
+    </ion-card>
   </div>
 </ion-content>

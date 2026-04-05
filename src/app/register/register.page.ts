@@ -11,10 +11,13 @@ import { AuthService } from '../services/auth.service';
 })
 export class RegisterPage implements OnInit {
   registerData = {
+    accountType: 'customer' as 'customer' | 'supplier',
     username: '',
     email: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    phoneNumber: '',
+    address: ''
   };
 
   showPassword = false;
@@ -42,26 +45,40 @@ export class RegisterPage implements OnInit {
       this.successMessage = '';
 
       try {
-        // Register as customer only
-        const registerData = {
-          name: this.registerData.username,
-          email: this.registerData.email,
-          password: this.registerData.password,
-          password_confirmation: this.registerData.confirmPassword,
-          role: 'customer' as 'customer'
-        };
-        
-        await this.authService.register(registerData).toPromise();
-        
-        // Show success message
-        this.successMessage = 'Registration successful! Please log in with your credentials.';
+        if (this.registerData.accountType === 'supplier') {
+          const supplierData = {
+            name: this.registerData.username,
+            email: this.registerData.email,
+            password: this.registerData.password,
+            password_confirmation: this.registerData.confirmPassword,
+            phone_number: this.registerData.phoneNumber || undefined,
+            address: this.registerData.address || undefined,
+          };
+
+          await this.authService.registerSupplier(supplierData).toPromise();
+          this.successMessage = 'Supplier registration submitted. Please wait for admin approval before logging in.';
+        } else {
+          const customerData = {
+            name: this.registerData.username,
+            email: this.registerData.email,
+            password: this.registerData.password,
+            password_confirmation: this.registerData.confirmPassword,
+            role: 'customer' as 'customer'
+          };
+
+          await this.authService.register(customerData).toPromise();
+          this.successMessage = 'Registration successful! Please log in with your credentials.';
+        }
         
         // Clear form
         this.registerData = {
+          accountType: 'customer',
           username: '',
           email: '',
           password: '',
-          confirmPassword: ''
+          confirmPassword: '',
+          phoneNumber: '',
+          address: ''
         };
         form.resetForm();
         

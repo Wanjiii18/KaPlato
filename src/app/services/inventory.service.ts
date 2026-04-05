@@ -46,11 +46,89 @@ export interface CreateInventoryData {
   notes?: string;
 }
 
+export interface SupplierListing {
+  id: number;
+  supplier_id: number;
+  item_name: string;
+  description?: string;
+  category: string;
+  unit: string;
+  price_per_unit: number;
+  available_stock: number;
+  minimum_order_quantity: number;
+  is_active: boolean;
+  supplier?: {
+    id: number;
+    name: string;
+    email: string;
+  };
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CreateSupplierListingData {
+  item_name: string;
+  description?: string;
+  category: string;
+  unit: string;
+  price_per_unit: number;
+  available_stock: number;
+  minimum_order_quantity?: number;
+  is_active?: boolean;
+}
+
+export interface SupplyOrderItem {
+  id: number;
+  supply_order_id: number;
+  supplier_inventory_item_id: number;
+  quantity: number;
+  unit_price: number;
+  line_total: number;
+  supplier_item?: {
+    id: number;
+    item_name: string;
+    unit: string;
+  };
+}
+
+export interface SupplyOrder {
+  id: number;
+  karenderia_id: number;
+  supplier_id: number;
+  status: 'pending' | 'confirmed' | 'delivered' | 'cancelled';
+  total_amount: number;
+  notes?: string;
+  delivery_date?: string;
+  items: SupplyOrderItem[];
+  supplier?: {
+    id: number;
+    name: string;
+    email: string;
+  };
+  karenderia?: {
+    id: number;
+    business_name?: string;
+    name?: string;
+  };
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CreateSupplyOrderData {
+  items: Array<{
+    supplier_inventory_item_id: number;
+    quantity: number;
+  }>;
+  notes?: string;
+  delivery_date?: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class InventoryService {
   private baseUrl = `${environment.apiUrl}/inventory`;
+  private supplyBaseUrl = `${environment.apiUrl}/supply`;
 
   constructor(private http: HttpClient) { }
 
@@ -106,5 +184,74 @@ export class InventoryService {
    */
   deleteInventoryItem(id: number): Observable<any> {
     return this.http.delete(`${this.baseUrl}/${id}`, { headers: this.getAuthHeaders() });
+  }
+
+  /**
+   * Get supplier marketplace listings (for karenderia owners)
+   */
+  getMarketplaceListings(search?: string, category?: string): Observable<any> {
+    const params = new URLSearchParams();
+    if (search) {
+      params.set('search', search);
+    }
+    if (category) {
+      params.set('category', category);
+    }
+
+    const query = params.toString();
+    const url = query
+      ? `${this.supplyBaseUrl}/marketplace?${query}`
+      : `${this.supplyBaseUrl}/marketplace`;
+
+    return this.http.get(url, { headers: this.getAuthHeaders() });
+  }
+
+  /**
+   * Get supplier's own listings
+   */
+  getSupplierListings(): Observable<any> {
+    return this.http.get(`${this.supplyBaseUrl}/supplier/listings`, { headers: this.getAuthHeaders() });
+  }
+
+  /**
+   * Create supplier listing
+   */
+  createSupplierListing(data: CreateSupplierListingData): Observable<any> {
+    return this.http.post(`${this.supplyBaseUrl}/supplier/listings`, data, { headers: this.getAuthHeaders() });
+  }
+
+  /**
+   * Update supplier listing
+   */
+  updateSupplierListing(id: number, data: Partial<CreateSupplierListingData>): Observable<any> {
+    return this.http.put(`${this.supplyBaseUrl}/supplier/listings/${id}`, data, { headers: this.getAuthHeaders() });
+  }
+
+  /**
+   * Place supply order as karenderia owner
+   */
+  createSupplyOrder(data: CreateSupplyOrderData): Observable<any> {
+    return this.http.post(`${this.supplyBaseUrl}/orders`, data, { headers: this.getAuthHeaders() });
+  }
+
+  /**
+   * Get karenderia owner supply orders
+   */
+  getOwnerSupplyOrders(): Observable<any> {
+    return this.http.get(`${this.supplyBaseUrl}/orders/owner`, { headers: this.getAuthHeaders() });
+  }
+
+  /**
+   * Get supplier supply orders
+   */
+  getSupplierSupplyOrders(): Observable<any> {
+    return this.http.get(`${this.supplyBaseUrl}/orders/supplier`, { headers: this.getAuthHeaders() });
+  }
+
+  /**
+   * Update supply order status
+   */
+  updateSupplyOrderStatus(orderId: number, status: 'pending' | 'confirmed' | 'delivered' | 'cancelled'): Observable<any> {
+    return this.http.patch(`${this.supplyBaseUrl}/orders/${orderId}/status`, { status }, { headers: this.getAuthHeaders() });
   }
 }

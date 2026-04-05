@@ -11,7 +11,7 @@ export interface User {
   email: string;
   name: string;
   displayName?: string;
-  role: 'customer' | 'karenderia_owner' | 'admin';
+  role: 'customer' | 'karenderia_owner' | 'admin' | 'supplier';
   verified?: boolean;
 }
 
@@ -25,7 +25,7 @@ export interface RegisterData {
   email: string;
   password: string;
   password_confirmation: string;
-  role?: 'customer' | 'karenderia_owner';
+  role?: 'customer' | 'karenderia_owner' | 'supplier';
 }
 
 export interface AuthResponse {
@@ -36,6 +36,7 @@ export interface AuthResponse {
   message?: string;
   status?: string;
   karenderia?: any;
+  next_step?: string;
 }
 
 export interface Allergen {
@@ -167,6 +168,24 @@ export class AuthService {
         }),
         catchError(error => {
           console.error('Karenderia owner registration error:', error);
+          throw error;
+        })
+      );
+  }
+
+  registerSupplier(registrationData: any): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.apiUrl}/auth/register-supplier`, registrationData)
+      .pipe(
+        tap(response => {
+          // Supplier accounts require approval; do not auto-login.
+          if (response.access_token) {
+            sessionStorage.setItem('auth_token', response.access_token);
+            sessionStorage.setItem('user_data', JSON.stringify(response.user));
+            this.currentUserSubject.next(response.user);
+          }
+        }),
+        catchError(error => {
+          console.error('Supplier registration error:', error);
           throw error;
         })
       );

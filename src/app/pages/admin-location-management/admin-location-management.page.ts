@@ -9,9 +9,9 @@ import {
   checkmarkCircleOutline
 } from 'ionicons/icons';
 
-import { AdminService } from 'src/app/services/admin.service';
-import { GoogleMapsService } from 'src/app/services/google-maps.service';
-import { LoggerService } from 'src/app/services/logger.service';
+import { AdminService } from '../../services/admin.service';
+import { GoogleMapsService } from '../../services/google-maps.service';
+import { LoggerService } from '../../services/logger.service';
 
 declare var google: any;
 

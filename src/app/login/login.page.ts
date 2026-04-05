@@ -45,6 +45,9 @@ export class LoginPage implements OnInit {
       case 'karenderia_owner':
         this.router.navigate(['/karenderia-dashboard']);
         break;
+      case 'supplier':
+        this.router.navigate(['/inventory-management']);
+        break;
       case 'customer':
       default:
         this.router.navigate(['/home']);
@@ -81,7 +84,13 @@ export class LoginPage implements OnInit {
         }
         
       } catch (error: any) {
-        this.errorMessage = error.message;
+        if (error?.error?.message) {
+          this.errorMessage = error.error.message;
+        } else if (error?.message) {
+          this.errorMessage = error.message;
+        } else {
+          this.errorMessage = 'Login failed. Please check your credentials and try again.';
+        }
       } finally {
         this.isLoading = false;
       }

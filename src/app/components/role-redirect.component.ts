@@ -94,6 +94,9 @@ export class RoleRedirectComponent implements OnInit {
       case 'karenderia_owner':
         this.router.navigate(['/karenderia-dashboard']);
         break;
+      case 'supplier':
+        this.router.navigate(['/inventory-management']);
+        break;
       case 'customer':
       default:
         this.router.navigate(['/home']);

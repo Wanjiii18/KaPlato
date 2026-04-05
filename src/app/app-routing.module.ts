@@ -4,6 +4,7 @@ import { AuthGuard } from './guards/auth.guard';
 import { KarenderiaGuard } from './guards/karenderia.guard';
 import { CustomerGuard } from './guards/customer.guard';
 import { AdminGuard } from './guards/admin.guard';
+import { InventoryWorkflowGuard } from './guards/inventory-workflow.guard';
 import { CustomPreloadingStrategy } from './services/custom-preloading.service';
 
 const routes: Routes = [
@@ -137,7 +138,7 @@ const routes: Routes = [
   {
     path: 'inventory-management',
     loadComponent: () => import('./pages/inventory-management/inventory-management.page').then(m => m.InventoryManagementPage),
-    canActivate: [AuthGuard, KarenderiaGuard]
+    canActivate: [AuthGuard, InventoryWorkflowGuard]
   }
 
 ];
