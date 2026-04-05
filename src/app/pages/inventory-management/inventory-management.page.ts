@@ -7,6 +7,7 @@ import {
   InventoryItem,
   InventoryStats,
   CreateInventoryData,
+  CreateSupplierListingData,
   SupplierListing,
   SupplyOrder,
 } from '../../services/inventory.service';
@@ -15,6 +16,12 @@ import { AuthService } from '../../services/auth.service';
 interface CartItem {
   listing: SupplierListing;
   quantity: number;
+}
+
+interface SupplierUiPage {
+  page: string;
+  purpose: string;
+  status: 'Complete' | 'In Progress' | 'Incomplete';
 }
 
 @Component({
@@ -47,6 +54,29 @@ export class InventoryManagementPage implements OnInit {
   cart: CartItem[] = [];
   marketplaceSearch = '';
   marketplaceCategory = '';
+  isSeedingSupplierSamples = false;
+
+  supplierUiPages: SupplierUiPage[] = [
+    { page: 'Supplier Listings', purpose: 'Manage inventory listings, pricing, and stock', status: 'In Progress' },
+    { page: 'Incoming Orders', purpose: 'Receive and fulfill owner orders', status: 'In Progress' },
+    { page: 'Promo Tags', purpose: 'Highlight discounts and bundle deals', status: 'Incomplete' },
+    { page: 'Suki Clients', purpose: 'Mark and manage trusted regular buyers', status: 'Incomplete' },
+  ];
+
+  supplierSampleCatalog: CreateSupplierListingData[] = [
+    { item_name: 'Fresh Chicken Breast', description: 'Daily-cut chicken breast for adobo, tinola, and fried meals.', category: 'Meat', unit: 'kg', price_per_unit: 190, available_stock: 80, minimum_order_quantity: 2 },
+    { item_name: 'Pork Kasim', description: 'Good for menudo, sinigang, and pork stew dishes.', category: 'Meat', unit: 'kg', price_per_unit: 210, available_stock: 70, minimum_order_quantity: 2 },
+    { item_name: 'Whole Tilapia', description: 'Fresh tilapia sourced from local fish growers.', category: 'Seafood', unit: 'kg', price_per_unit: 165, available_stock: 90, minimum_order_quantity: 3 },
+    { item_name: 'Cooking Oil', description: 'All-purpose vegetable cooking oil.', category: 'Pantry', unit: 'liter', price_per_unit: 78, available_stock: 200, minimum_order_quantity: 5 },
+    { item_name: 'Soy Sauce', description: 'Local soy sauce for marinade and seasoning.', category: 'Pantry', unit: 'liter', price_per_unit: 62, available_stock: 150, minimum_order_quantity: 3 },
+    { item_name: 'Garlic', description: 'Fresh garlic bulbs for aromatics and sauces.', category: 'Produce', unit: 'kg', price_per_unit: 120, available_stock: 60, minimum_order_quantity: 1 },
+    { item_name: 'White Onion', description: 'Medium white onions for sauté and soup bases.', category: 'Produce', unit: 'kg', price_per_unit: 95, available_stock: 70, minimum_order_quantity: 1 },
+    { item_name: 'Tomato', description: 'Ripe tomatoes for stews and daily menus.', category: 'Produce', unit: 'kg', price_per_unit: 85, available_stock: 90, minimum_order_quantity: 1 },
+    { item_name: 'Calamansi', description: 'Fresh calamansi for dipping sauces and marinades.', category: 'Produce', unit: 'kg', price_per_unit: 110, available_stock: 45, minimum_order_quantity: 1 },
+    { item_name: 'Jasmine Rice', description: 'Premium rice ideal for all-day karenderia service.', category: 'Grains', unit: 'sack', price_per_unit: 1820, available_stock: 35, minimum_order_quantity: 1 },
+    { item_name: 'Brown Sugar', description: 'For sauces, marinades, and sweet dishes.', category: 'Pantry', unit: 'kg', price_per_unit: 74, available_stock: 80, minimum_order_quantity: 2 },
+    { item_name: 'Disposable Meal Box (25 pcs)', description: 'Takeout meal boxes bundled in packs of 25.', category: 'Packaging', unit: 'pack', price_per_unit: 95, available_stock: 120, minimum_order_quantity: 2 },
+  ];
 
   constructor(
     private inventoryService: InventoryService,
@@ -184,6 +214,56 @@ export class InventoryManagementPage implements OnInit {
     } catch (error: any) {
       console.error('Error loading supplier listings:', error);
       this.showToast('Unable to load your supplier listings', 'danger');
+    }
+  }
+
+  async seedSupplierSampleCatalog() {
+    if (this.userRole !== 'supplier' || this.isSeedingSupplierSamples) {
+      return;
+    }
+
+    this.isSeedingSupplierSamples = true;
+    const loading = await this.loadingController.create({
+      message: 'Adding sample supplier products...'
+    });
+    await loading.present();
+
+    let createdCount = 0;
+    let skippedCount = 0;
+    let failedCount = 0;
+
+    try {
+      const existingNames = new Set(
+        this.supplierListings.map((listing) => listing.item_name.trim().toLowerCase())
+      );
+
+      for (const item of this.supplierSampleCatalog) {
+        const normalizedName = item.item_name.trim().toLowerCase();
+        if (existingNames.has(normalizedName)) {
+          skippedCount += 1;
+          continue;
+        }
+
+        try {
+          await this.inventoryService.createSupplierListing(item).toPromise();
+          createdCount += 1;
+          existingNames.add(normalizedName);
+        } catch (createError) {
+          console.error(`Failed to create sample listing: ${item.item_name}`, createError);
+          failedCount += 1;
+        }
+      }
+
+      await this.loadSupplierListings();
+
+      const summary = `Sample catalog result: ${createdCount} created, ${skippedCount} already existed, ${failedCount} failed.`;
+      this.showToast(summary, failedCount > 0 ? 'warning' : 'success');
+    } catch (error) {
+      console.error('Error seeding sample supplier catalog:', error);
+      this.showToast('Failed to add sample supplier products', 'danger');
+    } finally {
+      this.isSeedingSupplierSamples = false;
+      loading.dismiss();
     }
   }
 

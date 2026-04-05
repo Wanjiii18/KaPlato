@@ -373,6 +373,38 @@
   </div>
 
   <div *ngIf="selectedSegment === 'supplier-listings'" class="workflow-section">
+    <ion-card class="inventory-card">
+      <ion-card-header>
+        <ion-card-title>Supplier Quick Start</ion-card-title>
+        <ion-card-subtitle>Must-have UI pages and sample products for owner shopping tests</ion-card-subtitle>
+      </ion-card-header>
+      <ion-card-content>
+        <div class="stock-row" *ngFor="let page of supplierUiPages">
+          <span class="label">{{ page.page }}:</span>
+          <span class="value">{{ page.purpose }} ({{ page.status }})</span>
+        </div>
+
+        <div class="sample-catalog-preview">
+          <h4>Sample products you can seed</h4>
+          <p *ngFor="let sampleItem of supplierSampleCatalog.slice(0, 6)">
+            • {{ sampleItem.item_name }} ({{ sampleItem.unit }}) - ₱{{ sampleItem.price_per_unit | number:'1.2-2' }}
+          </p>
+          <p class="muted">Plus {{ supplierSampleCatalog.length - 6 }} more products in the one-click seed list.</p>
+        </div>
+
+        <div class="card-actions">
+          <ion-button
+            fill="solid"
+            color="success"
+            [disabled]="isSeedingSupplierSamples"
+            (click)="seedSupplierSampleCatalog()">
+            <ion-icon name="flash-outline" slot="start"></ion-icon>
+            Add Sample Supplier Products
+          </ion-button>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
     <div *ngIf="supplierListings.length === 0" class="empty-state">
       <ion-icon name="cube-outline" size="large"></ion-icon>
       <h3>No Supplier Listings</h3>

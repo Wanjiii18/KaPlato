@@ -55,6 +55,10 @@
           <ion-icon name="business"></ion-icon>
           <ion-label>Owners</ion-label>
         </ion-segment-button>
+        <ion-segment-button value="suppliers" class="modern-segment-btn">
+          <ion-icon name="storefront"></ion-icon>
+          <ion-label>Suppliers</ion-label>
+        </ion-segment-button>
         <ion-segment-button value="karenderias" class="modern-segment-btn">
           <ion-icon name="restaurant"></ion-icon>
           <ion-label>Applications</ion-label>
@@ -80,7 +84,7 @@
                 <ion-icon name="document-text" color="warning"></ion-icon>
               </div>
               <div class="stat-content">
-                <div class="stat-number">{{dashboardStats?.pending_karenderias || 0}}</div>
+                <div class="stat-number">{{dashboardStats?.pending_approvals || dashboardStats?.pending_karenderias || 0}}</div>
                 <div class="stat-label">Pending Applications</div>
                 <div class="stat-sublabel">Require Review</div>
               </div>
@@ -172,10 +176,10 @@
               </div>
               <div class="action-text">
                 <div class="action-title">Review Applications</div>
-                <div class="action-subtitle">{{dashboardStats?.pending_karenderias || 0}} pending approvals</div>
+                  <div class="action-subtitle">{{dashboardStats?.pending_approvals || dashboardStats?.pending_karenderias || 0}} pending approvals</div>
               </div>
               <div class="action-badge">
-                <ion-badge color="warning">{{dashboardStats?.pending_karenderias || 0}}</ion-badge>
+                <ion-badge color="warning">{{dashboardStats?.pending_approvals || dashboardStats?.pending_karenderias || 0}}</ion-badge>
               </div>
             </div>
           </ion-button>
@@ -460,6 +464,90 @@
                   (click)="deleteUser(owner.id, owner.name, 'owner')">
                   <ion-icon name="trash" slot="start"></ion-icon>
                   Delete
+                </ion-button>
+              </div>
+            </ion-card-content>
+          </ion-card>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modern Suppliers Tab -->
+    <div *ngIf="selectedTab === 'suppliers'" class="modern-tab-content">
+      <div class="modern-users-section">
+        <div class="section-header">
+          <ion-icon name="storefront" color="success"></ion-icon>
+          <h2>Supplier Management</h2>
+          <p>Manage supplier accounts and their application status</p>
+          <ion-button 
+            fill="solid" 
+            size="small"
+            color="success"
+            (click)="loadSuppliers()"
+            class="refresh-btn">
+            <ion-icon name="refresh" slot="start"></ion-icon>
+            Refresh Data
+          </ion-button>
+        </div>
+
+        <div *ngIf="!suppliers || suppliers.length === 0" class="modern-empty-state">
+          <div class="empty-icon">
+            <ion-icon name="storefront" color="medium"></ion-icon>
+          </div>
+          <h3>No suppliers found</h3>
+          <p>Supplier accounts will appear here once they register</p>
+        </div>
+
+        <div class="modern-users-grid">
+          <ion-card *ngFor="let supplier of suppliers" class="modern-user-card owner-card">
+            <ion-card-content>
+              <div class="user-card-header">
+                <div class="user-avatar">
+                  <ion-icon name="storefront" color="success"></ion-icon>
+                </div>
+                <div class="user-basic-info">
+                  <h3>{{supplier.name}}</h3>
+                  <p>{{supplier.email}}</p>
+                  <ion-chip [color]="getSupplierStatusColor(supplier)" class="status-chip">
+                    <ion-icon [name]="supplier.application_status === 'approved' ? 'checkmark-circle' : 'time'"></ion-icon>
+                    <ion-label>{{getSupplierStatusText(supplier)}}</ion-label>
+                  </ion-chip>
+                </div>
+              </div>
+
+              <div class="user-details-grid">
+                <div class="detail-item">
+                  <ion-icon name="call" color="primary"></ion-icon>
+                  <span>{{supplier.phone_number || 'No phone number'}}</span>
+                </div>
+                <div class="detail-item">
+                  <ion-icon name="location" color="warning"></ion-icon>
+                  <span>{{supplier.address || 'No address'}}</span>
+                </div>
+                <div class="detail-item">
+                  <ion-icon name="calendar" color="tertiary"></ion-icon>
+                  <span>Joined: {{supplier.created_at | date:'mediumDate'}}</span>
+                </div>
+              </div>
+
+              <div class="user-actions-grid">
+                <ion-button 
+                  size="small" 
+                  fill="solid"
+                  color="success"
+                  *ngIf="supplier.application_status === 'pending'"
+                  (click)="updateSupplierApproval(supplier, 'approved')">
+                  <ion-icon name="checkmark" slot="start"></ion-icon>
+                  Approve Supplier
+                </ion-button>
+                <ion-button 
+                  size="small" 
+                  fill="outline"
+                  color="danger"
+                  *ngIf="supplier.application_status === 'pending'"
+                  (click)="updateSupplierApproval(supplier, 'rejected')">
+                  <ion-icon name="close-circle" slot="start"></ion-icon>
+                  Reject
                 </ion-button>
               </div>
             </ion-card-content>

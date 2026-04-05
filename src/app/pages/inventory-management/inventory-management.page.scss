@@ -52,6 +52,29 @@
   padding: 8px 0 24px 0;
 }
 
+.sample-catalog-preview {
+  margin-top: 16px;
+  padding: 12px;
+  border-radius: 10px;
+  background: rgba(var(--ion-color-primary-rgb), 0.06);
+
+  h4 {
+    margin: 0 0 8px 0;
+    font-size: 0.95rem;
+  }
+
+  p {
+    margin: 0 0 6px 0;
+    font-size: 0.88rem;
+  }
+
+  .muted {
+    color: var(--ion-color-medium);
+    margin-top: 10px;
+    margin-bottom: 0;
+  }
+}
+
 .cart-card {
   margin: 8px 16px;
 

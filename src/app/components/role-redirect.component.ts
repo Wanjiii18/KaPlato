@@ -30,14 +30,7 @@ export class RoleRedirectComponent implements OnInit {
       console.log('RoleRedirect: Not on role-redirect route, skipping redirect');
       return;
     }
-    
-    // Temporarily redirect directly to home for UI testing
-    console.log('RoleRedirect: Redirecting to home for UI testing');
-    this.router.navigate(['/home'], { replaceUrl: true });
-    return;
-    
-    // Original authentication logic (commented out for testing)
-    /*
+
     // Check authentication immediately using synchronous methods
     const token = this.authService.getAuthToken();
     const currentUser = this.authService.getCurrentUser();
@@ -61,17 +54,6 @@ export class RoleRedirectComponent implements OnInit {
 
     // Token exists but user data not loaded yet, give it a very short time
     console.log('RoleRedirect: Token exists but user not loaded, waiting briefly...');
-    setTimeout(() => {
-      const user = this.authService.getCurrentUser();
-      if (user) {
-        console.log('RoleRedirect: User loaded after brief wait:', user.role);
-        this.redirectBasedOnRole(user);
-      } else {
-        console.log('RoleRedirect: User still not loaded, redirecting to login');
-        this.router.navigate(['/login']);
-      }
-    }, 100); // Very short 100ms wait
-    */
     setTimeout(() => {
       const user = this.authService.getCurrentUser();
       if (user) {

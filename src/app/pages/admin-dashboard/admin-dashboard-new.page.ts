@@ -45,6 +45,7 @@ export class AdminDashboardPage implements OnInit, OnDestroy {
   recentApplications: any[] = [];
   customers: any[] = [];
   karenderiaOwners: any[] = [];
+  suppliers: any[] = [];
   
   private timeInterval: any;
 
@@ -125,6 +126,9 @@ export class AdminDashboardPage implements OnInit, OnDestroy {
       case 'owners':
         this.loadKarenderiaOwners();
         break;
+      case 'suppliers':
+        this.loadSuppliers();
+        break;
       case 'karenderias':
         this.loadRecentApplications();
         break;
@@ -175,6 +179,18 @@ export class AdminDashboardPage implements OnInit, OnDestroy {
       error: (error) => {
         console.error('Error loading karenderia owners:', error);
         this.showToast('Error loading owners', 'danger');
+      }
+    });
+  }
+
+  loadSuppliers() {
+    this.adminService.getSuppliers().subscribe({
+      next: (response) => {
+        this.suppliers = response.data || [];
+      },
+      error: (error) => {
+        console.error('Error loading suppliers:', error);
+        this.showToast('Error loading suppliers', 'danger');
       }
     });
   }
@@ -230,6 +246,7 @@ export class AdminDashboardPage implements OnInit, OnDestroy {
                 } else {
                   this.loadKarenderiaOwners();
                 }
+                this.loadSuppliers();
               },
               error: (error) => {
                 console.error('Error toggling user status:', error);
@@ -264,6 +281,12 @@ export class AdminDashboardPage implements OnInit, OnDestroy {
         {
           name: 'role',
           type: 'radio',
+          label: 'Supplier',
+          value: 'supplier'
+        },
+        {
+          name: 'role',
+          type: 'radio',
           label: 'Admin',
           value: 'admin'
         }
@@ -281,6 +304,7 @@ export class AdminDashboardPage implements OnInit, OnDestroy {
                 this.showToast(response.message, 'success');
                 this.loadCustomers();
                 this.loadKarenderiaOwners();
+                this.loadSuppliers();
               },
               error: (error) => {
                 console.error('Error updating user role:', error);
@@ -316,6 +340,7 @@ export class AdminDashboardPage implements OnInit, OnDestroy {
                 } else {
                   this.loadKarenderiaOwners();
                 }
+                this.loadSuppliers();
                 this.loadDashboardData();
               },
               error: (error) => {
@@ -332,6 +357,39 @@ export class AdminDashboardPage implements OnInit, OnDestroy {
 
   approveKarenderia(karenderia: any) {
     this.quickApprove(karenderia.id);
+  }
+
+  async updateSupplierApproval(supplier: any, applicationStatus: 'approved' | 'rejected') {
+    const isApproved = applicationStatus === 'approved';
+    const alert = await this.alertCtrl.create({
+      header: isApproved ? 'Approve Application' : 'Reject Application',
+      message: isApproved
+        ? `Are you sure you want to approve ${supplier.name}?`
+        : `Are you sure you want to reject ${supplier.name}?`,
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel'
+        },
+        {
+          text: isApproved ? 'Approve' : 'Reject',
+          handler: () => {
+            this.adminService.updateSupplierApplicationStatus(supplier.id, applicationStatus).subscribe({
+              next: (response) => {
+                this.showToast(response.message || `Supplier ${applicationStatus} successfully`, 'success');
+                this.loadSuppliers();
+                this.loadDashboardData();
+              },
+              error: (error) => {
+                console.error('Error updating supplier application:', error);
+                this.showToast('Error updating supplier application', 'danger');
+              }
+            });
+          }
+        }
+      ]
+    });
+    await alert.present();
   }
 
   getOwnerStatusColor(owner: any): string {
@@ -353,6 +411,23 @@ export class AdminDashboardPage implements OnInit, OnDestroy {
     if (!owner.karenderia) return 'No Application';
     
     return owner.karenderia.status.charAt(0).toUpperCase() + owner.karenderia.status.slice(1);
+  }
+
+  getSupplierStatusColor(supplier: any): string {
+    switch (supplier.application_status) {
+      case 'approved':
+        return 'success';
+      case 'rejected':
+        return 'danger';
+      default:
+        return 'warning';
+    }
+  }
+
+  getSupplierStatusText(supplier: any): string {
+    if (supplier.application_status === 'approved') return 'Approved';
+    if (supplier.application_status === 'rejected') return 'Rejected';
+    return 'Pending Approval';
   }
 
   async showToast(message: string, color: string = 'primary') {
