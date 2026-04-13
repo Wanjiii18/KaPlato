@@ -1,8 +1,8 @@
 export const environment = {
   production: true,
-  apiUrl: 'http://localhost:8000/api', // Production Laravel API URL - Using HTTP for local testing
+  apiUrl: 'http://localhost:8000/api', // Update based on your production domain
   spoonacular: {
-    apiKey: 'dd401666a6f944fabefcc73a78db06c7', // Replace with your production API key
+    apiKey: '', // API key must be set via backend endpoint - never expose in frontend
     baseUrl: 'https://api.spoonacular.com'
   }
 };
