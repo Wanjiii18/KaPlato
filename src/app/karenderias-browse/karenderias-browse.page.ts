@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { KarenderiaService } from '../services/karenderia.service';
+import { MenuService } from '../services/menu.service';
+import { AllergenDetectionService } from '../services/allergen-detection.service';
 import { LoadingController, ToastController } from '@ionic/angular';
 
 @Component({
@@ -16,6 +18,9 @@ export class KarenderiasBrowsePage implements OnInit {
   searchQuery = '';
   selectedCategory = 'all';
   selectedSort = 'rating';
+  activeAllergens: string[] = [];
+  avoidRiskyRestaurants = true;
+  restaurantAllergenRiskMap: { [id: string]: boolean } = {};
   
   // User location for distance calculation
   userLocation: { latitude: number; longitude: number } | null = null;
@@ -37,14 +42,22 @@ export class KarenderiasBrowsePage implements OnInit {
   constructor(
     private router: Router,
     private karenderiaService: KarenderiaService,
+    private menuService: MenuService,
+    private allergenDetectionService: AllergenDetectionService,
     private loadingController: LoadingController,
     private toastController: ToastController
   ) { }
 
   ngOnInit() {
+    this.loadAllergenDefaults();
     this.getUserLocation().then(() => {
       this.loadKarenderias();
     });
+  }
+
+  private loadAllergenDefaults() {
+    const effective = this.allergenDetectionService.getEffectiveUserAllergens();
+    this.activeAllergens = effective.map(allergen => allergen.name);
   }
 
   async getUserLocation(): Promise<void> {
@@ -115,13 +128,13 @@ export class KarenderiasBrowsePage implements OnInit {
             console.warn('⚠️ Backend returned empty array, loading mock data');
             this.loadMockKarenderias();
           }
-          this.applyFilters();
+          this.evaluateRestaurantAllergenRisk().then(() => this.applyFilters());
         },
         error: (error) => {
           console.error('❌ Error loading karenderias from backend:', error);
           console.log('📋 Falling back to mock data');
           this.loadMockKarenderias();
-          this.applyFilters();
+          this.evaluateRestaurantAllergenRisk().then(() => this.applyFilters());
         },
         complete: () => {
           this.isLoading = false;
@@ -130,9 +143,36 @@ export class KarenderiasBrowsePage implements OnInit {
     } catch (error) {
       console.error('❌ Error in loadKarenderias:', error);
       this.loadMockKarenderias();
-      this.applyFilters();
+      await this.evaluateRestaurantAllergenRisk();
+      await this.applyFilters();
       this.isLoading = false;
     }
+  }
+
+  private async evaluateRestaurantAllergenRisk() {
+    this.restaurantAllergenRiskMap = {};
+
+    if (!this.activeAllergens.length || !this.karenderias.length) {
+      return;
+    }
+
+    await Promise.all(this.karenderias.map(async (karenderia) => {
+      const id = String(karenderia.id || '');
+      if (!id) {
+        return;
+      }
+
+      try {
+        const safeMeals = await this.menuService.searchMenuItems('', {
+          karenderia: id,
+          allergens: this.activeAllergens
+        });
+
+        this.restaurantAllergenRiskMap[id] = safeMeals.length === 0;
+      } catch (error) {
+        this.restaurantAllergenRiskMap[id] = false;
+      }
+    }));
   }
 
   loadMockKarenderias() {
@@ -235,7 +275,12 @@ export class KarenderiasBrowsePage implements OnInit {
     this.applyFilters();
   }
 
-  applyFilters() {
+  toggleAvoidRiskyRestaurants(enabled: boolean) {
+    this.avoidRiskyRestaurants = enabled;
+    this.applyFilters();
+  }
+
+  async applyFilters() {
     let filtered = [...this.karenderias];
     console.log('🔍 Starting filters with', filtered.length, 'karenderias');
 
@@ -248,6 +293,11 @@ export class KarenderiasBrowsePage implements OnInit {
         k.cuisine.some((c: string) => c.toLowerCase().includes(query))
       );
       console.log('🔍 After search filter:', filtered.length, 'karenderias');
+    }
+
+    if (this.avoidRiskyRestaurants && this.activeAllergens.length > 0) {
+      filtered = filtered.filter(k => !this.isRestaurantAllergenRisk(k));
+      console.log('🔍 After allergen avoid filter:', filtered.length, 'karenderias');
     }
 
     // Apply category filter
@@ -289,6 +339,14 @@ export class KarenderiasBrowsePage implements OnInit {
 
     this.filteredKarenderias = filtered;
     console.log(`🔍 Final result: ${filtered.length} karenderias found`);
+  }
+
+  hasActiveAllergens(): boolean {
+    return this.activeAllergens.length > 0;
+  }
+
+  isRestaurantAllergenRisk(karenderia: any): boolean {
+    return !!this.restaurantAllergenRiskMap[String(karenderia?.id || '')];
   }
 
   async selectKarenderia(karenderia: any) {

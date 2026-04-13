@@ -216,6 +216,11 @@
                 class="modern-input">
               </ion-input>
             </ion-item>
+
+            <ion-item class="modern-item">
+              <ion-label>Available for Ordering</ion-label>
+              <ion-toggle [(ngModel)]="newMenuItem.isAvailable"></ion-toggle>
+            </ion-item>
           </div>
 
           <!-- Dish Type Selection -->
@@ -309,6 +314,15 @@
                 <h3>Total Ingredient Cost: {{ formatPhp(getTotalCost()) }}</h3>
                 <p>Suggested selling price: {{ formatPhp(getTotalCost() * 2.5) }}</p>
               </div>
+
+              <div class="allergen-preview" *ngIf="getDetectedAllergensPreview().length > 0">
+                <h4>Auto-Detected Allergens</h4>
+                <p>These warnings will be shown to customers when they browse your dish.</p>
+                <ion-chip color="warning" *ngFor="let allergen of getDetectedAllergensPreview()">
+                  <ion-icon name="warning-outline" slot="start"></ion-icon>
+                  <ion-label>{{ allergen }}</ion-label>
+                </ion-chip>
+              </div>
             </div>
           </div>
 
@@ -342,6 +356,11 @@
               <h3 class="item-name">{{ item.name }}</h3>
               <div class="category-badge">{{ item.category | titlecase }}</div>
             </div>
+
+            <ion-chip [color]="item.isAvailable ? 'success' : 'medium'" outline="true">
+              <ion-icon [name]="item.isAvailable ? 'checkmark-circle-outline' : 'pause-circle-outline'" slot="start"></ion-icon>
+              <ion-label>{{ item.isAvailable ? 'Available' : 'Not Available' }}</ion-label>
+            </ion-chip>
             
             <p class="item-description">{{ item.description }}</p>
             
@@ -376,6 +395,15 @@
                 class="edit-btn">
                 <ion-icon name="create-outline" slot="start"></ion-icon>
                 Edit
+              </ion-button>
+
+              <ion-button
+                fill="clear"
+                size="small"
+                [color]="item.isAvailable ? 'warning' : 'success'"
+                (click)="toggleAvailability(item)">
+                <ion-icon [name]="item.isAvailable ? 'pause-circle-outline' : 'play-circle-outline'" slot="start"></ion-icon>
+                {{ item.isAvailable ? 'Not Available' : 'Available' }}
               </ion-button>
 
               <ion-button

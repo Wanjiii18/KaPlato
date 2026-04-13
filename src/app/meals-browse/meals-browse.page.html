@@ -51,6 +51,13 @@
 
   <!-- Results Summary -->
   <div *ngIf="!isLoading && filterStats" class="results-summary">
+    <ion-item lines="none" *ngIf="hasActiveAllergens()">
+      <ion-label>
+        Avoid dishes with: {{ activeAllergens.join(', ') }}
+      </ion-label>
+      <ion-toggle [checked]="avoidRiskyDishes" (ionChange)="toggleAvoidRiskyDishes($event.detail.checked)"></ion-toggle>
+    </ion-item>
+
     <div class="summary-stats">
       <div class="stat-item">
         <span class="stat-number">{{ filterStats.filteredMeals }}</span>

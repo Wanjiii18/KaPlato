@@ -150,7 +150,7 @@
                 class="status-icon">
               </ion-icon>
               <span class="status-text">
-                {{ item.is_available ? (item.quantity > 0 ? 'AVAILABLE' : 'SOLD OUT') : 'DISABLED' }}
+                {{ item.is_available ? (item.quantity > 0 ? 'AVAILABLE' : 'SOLD OUT') : 'NOT AVAILABLE' }}
               </span>
             </div>
           </div>
@@ -220,7 +220,7 @@
                 class="action-icon">
               </ion-icon>
               <span class="action-text">
-                {{ item.is_available ? 'Disable Item' : 'Enable Item' }}
+                {{ item.is_available ? 'Mark Not Available' : 'Mark Available' }}
               </span>
             </ion-button>
 

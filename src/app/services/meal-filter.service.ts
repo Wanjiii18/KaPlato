@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { UserService } from './user.service';
 import { AllergenDetectionService } from './allergen-detection.service';
 
 export interface MealFilterOptions {
@@ -33,7 +32,6 @@ export interface FilterStats {
 export class MealFilterService {
 
   constructor(
-    private userService: UserService,
     private allergenService: AllergenDetectionService
   ) {}
 
@@ -111,20 +109,19 @@ export class MealFilterService {
 
     // Apply allergen safety filter
     if (filters.allergenSafe) {
-      const userProfile = await this.userService.getCurrentUserProfile();
-      if (userProfile?.allergens && Array.isArray(userProfile.allergens) && userProfile.allergens.length > 0) {
-        const safeMeals = [];
-        
-        for (const meal of filteredMeals) {
-          const ingredients = meal.ingredients || [meal.name]; // Use meal name if no ingredients
-          const safetyAnalysis = this.allergenService.analyzeMealSafety(ingredients, meal.name);
-          if (safetyAnalysis.isSafe) {
-            safeMeals.push(meal);
-          }
+      const effectiveAllergens = this.allergenService.getEffectiveUserAllergens();
+      this.allergenService.updateUserAllergens(effectiveAllergens);
+
+      const safeMeals = [];
+      for (const meal of filteredMeals) {
+        const ingredients = this.extractMealIngredients(meal);
+        const safetyAnalysis = this.allergenService.analyzeMealSafety(ingredients, meal.name);
+        if (safetyAnalysis.isSafe) {
+          safeMeals.push(meal);
         }
-        
-        filteredMeals = safeMeals;
       }
+
+      filteredMeals = safeMeals;
     }
 
     // Apply specific allergen avoidance
@@ -132,7 +129,7 @@ export class MealFilterService {
       const safeMeals = [];
       
       for (const meal of filteredMeals) {
-        const ingredients = meal.ingredients || [meal.name]; // Use meal name if no ingredients
+        const ingredients = this.extractMealIngredients(meal);
         // Create a temporary allergen service instance with specific allergens
         let isSafe = true;
         
@@ -169,6 +166,26 @@ export class MealFilterService {
 
     console.log(`✅ Filtered ${meals.length} meals down to ${filteredMeals.length} results`);
     return filteredMeals;
+  }
+
+  private extractMealIngredients(meal: any): string[] {
+    if (!meal) {
+      return [];
+    }
+
+    if (!Array.isArray(meal.ingredients) || meal.ingredients.length === 0) {
+      return meal?.name ? [meal.name] : [];
+    }
+
+    const extracted = meal.ingredients.map((ingredient: any) => {
+      if (typeof ingredient === 'string') {
+        return ingredient;
+      }
+
+      return ingredient?.ingredientName || ingredient?.name || ingredient?.ingredient || '';
+    }).filter(Boolean);
+
+    return extracted.length > 0 ? extracted : (meal?.name ? [meal.name] : []);
   }
 
   /**

@@ -445,7 +445,7 @@ export class KarenderiaDetailPage implements OnInit {
    */
   private loadUserAllergens() {
     this.userService.currentUserProfile$.subscribe(userProfile => {
-      if (userProfile && userProfile.allergens) {
+      if (userProfile && Array.isArray(userProfile.allergens) && userProfile.allergens.length > 0) {
         this.userAllergens = userProfile.allergens;
         console.log('👤 User allergens loaded:', this.userAllergens);
         
@@ -455,8 +455,10 @@ export class KarenderiaDetailPage implements OnInit {
         // Re-check menu items for allergens if they're already loaded
         this.checkMenuItemsForAllergens();
       } else {
-        console.log('👤 No user allergens found');
-        this.userAllergens = [];
+        const defaultAllergens = this.allergenService.getEffectiveUserAllergens();
+        this.userAllergens = defaultAllergens;
+        this.allergenService.updateUserAllergens(defaultAllergens);
+        this.checkMenuItemsForAllergens();
       }
     });
   }

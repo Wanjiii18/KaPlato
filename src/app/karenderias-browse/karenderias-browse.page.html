@@ -71,6 +71,13 @@
       </ion-select>
     </div>
 
+    <ion-item lines="none" *ngIf="hasActiveAllergens()">
+      <ion-label>
+        Avoid restaurants with no safe dishes for: {{ activeAllergens.join(', ') }}
+      </ion-label>
+      <ion-toggle [checked]="avoidRiskyRestaurants" (ionChange)="toggleAvoidRiskyRestaurants($event.detail.checked)"></ion-toggle>
+    </ion-item>
+
     <!-- Karenderias Grid -->
     <div class="karenderias-grid" *ngIf="filteredKarenderias.length > 0">
       <ion-card 
@@ -103,6 +110,11 @@
         <ion-card-content class="card-content">
           <div class="karenderia-info">
             <h4 class="karenderia-name">{{ karenderia.name }}</h4>
+
+            <ion-chip color="warning" *ngIf="isRestaurantAllergenRisk(karenderia)">
+              <ion-icon name="warning-outline" slot="start"></ion-icon>
+              <ion-label>Potential Allergen Risk</ion-label>
+            </ion-chip>
             
             <div class="cuisine-tags">
               <ion-chip 

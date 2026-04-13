@@ -141,11 +141,16 @@ export class DailyMenuManagementPage implements OnInit {
   }
 
   async showMenuItemSelector() {
+    if (!this.availableMenuItems.length) {
+      this.showToast('No available menu items to add', 'warning');
+      return;
+    }
+
     const alert = await this.alertController.create({
-      header: 'Select Menu Item',
+      header: 'Select Menu Items',
       inputs: this.availableMenuItems.map(item => ({
-        name: 'menuItem',
-        type: 'radio',
+        name: `menuItem_${item.id}`,
+        type: 'checkbox',
         label: `${item.name} - ₱${item.price}`,
         value: item.id
       })),
@@ -156,10 +161,15 @@ export class DailyMenuManagementPage implements OnInit {
         },
         {
           text: 'Next',
-          handler: (menuItemId) => {
-            if (menuItemId) {
-              this.showQuantityDialog(menuItemId);
+          handler: (menuItemIds: number[]) => {
+            if (Array.isArray(menuItemIds) && menuItemIds.length > 0) {
+              this.showQuantityDialog(menuItemIds);
+            } else {
+              this.showToast('Please select at least one dish', 'warning');
+              return false;
             }
+
+            return true;
           }
         }
       ]
@@ -168,9 +178,10 @@ export class DailyMenuManagementPage implements OnInit {
     await alert.present();
   }
 
-  async showQuantityDialog(menuItemId: number) {
+  async showQuantityDialog(menuItemIds: number[]) {
     const alert = await this.alertController.create({
       header: 'Set Quantity & Details',
+      subHeader: `${menuItemIds.length} dish${menuItemIds.length > 1 ? 'es' : ''} selected`,
       inputs: [
         {
           name: 'quantity',
@@ -197,13 +208,28 @@ export class DailyMenuManagementPage implements OnInit {
         },
         {
           text: 'Add to Daily Menu',
-          handler: (data) => {
-            this.addMenuItemToDailyMenu({
-              menuItemId: menuItemId,
-              quantity: parseInt(data.quantity),
-              specialPrice: data.specialPrice ? parseFloat(data.specialPrice) : undefined,
-              notes: data.notes || undefined
-            });
+          handler: async (data) => {
+            const quantity = parseInt(data.quantity, 10);
+
+            if (!quantity || quantity < 1) {
+              this.showToast('Quantity must be at least 1', 'warning');
+              return false;
+            }
+
+            const specialPrice = data.specialPrice ? parseFloat(data.specialPrice) : undefined;
+            const notes = data.notes || undefined;
+
+            for (const menuItemId of menuItemIds) {
+              await this.addMenuItemToDailyMenu({
+                menuItemId,
+                quantity,
+                specialPrice,
+                notes
+              });
+            }
+
+            await this.loadDailyMenu();
+            return true;
           }
         }
       ]
@@ -228,9 +254,8 @@ export class DailyMenuManagementPage implements OnInit {
         notes: data.notes || undefined
       };
 
-      await this.dailyMenuService.addToDailyMenu(request).toPromise();
-      await this.showToast('Menu item added to daily menu successfully!', 'success');
-      this.loadDailyMenu(); // Refresh the list
+      const response = await this.dailyMenuService.addToDailyMenu(request).toPromise();
+      await this.showToast(response?.message || 'Menu item added to daily menu successfully!', 'success');
     } catch (error: any) {
       console.error('Error adding menu item:', error);
       const message = error.error?.error || 'Error adding menu item to daily menu';
@@ -279,7 +304,7 @@ export class DailyMenuManagementPage implements OnInit {
       }).toPromise();
       
       item.is_available = !item.is_available;
-      const status = item.is_available ? 'enabled' : 'disabled';
+      const status = item.is_available ? 'Available' : 'Not available';
       this.showToast(`Item ${status} successfully`, 'success');
     } catch (error) {
       console.error('Error updating availability:', error);

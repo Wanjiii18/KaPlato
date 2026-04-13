@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { MenuService } from '../services/menu.service';
 import { SpoonacularService } from '../services/spoonacular.service';
 import { KarenderiaInfoService } from '../services/karenderia-info.service';
+import { AllergenDetectionService } from '../services/allergen-detection.service';
 import { MenuItem, MenuIngredient } from '../models/menu.model';
 import { AlertController, ToastController, ModalController } from '@ionic/angular';
 import { Subscription } from 'rxjs';
@@ -31,6 +32,7 @@ export class KarenderiaMenuPage implements OnInit, OnDestroy {
     price: 0,
     category: 'main',
     preparationTime: 15,
+    isAvailable: true,
     selectedIngredients: [] as MenuIngredient[],
     customIngredients: [] as MenuIngredient[]
   };
@@ -122,7 +124,8 @@ export class KarenderiaMenuPage implements OnInit, OnDestroy {
     private alertController: AlertController,
     private toastController: ToastController,
     private modalController: ModalController,
-    private karenderiaInfoService: KarenderiaInfoService
+    private karenderiaInfoService: KarenderiaInfoService,
+    private allergenDetectionService: AllergenDetectionService
   ) { }
 
   ngOnInit() {
@@ -193,6 +196,7 @@ export class KarenderiaMenuPage implements OnInit, OnDestroy {
       price: 0,
       category: 'main',
       preparationTime: 15,
+      isAvailable: true,
       selectedIngredients: [],
       customIngredients: []
     };
@@ -309,6 +313,14 @@ export class KarenderiaMenuPage implements OnInit, OnDestroy {
     return this.newMenuItem.selectedIngredients.reduce((total, ing) => total + ing.cost, 0);
   }
 
+  getDetectedAllergensPreview(): string[] {
+    const ingredientNames = this.newMenuItem.selectedIngredients
+      .map(ingredient => ingredient.ingredientName)
+      .filter(Boolean);
+
+    return this.allergenDetectionService.detectAllergensFromIngredients(ingredientNames);
+  }
+
   async saveMenuItem() {
     if (!this.newMenuItem.name || !this.newMenuItem.description || this.newMenuItem.price <= 0) {
       const toast = await this.toastController.create({
@@ -327,9 +339,9 @@ export class KarenderiaMenuPage implements OnInit, OnDestroy {
       category: this.newMenuItem.category,
       preparationTime: this.newMenuItem.preparationTime,
       ingredients: this.newMenuItem.selectedIngredients,
-      isAvailable: true,
+      isAvailable: this.newMenuItem.isAvailable,
       isPopular: false,
-      allergens: [],
+      allergens: this.getDetectedAllergensPreview(),
       updatedAt: new Date()
     };
 
@@ -497,6 +509,7 @@ export class KarenderiaMenuPage implements OnInit, OnDestroy {
       price: item.price,
       category: item.category || 'main',
       preparationTime: item.preparationTime || 15,
+      isAvailable: item.isAvailable !== false,
       selectedIngredients: item.ingredients ? [...item.ingredients] : [],
       customIngredients: []
     };
@@ -558,7 +571,7 @@ export class KarenderiaMenuPage implements OnInit, OnDestroy {
       });
       
       const toast = await this.toastController.create({
-        message: `${item.name} ${item.isAvailable ? 'disabled' : 'enabled'} successfully`,
+        message: `${item.name} ${item.isAvailable ? 'Not available' : 'Available'} successfully`,
         duration: 2000,
         color: 'success'
       });

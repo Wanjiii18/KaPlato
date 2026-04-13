@@ -14,6 +14,8 @@
 .filter-panel {
   background: var(--ion-color-light);
   border-bottom: 1px solid var(--ion-color-light-shade);
+  width: min(100%, 520px);
+  margin: 0 auto;
   
   .filter-actions {
     padding: 16px 20px;
@@ -28,6 +30,8 @@
   background: white;
   padding: 16px 20px;
   border-bottom: 1px solid var(--ion-color-light);
+  width: min(100%, 520px);
+  margin: 0 auto;
   
   .summary-stats {
     display: flex;
@@ -55,6 +59,8 @@
 
 .meals-container {
   padding: 16px;
+  width: min(100%, 520px);
+  margin: 0 auto;
 }
 
 .empty-state {

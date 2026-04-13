@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MenuService } from '../services/menu.service';
 import { AnalyticsService } from '../services/analytics.service';
 import { MenuItem, DetailedOrder, DetailedOrderItem } from '../models/menu.model';
 import { AlertController, ToastController } from '@ionic/angular';
 import { KarenderiaInfoService } from '../services/karenderia-info.service';
+import { Subscription } from 'rxjs';
 
 export interface OrderItem {
   menuItem: MenuItem;
@@ -29,7 +30,7 @@ export interface PosOrder {
   styleUrls: ['./karenderia-orders-pos.page.scss'],
   standalone: false
 })
-export class KarenderiaOrdersPosPage implements OnInit {
+export class KarenderiaOrdersPosPage implements OnInit, OnDestroy {
     
   // Search term
   searchTerm = '';
@@ -193,6 +194,7 @@ export class KarenderiaOrdersPosPage implements OnInit {
   // Analytics data
   todaysAnalytics: any = null;
   seasonalTrends: any = null;
+  private menuSubscription?: Subscription;
 
   constructor(
     private menuService: MenuService,
@@ -208,9 +210,41 @@ export class KarenderiaOrdersPosPage implements OnInit {
     this.loadSeasonalTrends();
   }
 
+  ngOnDestroy() {
+    if (this.menuSubscription) {
+      this.menuSubscription.unsubscribe();
+    }
+  }
+
   loadMenuItems() {
-    // In a real app, load from MenuService
-    // For now, using mock data
+    if (this.menuSubscription) {
+      this.menuSubscription.unsubscribe();
+    }
+
+    this.menuSubscription = this.menuService.menuItems$.subscribe(items => {
+      if (items && items.length > 0) {
+        this.menuItems = items.map((item: any) => ({
+          ...item,
+          category: this.mapToPosCategory(item.category),
+          isAvailable: item.isAvailable !== false
+        }));
+      }
+    });
+
+    this.menuService.loadMenuItems().catch(error => {
+      console.error('Error loading live menu items for POS:', error);
+    });
+  }
+
+  private mapToPosCategory(category: string): string {
+    const value = (category || '').toLowerCase();
+
+    if (value.includes('main') || value.includes('ulam')) return 'Ulam';
+    if (value.includes('sabaw') || value.includes('soup')) return 'Sabaw';
+    if (value.includes('rice') || value.includes('kanin')) return 'Rice';
+    if (value.includes('dessert') || value.includes('sweet')) return 'Dessert';
+    if (value.includes('drink') || value.includes('beverage')) return 'Drinks';
+    return 'Ulam';
   }
 
   selectCategory(categoryId: string) {
@@ -219,6 +253,8 @@ export class KarenderiaOrdersPosPage implements OnInit {
 
   getFilteredMenuItems(): MenuItem[] {
     let filtered = this.menuItems;
+
+    filtered = filtered.filter(item => item.isAvailable !== false);
     
     // Filter by category
     if (this.selectedCategory !== 'all') {
@@ -253,8 +289,14 @@ export class KarenderiaOrdersPosPage implements OnInit {
     }
   }
 
-  removeFromOrder(index: number) {
-    this.currentOrder.splice(index, 1);
+  removeFromOrder(itemOrIndex: any) {
+    const index = typeof itemOrIndex === 'number'
+      ? itemOrIndex
+      : this.currentOrder.indexOf(itemOrIndex);
+
+    if (index >= 0) {
+      this.currentOrder.splice(index, 1);
+    }
   }
 
   updateQuantity(index: number, newQuantity: number) {

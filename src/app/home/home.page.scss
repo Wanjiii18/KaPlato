@@ -5,6 +5,8 @@
 }
 
 .dashboard-content {
+  width: min(100%, 520px);
+  margin: 0 auto;
   padding: 0;
   background: var(--background);
 }

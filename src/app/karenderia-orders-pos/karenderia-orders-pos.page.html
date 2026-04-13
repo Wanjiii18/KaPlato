@@ -172,11 +172,11 @@
             
             <div *ngFor="let item of currentOrder" class="order-item">
               <div class="item-image-small">
-                <img [src]="getItemImage(item)" [alt]="item.name">
+                <img [src]="getItemImage(item.menuItem)" [alt]="item.menuItem.name">
               </div>
               <div class="item-details">
-                <h4>{{ item.name }}</h4>
-                <p>₱{{ item.price }}</p>
+                <h4>{{ item.menuItem.name }}</h4>
+                <p>₱{{ item.menuItem.price }}</p>
               </div>
               <div class="quantity-controls">
                 <button (click)="decreaseQuantity(item)">

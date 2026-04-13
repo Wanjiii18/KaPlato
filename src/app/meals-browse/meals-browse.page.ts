@@ -7,6 +7,7 @@ import { Subscription } from 'rxjs';
 import { MealFilterComponent } from '../components/meal-filter/meal-filter.component';
 import { MealFilterService, MealFilterOptions, FilterStats } from '../services/meal-filter.service';
 import { MenuService } from '../services/menu.service';
+import { AllergenDetectionService } from '../services/allergen-detection.service';
 
 @Component({
   selector: 'app-meals-browse',
@@ -23,6 +24,8 @@ export class MealsBrowsePage implements OnInit, OnDestroy {
   currentFilters: MealFilterOptions = {};
   filterStats: FilterStats | null = null;
   private menuItemsSubscription: Subscription | null = null;
+  activeAllergens: string[] = [];
+  avoidRiskyDishes = true;
   
   // Sample meal data (replace with actual API calls)
   sampleMeals = [
@@ -144,12 +147,24 @@ export class MealsBrowsePage implements OnInit, OnDestroy {
     private loadingController: LoadingController,
     private toastController: ToastController,
     private mealFilterService: MealFilterService,
-    private menuService: MenuService
+    private menuService: MenuService,
+    private allergenDetectionService: AllergenDetectionService
   ) {}
 
   async ngOnInit() {
+    this.initializeAllergenDefaults();
     await this.loadMeals();
     this.checkQueryParams();
+  }
+
+  private initializeAllergenDefaults() {
+    const effectiveAllergens = this.allergenDetectionService.getEffectiveUserAllergens();
+    this.activeAllergens = effectiveAllergens.map(allergen => allergen.name);
+
+    if (this.activeAllergens.length > 0 && this.avoidRiskyDishes) {
+      this.currentFilters.allergenSafe = true;
+      this.currentFilters.specificAllergens = [...this.activeAllergens];
+    }
   }
 
   async ionViewWillEnter() {
@@ -217,7 +232,9 @@ export class MealsBrowsePage implements OnInit, OnDestroy {
           isVegetarian: item.allergens?.length === 0 || false,
           isVegan: false, // Would need dietary tags from backend
           allergens: item.allergens || [],
-          ingredients: item.ingredients?.map(ing => ing.ingredientName) || [],
+          ingredients: item.ingredients?.map(ing =>
+            typeof ing === 'string' ? ing : ((ing as any).ingredientName || (ing as any).name || '')
+          ) || [],
           average_rating: (item as any).average_rating || 0,
           total_reviews: (item as any).total_reviews || 0,
           available: item.isAvailable !== false
@@ -268,6 +285,20 @@ export class MealsBrowsePage implements OnInit, OnDestroy {
     await this.applyFilters();
   }
 
+  async toggleAvoidRiskyDishes(enabled: boolean) {
+    this.avoidRiskyDishes = enabled;
+
+    if (enabled) {
+      this.currentFilters.allergenSafe = true;
+      this.currentFilters.specificAllergens = [...this.activeAllergens];
+    } else {
+      this.currentFilters.allergenSafe = false;
+      this.currentFilters.specificAllergens = [];
+    }
+
+    await this.applyFilters();
+  }
+
   async applyFilters() {
     const loading = await this.loadingController.create({
       message: 'Applying filters...',
@@ -312,6 +343,10 @@ export class MealsBrowsePage implements OnInit, OnDestroy {
 
   private updateFilterStats() {
     this.filterStats = this.mealFilterService.getFilterStats(this.allMeals, this.filteredMeals);
+  }
+
+  hasActiveAllergens(): boolean {
+    return this.activeAllergens.length > 0;
   }
 
   private async showToast(message: string) {
