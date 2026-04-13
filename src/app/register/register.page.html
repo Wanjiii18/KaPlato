@@ -34,6 +34,15 @@
         <p>Start your culinary journey with us</p>
       </div>
 
+      <div class="auth-switch" aria-label="Authentication navigation">
+        <ion-button fill="clear" class="switch-btn" routerLink="/login">
+          Sign In
+        </ion-button>
+        <ion-button fill="clear" class="switch-btn active" disabled>
+          Sign Up
+        </ion-button>
+      </div>
+
       <div class="auth-form-container">
         <form #registerForm="ngForm" (ngSubmit)="onRegister(registerForm)">
           <div class="modern-form-group">
@@ -46,8 +55,21 @@
                 <ion-segment-button value="supplier">
                   <ion-label>Supplier</ion-label>
                 </ion-segment-button>
+                <ion-segment-button value="karenderia_owner">
+                  <ion-label>Owner</ion-label>
+                </ion-segment-button>
               </ion-segment>
             </ion-item>
+          </div>
+
+          <div class="modern-role-description" *ngIf="registerData.accountType === 'karenderia_owner'">
+            <div class="role-card owner-role">
+              <div class="role-header">
+                <ion-icon name="storefront" class="role-icon"></ion-icon>
+                <h4>Karenderia Owner Registration</h4>
+              </div>
+              <p>Owner accounts require business details and approval. Continue to the owner registration form.</p>
+            </div>
           </div>
 
           <div class="modern-form-group">
@@ -175,11 +197,11 @@
           <ion-button
             expand="block"
             type="submit"
-            [disabled]="!registerForm.valid || registerData.password !== registerData.confirmPassword || isLoading"
+            [disabled]="(registerData.accountType !== 'karenderia_owner' && (!registerForm.valid || registerData.password !== registerData.confirmPassword)) || isLoading"
             class="modern-primary-btn">
             <ion-spinner name="crescent" *ngIf="isLoading" class="btn-spinner"></ion-spinner>
             <span *ngIf="!isLoading">
-              {{ registerData.accountType === 'supplier' ? 'Submit Supplier Application' : 'Create Account' }}
+              {{ registerData.accountType === 'supplier' ? 'Submit Supplier Application' : (registerData.accountType === 'karenderia_owner' ? 'Continue to Owner Registration' : 'Create Account') }}
             </span>
           </ion-button>
         </form>
@@ -189,10 +211,19 @@
           <span>{{ errorMessage }}</span>
         </div>
 
-        <div class="modern-error-alert" *ngIf="successMessage" style="border-left-color: #22c55e; background: rgba(34,197,94,0.12); color: #166534;">
+        <div class="modern-error-alert modern-success-alert" *ngIf="successMessage">
           <ion-icon name="checkmark-circle" class="alert-icon"></ion-icon>
           <span>{{ successMessage }}</span>
         </div>
+
+        <ion-button
+          *ngIf="successMessage"
+          expand="block"
+          fill="outline"
+          class="modern-secondary-btn"
+          (click)="goToLogin()">
+          Continue to Login
+        </ion-button>
 
         <div class="modern-auth-footer">
           <p class="auth-link-text">Already have an account?</p>
@@ -201,7 +232,7 @@
           </ion-button>
         </div>
 
-        <div class="modern-auth-footer" style="margin-top: 10px; border-top: 1px solid #e0e0e0; padding-top: 15px;">
+        <div class="modern-auth-footer owner-registration-footer">
           <p class="auth-link-text">Want to register your business?</p>
           <ion-button fill="clear" routerLink="/karenderia-registration" class="modern-link-btn" color="secondary">
             Karenderia Owner Registration

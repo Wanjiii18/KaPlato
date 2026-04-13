@@ -56,7 +56,7 @@ export class MealPlannerPage implements OnInit {
   }
 
   private checkAuthentication() {
-    const token = sessionStorage.getItem('auth_token');
+    const token = localStorage.getItem('auth_token');
     console.log('Auth token exists:', !!token);
     console.log('Token length:', token?.length || 0);
     

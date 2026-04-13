@@ -25,18 +25,14 @@ export interface RegisterData {
   email: string;
   password: string;
   password_confirmation: string;
-  role?: 'customer' | 'karenderia_owner' | 'supplier';
+  role?: 'customer' | 'karenderia_owner';
 }
 
 export interface AuthResponse {
   user: User;
-  access_token?: string;
-  token_type?: string;
-  expires_in?: number;
-  message?: string;
-  status?: string;
-  karenderia?: any;
-  next_step?: string;
+  access_token: string;
+  token_type: string;
+  expires_in: number;
 }
 
 export interface Allergen {
@@ -74,9 +70,8 @@ export class AuthService {
   }
 
   private checkStoredAuth(): void {
-    // Use sessionStorage instead of localStorage for automatic logout on app close
-    const token = sessionStorage.getItem('auth_token');
-    const userData = sessionStorage.getItem('user_data');
+    const token = localStorage.getItem('auth_token');
+    const userData = localStorage.getItem('user_data');
     
     if (token && userData) {
       try {
@@ -90,47 +85,15 @@ export class AuthService {
   }
 
   login(credentials: LoginCredentials): Observable<AuthResponse> {
-    console.log('🔐 Attempting login with:', credentials);
-    console.log('🌐 API URL:', `${this.apiUrl}/auth/login`);
-    
-    // EMERGENCY FIX FOR PRESENTATION - use emergency endpoint if alica
-    if (credentials.email === 'alica@gmail.com') {
-      console.log('🚨 Using emergency login for presentation');
-      return this.http.post<AuthResponse>(`${this.apiUrl}/emergency-login`, {})
-        .pipe(
-          tap(response => {
-            console.log('✅ Emergency login successful:', response);
-            if (response.access_token) {
-              sessionStorage.setItem('auth_token', response.access_token);
-              sessionStorage.setItem('user_data', JSON.stringify(response.user));
-              this.currentUserSubject.next(response.user);
-            }
-          }),
-          catchError(error => {
-            console.error('❌ Emergency login error:', error);
-            throw error;
-          })
-        );
-    }
-    
     return this.http.post<AuthResponse>(`${this.apiUrl}/auth/login`, credentials)
       .pipe(
         tap(response => {
-          console.log('✅ Login successful:', response);
-          // Only set token if it exists (successful login)
-          if (response.access_token) {
-            sessionStorage.setItem('auth_token', response.access_token);
-            sessionStorage.setItem('user_data', JSON.stringify(response.user));
-            this.currentUserSubject.next(response.user);
-          }
+          localStorage.setItem('auth_token', response.access_token);
+          localStorage.setItem('user_data', JSON.stringify(response.user));
+          this.currentUserSubject.next(response.user);
         }),
         catchError(error => {
-          console.error('❌ Login error details:', error);
-          console.error('❌ Error status:', error.status);
-          console.error('❌ Error message:', error.message);
-          if (error.error) {
-            console.error('❌ Server error response:', error.error);
-          }
+          console.error('Login error:', error);
           throw error;
         })
       );
@@ -140,12 +103,9 @@ export class AuthService {
     return this.http.post<AuthResponse>(`${this.apiUrl}/auth/register`, userData)
       .pipe(
         tap(response => {
-          // Auto-login customers but not karenderia owners
-          if (response.access_token) {
-            sessionStorage.setItem('auth_token', response.access_token);
-            sessionStorage.setItem('user_data', JSON.stringify(response.user));
-            this.currentUserSubject.next(response.user);
-          }
+          localStorage.setItem('auth_token', response.access_token);
+          localStorage.setItem('user_data', JSON.stringify(response.user));
+          this.currentUserSubject.next(response.user);
         }),
         catchError(error => {
           console.error('Registration error:', error);
@@ -158,13 +118,9 @@ export class AuthService {
     return this.http.post<AuthResponse>(`${this.apiUrl}/auth/register-karenderia-owner`, registrationData)
       .pipe(
         tap(response => {
-          // Don't set token for karenderia owner registration - they need approval first
-          // Only set token if it exists (which it shouldn't for pending approval)
-          if (response.access_token) {
-            sessionStorage.setItem('auth_token', response.access_token);
-            sessionStorage.setItem('user_data', JSON.stringify(response.user));
-            this.currentUserSubject.next(response.user);
-          }
+          localStorage.setItem('auth_token', response.access_token);
+          localStorage.setItem('user_data', JSON.stringify(response.user));
+          this.currentUserSubject.next(response.user);
         }),
         catchError(error => {
           console.error('Karenderia owner registration error:', error);
@@ -173,17 +129,9 @@ export class AuthService {
       );
   }
 
-  registerSupplier(registrationData: any): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/auth/register-supplier`, registrationData)
+  registerSupplier(registrationData: any): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/auth/register-supplier`, registrationData)
       .pipe(
-        tap(response => {
-          // Supplier accounts require approval; do not auto-login.
-          if (response.access_token) {
-            sessionStorage.setItem('auth_token', response.access_token);
-            sessionStorage.setItem('user_data', JSON.stringify(response.user));
-            this.currentUserSubject.next(response.user);
-          }
-        }),
         catchError(error => {
           console.error('Supplier registration error:', error);
           throw error;
@@ -192,23 +140,13 @@ export class AuthService {
   }
 
   logout(): void {
-    // Get the token before clearing it for server logout
-    const token = sessionStorage.getItem('auth_token');
-    
-    // Clear ALL storage immediately and aggressively
-    sessionStorage.clear(); // Clear entire sessionStorage
-    localStorage.clear(); // Clear entire localStorage to be safe
-    
-    // Also manually remove specific items
-    ['auth_token', 'user_data', 'karenderia_data', 'menu_cache', 'user_role', 'current_user'].forEach(key => {
-      sessionStorage.removeItem(key);
-      localStorage.removeItem(key);
-    });
-    
-    // Clear the user subject immediately
+    // Clear local storage immediately for instant logout feeling
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('user_data');
     this.currentUserSubject.next(null);
 
     // Optional: Notify server in background (don't wait for response)
+    const token = localStorage.getItem('auth_token');
     if (token) {
       this.http.post(`${this.apiUrl}/auth/logout`, {}, {
         headers: { Authorization: `Bearer ${token}` }
@@ -249,7 +187,7 @@ export class AuthService {
   }
 
   isAuthenticated(): boolean {
-    return !!sessionStorage.getItem('auth_token');
+    return !!localStorage.getItem('auth_token');
   }
 
   getCurrentUser(): User | null {
@@ -257,7 +195,7 @@ export class AuthService {
   }
 
   getAuthToken(): string | null {
-    return sessionStorage.getItem('auth_token');
+    return localStorage.getItem('auth_token');
   }
 
   private getAuthHeaders(): { [key: string]: string } {

@@ -43,9 +43,13 @@
         <ion-icon name="calendar-outline"></ion-icon>
         <span>Menu of the Day</span>
       </div>
+      <div class="nav-item" (click)="navigateToPos()">
+        <ion-icon name="calculator-outline"></ion-icon>
+        <span>POS</span>
+      </div>
       <div class="nav-item" (click)="navigateToInventory()">
         <ion-icon name="cube-outline"></ion-icon>
-        <span>Inventory</span>
+        <span>Kitchen Stock</span>
       </div>
       <div class="nav-item" (click)="navigateToAnalytics()">
         <ion-icon name="analytics-outline"></ion-icon>
@@ -373,6 +377,15 @@
                 <ion-icon name="create-outline" slot="start"></ion-icon>
                 Edit
               </ion-button>
+
+              <ion-button
+                fill="clear"
+                size="small"
+                color="primary"
+                (click)="openIngredientMapping(item)">
+                <ion-icon name="git-merge-outline" slot="start"></ion-icon>
+                Ingredient Map
+              </ion-button>
               
               <ion-button 
                 fill="clear" 
@@ -382,6 +395,60 @@
                 class="delete-btn">
                 <ion-icon name="trash-outline" slot="start"></ion-icon>
               </ion-button>
+            </div>
+
+            <div class="ingredient-mapping-panel" *ngIf="mappingEditorForId === item.id">
+              <h4>Ingredient Mapping for Stock Deduction</h4>
+              <p>Define exact kitchen ingredients deducted when this menu item is sold.</p>
+
+              <div class="mapping-row" *ngFor="let ingredient of mappingDraft; let i = index">
+                <ion-item lines="none" class="mapping-item">
+                  <ion-input
+                    [(ngModel)]="ingredient.ingredientName"
+                    [ngModelOptions]="{standalone: true}"
+                    placeholder="Ingredient name">
+                  </ion-input>
+                </ion-item>
+                <ion-item lines="none" class="mapping-item qty">
+                  <ion-input
+                    type="number"
+                    [(ngModel)]="ingredient.quantity"
+                    [ngModelOptions]="{standalone: true}"
+                    placeholder="Qty">
+                  </ion-input>
+                </ion-item>
+                <ion-item lines="none" class="mapping-item unit">
+                  <ion-input
+                    [(ngModel)]="ingredient.unit"
+                    [ngModelOptions]="{standalone: true}"
+                    placeholder="Unit">
+                  </ion-input>
+                </ion-item>
+                <ion-item lines="none" class="mapping-item cost">
+                  <ion-input
+                    type="number"
+                    [(ngModel)]="ingredient.cost"
+                    [ngModelOptions]="{standalone: true}"
+                    placeholder="Cost">
+                  </ion-input>
+                </ion-item>
+                <ion-button fill="clear" color="danger" (click)="removeMappingIngredientRow(i)">
+                  <ion-icon name="trash-outline"></ion-icon>
+                </ion-button>
+              </div>
+
+              <div class="mapping-actions">
+                <ion-button size="small" fill="outline" color="primary" (click)="addMappingIngredientRow()">
+                  <ion-icon name="add-outline" slot="start"></ion-icon>
+                  Add Ingredient
+                </ion-button>
+                <ion-button size="small" fill="clear" color="medium" (click)="openIngredientMapping(item)">
+                  Cancel
+                </ion-button>
+                <ion-button size="small" fill="solid" color="success" (click)="saveIngredientMapping(item)">
+                  Save Mapping
+                </ion-button>
+              </div>
             </div>
           </div>
         </div>

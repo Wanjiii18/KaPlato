@@ -567,6 +567,33 @@
   }
 }
 
+.auth-switch {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  background: #eef2ff;
+  border: 1px solid #dbeafe;
+  border-radius: 12px;
+  padding: 0.25rem;
+  margin-bottom: 0.75rem;
+
+  .switch-btn {
+    margin: 0;
+    --color: #475569;
+    --background: transparent;
+    --box-shadow: none;
+    --border-radius: 10px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    text-transform: none;
+  }
+
+  .switch-btn.active {
+    --background: #1d4ed8;
+    --color: #ffffff;
+  }
+}
+
 // Animations
 @keyframes logoFloat {
   0%, 100% {

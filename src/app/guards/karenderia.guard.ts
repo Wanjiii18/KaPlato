@@ -33,7 +33,19 @@ export class KarenderiaGuard implements CanActivate {
       return of(true);
     }
 
-    console.log('KarenderiaGuard: User role is', currentUser.role, 'not karenderia_owner, redirecting to home');
+    if (currentUser.role === 'admin') {
+      console.log('KarenderiaGuard: Admin attempted owner route, redirecting to admin dashboard');
+      this.router.navigate(['/admin-dashboard']);
+      return of(false);
+    }
+
+    if (currentUser.role === 'supplier') {
+      console.log('KarenderiaGuard: Supplier attempted owner route, redirecting to inventory');
+      this.router.navigate(['/inventory-management']);
+      return of(false);
+    }
+
+    console.log('KarenderiaGuard: Non-owner attempted owner route, redirecting to home');
     this.router.navigate(['/home']);
     return of(false);
   }

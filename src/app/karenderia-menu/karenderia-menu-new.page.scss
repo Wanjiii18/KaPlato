@@ -919,6 +919,58 @@
   }
 }
 
+.ingredient-mapping-panel {
+  margin-top: 12px;
+  padding: 12px;
+  border: 1px solid #dbeafe;
+  border-radius: 10px;
+  background: #f8fbff;
+
+  h4 {
+    margin: 0;
+    color: #0f172a;
+    font-size: 0.95rem;
+  }
+
+  p {
+    margin: 6px 0 10px;
+    color: #475569;
+    font-size: 0.82rem;
+  }
+}
+
+.mapping-row {
+  display: grid;
+  grid-template-columns: 2fr 0.8fr 0.8fr 0.9fr auto;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.mapping-item {
+  --background: #ffffff;
+  --border-radius: 8px;
+  border: 1px solid #dbeafe;
+}
+
+.mapping-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+
+@media (max-width: 768px) {
+  .mapping-row {
+    grid-template-columns: 1fr;
+  }
+
+  .mapping-actions {
+    justify-content: stretch;
+  }
+}
+
 // Animations
 .animate-fade-in {
   animation: fadeIn 0.3s ease-out;

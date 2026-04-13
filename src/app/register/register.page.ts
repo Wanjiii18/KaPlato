@@ -11,7 +11,7 @@ import { AuthService } from '../services/auth.service';
 })
 export class RegisterPage implements OnInit {
   registerData = {
-    accountType: 'customer' as 'customer' | 'supplier',
+    accountType: 'customer' as 'customer' | 'supplier' | 'karenderia_owner',
     username: '',
     email: '',
     password: '',
@@ -39,6 +39,11 @@ export class RegisterPage implements OnInit {
   }
 
   async onRegister(form: NgForm) {
+    if (this.registerData.accountType === 'karenderia_owner') {
+      this.goToKarenderiaRegistration();
+      return;
+    }
+
     if (form.valid && this.registerData.password === this.registerData.confirmPassword) {
       this.isLoading = true;
       this.errorMessage = '';

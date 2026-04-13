@@ -23,6 +23,10 @@ export class AdminGuard implements CanActivate {
           // Redirect karenderia owners to their dashboard
           this.router.navigate(['/karenderia-dashboard']);
           return false;
+        } else if (user && user.role === 'supplier') {
+          // Redirect suppliers to inventory workspace
+          this.router.navigate(['/inventory-management']);
+          return false;
         } else if (user && user.role === 'customer') {
           // Redirect customers to their home
           this.router.navigate(['/home']);

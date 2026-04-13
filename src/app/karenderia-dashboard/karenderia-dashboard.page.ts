@@ -51,19 +51,22 @@ export class KarenderiaDashboardPage implements OnInit {
 
   async loadDashboardData() {
     try {
+      const fallbackSales: DailySales = {
+        date: new Date(),
+        totalSales: 15420,
+        totalOrders: 0,
+        popularItems: []
+      };
+
       // Load today's sales with timeout
-      const salesPromise = Promise.race([
+      const salesPromise = Promise.race<DailySales>([
         this.menuService.getDailySales(new Date()),
-        new Promise<null>((_, reject) => 
+        new Promise<DailySales>((_, reject) => 
           setTimeout(() => reject(new Error('Sales data timeout')), 3000)
         )
       ]);
       
-      this.todaysSales = await salesPromise.catch(() => ({
-        date: new Date(),
-        totalSales: 15420,
-        popularItems: []
-      }));
+      this.todaysSales = await salesPromise.catch(() => fallbackSales);
       
       // Load low stock items with timeout
       const stockSubscription = this.menuService.getLowStockIngredients().subscribe(items => {
@@ -95,6 +98,7 @@ export class KarenderiaDashboardPage implements OnInit {
       this.todaysSales = {
         date: new Date(),
         totalSales: 15420,
+        totalOrders: 0,
         popularItems: []
       };
       this.lowStockItems = [];
@@ -108,6 +112,10 @@ export class KarenderiaDashboardPage implements OnInit {
 
   navigateToDailyMenu() {
     this.router.navigate(['/daily-menu-management']);
+  }
+
+  navigateToPos() {
+    this.router.navigate(['/karenderia-orders-pos']);
   }
 
   navigateToIngredients() {

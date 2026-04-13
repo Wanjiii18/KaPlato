@@ -32,15 +32,18 @@ const routes: Routes = [
   },
   {
     path: 'karenderia-application',
-    loadChildren: () => import('./karenderia-application/karenderia-application.module').then( m => m.KarenderiaApplicationPageModule)
+    loadChildren: () => import('./karenderia-application/karenderia-application.module').then( m => m.KarenderiaApplicationPageModule),
+    canActivate: [AuthGuard, CustomerGuard]
   },
   {
     path: 'karenderia-registration',
-    loadChildren: () => import('./pages/karenderia-registration/karenderia-registration.module').then( m => m.KarenderiaRegistrationPageModule)
+    loadChildren: () => import('./pages/karenderia-registration/karenderia-registration.module').then( m => m.KarenderiaRegistrationPageModule),
+    canActivate: [AuthGuard]
   },
   {
     path: 'profile',
-    loadChildren: () => import('./profile/profile.module').then( m => m.ProfilePageModule)
+    loadChildren: () => import('./profile/profile.module').then( m => m.ProfilePageModule),
+    canActivate: [AuthGuard]
   },
   {
     path: 'karenderia-dashboard',
@@ -60,7 +63,20 @@ const routes: Routes = [
 
   {
     path: 'karenderia-analytics',
-    loadChildren: () => import('./karenderia-analytics/karenderia-analytics.module').then( m => m.KarenderiaAnalyticsPageModule)
+    loadChildren: () => import('./karenderia-analytics/karenderia-analytics.module').then( m => m.KarenderiaAnalyticsPageModule),
+    canActivate: [AuthGuard, KarenderiaGuard]
+  },
+
+  {
+    path: 'karenderia-orders',
+    redirectTo: 'karenderia-orders-pos',
+    pathMatch: 'full'
+  },
+
+  {
+    path: 'karenderia-orders-pos',
+    loadChildren: () => import('./karenderia-orders-pos/karenderia-orders-pos.module').then( m => m.KarenderiaOrdersPosPageModule),
+    canActivate: [AuthGuard, KarenderiaGuard]
   },
 
   {
@@ -75,8 +91,8 @@ const routes: Routes = [
   },
   {
     path: 'map-view',
-    loadChildren: () => import('./map-view/map-view.module').then(m => m.MapViewPageModule)
-    // No guards - allow public access for better user experience
+    loadChildren: () => import('./map-view/map-view.module').then(m => m.MapViewPageModule),
+    canActivate: [AuthGuard, CustomerGuard]
   },
   {
     path: 'customer-map',
@@ -85,7 +101,8 @@ const routes: Routes = [
   },
   {
     path: 'karenderia-detail/:id',
-    loadChildren: () => import('./karenderia-detail/karenderia-detail.page.module').then(m => m.KarenderiaDetailPageModule)
+    loadChildren: () => import('./karenderia-detail/karenderia-detail.page.module').then(m => m.KarenderiaDetailPageModule),
+    canActivate: [AuthGuard, CustomerGuard]
   },
   {
     path: 'karenderias-browse',
@@ -104,7 +121,8 @@ const routes: Routes = [
   },
   {
     path: 'meal-details/:id',
-    loadComponent: () => import('./meal-details/meal-details.page').then(m => m.MealDetailsPage)
+    loadComponent: () => import('./meal-details/meal-details.page').then(m => m.MealDetailsPage),
+    canActivate: [AuthGuard, CustomerGuard]
   },
   {
     path: 'favorites',
@@ -123,8 +141,8 @@ const routes: Routes = [
   },
   {
     path: 'nutrition-demo',
-    loadComponent: () => import('./nutrition-demo/nutrition-demo.page').then(m => m.NutritionDemoPage)
-    // No auth guard for demo purposes - accessible to all users
+    loadComponent: () => import('./nutrition-demo/nutrition-demo.page').then(m => m.NutritionDemoPage),
+    canActivate: [AuthGuard, CustomerGuard]
   },
   {
     path: 'meals-browse',
@@ -133,7 +151,8 @@ const routes: Routes = [
   },
   {
     path: 'daily-menu-management',
-    loadChildren: () => import('./pages/daily-menu-management/daily-menu-management.module').then( m => m.DailyMenuManagementPageModule)
+    loadChildren: () => import('./pages/daily-menu-management/daily-menu-management.module').then( m => m.DailyMenuManagementPageModule),
+    canActivate: [AuthGuard, KarenderiaGuard]
   },
   {
     path: 'inventory-management',

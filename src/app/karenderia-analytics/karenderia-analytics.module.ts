@@ -6,6 +6,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { KarenderiaAnalyticsPageRoutingModule } from './karenderia-analytics-routing.module';
 import { SharedModule } from '../shared/shared.module';
+import { OwnerShellComponent } from '../components/owner-shell/owner-shell.component';
 
 import { KarenderiaAnalyticsPage } from './karenderia-analytics.page';
 
@@ -15,7 +16,8 @@ import { KarenderiaAnalyticsPage } from './karenderia-analytics.page';
     FormsModule,
     IonicModule,
     KarenderiaAnalyticsPageRoutingModule,
-    SharedModule
+    SharedModule,
+    OwnerShellComponent
   ],
   declarations: [KarenderiaAnalyticsPage]
 })

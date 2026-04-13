@@ -20,8 +20,13 @@ export class InventoryWorkflowGuard implements CanActivate {
       return of(false);
     }
 
-    if (user.role === 'karenderia_owner' || user.role === 'supplier') {
+    if (user.role === 'supplier' || user.role === 'karenderia_owner') {
       return of(true);
+    }
+
+    if (user.role === 'admin') {
+      this.router.navigate(['/admin-dashboard']);
+      return of(false);
     }
 
     this.router.navigate(['/home']);

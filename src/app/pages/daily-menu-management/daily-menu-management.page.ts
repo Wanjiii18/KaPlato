@@ -4,13 +4,14 @@ import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { DailyMenuService, DailyMenuItem, MenuItem, CreateDailyMenuRequest } from '../../services/daily-menu.service';
 import { AlertController, LoadingController, ToastController, ModalController } from '@ionic/angular';
+import { OwnerShellComponent } from '../../components/owner-shell/owner-shell.component';
 
 @Component({
   selector: 'app-daily-menu-management',
   templateUrl: './daily-menu-management.page.html',
   styleUrls: ['./daily-menu-management.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule]
+  imports: [CommonModule, FormsModule, IonicModule, OwnerShellComponent]
 })
 export class DailyMenuManagementPage implements OnInit {
   selectedDate: string = new Date().toISOString().split('T')[0]; // Today's date
@@ -43,7 +44,7 @@ export class DailyMenuManagementPage implements OnInit {
   }
 
   private checkAuthentication() {
-    const token = sessionStorage.getItem('auth_token');
+    const token = localStorage.getItem('auth_token');
     console.log('Auth token exists:', !!token);
     console.log('Token length:', token?.length || 0);
     

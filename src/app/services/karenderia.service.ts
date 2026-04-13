@@ -28,7 +28,6 @@ export interface SimpleKarenderia {
   contactNumber?: string;
   distance?: number;
   menu?: MenuItem[];
-  imageUrl?: string;
 }
 
 // Backend API response interface
@@ -98,17 +97,11 @@ export class KarenderiaService {
   constructor(private http: HttpClient, private zone: NgZone) {}
 
   private getHeaders(): HttpHeaders {
-    const token = sessionStorage.getItem('auth_token');
-    const headers: any = {
-      'Content-Type': 'application/json'
-    };
-    
-    // Only add Authorization header if token exists
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
-    }
-    
-    return new HttpHeaders(headers);
+    const token = localStorage.getItem('auth_token');
+    return new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': token ? `Bearer ${token}` : ''
+    });
   }
 
   // Get all karenderias
@@ -787,21 +780,9 @@ export class KarenderiaService {
 
   // Get current user's karenderia application
   getMyKarenderia(): Observable<any> {
-    console.log('🔍 KarenderiaService: Getting my karenderia...');
-    console.log('🌐 API URL:', `${this.apiUrl}/karenderias/my-karenderia`);
-    console.log('🔑 Headers:', this.getHeaders());
-    
     return this.http.get(`${this.apiUrl}/karenderias/my-karenderia`, {
       headers: this.getHeaders()
-    }).pipe(
-      map((response: any) => {
-        console.log('✅ KarenderiaService: Raw API response:', response);
-        if (response && response.data && response.data.name) {
-          console.log('📋 KarenderiaService: Karenderia name from API:', response.data.name);
-        }
-        return response;
-      })
-    );
+    });
   }
 
   // Submit karenderia registration
