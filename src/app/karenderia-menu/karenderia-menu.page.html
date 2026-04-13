@@ -1,81 +1,10 @@
-<div class="dashboard-layout">
-  <!-- Mobile Top Bar (visible only on mobile) -->
-  <div class="mobile-top-bar">
-    <div class="mobile-brand" routerLink="/karenderia-settings">
-      <div class="brand-icon">{{getKarenderiaBrandInitials()}}</div>
-      <div class="brand-info">
-        <h3>{{getKarenderiaDisplayName()}}</h3>
-        <span>Menu Management</span>
-      </div>
-    </div>
-    <div class="mobile-actions">
-      <ion-button fill="clear" size="small" routerLink="/karenderia-settings">
-        <ion-icon name="person-circle-outline" slot="icon-only"></ion-icon>
-      </ion-button>
-      <ion-button fill="clear" size="small" (click)="logout()">
-        <ion-icon name="log-out-outline" slot="icon-only"></ion-icon>
-      </ion-button>
-    </div>
-  </div>
-
-  <!-- Sidebar Navigation -->
-  <div class="sidebar">
-    <div class="sidebar-header">
-      <div class="brand">
-        <div class="brand-icon">{{getKarenderiaBrandInitials()}}</div>
-        <div class="brand-info">
-          <h3>{{getKarenderiaDisplayName()}}</h3>
-          <span>Kitchen</span>
-        </div>
-      </div>
-    </div>
-
-    <nav class="sidebar-nav">
-      <div class="nav-item" (click)="navigateToDashboard()">
-        <ion-icon name="grid-outline"></ion-icon>
-        <span>Dashboard</span>
-      </div>
-      <div class="nav-item active">
-        <ion-icon name="restaurant-outline"></ion-icon>
-        <span>Menu Management</span>
-      </div>
-      <div class="nav-item" (click)="navigateToDailyMenu()">
-        <ion-icon name="calendar-outline"></ion-icon>
-        <span>Menu of the Day</span>
-      </div>
-      <div class="nav-item" (click)="navigateToPos()">
-        <ion-icon name="calculator-outline"></ion-icon>
-        <span>POS</span>
-      </div>
-      <div class="nav-item" (click)="navigateToInventory()">
-        <ion-icon name="cube-outline"></ion-icon>
-        <span>Kitchen Stock</span>
-      </div>
-      <div class="nav-item" (click)="navigateToAnalytics()">
-        <ion-icon name="analytics-outline"></ion-icon>
-        <span>Analytics</span>
-      </div>
-      <div class="nav-item desktop-only" routerLink="/karenderia-settings">
-        <ion-icon name="person-outline"></ion-icon>
-        <span>Profile</span>
-      </div>
-    </nav>
-
-    <div class="sidebar-footer">
-      <div class="nav-item" (click)="logout()">
-        <ion-icon name="log-out-outline"></ion-icon>
-        <span>Sign Out</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- Main Content -->
+<app-owner-shell activePage="menu" sectionLabel="Kitchen">
   <div class="main-content">
     <!-- Top Header -->
     <div class="top-header">
       <div class="header-left">
         <h1>Menu Management</h1>
-        <span class="header-subtitle">Manage your meals</span>
+        <span class="header-subtitle">Kitchen</span>
       </div>
       <div class="header-right">
         <ion-button fill="solid" color="primary" (click)="startAddingItem()" *ngIf="!isAddingItem" class="add-meal-btn">
@@ -496,4 +425,5 @@
       </div>
     </div>
   </div>
-</div>
+  </div>
+</app-owner-shell>

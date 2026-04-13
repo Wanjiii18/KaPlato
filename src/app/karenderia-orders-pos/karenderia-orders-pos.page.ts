@@ -5,6 +5,7 @@ import { MenuItem, DetailedOrder, DetailedOrderItem } from '../models/menu.model
 import { AlertController, ToastController } from '@ionic/angular';
 import { KarenderiaInfoService } from '../services/karenderia-info.service';
 import { Subscription } from 'rxjs';
+import { AuthService } from '../services/auth.service';
 
 export interface OrderItem {
   menuItem: MenuItem;
@@ -53,129 +54,7 @@ export class KarenderiaOrdersPosPage implements OnInit, OnDestroy {
     { id: 'drinks', name: 'Drinks', icon: 'cafe' }
   ];
   
-  // Menu items (Filipino dishes)
-  menuItems: MenuItem[] = [
-    {
-      id: '1',
-      name: 'Adobong Manok',
-      description: 'Classic Filipino chicken adobo cooked in soy sauce and vinegar',
-      price: 85,
-      category: 'ulam',
-      image: 'assets/images/filipino-adobo-chicken-rice.png',
-      ingredients: [],
-      preparationTime: 15,
-      isAvailable: true,
-      isPopular: true,
-      allergens: [],
-      createdAt: new Date(),
-      updatedAt: new Date()
-    },
-    {
-      id: '2',
-      name: 'Sinigang na Baboy',
-      description: 'Sour pork soup with vegetables',
-      price: 95,
-      category: 'sabaw',
-      image: 'assets/images/filipino-sinigang.png',
-      ingredients: [],
-      preparationTime: 25,
-      isAvailable: true,
-      isPopular: false,
-      allergens: [],
-      createdAt: new Date(),
-      updatedAt: new Date()
-    },
-    {
-      id: '3',
-      name: 'Kare-Kare',
-      description: 'Oxtail stew in peanut sauce',
-      price: 120,
-      category: 'ulam',
-      image: 'assets/images/filipino-kare-kare.png',
-      ingredients: [],
-      preparationTime: 30,
-      isAvailable: true,
-      isPopular: false,
-      allergens: [],
-      createdAt: new Date(),
-      updatedAt: new Date()
-    },
-    {
-      id: '4',
-      name: 'Lechon Kawali',
-      description: 'Crispy fried pork belly',
-      price: 110,
-      category: 'ulam',
-      image: 'assets/images/filipino-lechon-kawali.png',
-      ingredients: [],
-      preparationTime: 18,
-      isAvailable: true,
-      isPopular: false,
-      allergens: [],
-      createdAt: new Date(),
-      updatedAt: new Date()
-    },
-    {
-      id: '5',
-      name: 'Garlic Rice',
-      description: 'Fragrant rice with garlic',
-      price: 25,
-      category: 'rice',
-      image: 'assets/images/garlic-rice.png',
-      ingredients: [],
-      preparationTime: 10,
-      isAvailable: true,
-      isPopular: true,
-      allergens: [],
-      createdAt: new Date(),
-      updatedAt: new Date()
-    },
-    {
-      id: '6',
-      name: 'Plain Rice',
-      description: 'Steamed white rice',
-      price: 20,
-      category: 'rice',
-      image: 'assets/images/plain-white-rice.png',
-      ingredients: [],
-      preparationTime: 5,
-      isAvailable: true,
-      isPopular: false,
-      allergens: [],
-      createdAt: new Date(),
-      updatedAt: new Date()
-    },
-    {
-      id: '7',
-      name: 'Halo-Halo',
-      description: 'Filipino shaved ice dessert with mixed ingredients',
-      price: 65,
-      category: 'dessert',
-      image: 'assets/images/halo-halo-dessert.png',
-      ingredients: [],
-      preparationTime: 8,
-      isAvailable: true,
-      isPopular: true,
-      allergens: [],
-      createdAt: new Date(),
-      updatedAt: new Date()
-    },
-    {
-      id: '8',
-      name: 'Iced Tea',
-      description: 'Refreshing iced tea',
-      price: 30,
-      category: 'drinks',
-      image: 'assets/images/iced-tea.png',
-      ingredients: [],
-      preparationTime: 3,
-      isAvailable: true,
-      isPopular: false,
-      allergens: [],
-      createdAt: new Date(),
-      updatedAt: new Date()
-    }
-  ];
+  menuItems: MenuItem[] = [];
 
   // Current order
   paymentMethod: 'cash' | 'card' | 'gcash' = 'cash';
@@ -201,7 +80,8 @@ export class KarenderiaOrdersPosPage implements OnInit, OnDestroy {
     private analyticsService: AnalyticsService,
     private alertController: AlertController,
     private toastController: ToastController,
-    private karenderiaInfoService: KarenderiaInfoService
+    private karenderiaInfoService: KarenderiaInfoService,
+    private authService: AuthService
   ) { }
 
   ngOnInit() {
@@ -611,8 +491,7 @@ export class KarenderiaOrdersPosPage implements OnInit, OnDestroy {
   }
 
   logout() {
-    // Handle logout
-    console.log('Logout');
+    this.authService.logoutAndRedirect();
   }
 
   // Dynamic karenderia display methods

@@ -281,7 +281,28 @@ export class MenuService {
         )
       ]);
       
-      return response?.data || {
+      const payload: any = (response as any)?.data || response;
+      if (payload) {
+        const popular = Array.isArray(payload.popularItems)
+          ? payload.popularItems
+          : Array.isArray(payload.popular_items)
+            ? payload.popular_items
+            : [];
+
+        return {
+          date,
+          totalSales: Number(payload.totalSales ?? payload.sales ?? 0),
+          totalOrders: Number(payload.totalOrders ?? payload.orders ?? 0),
+          popularItems: popular.map((item: any) => ({
+            itemId: String(item.itemId ?? item.item_id ?? item.menu_item_id ?? ''),
+            itemName: item.itemName ?? item.item_name ?? item.name ?? 'Unknown Item',
+            quantity: Number(item.quantity ?? item.total_quantity ?? item.orders ?? 0),
+            revenue: Number(item.revenue ?? item.total_revenue ?? 0)
+          }))
+        };
+      }
+
+      return {
         date,
         totalSales: 0,
         totalOrders: 0,

@@ -26,120 +26,6 @@ export class MealsBrowsePage implements OnInit, OnDestroy {
   private menuItemsSubscription: Subscription | null = null;
   activeAllergens: string[] = [];
   avoidRiskyDishes = true;
-  
-  // Sample meal data (replace with actual API calls)
-  sampleMeals = [
-    {
-      id: '1',
-      name: 'Adobong Manok',
-      description: 'Classic Filipino chicken adobo with soy sauce and vinegar',
-      price: 120,
-      calories: 350,
-      protein: 28,
-      carbs: 15,
-      fat: 18,
-      image: 'assets/images/adobo.jpg',
-      karenderia_name: 'Lola\'s Kitchen',
-      karenderia_id: 'k1',
-      category: 'rice',
-      spicyLevel: 'mild',
-      isVegetarian: false,
-      isVegan: false,
-      allergens: ['soy'],
-      ingredients: ['chicken', 'soy sauce', 'vinegar', 'garlic', 'bay leaves'],
-      average_rating: 4.5,
-      total_reviews: 25,
-      available: true
-    },
-    {
-      id: '2',
-      name: 'Pancit Canton',
-      description: 'Stir-fried egg noodles with vegetables and meat',
-      price: 80,
-      calories: 280,
-      protein: 12,
-      carbs: 45,
-      fat: 8,
-      image: 'assets/images/pancit.jpg',
-      karenderia_name: 'Tita\'s Place',
-      karenderia_id: 'k2',
-      category: 'noodles',
-      spicyLevel: 'none',
-      isVegetarian: false,
-      isVegan: false,
-      allergens: ['wheat', 'eggs'],
-      ingredients: ['canton noodles', 'cabbage', 'carrots', 'pork', 'soy sauce'],
-      average_rating: 4.2,
-      total_reviews: 18,
-      available: true
-    },
-    {
-      id: '3',
-      name: 'Sinigang na Baboy',
-      description: 'Sour pork soup with vegetables',
-      price: 150,
-      calories: 220,
-      protein: 20,
-      carbs: 12,
-      fat: 10,
-      image: 'assets/images/sinigang.jpg',
-      karenderia_name: 'Bahay Kubo',
-      karenderia_id: 'k3',
-      category: 'soup',
-      spicyLevel: 'none',
-      isVegetarian: false,
-      isVegan: false,
-      allergens: [],
-      ingredients: ['pork', 'tamarind', 'kangkong', 'radish', 'tomatoes', 'onions'],
-      average_rating: 4.8,
-      total_reviews: 32,
-      available: true
-    },
-    {
-      id: '4',
-      name: 'Vegetable Lumpia',
-      description: 'Fresh spring rolls with mixed vegetables',
-      price: 60,
-      calories: 150,
-      protein: 5,
-      carbs: 25,
-      fat: 4,
-      image: 'assets/images/lumpia.jpg',
-      karenderia_name: 'Green Garden',
-      karenderia_id: 'k4',
-      category: 'appetizer',
-      spicyLevel: 'none',
-      isVegetarian: true,
-      isVegan: true,
-      allergens: [],
-      ingredients: ['lettuce', 'carrots', 'bean sprouts', 'tofu', 'lumpia wrapper'],
-      average_rating: 4.0,
-      total_reviews: 15,
-      available: true
-    },
-    {
-      id: '5',
-      name: 'Spicy Bicol Express',
-      description: 'Pork cooked in coconut milk with chili peppers',
-      price: 140,
-      calories: 420,
-      protein: 25,
-      carbs: 8,
-      fat: 32,
-      image: 'assets/images/bicol.jpg',
-      karenderia_name: 'Spice House',
-      karenderia_id: 'k5',
-      category: 'rice',
-      spicyLevel: 'hot',
-      isVegetarian: false,
-      isVegan: false,
-      allergens: ['dairy'],
-      ingredients: ['pork', 'coconut milk', 'chili peppers', 'shrimp paste', 'onions'],
-      average_rating: 4.6,
-      total_reviews: 28,
-      available: true
-    }
-  ];
 
   constructor(
     private route: ActivatedRoute,
@@ -240,12 +126,6 @@ export class MealsBrowsePage implements OnInit, OnDestroy {
           available: item.isAvailable !== false
         }));
         
-        // If no real data is available yet, use sample data as fallback
-        if (this.allMeals.length === 0) {
-          console.log('No menu items from backend, using sample data');
-          this.allMeals = [...this.sampleMeals];
-        }
-        
         this.filteredMeals = [...this.allMeals];
         this.updateFilterStats();
         this.isLoading = false;
@@ -256,11 +136,10 @@ export class MealsBrowsePage implements OnInit, OnDestroy {
       
     } catch (error) {
       console.error('Error loading meals:', error);
-      // Fallback to sample data if backend fails
-      this.allMeals = [...this.sampleMeals];
-      this.filteredMeals = [...this.allMeals];
+      this.allMeals = [];
+      this.filteredMeals = [];
       this.updateFilterStats();
-      await this.showToast('Failed to load meals from server, showing sample data');
+      await this.showToast('Failed to load meals from server');
     } finally {
       this.isLoading = false;
     }

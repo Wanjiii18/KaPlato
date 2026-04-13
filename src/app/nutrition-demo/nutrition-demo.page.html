@@ -1,25 +1,188 @@
 <ion-header>
   <ion-toolbar color="primary">
-    <ion-title>Nutrition System Demo</ion-title>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Nutrition Tracker</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  <!-- Demo Selection -->
+  <!-- Tracker Selection -->
   <ion-segment [(ngModel)]="selectedDemo" class="demo-selector">
     <ion-segment-button *ngFor="let option of demoOptions" [value]="option.value">
       <ion-label>{{ option.label }}</ion-label>
     </ion-segment-button>
   </ion-segment>
 
+  <ion-note class="tracker-note" color="medium">
+    Nutrition values are shown from factual sources only (Spoonacular API or curated Filipino database).
+  </ion-note>
+
+  <!-- Favorites (default) -->
+  <div *ngIf="selectedDemo === 'favorites'" class="demo-section">
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Favorite Dishes</ion-card-title>
+        <ion-card-subtitle>Quick nutrition and allergen facts for meals you already love</ion-card-subtitle>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-searchbar
+          [(ngModel)]="favoriteSearchQuery"
+          (ionInput)="onFavoriteSearchChange()"
+          placeholder="Search favorites by dish or karenderia"
+          class="favorite-searchbar">
+        </ion-searchbar>
+      </ion-card-content>
+    </ion-card>
+
+    <div *ngIf="loadingFavorites" class="loading-section">
+      <ion-spinner name="crescent"></ion-spinner>
+      <p>Loading your favorites...</p>
+    </div>
+
+    <ion-card *ngIf="!loadingFavorites && filteredFavoriteDishes.length === 0">
+      <ion-card-content class="empty-favorites">
+        <ion-icon name="heart-outline" color="medium"></ion-icon>
+        <h4>No favorite dishes yet</h4>
+        <p>Add dishes to favorites, then come back here to track nutrition quickly.</p>
+      </ion-card-content>
+    </ion-card>
+
+    <ion-card *ngFor="let favorite of filteredFavoriteDishes" class="favorite-nutrition-card">
+      <ion-card-header>
+        <ion-card-title>{{ favorite.menuItemName }}</ion-card-title>
+        <ion-card-subtitle>{{ favorite.karenderiaName }}</ion-card-subtitle>
+      </ion-card-header>
+      <ion-card-content>
+        <ng-container *ngIf="getFavoriteNutrition(favorite) as nutrition; else noNutritionRecord">
+          <ion-chip [color]="getSourceColor(nutrition)" outline>
+            <ion-icon name="checkmark-circle" slot="start"></ion-icon>
+            <ion-label>{{ getSourceLabel(nutrition) }}</ion-label>
+          </ion-chip>
+
+          <ion-grid>
+            <ion-row>
+              <ion-col size="6" size-md="3">
+                <div class="nutrition-stat">
+                  <ion-badge [color]="getCalorieColor(nutrition.nutrition.calories)">{{ nutrition.nutrition.calories }}</ion-badge>
+                  <small>Calories</small>
+                </div>
+              </ion-col>
+              <ion-col size="6" size-md="3">
+                <div class="nutrition-stat">
+                  <ion-badge color="success">{{ nutrition.nutrition.protein }}g</ion-badge>
+                  <small>Protein</small>
+                </div>
+              </ion-col>
+              <ion-col size="6" size-md="3">
+                <div class="nutrition-stat">
+                  <ion-badge color="primary">{{ nutrition.nutrition.carbs }}g</ion-badge>
+                  <small>Carbs</small>
+                </div>
+              </ion-col>
+              <ion-col size="6" size-md="3">
+                <div class="nutrition-stat">
+                  <ion-badge color="warning">{{ nutrition.nutrition.fat }}g</ion-badge>
+                  <small>Fat</small>
+                </div>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+
+          <div class="additional-info">
+            <div *ngIf="nutrition.allergens.length > 0" class="allergens">
+              <strong>Allergens:</strong>
+              <ion-chip *ngFor="let allergen of nutrition.allergens" color="danger" outline>
+                <ion-icon name="warning" slot="start"></ion-icon>
+                <ion-label>{{ allergen | titlecase }}</ion-label>
+              </ion-chip>
+            </div>
+          </div>
+        </ng-container>
+
+        <ng-template #noNutritionRecord>
+          <div class="missing-record">
+            <ion-icon name="alert-circle-outline" color="warning"></ion-icon>
+            <p>No factual nutrition record was found for this dish yet.</p>
+          </div>
+        </ng-template>
+      </ion-card-content>
+    </ion-card>
+
+    <ion-card *ngIf="rosaTestDishes.length > 0" class="rosa-test-card">
+      <ion-card-header>
+        <ion-card-title>Rosa's Latest Dishes (Test)</ion-card-title>
+        <ion-card-subtitle>Directly loaded from Rosa's karenderia for your quick validation ({{ rosaTestDishes.length }} dishes)</ion-card-subtitle>
+      </ion-card-header>
+      <ion-card-content>
+        <div *ngFor="let dish of rosaTestDishes" class="rosa-item">
+          <h4>{{ dish.name }}</h4>
+          <p class="rosa-price">₱{{ dish.price }}</p>
+
+          <div class="rosa-ingredients" *ngIf="getIngredientNames(dish).length > 0">
+            <strong>Ingredients:</strong>
+            <ion-chip *ngFor="let ingredient of getIngredientNames(dish)" color="medium" outline>
+              <ion-label>{{ ingredient }}</ion-label>
+            </ion-chip>
+          </div>
+
+          <ng-container *ngIf="getRosaNutrition(dish) as nutrition; else rosaNoData">
+            <ion-chip [color]="getSourceColor(nutrition)" outline>
+              <ion-icon name="analytics" slot="start"></ion-icon>
+              <ion-label>{{ getSourceLabel(nutrition) }}</ion-label>
+            </ion-chip>
+
+            <p class="rosa-serving">Per {{ nutrition.servingSize }}</p>
+
+            <div class="rosa-stats">
+              <ion-badge [color]="getCalorieColor(nutrition.nutrition.calories)">
+                {{ nutrition.nutrition.calories }} cal
+              </ion-badge>
+              <ion-badge color="success">{{ nutrition.nutrition.protein }}g protein</ion-badge>
+              <ion-badge color="primary">{{ nutrition.nutrition.carbs }}g carbs</ion-badge>
+              <ion-badge color="warning">{{ nutrition.nutrition.fat }}g fat</ion-badge>
+              <ion-badge color="tertiary">{{ nutrition.nutrition.fiber || 0 }}g fiber</ion-badge>
+              <ion-badge color="medium">{{ nutrition.nutrition.sugar || 0 }}g sugar</ion-badge>
+              <ion-badge color="dark">{{ nutrition.nutrition.sodium || 0 }}mg sodium</ion-badge>
+            </div>
+
+            <div *ngIf="nutrition.allergens.length > 0" class="rosa-allergens">
+              <strong>Allergens:</strong>
+              <ion-chip *ngFor="let allergen of nutrition.allergens" color="danger" outline>
+                <ion-label>{{ allergen | titlecase }}</ion-label>
+              </ion-chip>
+            </div>
+          </ng-container>
+
+          <ng-template #rosaNoData>
+            <p class="rosa-missing">No factual nutrition record found yet for this dish.</p>
+          </ng-template>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
   <!-- Search Demo -->
   <div *ngIf="selectedDemo === 'search'" class="demo-section">
     <ion-card>
       <ion-card-header>
-        <ion-card-title>🍽️ Filipino Nutrition Database</ion-card-title>
-        <ion-card-subtitle>Comprehensive nutrition data for Filipino dishes</ion-card-subtitle>
+        <ion-card-title>Search Dish Nutrition</ion-card-title>
+        <ion-card-subtitle>Find nutrition facts and allergens for a dish</ion-card-subtitle>
       </ion-card-header>
       <ion-card-content>
+        <ion-searchbar
+          [(ngModel)]="dishSearchQuery"
+          placeholder="Search a dish (e.g. adobo, sinigang)"
+          (ionClear)="searchResults = []"
+          class="dish-searchbar">
+        </ion-searchbar>
+
+        <ion-button expand="block" (click)="searchDishByName(dishSearchQuery)">
+          <ion-icon name="search" slot="start"></ion-icon>
+          Search Dish
+        </ion-button>
+
         <p>Our enhanced nutrition service includes detailed information for {{ filipinoDishes.length }} popular Filipino dishes.</p>
         
         <!-- Quick Search Options -->
@@ -120,6 +283,8 @@
       </ion-card-content>
     </ion-card>
 
+    <ion-note *ngIf="statusMessage" color="warning" class="status-message">{{ statusMessage }}</ion-note>
+
     <!-- Search Results -->
     <div *ngIf="searchResults.length > 0" class="search-results">
       <h3>Search Results</h3>
@@ -190,11 +355,6 @@
       <ion-spinner name="crescent"></ion-spinner>
       <p>Loading nutrition data...</p>
     </div>
-  </div>
-
-  <!-- Nutrition Manager Demo -->
-  <div *ngIf="selectedDemo === 'manager'">
-    <app-nutrition-manager></app-nutrition-manager>
   </div>
 
   <!-- API Integration Demo -->

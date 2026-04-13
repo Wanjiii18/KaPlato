@@ -7,12 +7,14 @@ import { IonicModule } from '@ionic/angular';
 import { KarenderiaOrdersPosPageRoutingModule } from './karenderia-orders-pos-routing.module';
 
 import { KarenderiaOrdersPosPage } from './karenderia-orders-pos.page';
+import { OwnerShellComponent } from '../components/owner-shell/owner-shell.component';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
+    OwnerShellComponent,
     KarenderiaOrdersPosPageRoutingModule
   ],
   declarations: [KarenderiaOrdersPosPage]

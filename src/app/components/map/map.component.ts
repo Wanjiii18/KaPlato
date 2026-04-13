@@ -306,26 +306,9 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       },
       error: (error) => {
         console.error('🗺️ Map search error:', error);
-        console.log('🔄 Trying localStorage fallback...');
-        
-        // Fallback to localStorage if backend fails
-        this.karenderiaService.getNearbyKarenderias_Local(
-          this.currentLocation!.lat,
-          this.currentLocation!.lng,
-          this.searchRange
-        ).subscribe({
-          next: (karenderias) => {
-            this.karenderias = karenderias;
-            this.addKarenderiaMarkers();
-            this.isSearching = false;
-            this.showToast(`Found ${karenderias.length} karenderias within ${this.searchRange}m (offline)`, 'warning');
-          },
-          error: (fallbackError) => {
-            console.error('🗺️ Fallback search also failed:', fallbackError);
-            this.isSearching = false;
-            this.showToast('Search failed. Please try again.', 'danger');
-          }
-        });
+        this.karenderias = [];
+        this.isSearching = false;
+        this.showToast('Search failed. Please try again.', 'danger');
       }
     });
   }

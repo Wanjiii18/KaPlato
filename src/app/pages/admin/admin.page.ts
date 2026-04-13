@@ -197,12 +197,12 @@ export class AdminPage implements OnInit {
         'Content-Type': 'application/json'
       });
 
-      const body = { status: 'inactive', notes: 'Rejected by admin' };
+      const body = { status: 'rejected', notes: 'Rejected by admin' };
       
       await this.http.put<any>(`http://localhost:8000/api/admin/karenderias/${karenderia.id}/status`, body, { headers }).toPromise();
       
       // Update the local status
-      karenderia.status = 'inactive';
+      karenderia.status = 'rejected';
       console.log(`Karenderia ${karenderia.name} rejected successfully`);
       
       // Show success message

@@ -13,6 +13,16 @@ export interface User {
   displayName?: string;
   role: 'customer' | 'karenderia_owner' | 'admin' | 'supplier';
   verified?: boolean;
+  applicationStatus?: string;
+}
+
+export interface AuthKarenderiaSummary {
+  id: string | number;
+  business_name: string;
+  status: string;
+  approved_at?: string | null;
+  rejected_at?: string | null;
+  rejection_reason?: string | null;
 }
 
 export interface LoginCredentials {
@@ -33,6 +43,7 @@ export interface AuthResponse {
   access_token: string;
   token_type: string;
   expires_in: number;
+  karenderia?: AuthKarenderiaSummary;
 }
 
 export interface Allergen {
@@ -140,13 +151,14 @@ export class AuthService {
   }
 
   logout(): void {
+    const token = localStorage.getItem('auth_token');
+
     // Clear local storage immediately for instant logout feeling
     localStorage.removeItem('auth_token');
     localStorage.removeItem('user_data');
     this.currentUserSubject.next(null);
 
     // Optional: Notify server in background (don't wait for response)
-    const token = localStorage.getItem('auth_token');
     if (token) {
       this.http.post(`${this.apiUrl}/auth/logout`, {}, {
         headers: { Authorization: `Bearer ${token}` }

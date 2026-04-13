@@ -6,6 +6,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { KarenderiaMenuPageRoutingModule } from './karenderia-menu-routing.module';
 import { SharedModule } from '../shared/shared.module';
+import { OwnerShellComponent } from '../components/owner-shell/owner-shell.component';
 
 import { KarenderiaMenuPage } from './karenderia-menu.page';
 
@@ -14,6 +15,7 @@ import { KarenderiaMenuPage } from './karenderia-menu.page';
     CommonModule,
     FormsModule,
     IonicModule,
+    OwnerShellComponent,
     KarenderiaMenuPageRoutingModule,
     SharedModule
   ],

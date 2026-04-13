@@ -1,6 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { KarenderiaInfoService } from '../services/karenderia-info.service';
+import { KarenderiaService } from '../services/karenderia.service';
+import { LoadingController, ToastController } from '@ionic/angular';
+import { AuthService } from '../services/auth.service';
 
 interface BusinessInfo {
   name: string;
@@ -54,14 +57,18 @@ interface OperatingDay {
 })
 export class KarenderiaSettingsPage implements OnInit {
   selectedTab: string = 'business';
+  currentKarenderiaId: number | null = null;
+  karenderiaStatus: 'approved' | 'pending' | 'rejected' | 'unknown' = 'unknown';
+  rejectionReason = '';
+  isSaving = false;
 
   businessInfo: BusinessInfo = {
-    name: "Lola Rosa's Kitchen",
-    phone: '+63 912 345 6789',
-    email: 'lolarosa@kitchen.com',
+    name: 'Loading...',
+    phone: '',
+    email: '',
     cuisineType: 'filipino',
-    description: 'Authentic Filipino home-cooked meals',
-    address: '123 Rizal Street, Quezon City'
+    description: '',
+    address: ''
   };
 
   operationsSettings: OperationsSettings = {
@@ -81,8 +88,8 @@ export class KarenderiaSettingsPage implements OnInit {
   };
 
   accountSettings: AccountSettings = {
-    firstName: 'Rosa',
-    lastName: 'Santos'
+    firstName: '',
+    lastName: ''
   };
 
   passwordChange: PasswordChange = {
@@ -101,10 +108,17 @@ export class KarenderiaSettingsPage implements OnInit {
     { name: 'Sunday', isOpen: false, openTime: '09:00', closeTime: '18:00' }
   ];
 
-  constructor(private router: Router, private karenderiaInfoService: KarenderiaInfoService) { }
+  constructor(
+    private router: Router,
+    private karenderiaInfoService: KarenderiaInfoService,
+    private karenderiaService: KarenderiaService,
+    private authService: AuthService,
+    private loadingController: LoadingController,
+    private toastController: ToastController
+  ) { }
 
-  ngOnInit() {
-    this.loadSettings();
+  async ngOnInit() {
+    await this.loadSettings();
   }
 
   // Navigation methods
@@ -114,7 +128,7 @@ export class KarenderiaSettingsPage implements OnInit {
 
   logout() {
     console.log('Logging out...');
-    this.router.navigate(['/login']);
+    this.authService.logoutAndRedirect();
   }
 
   selectTab(tab: string) {
@@ -122,22 +136,102 @@ export class KarenderiaSettingsPage implements OnInit {
   }
 
   // Settings methods
-  loadSettings() {
-    // Load settings from backend or local storage
+  async loadSettings() {
     console.log('Loading settings...');
+
+    try {
+      const response = await this.karenderiaService.getCurrentUserKarenderia().toPromise();
+      if (response?.success && response?.data) {
+        const karenderia = response.data;
+        this.currentKarenderiaId = karenderia.id ?? null;
+        this.karenderiaStatus = this.normalizeKarenderiaStatus(karenderia.status);
+        this.rejectionReason = karenderia.rejection_reason || '';
+        this.businessInfo = {
+          name: karenderia.business_name || karenderia.name || 'My Karenderia',
+          phone: karenderia.phone || '',
+          email: karenderia.business_email || karenderia.email || '',
+          cuisineType: 'filipino',
+          description: karenderia.description || '',
+          address: karenderia.address || ''
+        };
+
+        const ownerName = this.getKarenderiaDisplayName();
+        const [firstName = '', ...rest] = ownerName.split(' ');
+        this.accountSettings = {
+          firstName,
+          lastName: rest.join(' ')
+        };
+      }
+    } catch (error) {
+      console.error('Failed to load settings from backend:', error);
+    }
   }
 
-  saveChanges() {
-    // Save all settings
-    console.log('Saving changes...');
-    console.log('Business Info:', this.businessInfo);
-    console.log('Operations Settings:', this.operationsSettings);
-    console.log('Notification Settings:', this.notificationSettings);
-    console.log('Account Settings:', this.accountSettings);
-    console.log('Operating Hours:', this.operatingHours);
-    
-    // Show success message
-    this.showSuccessMessage();
+  async saveChanges() {
+    if (this.isSaving) {
+      return;
+    }
+
+    const loading = await this.loadingController.create({
+      message: this.karenderiaStatus === 'rejected' ? 'Resubmitting application...' : 'Saving changes...'
+    });
+
+    await loading.present();
+    this.isSaving = true;
+
+    try {
+      const operatingDays = this.operatingHours
+        .filter(day => day.isOpen)
+        .map(day => day.name.toLowerCase());
+
+      const payload = {
+        business_name: this.businessInfo.name,
+        name: this.businessInfo.name,
+        business_email: this.businessInfo.email,
+        email: this.businessInfo.email,
+        phone: this.businessInfo.phone,
+        description: this.businessInfo.description,
+        address: this.businessInfo.address,
+        operating_days: operatingDays,
+        status: this.karenderiaStatus === 'rejected' ? 'pending' : undefined
+      };
+
+      const response = await this.karenderiaService.updateCurrentUserKarenderia(payload).toPromise();
+      if (response?.success && response?.data) {
+        this.currentKarenderiaId = response.data.id ?? this.currentKarenderiaId;
+        this.karenderiaStatus = this.normalizeKarenderiaStatus(response.data.status || this.karenderiaStatus || 'unknown');
+        this.rejectionReason = response.data.rejection_reason || '';
+        this.karenderiaInfoService.updateKarenderiaData(response.data);
+        await this.showToast(
+          this.karenderiaStatus === 'pending'
+            ? 'Application resubmitted successfully. Waiting for review.'
+            : 'Settings saved successfully.',
+          'success'
+        );
+      } else {
+        await this.showToast('Unable to save changes.', 'warning');
+      }
+    } catch (error) {
+      console.error('Failed to save settings:', error);
+      await this.showToast('Failed to save changes.', 'danger');
+    } finally {
+      this.isSaving = false;
+      await loading.dismiss();
+    }
+  }
+
+  private normalizeKarenderiaStatus(status: string | null | undefined): 'approved' | 'pending' | 'rejected' | 'unknown' {
+    const normalized = (status || '').toLowerCase();
+
+    if (normalized === 'inactive') {
+      return 'rejected';
+    }
+
+    if (normalized === 'approved' || normalized === 'pending' || normalized === 'rejected') {
+      return normalized;
+    }
+
+    return 'unknown';
   }
 
   uploadLogo() {
@@ -170,6 +264,38 @@ export class KarenderiaSettingsPage implements OnInit {
   private showSuccessMessage() {
     // Implement success message display
     console.log('Settings saved successfully!');
+  }
+
+  getPrimaryActionLabel(): string {
+    return this.karenderiaStatus === 'rejected' ? 'Resubmit Application' : 'Save Changes';
+  }
+
+  getStatusMessage(): string {
+    if (this.karenderiaStatus === 'rejected') {
+      return this.rejectionReason
+        ? `Your application was rejected: ${this.rejectionReason}`
+        : 'Your application was rejected. Update your details and resubmit for admin review.';
+    }
+
+    if (this.karenderiaStatus === 'pending') {
+      return 'Your application is pending review. You can still update the details before approval.';
+    }
+
+    if (this.karenderiaStatus === 'approved') {
+      return 'Your karenderia is approved and live.';
+    }
+
+    return 'Manage your karenderia details below.';
+  }
+
+  async showToast(message: string, color: string = 'primary') {
+    const toast = await this.toastController.create({
+      message,
+      duration: 2500,
+      position: 'bottom',
+      color
+    });
+    await toast.present();
   }
 
   // Dynamic karenderia display methods

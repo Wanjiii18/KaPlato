@@ -120,7 +120,7 @@ ion-tabs {
   --background: #ffffff;
   --color: #64748b;
   --color-selected: #2563eb;
-  border-top: 2px solid #e2e8f0;
+  border-top: 1px solid #e2e8f0;
   position: relative;
   z-index: 1000; /* Ensure tabs are always on top */
 }
@@ -130,6 +130,17 @@ ion-tab-button {
   position: relative;
   z-index: 1001;
   pointer-events: auto; /* Ensure clickable */
+  --color: #64748b;
+  --color-selected: #2563eb;
+  --padding-top: 8px;
+  --padding-bottom: 8px;
+  font-size: 12px;
+  font-weight: 600;
+
+  ion-icon {
+    font-size: 22px;
+    margin-bottom: 2px;
+  }
 }
 
 /* Ensure the entire tab bar area is protected */
@@ -138,6 +149,9 @@ ion-tab-bar {
   z-index: 1002;
   pointer-events: auto;
   background: var(--ion-background-color);
+  height: 64px;
+  padding-bottom: env(safe-area-inset-bottom);
+  box-shadow: 0 -8px 24px rgba(15, 23, 42, 0.08);
 }
 
 /* Ensure all interactive elements are clickable */

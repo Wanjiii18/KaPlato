@@ -27,7 +27,7 @@ export class KarenderiaInfoService {
       const token = localStorage.getItem('auth_token');
       if (!token) {
         console.warn('🚫 No auth token found, user not logged in');
-        this.setFallbackData();
+        this.currentKarenderiaSubject.next(null);
         return;
       }
       
@@ -48,38 +48,7 @@ export class KarenderiaInfoService {
       console.error('❌ Error loading karenderia from backend:', error);
     }
 
-    // Fallback to mock data if API call fails
-    console.log('🔄 Using fallback mock data...');
-    this.setFallbackData();
-  }
-
-  private setFallbackData() {
-    // Check if user is logged in and what role they have
-    const userData = localStorage.getItem('user_data');
-    let userName = 'Your';
-    
-    if (userData) {
-      try {
-        const user = JSON.parse(userData);
-        userName = user.name || 'Your';
-      } catch (e) {
-        console.warn('Could not parse user data');
-      }
-    }
-
-    const mockKarenderia: Karenderia = {
-      id: '1',
-      name: `${userName}'s Karenderia`,
-      business_name: `${userName}'s Kitchen Business`,
-      description: 'Welcome to your karenderia! Please update your business information in settings.',
-      address: 'Please update your address in settings',
-      owner_id: 'current-user-id',
-      status: 'pending',
-      createdAt: new Date(),
-      updatedAt: new Date()
-    };
-    
-    this.currentKarenderiaSubject.next(mockKarenderia);
+    this.currentKarenderiaSubject.next(null);
   }
 
   getCurrentKarenderia(): Karenderia | null {

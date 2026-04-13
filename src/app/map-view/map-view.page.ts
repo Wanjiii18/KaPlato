@@ -121,43 +121,7 @@ export class MapViewPage implements OnInit, AfterViewInit {
 
   async loadKarenderias() {
     console.log('🔍 Loading karenderias for map view...');
-    
-    try {
-      // First try to load from localStorage (test data)
-      this.karenderiaService.getAllKarenderias_Local().subscribe({
-        next: (localData) => {
-          console.log('📱 Local storage data:', localData);
-          if (localData && localData.length > 0) {
-            this.karenderias = localData.map(k => ({
-              id: k.id,
-              name: k.name,
-              cuisine: k.cuisine?.join(', ') || 'Filipino',
-              address: k.address,
-              rating: k.rating || 4.5,
-              isOpen: true, // Default to open
-              deliveryTime: '20-30 min',
-              distance: 300,
-              latitude: k.location?.latitude || 10.3157,
-              longitude: k.location?.longitude || 123.8854
-            }));
-            this.filteredKarenderias = [...this.karenderias];
-            console.log('✅ Loaded from localStorage:', this.karenderias.length, 'karenderias');
-            this.applyFilter();
-            return;
-          }
-          
-          // If no local data, try backend
-          this.loadFromBackend();
-        },
-        error: (error) => {
-          console.error('❌ Error loading from localStorage:', error);
-          this.loadFromBackend();
-        }
-      });
-    } catch (error) {
-      console.error('❌ Error in loadKarenderias:', error);
-      this.loadFromBackend();
-    }
+    this.loadFromBackend();
   }
 
   loadFromBackend() {
@@ -181,73 +145,19 @@ export class MapViewPage implements OnInit, AfterViewInit {
           this.filteredKarenderias = [...this.karenderias];
           console.log('✅ Loaded from backend:', this.karenderias.length, 'karenderias');
         } else {
-          console.log('⚠️ No backend data, loading mock data...');
-          this.loadMockData();
+          console.log('⚠️ No backend data found');
+          this.karenderias = [];
+          this.filteredKarenderias = [];
         }
         this.applyFilter();
       },
       error: (error) => {
-        console.error('❌ Backend error, loading mock data:', error);
-        this.loadMockData();
+        console.error('❌ Backend error:', error);
+        this.karenderias = [];
+        this.filteredKarenderias = [];
+        this.applyFilter();
       }
     });
-  }
-
-  loadMockData() {
-    console.log('📋 Loading mock data for karenderias...');
-    this.karenderias = [
-      {
-        id: 1,
-        name: "Lola Rosa's Kitchen",
-        cuisine: 'Filipino Traditional',
-        address: '123 Main St, Cebu City',
-        rating: 4.8,
-        isOpen: true,
-        deliveryTime: '15-25 min',
-        distance: 250,
-        latitude: 10.3157,
-        longitude: 123.8854
-      },
-      {
-        id: 2,
-        name: "Tita Nena's Lutong Bahay",
-        cuisine: 'Filipino Home-cooked',
-        address: '456 Colon St, Cebu City',
-        rating: 4.6,
-        isOpen: true,
-        deliveryTime: '20-30 min',
-        distance: 180,
-        latitude: 10.2968,
-        longitude: 123.8914
-      },
-      {
-        id: 3,
-        name: "Kuya Jun's BBQ House",
-        cuisine: 'BBQ Grilled',
-        address: '789 Lahug, Cebu City',
-        rating: 4.7,
-        isOpen: false,
-        deliveryTime: '25-35 min',
-        distance: 420,
-        latitude: 10.3369,
-        longitude: 123.9139
-      },
-      {
-        id: 4,
-        name: "Ate Linda's Carinderia",
-        cuisine: 'Filipino Budget Meals',
-        address: '321 IT Park, Cebu City',
-        rating: 4.4,
-        isOpen: true,
-        deliveryTime: '18-28 min',
-        distance: 320,
-        latitude: 10.3200,
-        longitude: 123.9000
-      }
-    ];
-    this.filteredKarenderias = [...this.karenderias];
-    console.log('✅ Mock data loaded:', this.karenderias.length, 'karenderias');
-    console.log('📊 Mock karenderias:', this.karenderias);
   }
 
   onSearchChange() {

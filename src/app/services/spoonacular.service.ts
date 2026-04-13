@@ -279,9 +279,9 @@ export class SpoonacularService {
       .set('number', number.toString())
       .set('metaInformation', 'true');
 
-    return this.http.get<any[]>(`${this.baseUrl}/food/ingredients/search`, { params })
+    return this.http.get<{ results: any[] }>(`${this.baseUrl}/food/ingredients/search`, { params })
       .pipe(
-        map(ingredients => ingredients.map(ingredient => ({
+        map(response => (response?.results || []).map(ingredient => ({
           id: ingredient.id.toString(),
           name: ingredient.name,
           amount: 1,

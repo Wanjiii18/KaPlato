@@ -125,15 +125,14 @@ export class KarenderiasBrowsePage implements OnInit {
             console.log('✅ Loaded karenderias from backend:', this.karenderias.length);
             console.log('📋 User location:', this.userLocation);
           } else {
-            console.warn('⚠️ Backend returned empty array, loading mock data');
-            this.loadMockKarenderias();
+            console.warn('⚠️ Backend returned empty array');
+            this.karenderias = [];
           }
           this.evaluateRestaurantAllergenRisk().then(() => this.applyFilters());
         },
         error: (error) => {
           console.error('❌ Error loading karenderias from backend:', error);
-          console.log('📋 Falling back to mock data');
-          this.loadMockKarenderias();
+          this.karenderias = [];
           this.evaluateRestaurantAllergenRisk().then(() => this.applyFilters());
         },
         complete: () => {
@@ -142,7 +141,7 @@ export class KarenderiasBrowsePage implements OnInit {
       });
     } catch (error) {
       console.error('❌ Error in loadKarenderias:', error);
-      this.loadMockKarenderias();
+      this.karenderias = [];
       await this.evaluateRestaurantAllergenRisk();
       await this.applyFilters();
       this.isLoading = false;
@@ -173,69 +172,6 @@ export class KarenderiasBrowsePage implements OnInit {
         this.restaurantAllergenRiskMap[id] = false;
       }
     }));
-  }
-
-  loadMockKarenderias() {
-    // Fallback mock data for demonstration
-    this.karenderias = [
-      {
-        id: 'mock-1',
-        name: "Lola Maria's Kitchen",
-        address: "123 Mabini Street, Mandaue City, Cebu",
-        location: { latitude: 10.3231, longitude: 123.9319 },
-        rating: 4.8,
-        priceRange: 'Budget',
-        cuisine: ['Filipino', 'Traditional'],
-        deliveryTime: '25 min',
-        deliveryFee: 20,
-        isOpen: true,
-        imageUrl: 'assets/images/karenderia1.jpg',
-        distance: this.calculateRealDistance(10.3231, 123.9319)
-      },
-      {
-        id: 'mock-2',
-        name: "Tita Linda's Lutong Bahay",
-        address: "456 Plaridel Street, Mandaue City, Cebu",
-        location: { latitude: 10.3241, longitude: 123.9329 },
-        rating: 4.6,
-        priceRange: 'Budget',
-        cuisine: ['Filipino', 'Home-cooked'],
-        deliveryTime: '30 min',
-        deliveryFee: 25,
-        isOpen: true,
-        imageUrl: 'assets/images/karenderia2.jpg',
-        distance: this.calculateRealDistance(10.3241, 123.9329)
-      },
-      {
-        id: 'mock-3',
-        name: "Kuya Roberto's Place",
-        address: "789 Burgos Street, Mandaue City, Cebu",
-        location: { latitude: 10.3221, longitude: 123.9309 },
-        rating: 4.4,
-        priceRange: 'Budget',
-        cuisine: ['Filipino', 'Grilled'],
-        deliveryTime: '35 min',
-        deliveryFee: 30,
-        isOpen: false,
-        imageUrl: 'assets/images/karenderia3.jpg',
-        distance: this.calculateRealDistance(10.3221, 123.9309)
-      },
-      {
-        id: 'mock-4',
-        name: "Nanay Cora's Carinderia",
-        address: "321 Rizal Avenue, Mandaue City, Cebu",
-        location: { latitude: 10.3251, longitude: 123.9339 },
-        rating: 4.7,
-        priceRange: 'Budget',
-        cuisine: ['Filipino', 'Seafood'],
-        deliveryTime: '28 min',
-        deliveryFee: 22,
-        isOpen: true,
-        imageUrl: 'assets/images/karenderia4.jpg',
-        distance: this.calculateRealDistance(10.3251, 123.9339)
-      }
-    ];
-    console.log('📋 Loaded mock karenderias:', this.karenderias.length);
   }
 
   calculateRealDistance(karenderiaLat: number, karenderiaLng: number): number {

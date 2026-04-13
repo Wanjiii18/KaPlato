@@ -11,6 +11,32 @@
   }
 }
 
+.meal-browse-hero {
+  padding: 16px 16px 8px;
+
+  .hero-card {
+    background: linear-gradient(135deg, #1d4ed8 0%, #7c3aed 55%, #db2777 100%);
+    color: white;
+    border-radius: 24px;
+    padding: 18px 20px;
+    box-shadow: 0 12px 30px rgba(29, 78, 216, 0.18);
+
+    h1 {
+      margin: 0 0 8px 0;
+      font-size: 1.35rem;
+      line-height: 1.2;
+      font-weight: 800;
+    }
+
+    p {
+      margin: 0;
+      color: rgba(255, 255, 255, 0.88);
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+  }
+}
+
 .filter-panel {
   background: var(--ion-color-light);
   border-bottom: 1px solid var(--ion-color-light-shade);
@@ -258,6 +284,22 @@
 
 // Responsive Design
 @media (max-width: 768px) {
+  .meal-browse-hero {
+    padding: 12px 12px 8px;
+
+    .hero-card {
+      padding: 16px 18px;
+
+      h1 {
+        font-size: 1.15rem;
+      }
+
+      p {
+        font-size: 0.86rem;
+      }
+    }
+  }
+
   .results-summary .summary-stats {
     gap: 16px;
     

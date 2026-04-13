@@ -7,6 +7,7 @@ import { AllergenDetectionService } from '../services/allergen-detection.service
 import { MenuItem, MenuIngredient } from '../models/menu.model';
 import { AlertController, ToastController, ModalController } from '@ionic/angular';
 import { Subscription } from 'rxjs';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-karenderia-menu',
@@ -125,7 +126,8 @@ export class KarenderiaMenuPage implements OnInit, OnDestroy {
     private toastController: ToastController,
     private modalController: ModalController,
     private karenderiaInfoService: KarenderiaInfoService,
-    private allergenDetectionService: AllergenDetectionService
+    private allergenDetectionService: AllergenDetectionService,
+    private authService: AuthService
   ) { }
 
   ngOnInit() {
@@ -784,10 +786,7 @@ export class KarenderiaMenuPage implements OnInit, OnDestroy {
   }
 
   logout() {
-    // Clear any stored authentication data
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    this.router.navigate(['/login']);
+    this.authService.logoutAndRedirect();
   }
 
   // Dynamic karenderia display methods

@@ -21,17 +21,24 @@
   <!-- Loading State -->
   <div *ngIf="isLoading" class="loading-container">
     <ion-spinner name="crescent"></ion-spinner>
-    <p>Finding delicious karenderias for you...</p>
+    <p>Finding restaurants near you...</p>
   </div>
 
   <!-- Main Content -->
   <div *ngIf="!isLoading" class="browse-container animate-fade-in">
+    <div class="browse-hero">
+      <div class="hero-copy">
+        <span class="hero-kicker">Browse restaurants</span>
+        <h1>Find karenderias and menus that fit your mood.</h1>
+        <p>Search by name, cuisine, or location, then tap into a restaurant to see what is available today.</p>
+      </div>
+    </div>
     
     <!-- Search Section -->
     <div class="search-section">
       <ion-searchbar 
         [(ngModel)]="searchQuery" 
-        placeholder="Search karenderias, cuisine, or location..."
+        placeholder="Search restos, dishes, or location..."
         mode="ios"
         class="browse-searchbar"
         (ionInput)="onSearchChange()">
@@ -57,7 +64,7 @@
     <div class="results-header">
       <div class="results-info">
         <h3>{{ filteredKarenderias.length }} Karenderias Found</h3>
-        <p>Near your location</p>
+        <p>Restaurants near your location</p>
       </div>
       <ion-select 
         [(ngModel)]="selectedSort" 

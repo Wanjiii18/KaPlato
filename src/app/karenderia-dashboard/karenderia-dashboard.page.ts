@@ -3,7 +3,9 @@ import { Router } from '@angular/router';
 import { MenuService } from '../services/menu.service';
 import { AuthService } from '../services/auth.service';
 import { KarenderiaInfoService } from '../services/karenderia-info.service';
-import { MenuItem, Ingredient, DailySales, Karenderia } from '../models/menu.model';
+import { MenuItem, Ingredient, DailySales } from '../models/menu.model';
+import { InventoryService } from '../services/inventory.service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-karenderia-dashboard',
@@ -15,24 +17,17 @@ export class KarenderiaDashboardPage implements OnInit {
   todaysSales: DailySales | null = null;
   lowStockItems: Ingredient[] = [];
   lowStockAlerts: any[] = [];
+  topMeals: Array<{ itemName: string; quantity: number; revenue: number }> = [];
   menuItemsCount = 0;
-  totalRevenue = 0;
+  averageRating = 0;
   isLoading = true;
-
-  dashboardData = {
-    todaysSales: 0,
-    lowStockItems: 0,
-    activeMenuItems: 0,
-    allergenCompliantItems: 0,
-    topSellingItem: '',
-    salesTrend: 0
-  };
 
   constructor(
     private router: Router,
     private menuService: MenuService,
     private authService: AuthService,
-    private karenderiaInfoService: KarenderiaInfoService
+    private karenderiaInfoService: KarenderiaInfoService,
+    private inventoryService: InventoryService
   ) { }
 
   async ngOnInit() {
@@ -51,59 +46,61 @@ export class KarenderiaDashboardPage implements OnInit {
 
   async loadDashboardData() {
     try {
-      const fallbackSales: DailySales = {
-        date: new Date(),
-        totalSales: 15420,
-        totalOrders: 0,
-        popularItems: []
-      };
+      await this.menuService.loadMenuItems();
 
-      // Load today's sales with timeout
-      const salesPromise = Promise.race<DailySales>([
-        this.menuService.getDailySales(new Date()),
-        new Promise<DailySales>((_, reject) => 
-          setTimeout(() => reject(new Error('Sales data timeout')), 3000)
-        )
-      ]);
-      
-      this.todaysSales = await salesPromise.catch(() => fallbackSales);
-      
-      // Load low stock items with timeout
-      const stockSubscription = this.menuService.getLowStockIngredients().subscribe(items => {
-        this.lowStockItems = items;
-      });
-      
-      // Auto-unsubscribe after 5 seconds if no data
-      setTimeout(() => {
-        if (this.lowStockItems.length === 0) {
-          stockSubscription.unsubscribe();
-        }
-      }, 5000);
+      const salesPromise = this.menuService.getDailySales(new Date());
+      const alertsPromise = firstValueFrom(this.inventoryService.getLowStockAlerts());
 
-      // Load menu items count with timeout
-      const itemsSubscription = this.menuService.menuItems$.subscribe(items => {
-        this.menuItemsCount = items.length;
-      });
-      
-      // Auto-unsubscribe after 5 seconds if no data
-      setTimeout(() => {
-        itemsSubscription.unsubscribe();
-      }, 5000);
+      const [sales, alertsResponse] = await Promise.all([salesPromise, alertsPromise]);
+      this.todaysSales = sales;
+      this.topMeals = (sales.popularItems || []).slice(0, 5).map(item => ({
+        itemName: item.itemName,
+        quantity: item.quantity,
+        revenue: item.revenue
+      }));
 
-      // Generate sample data for demo
-      
+      const alerts = alertsResponse || {};
+      this.lowStockAlerts = [
+        ...(Array.isArray(alerts.low_stock) ? alerts.low_stock : []),
+        ...(Array.isArray(alerts.out_of_stock) ? alerts.out_of_stock : [])
+      ];
+
+      const menuItems = await firstValueFrom(this.menuService.menuItems$);
+      this.menuItemsCount = menuItems.length;
+      this.lowStockItems = this.lowStockAlerts;
+      this.averageRating = this.getAverageRating(menuItems);
     } catch (error) {
       console.error('Dashboard data loading error:', error);
-      // Set default values so the page doesn't hang
       this.todaysSales = {
         date: new Date(),
-        totalSales: 15420,
+        totalSales: 0,
         totalOrders: 0,
         popularItems: []
       };
       this.lowStockItems = [];
-      this.menuItemsCount = 25;
+      this.lowStockAlerts = [];
+      this.topMeals = [];
+      this.menuItemsCount = 0;
+      this.averageRating = 0;
     }
+  }
+
+  private getAverageRating(menuItems: MenuItem[]): number {
+    const rated = menuItems.filter((item: any) => Number(item?.average_rating || item?.averageRating || 0) > 0);
+    if (!rated.length) {
+      return 0;
+    }
+
+    const total = rated.reduce((sum, item: any) => sum + Number(item?.average_rating || item?.averageRating || 0), 0);
+    return Number((total / rated.length).toFixed(1));
+  }
+
+  get completionRate(): number {
+    if (!this.menuItemsCount) {
+      return 0;
+    }
+
+    return Math.round(((this.menuItemsCount - this.lowStockAlerts.length) / this.menuItemsCount) * 100);
   }
 
   navigateToMenu() {

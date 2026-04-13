@@ -239,4 +239,58 @@
       <p>Getting your personal information ready</p>
     </div>
   </div>
+
+  <ion-modal [isOpen]="showAddAllergenModal" class="allergen-modal" (didDismiss)="closeAddAllergenModal()">
+    <ng-template>
+      <div class="allergen-modal-shell">
+        <div class="allergen-modal-header">
+          <h2>Add Allergen</h2>
+        </div>
+
+        <div class="allergen-modal-content">
+          <label class="modal-label">Allergen name</label>
+          <ion-input
+            [(ngModel)]="allergenForm.allergenName"
+            placeholder="Type allergen name"
+            fill="outline"
+            class="modal-input">
+          </ion-input>
+
+          <div class="predefined-list">
+            <p>Quick select</p>
+            <div class="chip-grid">
+              <button
+                type="button"
+                class="allergen-chip"
+                *ngFor="let allergenName of predefinedAllergens"
+                (click)="usePredefinedAllergen(allergenName)">
+                {{ allergenName }}
+              </button>
+            </div>
+          </div>
+
+          <label class="modal-label">Severity</label>
+          <ion-segment [(ngModel)]="allergenForm.severity" class="severity-segment">
+            <ion-segment-button value="mild"><ion-label>Mild</ion-label></ion-segment-button>
+            <ion-segment-button value="moderate"><ion-label>Moderate</ion-label></ion-segment-button>
+            <ion-segment-button value="severe"><ion-label>Severe</ion-label></ion-segment-button>
+          </ion-segment>
+
+          <label class="modal-label">Notes (optional)</label>
+          <ion-textarea
+            [(ngModel)]="allergenForm.notes"
+            placeholder="Additional notes"
+            fill="outline"
+            rows="3"
+            class="modal-input">
+          </ion-textarea>
+        </div>
+
+        <div class="allergen-modal-actions">
+          <ion-button fill="outline" class="cancel-btn" (click)="closeAddAllergenModal()">Cancel</ion-button>
+          <ion-button class="add-btn" (click)="submitAddAllergenFromModal()">Add</ion-button>
+        </div>
+      </div>
+    </ng-template>
+  </ion-modal>
 </ion-content>

@@ -1,6 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { AuthService } from '../services/auth.service';
 import { KarenderiaInfoService } from '../services/karenderia-info.service';
+import { MenuService } from '../services/menu.service';
+import { firstValueFrom } from 'rxjs';
 
 interface OrderItem {
   name: string;
@@ -42,7 +45,12 @@ export class KarenderiaOrdersPage implements OnInit {
   preparingOrders: number = 0;
   readyOrders: number = 0;
 
-  constructor(private router: Router, private karenderiaInfoService: KarenderiaInfoService) { }
+  constructor(
+    private router: Router,
+    private authService: AuthService,
+    private karenderiaInfoService: KarenderiaInfoService,
+    private menuService: MenuService
+  ) { }
 
   ngOnInit() {
     this.loadOrders();
@@ -54,9 +62,7 @@ export class KarenderiaOrdersPage implements OnInit {
   }
 
   logout() {
-    // Implement logout logic
-    console.log('Logging out...');
-    this.router.navigate(['/login']);
+    this.authService.logoutAndRedirect();
   }
 
   selectTab(tab: string) {
@@ -84,106 +90,42 @@ export class KarenderiaOrdersPage implements OnInit {
   }
 
   // Order management methods
-  loadOrders() {
+  async loadOrders() {
     this.isLoading = true;
-    
-    // Mock data for demonstration
-    setTimeout(() => {
-      this.orders = [
-        {
-          id: '001',
-          customerName: 'Juan Dela Cruz',
-          customerPhone: '+63 912 345 6789',
-          orderType: 'delivery',
-          status: 'pending',
-          items: [
-            { name: 'Adobo Rice', quantity: 2, price: 85 },
-            { name: 'Iced Tea', quantity: 2, price: 25 }
-          ],
-          subtotal: 220,
-          deliveryFee: 30,
-          total: 250,
-          createdAt: new Date()
-        },
-        {
-          id: '002',
-          customerName: 'Maria Santos',
-          customerPhone: '+63 917 123 4567',
-          orderType: 'pickup',
-          status: 'confirmed',
-          items: [
-            { name: 'Sisig Rice', quantity: 1, price: 95 },
-            { name: 'Halo-halo', quantity: 1, price: 65 }
-          ],
-          subtotal: 160,
-          total: 160,
-          createdAt: new Date(Date.now() - 30 * 60 * 1000)
-        },
-        {
-          id: '003',
-          customerName: 'Pedro Reyes',
-          customerPhone: '+63 920 987 6543',
-          orderType: 'delivery',
-          status: 'preparing',
-          items: [
-            { name: 'Lechon Kawali', quantity: 1, price: 120 },
-            { name: 'Garlic Rice', quantity: 2, price: 45 },
-            { name: 'Soda', quantity: 2, price: 30 }
-          ],
-          subtotal: 240,
-          deliveryFee: 35,
-          total: 275,
-          createdAt: new Date(Date.now() - 45 * 60 * 1000)
-        },
-        {
-          id: '004',
-          customerName: 'Ana Lopez',
-          customerPhone: '+63 918 555 1234',
-          orderType: 'pickup',
-          status: 'ready',
-          items: [
-            { name: 'Kare-kare', quantity: 1, price: 130 },
-            { name: 'Rice', quantity: 1, price: 25 }
-          ],
-          subtotal: 155,
-          total: 155,
-          createdAt: new Date(Date.now() - 60 * 60 * 1000)
-        },
-        {
-          id: '005',
-          customerName: 'Carlos Rivera',
-          customerPhone: '+63 915 444 5678',
-          orderType: 'delivery',
-          status: 'completed',
-          items: [
-            { name: 'Longganisa Rice', quantity: 2, price: 75 },
-            { name: 'Coffee', quantity: 2, price: 35 }
-          ],
-          subtotal: 220,
-          deliveryFee: 25,
-          total: 245,
-          createdAt: new Date(Date.now() - 120 * 60 * 1000)
-        },
-        {
-          id: '006',
-          customerName: 'Rosa Martinez',
-          customerPhone: '+63 919 333 7890',
-          orderType: 'pickup',
-          status: 'completed',
-          items: [
-            { name: 'Pancit Canton', quantity: 1, price: 80 },
-            { name: 'Lumpia', quantity: 5, price: 50 }
-          ],
-          subtotal: 130,
-          total: 130,
-          createdAt: new Date(Date.now() - 180 * 60 * 1000)
-        }
-      ];
-      
+    try {
+      await this.menuService.loadOrders();
+      const backendOrders: any[] = await firstValueFrom(this.menuService.orders$);
+
+      this.orders = (backendOrders || []).map(order => {
+        const items = Array.isArray(order.items) ? order.items : [];
+        return {
+          id: String(order.id || ''),
+          customerName: order.customerName || order.customer_name || 'Customer',
+          customerPhone: order.customerPhone || order.customer_phone || '',
+          orderType: (order.orderType || order.order_type || 'delivery') === 'takeout' ? 'pickup' : (order.orderType || order.order_type || 'delivery'),
+          status: order.status || 'pending',
+          items: items.map((item: any) => ({
+            name: item.menuItemName || item.menu_item_name || item.name || 'Item',
+            quantity: Number(item.quantity || 0),
+            price: Number(item.price || 0)
+          })),
+          subtotal: Number(order.subtotal || 0),
+          deliveryFee: Number(order.deliveryFee || order.delivery_fee || 0),
+          total: Number(order.totalAmount || order.total_amount || order.total || 0),
+          createdAt: new Date(order.createdAt || order.created_at || Date.now())
+        } as Order;
+      });
+
       this.updateOrderStats();
       this.filterOrders();
+    } catch (error) {
+      console.error('Failed to load orders:', error);
+      this.orders = [];
+      this.filteredOrders = [];
+      this.updateOrderStats();
+    } finally {
       this.isLoading = false;
-    }, 1000);
+    }
   }
 
   filterOrders() {

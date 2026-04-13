@@ -2,6 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
+import { AuthService } from '../../services/auth.service';
+import { ProfileService } from '../../services/profile.service';
+import { UserProfile, UserService } from '../../services/user.service';
 import {
   IonHeader,
   IonToolbar,
@@ -77,6 +81,8 @@ interface UserAllergenSettings {
   ]
 })
 export class AllergenProfilePage implements OnInit {
+  private isSyncing = false;
+  private hasPendingSync = false;
   
   userSettings: UserAllergenSettings = {
     selected_allergens: [],
@@ -124,26 +130,216 @@ export class AllergenProfilePage implements OnInit {
   constructor(
     private router: Router,
     private toastController: ToastController,
-    private alertController: AlertController
+    private alertController: AlertController,
+    private authService: AuthService,
+    private userService: UserService,
+    private profileService: ProfileService
   ) {}
 
   ngOnInit() {
     this.loadUserSettings();
   }
   
-  loadUserSettings() {
+  async loadUserSettings() {
     const savedSettings = localStorage.getItem('allergen-settings');
     if (savedSettings) {
-      this.userSettings = JSON.parse(savedSettings);
+      try {
+        this.userSettings = this.normalizeUserSettings(JSON.parse(savedSettings));
+      } catch {
+        // Ignore invalid local cache and rely on defaults/backend profile.
+      }
+    }
+
+    if (this.authService.isAuthenticated()) {
+      try {
+        const profile = await firstValueFrom(this.userService.loadUserProfile());
+        if (profile) {
+          this.applyProfileSettings(profile);
+          this.persistLocalSettings();
+        }
+      } catch {
+        // Keep local settings fallback if profile load fails.
+      }
     }
   }
   
   saveUserSettings() {
+    this.persistLocalSettings();
+    this.queueBackendSync();
+  }
+
+  private persistLocalSettings() {
+    this.userSettings = this.normalizeUserSettings(this.userSettings);
     localStorage.setItem('allergen-settings', JSON.stringify(this.userSettings));
+  }
+
+  private toStringArray(value: any): string[] {
+    if (Array.isArray(value)) {
+      return value.map(item => String(item).trim()).filter(item => !!item);
+    }
+
+    if (typeof value === 'string') {
+      return value
+        .split(',')
+        .map(item => item.trim())
+        .filter(item => !!item);
+    }
+
+    if (value && typeof value === 'object') {
+      return Object.values(value)
+        .map(item => String(item).trim())
+        .filter(item => !!item);
+    }
+
+    return [];
+  }
+
+  private normalizeUserSettings(raw: any): UserAllergenSettings {
+    const selectedAllergens = this.toStringArray(raw?.selected_allergens);
+    const customAllergens = this.toStringArray(raw?.custom_allergens);
+    const dietaryRestrictions = this.toStringArray(raw?.dietary_restrictions);
+    const severityLevels = (raw?.severity_levels && typeof raw.severity_levels === 'object')
+      ? raw.severity_levels as { [key: string]: string }
+      : {};
+
+    return {
+      selected_allergens: [...new Set(selectedAllergens)],
+      severity_levels: severityLevels,
+      custom_allergens: [...new Set(customAllergens)],
+      dietary_restrictions: [...new Set(dietaryRestrictions)],
+      auto_scan: typeof raw?.auto_scan === 'boolean' ? raw.auto_scan : true,
+      alert_level: typeof raw?.alert_level === 'string' && raw.alert_level ? raw.alert_level : 'medium',
+      emergency_contact: raw?.emergency_contact,
+      medical_notes: raw?.medical_notes
+    };
+  }
+
+  private applyProfileSettings(profile: UserProfile) {
+    const profileAllergens = Array.isArray(profile.allergens) ? profile.allergens : [];
+    const allergyNames = this.toStringArray(profile.allergies);
+    const dietaryRestrictions = this.toStringArray(profile.dietaryRestrictions);
+
+    const selected = profileAllergens.length > 0
+      ? profileAllergens.map((allergen: any) => allergen.name).filter((name: string) => !!name)
+      : allergyNames;
+
+    const severityLevels: { [key: string]: string } = {};
+    for (const allergen of profileAllergens) {
+      if (allergen?.name) {
+        severityLevels[allergen.name] = allergen.severity || 'moderate';
+      }
+    }
+
+    for (const allergen of selected) {
+      if (!severityLevels[allergen]) {
+        severityLevels[allergen] = 'moderate';
+      }
+    }
+
+    const predefinedAllergens = new Set(this.availableAllergens.map(item => item.name));
+    const customAllergens = selected.filter(name => !predefinedAllergens.has(name));
+
+    this.userSettings = {
+      ...this.userSettings,
+      selected_allergens: [...new Set(selected)],
+      severity_levels: severityLevels,
+      custom_allergens: [...new Set(customAllergens)],
+      dietary_restrictions: dietaryRestrictions.length > 0
+        ? [...new Set(dietaryRestrictions)]
+        : this.toStringArray(this.userSettings.dietary_restrictions)
+    };
+
+    this.userSettings = this.normalizeUserSettings(this.userSettings);
+  }
+
+  private queueBackendSync() {
+    if (!this.authService.isAuthenticated()) {
+      return;
+    }
+
+    if (this.isSyncing) {
+      this.hasPendingSync = true;
+      return;
+    }
+
+    this.isSyncing = true;
+    void this.syncSettingsToBackend().finally(() => {
+      this.isSyncing = false;
+      if (this.hasPendingSync) {
+        this.hasPendingSync = false;
+        this.queueBackendSync();
+      }
+    });
+  }
+
+  private getAllergenCategory(name: string): string {
+    const predefined = this.availableAllergens.find(item => item.name === name);
+    return predefined?.category || 'Custom';
+  }
+
+  private async syncSettingsToBackend() {
+    this.userSettings = this.normalizeUserSettings(this.userSettings);
+
+    const currentUser = this.authService.getCurrentUser();
+    if (!currentUser?.id) {
+      return;
+    }
+
+    const selectedAllergens = this.toStringArray(this.userSettings.selected_allergens);
+    const dietaryRestrictions = this.toStringArray(this.userSettings.dietary_restrictions);
+
+    await firstValueFrom(this.userService.updateUserProfile({
+      allergies: selectedAllergens,
+      dietaryRestrictions: dietaryRestrictions
+    }));
+
+    const profile = this.userService.getCurrentUserProfile() || await firstValueFrom(this.userService.loadUserProfile());
+    if (!profile) {
+      return;
+    }
+
+    const existingAllergens = Array.isArray(profile.allergens) ? profile.allergens : [];
+    const existingByName = new Map(
+      existingAllergens
+        .filter((item: any) => item?.name)
+        .map((item: any) => [item.name, item])
+    );
+
+    for (const existing of existingAllergens) {
+      if (!selectedAllergens.includes(existing.name) && existing.id) {
+        await this.profileService.removeAllergen(currentUser.id, String(existing.id));
+      }
+    }
+
+    for (const allergenName of selectedAllergens) {
+      const desiredSeverity = this.userSettings.severity_levels[allergenName] || 'moderate';
+      const existing = existingByName.get(allergenName);
+
+      if (!existing) {
+        await this.profileService.addAllergen(currentUser.id, {
+          name: allergenName,
+          category: this.getAllergenCategory(allergenName),
+          severity: desiredSeverity as 'mild' | 'moderate' | 'severe'
+        });
+        continue;
+      }
+
+      if ((existing.severity || 'moderate') !== desiredSeverity && existing.id) {
+        await this.profileService.removeAllergen(currentUser.id, String(existing.id));
+        await this.profileService.addAllergen(currentUser.id, {
+          name: allergenName,
+          category: existing.category || this.getAllergenCategory(allergenName),
+          severity: desiredSeverity as 'mild' | 'moderate' | 'severe'
+        });
+      }
+    }
+
+    await firstValueFrom(this.userService.loadUserProfile());
   }
 
   // Allergen Management
   toggleAllergen(allergenName: string) {
+    this.userSettings.selected_allergens = this.toStringArray(this.userSettings.selected_allergens);
     const index = this.userSettings.selected_allergens.indexOf(allergenName);
     if (index > -1) {
       this.userSettings.selected_allergens.splice(index, 1);
@@ -186,7 +382,7 @@ export class AllergenProfilePage implements OnInit {
     switch (category) {
       case 'Nuts': return 'leaf-outline';
       case 'Seafood': return 'fish-outline';
-      case 'Animal Products': return 'cow-outline';
+      case 'Animal Products': return 'restaurant-outline';
       case 'Legumes': return 'nutrition-outline';
       case 'Grains': return 'barbell-outline';
       case 'Seeds': return 'flower-outline';
@@ -238,6 +434,7 @@ export class AllergenProfilePage implements OnInit {
 
   // Dietary Restrictions
   toggleDietaryRestriction(restriction: string) {
+    this.userSettings.dietary_restrictions = this.toStringArray(this.userSettings.dietary_restrictions);
     const index = this.userSettings.dietary_restrictions.indexOf(restriction);
     if (index > -1) {
       this.userSettings.dietary_restrictions.splice(index, 1);
@@ -319,7 +516,7 @@ export class AllergenProfilePage implements OnInit {
         reader.onload = (e: any) => {
           try {
             const importedSettings = JSON.parse(e.target.result);
-            this.userSettings = { ...this.userSettings, ...importedSettings };
+            this.userSettings = this.normalizeUserSettings({ ...this.userSettings, ...importedSettings });
             this.saveUserSettings();
             this.showToast('Settings imported successfully', 'success');
           } catch (error) {
@@ -362,9 +559,21 @@ export class AllergenProfilePage implements OnInit {
   }
 
   // Missing methods from template
-  saveSettings() {
-    this.saveUserSettings();
-    this.showToast('Settings saved successfully', 'success');
+  async saveSettings() {
+    this.persistLocalSettings();
+
+    if (!this.authService.isAuthenticated()) {
+      this.showToast('Settings saved successfully', 'success');
+      return;
+    }
+
+    try {
+      await this.syncSettingsToBackend();
+      this.showToast('Settings synced successfully', 'success');
+    } catch (error: any) {
+      const backendMessage = error?.error?.message || error?.message;
+      this.showToast(backendMessage ? `Saved locally. Sync failed: ${backendMessage}` : 'Saved locally. Sync failed; please try again.', 'warning');
+    }
   }
 
   getSelectedCount(): number {
