@@ -90,29 +90,6 @@ export class AuthService {
   }
 
   login(credentials: LoginCredentials): Observable<AuthResponse> {
-    console.log('🔐 Attempting login with:', credentials);
-    console.log('🌐 API URL:', `${this.apiUrl}/auth/login`);
-    
-    // EMERGENCY FIX FOR PRESENTATION - use emergency endpoint if alica
-    if (credentials.email === 'alica@gmail.com') {
-      console.log('🚨 Using emergency login for presentation');
-      return this.http.post<AuthResponse>(`${this.apiUrl}/emergency-login`, {})
-        .pipe(
-          tap(response => {
-            console.log('✅ Emergency login successful:', response);
-            if (response.access_token) {
-              sessionStorage.setItem('auth_token', response.access_token);
-              sessionStorage.setItem('user_data', JSON.stringify(response.user));
-              this.currentUserSubject.next(response.user);
-            }
-          }),
-          catchError(error => {
-            console.error('❌ Emergency login error:', error);
-            throw error;
-          })
-        );
-    }
-    
     return this.http.post<AuthResponse>(`${this.apiUrl}/auth/login`, credentials)
       .pipe(
         tap(response => {

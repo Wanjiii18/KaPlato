@@ -6,12 +6,12 @@ export const environment = {
   production: false,
   enableLogging: true,
   performance: {
-    enableDebugMode: true,
+    enableDebugMode: false,
     lazyLoadDelay: 100
   },
-  apiUrl: 'http://localhost:8000/api', // Laravel API URL - Updated for localhost access
+  apiUrl: 'http://localhost:8000/api', // Change to your backend URL - stored in .env for flexibility
   spoonacular: {
-    apiKey: 'dd401666a6f944fabefcc73a78db06c7', // Replace with your actual API key from spoonacular.com
+    apiKey: '', // API key must be set via backend endpoint - never expose in frontend
     baseUrl: 'https://api.spoonacular.com'
   }
 };
