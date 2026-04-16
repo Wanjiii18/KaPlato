@@ -10,8 +10,10 @@ import {
   CreateSupplierListingData,
   SupplierListing,
   SupplyOrder,
+  SukiSupplier,
 } from '../../services/inventory.service';
 import { AuthService } from '../../services/auth.service';
+import { OwnerShellComponent } from '../../components/owner-shell/owner-shell.component';
 
 interface CartItem {
   listing: SupplierListing;
@@ -29,7 +31,7 @@ interface SupplierUiPage {
   templateUrl: './inventory-management.page.html',
   styleUrls: ['./inventory-management.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule]
+  imports: [CommonModule, FormsModule, IonicModule, OwnerShellComponent]
 })
 export class InventoryManagementPage implements OnInit {
   userRole: 'customer' | 'karenderia_owner' | 'admin' | 'supplier' = 'customer';
@@ -54,6 +56,8 @@ export class InventoryManagementPage implements OnInit {
   cart: CartItem[] = [];
   marketplaceSearch = '';
   marketplaceCategory = '';
+  marketplaceSukiOnly = false;
+  sukiSuppliers: SukiSupplier[] = [];
   isSeedingSupplierSamples = false;
 
   supplierUiPages: SupplierUiPage[] = [
@@ -98,6 +102,7 @@ export class InventoryManagementPage implements OnInit {
       this.loadInventory();
       this.loadMarketplaceListings();
       this.loadOwnerOrders();
+      this.loadSukiSuppliers();
       return;
     }
 
@@ -112,7 +117,7 @@ export class InventoryManagementPage implements OnInit {
   }
 
   private checkAuthentication() {
-    const token = sessionStorage.getItem('auth_token');
+    const token = localStorage.getItem('auth_token');
     this.userRole = (this.authService.getCurrentUser()?.role as any) || 'customer';
     
     if (!token) {
@@ -180,12 +185,68 @@ export class InventoryManagementPage implements OnInit {
 
     try {
       const response = await this.inventoryService
-        .getMarketplaceListings(this.marketplaceSearch || undefined, this.marketplaceCategory || undefined)
+        .getMarketplaceListings(
+          this.marketplaceSearch || undefined,
+          this.marketplaceCategory || undefined,
+          this.marketplaceSukiOnly
+        )
         .toPromise();
       this.marketplaceListings = response?.data || [];
     } catch (error: any) {
       console.error('Error loading marketplace listings:', error);
       this.showToast('Unable to load supplier marketplace listings', 'danger');
+    }
+  }
+
+  async loadSukiSuppliers() {
+    if (this.userRole !== 'karenderia_owner') {
+      return;
+    }
+
+    try {
+      const response = await this.inventoryService.getSukiSuppliers().toPromise();
+      this.sukiSuppliers = response?.data || [];
+    } catch (error: any) {
+      console.error('Error loading suki suppliers:', error);
+      this.sukiSuppliers = [];
+    }
+  }
+
+  toggleMarketplaceSukiOnly(enabled: boolean) {
+    this.marketplaceSukiOnly = enabled;
+    this.loadMarketplaceListings();
+  }
+
+  isSupplierSuki(listing: SupplierListing): boolean {
+    return !!listing.is_suki;
+  }
+
+  async toggleSukiSupplier(listing: SupplierListing) {
+    if (this.userRole !== 'karenderia_owner') {
+      return;
+    }
+
+    const loading = await this.loadingController.create({
+      message: listing.is_suki ? 'Removing from Suki list...' : 'Adding to Suki list...'
+    });
+    await loading.present();
+
+    try {
+      if (listing.is_suki) {
+        await this.inventoryService.unmarkSukiSupplier(listing.supplier_id).toPromise();
+        this.showToast(`${listing.supplier?.name || 'Supplier'} removed from Suki suppliers`, 'medium');
+      } else {
+        await this.inventoryService.markSukiSupplier(listing.supplier_id).toPromise();
+        this.showToast(`${listing.supplier?.name || 'Supplier'} added to Suki suppliers`, 'success');
+      }
+
+      await this.loadSukiSuppliers();
+      await this.loadMarketplaceListings();
+    } catch (error: any) {
+      console.error('Error updating suki supplier:', error);
+      this.showToast(error?.error?.error || 'Unable to update Suki supplier', 'danger');
+    } finally {
+      loading.dismiss();
     }
   }
 
@@ -324,6 +385,18 @@ export class InventoryManagementPage implements OnInit {
       case 'cancelled': return 'danger';
       default: return 'medium';
     }
+  }
+
+  getSupplierListingStockColor(listing: SupplierListing): string {
+    if (listing.available_stock <= 0) {
+      return 'danger';
+    }
+
+    if (listing.available_stock <= listing.minimum_order_quantity) {
+      return 'warning';
+    }
+
+    return 'success';
   }
 
   formatOrderItems(order: SupplyOrder): string {
@@ -1164,5 +1237,39 @@ export class InventoryManagementPage implements OnInit {
       position: 'bottom'
     });
     await toast.present();
+  }
+
+  async logout() {
+    await this.authService.logoutWithConfirmation();
+  }
+
+  // Enhanced Supplier Dashboard Methods
+
+  /**
+   * Calculate total value of all supplier listings
+   */
+  getSupplierTotalValue(): number {
+    return this.supplierListings.reduce((total, listing) => {
+      return total + (listing.price_per_unit * listing.available_stock);
+    }, 0);
+  }
+
+  /**
+   * Filter supplier orders by status (for stat item clicks)
+   */
+  filterSupplierOrdersByStatus(status: string) {
+    // This is mainly for interactivity; filtering could be expanded
+    // to actually show filtered results if needed
+    const filteredCount = this.supplierOrders.filter(o => o.status === status).length;
+    if (filteredCount === 0) {
+      this.showToast(`No ${status} orders`, 'information');
+    }
+  }
+
+  /**
+   * Get count of supplier orders by status
+   */
+  getSupplierOrderCountByStatus(status: string): number {
+    return this.supplierOrders.filter(o => o.status === status).length;
   }
 }

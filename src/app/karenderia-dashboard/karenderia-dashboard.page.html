@@ -1,77 +1,10 @@
-<div class="dashboard-layout">
-  <!-- Mobile Top Bar (visible only on mobile) -->
-  <div class="mobile-top-bar">
-    <div class="mobile-brand" (click)="navigateToSettings()">
-      <div class="brand-icon">{{ getKarenderiaBrandInitials() }}</div>
-      <div class="brand-info">
-        <h3>{{ getKarenderiaDisplayName() }}</h3>
-        <span>Dashboard</span>
-      </div>
-    </div>
-    <div class="mobile-actions">
-      <ion-button fill="clear" size="small" routerLink="/karenderia-settings">
-        <ion-icon name="person-circle-outline" slot="icon-only"></ion-icon>
-      </ion-button>
-      <ion-button fill="clear" size="small" (click)="logout()">
-        <ion-icon name="log-out-outline" slot="icon-only"></ion-icon>
-      </ion-button>
-    </div>
-  </div>
-
-  <!-- Sidebar Navigation -->
-  <div class="sidebar">
-    <div class="sidebar-header">
-      <div class="brand">
-        <div class="brand-icon">{{ getKarenderiaBrandInitials() }}</div>
-        <div class="brand-info">
-          <h3>{{ getKarenderiaDisplayName() }}</h3>
-          <span>Owner Dashboard</span>
-        </div>
-      </div>
-    </div>
-
-    <nav class="sidebar-nav">
-      <div class="nav-item active">
-        <ion-icon name="grid-outline"></ion-icon>
-        <span>Dashboard</span>
-      </div>
-      <div class="nav-item" (click)="navigateToMenu()">
-        <ion-icon name="restaurant-outline"></ion-icon>
-        <span>Menu Management</span>
-      </div>
-      <div class="nav-item" (click)="navigateToDailyMenu()">
-        <ion-icon name="calendar-outline"></ion-icon>
-        <span>Menu of the Day</span>
-      </div>
-      <div class="nav-item" (click)="navigateToInventory()">
-        <ion-icon name="cube-outline"></ion-icon>
-        <span>Inventory</span>
-      </div>
-      <div class="nav-item" (click)="navigateToAnalytics()">
-        <ion-icon name="analytics-outline"></ion-icon>
-        <span>Analytics</span>
-      </div>
-      <div class="nav-item desktop-only" routerLink="/karenderia-settings">
-        <ion-icon name="person-outline"></ion-icon>
-        <span>Profile</span>
-      </div>
-    </nav>
-
-    <div class="sidebar-footer">
-      <div class="nav-item" (click)="logout()">
-        <ion-icon name="log-out-outline"></ion-icon>
-        <span>Sign Out</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- Main Content -->
+<app-owner-shell activePage="dashboard" sectionLabel="Kitchen">
   <div class="main-content">
     <!-- Top Header -->
     <div class="top-header">
       <div class="header-left">
         <h1>{{ getKarenderiaDisplayName() }}</h1>
-        <span class="header-subtitle">Owner Dashboard</span>
+        <span class="header-subtitle">Kitchen</span>
       </div>
     </div>
 
@@ -84,10 +17,10 @@
             <ion-icon name="wallet-outline"></ion-icon>
           </div>
           <div class="metric-content">
-            <div class="metric-value">{{ formatPhp(todaysSales?.totalSales || 15420) }}</div>
+            <div class="metric-value">{{ formatPhp(todaysSales?.totalSales || 0) }}</div>
             <div class="metric-label">Total Sales</div>
             <div class="metric-trend positive">
-              <span>+25% from yesterday</span>
+              <span>{{ todaysSales?.totalOrders || 0 }} orders today</span>
             </div>
           </div>
         </div>
@@ -97,10 +30,10 @@
             <ion-icon name="restaurant-outline"></ion-icon>
           </div>
           <div class="metric-content">
-            <div class="metric-value">{{ dashboardData.activeMenuItems || 25 }}</div>
+            <div class="metric-value">{{ menuItemsCount }}</div>
             <div class="metric-label">Active Menu Items</div>
             <div class="metric-trend positive">
-              <span>Updated daily</span>
+              <span>Live from your menu</span>
             </div>
           </div>
         </div>
@@ -110,10 +43,10 @@
             <ion-icon name="star-outline"></ion-icon>
           </div>
           <div class="metric-content">
-            <div class="metric-value">4.7</div>
+            <div class="metric-value">{{ averageRating > 0 ? averageRating : '-' }}</div>
             <div class="metric-label">Customer Rating</div>
             <div class="metric-trend positive">
-              <span>+0.2 from last week</span>
+              <span>{{ averageRating > 0 ? 'Based on menu ratings' : 'No rating data yet' }}</span>
             </div>
           </div>
         </div>
@@ -139,6 +72,9 @@
                 <div class="order-time">{{ alert.updated_at | date:'short' }}</div>
               </div>
             </div>
+            <div class="empty-state" *ngIf="lowStockAlerts.length === 0">
+              No stock alerts right now.
+            </div>
           </div>
         </div>
 
@@ -151,19 +87,19 @@
             <div class="status-item">
               <div class="status-info">
                 <span class="status-label">Active Items</span>
-                <span class="status-count">{{ dashboardData.activeMenuItems || 25 }}</span>
+                <span class="status-count">{{ menuItemsCount }}</span>
               </div>
             </div>
             <div class="status-item">
               <div class="status-info">
                 <span class="status-label">Low Stock</span>
-                <span class="status-count">{{ dashboardData.lowStockItems || 3 }}</span>
+                <span class="status-count">{{ lowStockAlerts.length }}</span>
               </div>
             </div>
             <div class="completion-rate">
-              <div class="completion-label">87% completion rate</div>
+              <div class="completion-label">{{ completionRate }}% completion rate</div>
               <div class="completion-bar">
-                <div class="completion-fill" style="width: 87%"></div>
+                <div class="completion-fill" [style.width.%]="completionRate"></div>
               </div>
             </div>
           </div>
@@ -175,26 +111,15 @@
             <h3><ion-icon name="alert-circle-outline"></ion-icon> Low Stock Alert</h3>
           </div>
           <div class="card-content">
-            <div class="stock-item">
+            <div class="stock-item" *ngFor="let alert of lowStockAlerts | slice:0:3">
               <div class="stock-info">
-                <span class="stock-name">Pork Belly</span>
-                <span class="stock-amount">2 kg left</span>
+                <span class="stock-name">{{ alert.ingredient_name }}</span>
+                <span class="stock-amount">{{ alert.current_stock }} {{ alert.unit || '' }} left</span>
               </div>
-              <div class="stock-status critical">Low</div>
+              <div class="stock-status critical">{{ alert.current_stock <= 0 ? 'Out' : 'Low' }}</div>
             </div>
-            <div class="stock-item">
-              <div class="stock-info">
-                <span class="stock-name">Tamarind</span>
-                <span class="stock-amount">1 pack left</span>
-              </div>
-              <div class="stock-status critical">Low</div>
-            </div>
-            <div class="stock-item">
-              <div class="stock-info">
-                <span class="stock-name">Rice</span>
-                <span class="stock-amount">5 kg left</span>
-              </div>
-              <div class="stock-status critical">Low</div>
+            <div class="empty-state" *ngIf="lowStockAlerts.length === 0">
+              Inventory levels look healthy.
             </div>
           </div>
         </div>
@@ -205,45 +130,18 @@
             <h3>Top Performing Meals</h3>
           </div>
           <div class="card-content">
-            <div class="meal-item">
+            <div class="meal-item" *ngFor="let meal of topMeals">
               <div class="meal-info">
-                <span class="meal-name">Adobong Manok</span>
+                <span class="meal-name">{{ meal.itemName }}</span>
                 <div class="meal-stats">
-                  <span class="meal-orders">Orders: 23</span>
-                  <span class="meal-revenue">Revenue: {{ formatPhp(6958) }}</span>
+                  <span class="meal-orders">Orders: {{ meal.quantity }}</span>
+                  <span class="meal-revenue">Revenue: {{ formatPhp(meal.revenue) }}</span>
                 </div>
-                <div class="meal-trend">Trend: +4%</div>
+                <div class="meal-trend">Live from sales data</div>
               </div>
             </div>
-            <div class="meal-item">
-              <div class="meal-info">
-                <span class="meal-name">Sinigang na Baboy</span>
-                <div class="meal-stats">
-                  <span class="meal-orders">Orders: 18</span>
-                  <span class="meal-revenue">Revenue: {{ formatPhp(5770) }}</span>
-                </div>
-                <div class="meal-trend">Trend: +8%</div>
-              </div>
-            </div>
-            <div class="meal-item">
-              <div class="meal-info">
-                <span class="meal-name">Kare-Kare</span>
-                <div class="meal-stats">
-                  <span class="meal-orders">Orders: 15</span>
-                  <span class="meal-revenue">Revenue: {{ formatPhp(4800) }}</span>
-                </div>
-                <div class="meal-trend">Trend: +15%</div>
-              </div>
-            </div>
-            <div class="meal-item">
-              <div class="meal-info">
-                <span class="meal-name">Lechon Kawali</span>
-                <div class="meal-stats">
-                  <span class="meal-orders">Orders: 12</span>
-                  <span class="meal-revenue">Revenue: {{ formatPhp(4320) }}</span>
-                </div>
-                <div class="meal-trend">Trend: -3%</div>
-              </div>
+            <div class="empty-state" *ngIf="topMeals.length === 0">
+              No top meals yet for today.
             </div>
           </div>
         </div>
@@ -256,4 +154,4 @@
       <p>Loading dashboard...</p>
     </div>
   </div>
-</div>
+</app-owner-shell>

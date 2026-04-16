@@ -62,8 +62,16 @@ export interface SupplierListing {
     name: string;
     email: string;
   };
+  is_suki?: boolean;
   created_at: string;
   updated_at: string;
+}
+
+export interface SukiSupplier {
+  id: number;
+  name: string;
+  email: string;
+  listing_count: number;
 }
 
 export interface CreateSupplierListingData {
@@ -133,7 +141,7 @@ export class InventoryService {
   constructor(private http: HttpClient) { }
 
   private getAuthHeaders(): HttpHeaders {
-    const token = sessionStorage.getItem('auth_token');
+    const token = localStorage.getItem('auth_token');
     return new HttpHeaders({
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json'
@@ -189,13 +197,16 @@ export class InventoryService {
   /**
    * Get supplier marketplace listings (for karenderia owners)
    */
-  getMarketplaceListings(search?: string, category?: string): Observable<any> {
+  getMarketplaceListings(search?: string, category?: string, sukiOnly?: boolean): Observable<any> {
     const params = new URLSearchParams();
     if (search) {
       params.set('search', search);
     }
     if (category) {
       params.set('category', category);
+    }
+    if (sukiOnly) {
+      params.set('suki_only', '1');
     }
 
     const query = params.toString();
@@ -253,5 +264,17 @@ export class InventoryService {
    */
   updateSupplyOrderStatus(orderId: number, status: 'pending' | 'confirmed' | 'delivered' | 'cancelled'): Observable<any> {
     return this.http.patch(`${this.supplyBaseUrl}/orders/${orderId}/status`, { status }, { headers: this.getAuthHeaders() });
+  }
+
+  getSukiSuppliers(): Observable<any> {
+    return this.http.get(`${this.supplyBaseUrl}/suki-suppliers`, { headers: this.getAuthHeaders() });
+  }
+
+  markSukiSupplier(supplierId: number): Observable<any> {
+    return this.http.post(`${this.supplyBaseUrl}/suki-suppliers/${supplierId}`, {}, { headers: this.getAuthHeaders() });
+  }
+
+  unmarkSukiSupplier(supplierId: number): Observable<any> {
+    return this.http.delete(`${this.supplyBaseUrl}/suki-suppliers/${supplierId}`, { headers: this.getAuthHeaders() });
   }
 }

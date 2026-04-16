@@ -12,7 +12,7 @@ export class KarenderiaInfoService {
 
   constructor(private karenderiaService: KarenderiaService) {
     // Load data immediately if user is already logged in
-    const token = sessionStorage.getItem('auth_token');
+    const token = localStorage.getItem('auth_token');
     if (token) {
       console.log('🔄 User already logged in, loading karenderia data...');
       this.loadKarenderiaData();
@@ -24,66 +24,31 @@ export class KarenderiaInfoService {
       console.log('🔍 KarenderiaInfoService: Attempting to load karenderia data from backend...');
       
       // Check if user is logged in
-      const token = sessionStorage.getItem('auth_token');
+      const token = localStorage.getItem('auth_token');
       if (!token) {
-        console.log('🔍 No auth token found, using fallback data');
-        this.setFallbackData();
+        console.warn('🚫 No auth token found, user not logged in');
+        this.currentKarenderiaSubject.next(null);
         return;
       }
       
-      console.log('🔍 Loading karenderia data from backend...');
+      console.log('✅ Auth token found, making API call...');
+      
       // Try to get real data from backend
       const karenderiaData = await this.karenderiaService.getCurrentUserKarenderia().toPromise();
       console.log('📡 API Response:', karenderiaData);
       
-      console.log('🔍 Backend response:', karenderiaData);
-      
       if (karenderiaData && karenderiaData.success && karenderiaData.data) {
-        console.log('✅ Successfully loaded karenderia:', karenderiaData.data.business_name || karenderiaData.data.name);
+        console.log('✅ Successfully loaded karenderia data:', karenderiaData.data.name);
         this.currentKarenderiaSubject.next(karenderiaData.data);
         return;
       } else {
-        console.warn('⚠️ Backend returned unsuccessful response or no data');
+        console.warn('⚠️ API returned unsuccessful response:', karenderiaData);
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error('❌ Error loading karenderia from backend:', error);
-      if (error.status === 404) {
-        console.log('📝 No karenderia application found for this user');
-      }
     }
 
-    // Fallback to mock data if API call fails
-    console.log('🔄 Using fallback data');
-    this.setFallbackData();
-  }
-
-  private setFallbackData() {
-    // Check if user is logged in and what role they have
-    const userData = sessionStorage.getItem('user_data');
-    let userName = 'Your';
-    
-    if (userData) {
-      try {
-        const user = JSON.parse(userData);
-        userName = user.name || 'Your';
-      } catch (e) {
-        console.warn('Could not parse user data');
-      }
-    }
-
-    const mockKarenderia: Karenderia = {
-      id: '1',
-      name: `${userName}'s Karenderia`,
-      business_name: `${userName}'s Kitchen Business`,
-      description: 'Welcome to your karenderia! Please update your business information in settings.',
-      address: 'Please update your address in settings',
-      owner_id: 'current-user-id',
-      status: 'pending',
-      createdAt: new Date(),
-      updatedAt: new Date()
-    };
-    
-    this.currentKarenderiaSubject.next(mockKarenderia);
+    this.currentKarenderiaSubject.next(null);
   }
 
   getCurrentKarenderia(): Karenderia | null {
@@ -94,17 +59,13 @@ export class KarenderiaInfoService {
     const karenderia = this.getCurrentKarenderia();
     if (!karenderia) {
       // Check if user is logged in
-      const token = sessionStorage.getItem('auth_token');
+      const token = localStorage.getItem('auth_token');
       if (!token) {
         return 'KaPlato Kitchen'; // Default for non-logged-in users
       }
       return 'Loading...'; // Loading state for logged-in users
     }
-    
-    // Prioritize business_name over name, with fallback
-    const displayName = karenderia.business_name || karenderia.name || 'Your Karenderia';
-    console.log('🏪 Displaying karenderia name:', displayName);
-    return displayName;
+    return karenderia.business_name || karenderia.name || 'Your Karenderia';
   }
 
   getKarenderiaBrandInitials(): string {

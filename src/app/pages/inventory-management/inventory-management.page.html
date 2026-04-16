@@ -1,12 +1,26 @@
+<ng-container *ngIf="userRole === 'karenderia_owner'; else supplierInventoryLayout">
+  <app-owner-shell activePage="inventory" sectionLabel="Kitchen">
+    <ng-container *ngTemplateOutlet="inventoryBody"></ng-container>
+  </app-owner-shell>
+</ng-container>
+
+<ng-template #supplierInventoryLayout>
+  <ng-container *ngTemplateOutlet="inventoryBody"></ng-container>
+</ng-template>
+
+<ng-template #inventoryBody>
 <ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-buttons slot="start">
+    <ion-buttons slot="start" *ngIf="userRole !== 'karenderia_owner'">
       <ion-back-button [defaultHref]="getBackRoute()"></ion-back-button>
     </ion-buttons>
-    <ion-title>Inventory Management</ion-title>
+    <ion-title>Stock Management</ion-title>
     <ion-buttons slot="end">
       <ion-button (click)="addNewItem()" fill="clear" title="Add New Inventory Item">
-        <ion-icon name="add" slot="icon-only"></ion-icon>
+        <ion-icon [name]="userRole === 'supplier' ? 'add-circle-outline' : 'add'" slot="icon-only"></ion-icon>
+      </ion-button>
+      <ion-button *ngIf="userRole === 'supplier'" (click)="logout()" fill="clear" color="danger" title="Logout">
+        <ion-icon name="log-out-outline" slot="icon-only"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
@@ -47,7 +61,7 @@
 
   <ion-segment [value]="selectedSegment" (ionChange)="onSegmentChanged($event)">
     <ion-segment-button value="inventory" *ngIf="userRole === 'karenderia_owner'">
-      <ion-label>Inventory</ion-label>
+      <ion-label>Kitchen Stock</ion-label>
     </ion-segment-button>
     <ion-segment-button value="alerts" *ngIf="userRole === 'karenderia_owner'">
       <ion-label>Alerts</ion-label>
@@ -56,16 +70,16 @@
       </ion-badge>
     </ion-segment-button>
     <ion-segment-button value="marketplace" *ngIf="userRole === 'karenderia_owner'">
-      <ion-label>Suppliers</ion-label>
+      <ion-label>Buy Supplies</ion-label>
     </ion-segment-button>
     <ion-segment-button value="owner-orders" *ngIf="userRole === 'karenderia_owner'">
-      <ion-label>Orders</ion-label>
+      <ion-label>Supply Purchases</ion-label>
     </ion-segment-button>
     <ion-segment-button value="supplier-listings" *ngIf="userRole === 'supplier'">
-      <ion-label>My Listings</ion-label>
+      <ion-label>Sellable Stock</ion-label>
     </ion-segment-button>
     <ion-segment-button value="supplier-orders" *ngIf="userRole === 'supplier'">
-      <ion-label>Incoming Orders</ion-label>
+      <ion-label>Order Requests</ion-label>
     </ion-segment-button>
   </ion-segment>
 
@@ -89,6 +103,16 @@
         [(ngModel)]="marketplaceSearch">
       </ion-input>
     </ion-item>
+    <ion-item lines="none" class="suki-filter-item">
+      <ion-label>Suki Suppliers Only</ion-label>
+      <ion-toggle
+        [checked]="marketplaceSukiOnly"
+        (ionChange)="toggleMarketplaceSukiOnly($event.detail.checked)">
+      </ion-toggle>
+    </ion-item>
+    <div class="suki-count" *ngIf="sukiSuppliers.length > 0">
+      You have {{ sukiSuppliers.length }} Suki supplier{{ sukiSuppliers.length > 1 ? 's' : '' }}.
+    </div>
     <ion-button expand="block" fill="outline" size="small" (click)="loadMarketplaceListings()">
       Refresh Listings
     </ion-button>
@@ -102,8 +126,8 @@
   <div *ngIf="!isLoading && selectedSegment === 'inventory'">
     <div *ngIf="filteredItems.length === 0" class="empty-state">
       <ion-icon name="cube-outline" size="large"></ion-icon>
-      <h3>No Inventory Items</h3>
-      <p>Start by adding some ingredients to manage your inventory</p>
+      <h3>No Kitchen Stock Items</h3>
+      <p>Start by adding ingredients and supplies to track your kitchen stock</p>
       <ion-button (click)="addNewItem()" fill="solid">
         <ion-icon name="add" slot="start"></ion-icon>
         Add First Item
@@ -307,9 +331,16 @@
 
     <ion-card class="inventory-card" *ngFor="let listing of marketplaceListings">
       <ion-card-header>
+        <div class="supplier-name-row">
+          <strong>Supplier: {{ listing.supplier?.name || 'Unknown Supplier' }}</strong>
+          <ion-chip color="warning" *ngIf="isSupplierSuki(listing)">
+            <ion-icon name="heart"></ion-icon>
+            <ion-label>Suki</ion-label>
+          </ion-chip>
+        </div>
         <ion-card-title>{{ listing.item_name }}</ion-card-title>
         <ion-card-subtitle>
-          {{ listing.category }} • Supplier: {{ listing.supplier?.name || 'Unknown' }}
+          {{ listing.category }} • {{ listing.supplier?.email || 'No supplier email' }}
         </ion-card-subtitle>
       </ion-card-header>
       <ion-card-content>
@@ -329,6 +360,14 @@
         <ion-button expand="block" color="primary" (click)="addToCart(listing)">
           <ion-icon name="cart-outline" slot="start"></ion-icon>
           Add To Cart
+        </ion-button>
+        <ion-button
+          expand="block"
+          [fill]="isSupplierSuki(listing) ? 'solid' : 'outline'"
+          [color]="isSupplierSuki(listing) ? 'warning' : 'medium'"
+          (click)="toggleSukiSupplier(listing)">
+          <ion-icon [name]="isSupplierSuki(listing) ? 'heart' : 'heart-outline'" slot="start"></ion-icon>
+          {{ isSupplierSuki(listing) ? 'Remove from Suki' : 'Add to Suki' }}
         </ion-button>
       </ion-card-content>
     </ion-card>
@@ -373,23 +412,55 @@
   </div>
 
   <div *ngIf="selectedSegment === 'supplier-listings'" class="workflow-section">
-    <ion-card class="inventory-card">
+    <!-- Supplier Stats Header -->
+    <div class="supplier-stats-container" *ngIf="supplierListings.length > 0">
+      <ion-card class="stats-summary">
+        <ion-card-content>
+          <div class="stats-row">
+            <div class="stat-item">
+              <div class="stat-label">Total Listings</div>
+              <div class="stat-number">{{ supplierListings.length }}</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">In Stock</div>
+              <div class="stat-number">{{ (supplierListings | slice:0 | slice:0 | slice:0).length }}</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">Total Value</div>
+              <div class="stat-number text-success">₱{{ getSupplierTotalValue() | number:'1.0-0' }}</div>
+            </div>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    </div>
+
+    <!-- Quick Start Guide for New Suppliers -->
+    <ion-card class="inventory-card quick-start-card">
       <ion-card-header>
-        <ion-card-title>Supplier Quick Start</ion-card-title>
-        <ion-card-subtitle>Must-have UI pages and sample products for owner shopping tests</ion-card-subtitle>
+        <ion-card-title>📋 Quick Start Guide</ion-card-title>
+        <ion-card-subtitle>Get your supplier business running</ion-card-subtitle>
       </ion-card-header>
       <ion-card-content>
-        <div class="stock-row" *ngFor="let page of supplierUiPages">
-          <span class="label">{{ page.page }}:</span>
-          <span class="value">{{ page.purpose }} ({{ page.status }})</span>
+        <div class="quick-start-list">
+          <div class="quick-start-item" *ngFor="let item of [1, 2, 3, 4]">
+            <div class="step-number">{{ item }}</div>
+            <div class="step-content">
+              <ng-container [ngSwitch]="item">
+                <span *ngSwitchCase="1"><strong>Add Listings:</strong> Create products that karenderias can order from</span>
+                <span *ngSwitchCase="2"><strong>Set Prices & Stock:</strong> Keep inventory accurate and competitive</span>
+                <span *ngSwitchCase="3"><strong>Process Orders:</strong> Confirm and deliver incoming orders</span>
+                <span *ngSwitchCase="4"><strong>Build Trust:</strong> Gain "Suki" status with regular buyers</span>
+              </ng-container>
+            </div>
+          </div>
         </div>
 
         <div class="sample-catalog-preview">
-          <h4>Sample products you can seed</h4>
-          <p *ngFor="let sampleItem of supplierSampleCatalog.slice(0, 6)">
-            • {{ sampleItem.item_name }} ({{ sampleItem.unit }}) - ₱{{ sampleItem.price_per_unit | number:'1.2-2' }}
+          <h4>📦 Ready to populate with 24 items?</h4>
+          <p *ngFor="let sampleItem of supplierSampleCatalog.slice(0, 5)">
+            • {{ sampleItem.item_name }} - ₱{{ sampleItem.price_per_unit | number:'1.2-2' }}/{{ sampleItem.unit }}
           </p>
-          <p class="muted">Plus {{ supplierSampleCatalog.length - 6 }} more products in the one-click seed list.</p>
+          <p class="muted">And {{ supplierSampleCatalog.length - 5 }} more items...</p>
         </div>
 
         <div class="card-actions">
@@ -397,9 +468,18 @@
             fill="solid"
             color="success"
             [disabled]="isSeedingSupplierSamples"
+            expand="block"
             (click)="seedSupplierSampleCatalog()">
             <ion-icon name="flash-outline" slot="start"></ion-icon>
-            Add Sample Supplier Products
+            {{ isSeedingSupplierSamples ? 'Adding Items...' : 'Add All Sample Products' }}
+          </ion-button>
+          <ion-button
+            fill="outline"
+            color="primary"
+            expand="block"
+            (click)="addSupplierListing()">
+            <ion-icon name="add-circle-outline" slot="start"></ion-icon>
+            Create Custom Listing
           </ion-button>
         </div>
       </ion-card-content>
@@ -407,15 +487,22 @@
 
     <div *ngIf="supplierListings.length === 0" class="empty-state">
       <ion-icon name="cube-outline" size="large"></ion-icon>
-      <h3>No Supplier Listings</h3>
-      <p>Create your first listing to start receiving orders</p>
-      <ion-button (click)="addSupplierListing()">Create Listing</ion-button>
+      <h3>No Supplier Listings Yet</h3>
+      <p>Start building your supplier catalog to receive orders from karenderias</p>
     </div>
 
     <ion-card class="inventory-card" *ngFor="let listing of supplierListings">
       <ion-card-header>
-        <ion-card-title>{{ listing.item_name }}</ion-card-title>
-        <ion-card-subtitle>{{ listing.category }} • {{ listing.unit }}</ion-card-subtitle>
+        <div class="card-header">
+          <div class="item-info">
+            <ion-card-title>{{ listing.item_name }}</ion-card-title>
+            <ion-card-subtitle>{{ listing.category }} • {{ listing.unit }}</ion-card-subtitle>
+          </div>
+          <ion-chip [color]="getSupplierListingStockColor(listing)">
+            <ion-icon [name]="listing.available_stock > 0 ? 'checkmark-circle' : 'warning'"></ion-icon>
+            <ion-label>{{ listing.available_stock > 0 ? 'Available' : 'Out of Stock' }}</ion-label>
+          </ion-chip>
+        </div>
       </ion-card-header>
       <ion-card-content>
         <div class="stock-row">
@@ -432,6 +519,7 @@
         </div>
         <div class="card-actions">
           <ion-button fill="outline" color="primary" (click)="editSupplierListing(listing)">
+            <ion-icon name="create-outline" slot="start"></ion-icon>
             Edit Listing
           </ion-button>
         </div>
@@ -440,10 +528,36 @@
   </div>
 
   <div *ngIf="selectedSegment === 'supplier-orders'" class="workflow-section">
+    <!-- Order Stats for Supplier -->
+    <div class="supplier-orders-stats" *ngIf="supplierOrders.length > 0">
+      <ion-card class="stats-summary">
+        <ion-card-content>
+          <div class="stats-row">
+            <div class="stat-item" (click)="filterSupplierOrdersByStatus('pending')">
+              <div class="stat-label">Pending</div>
+              <div class="stat-number text-warning">{{ getSupplierOrderCountByStatus('pending') }}</div>
+            </div>
+            <div class="stat-item" (click)="filterSupplierOrdersByStatus('confirmed')">
+              <div class="stat-label">Confirmed</div>
+              <div class="stat-number text-info">{{ getSupplierOrderCountByStatus('confirmed') }}</div>
+            </div>
+            <div class="stat-item" (click)="filterSupplierOrdersByStatus('delivered')">
+              <div class="stat-label">Delivered</div>
+              <div class="stat-number text-success">{{ getSupplierOrderCountByStatus('delivered') }}</div>
+            </div>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    </div>
+
     <div *ngIf="supplierOrders.length === 0" class="empty-state">
       <ion-icon name="document-text-outline" size="large"></ion-icon>
-      <h3>No Incoming Orders</h3>
-      <p>Your incoming supply orders will appear here</p>
+      <h3>No Incoming Orders Yet</h3>
+      <p>Karenderias will place orders here. Add listings to start receiving business!</p>
+      <ion-button fill="solid" (click)="selectedSegment = 'supplier-listings'">
+        <ion-icon name="arrow-back" slot="start"></ion-icon>
+        Go to My Listings
+      </ion-button>
     </div>
 
     <ion-card class="inventory-card" *ngFor="let order of supplierOrders">
@@ -470,6 +584,7 @@
             color="primary"
             [disabled]="order.status !== 'pending'"
             (click)="updateSupplierOrderStatus(order, 'confirmed')">
+            <ion-icon name="checkmark-circle-outline" slot="start"></ion-icon>
             Confirm
           </ion-button>
           <ion-button
@@ -477,6 +592,7 @@
             color="success"
             [disabled]="order.status !== 'confirmed'"
             (click)="updateSupplierOrderStatus(order, 'delivered')">
+            <ion-icon name="cube-outline" slot="start"></ion-icon>
             Mark Delivered
           </ion-button>
           <ion-button
@@ -484,6 +600,7 @@
             color="danger"
             [disabled]="order.status === 'cancelled' || order.status === 'delivered'"
             (click)="updateSupplierOrderStatus(order, 'cancelled')">
+            <ion-icon name="close-circle-outline" slot="start"></ion-icon>
             Cancel
           </ion-button>
         </div>
@@ -491,3 +608,4 @@
     </ion-card>
   </div>
 </ion-content>
+</ng-template>

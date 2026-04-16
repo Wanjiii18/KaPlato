@@ -2,6 +2,8 @@
   padding: 16px;
   background: var(--ion-color-light);
   border-bottom: 1px solid var(--ion-color-light-shade);
+  width: min(100%, 520px);
+  margin: 0 auto;
   
   ion-searchbar {
     --background: white;
@@ -67,10 +69,14 @@
   font-size: 14px;
   color: var(--ion-color-medium);
   font-weight: 500;
+  width: min(100%, 520px);
+  margin: 0 auto;
 }
 
 .favorites-list {
   padding: 0 16px 100px; // Extra padding for FAB
+  width: min(100%, 520px);
+  margin: 0 auto;
   
   .favorite-card {
     margin-bottom: 16px;
@@ -223,6 +229,8 @@
   justify-content: center;
   padding: 60px 40px;
   text-align: center;
+  width: min(100%, 520px);
+  margin: 0 auto;
   
   .no-results-icon {
     font-size: 60px;

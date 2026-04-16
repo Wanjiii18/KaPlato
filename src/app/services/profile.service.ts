@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
 import { Allergen, MealPlan } from './auth.service';
+import { AuthService } from './auth.service';
 
 @Injectable({
   providedIn: 'root'
@@ -11,13 +12,21 @@ export class ProfileService {
   private apiUrl = environment.apiUrl;
 
   constructor(
-    private http: HttpClient
+    private http: HttpClient,
+    private authService: AuthService
   ) {}
+
+  private getAuthHeaders(): { [key: string]: string } {
+    const token = this.authService.getAuthToken();
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  }
 
   // Allergen Management
   async addAllergen(uid: string, allergen: Omit<Allergen, 'id' | 'addedAt'>): Promise<void> {
     try {
-      const response = await this.http.post(`${this.apiUrl}/users/${uid}/allergens`, allergen).toPromise();
+      const response = await this.http.post(`${this.apiUrl}/users/${uid}/allergens`, allergen, {
+        headers: this.getAuthHeaders()
+      }).toPromise();
       console.log('Allergen added:', response);
     } catch (error) {
       console.error('Error adding allergen:', error);
@@ -27,7 +36,9 @@ export class ProfileService {
 
   async removeAllergen(uid: string, allergenId: string): Promise<void> {
     try {
-      const response = await this.http.delete(`${this.apiUrl}/users/${uid}/allergens/${allergenId}`).toPromise();
+      const response = await this.http.delete(`${this.apiUrl}/users/${uid}/allergens/${allergenId}`, {
+        headers: this.getAuthHeaders()
+      }).toPromise();
       console.log('Allergen removed:', response);
     } catch (error) {
       console.error('Error removing allergen:', error);
@@ -38,7 +49,9 @@ export class ProfileService {
   // Meal Plan Management
   async addMealPlan(uid: string, mealPlan: Omit<MealPlan, 'id' | 'createdAt' | 'updatedAt'>): Promise<void> {
     try {
-      const response = await this.http.post(`${this.apiUrl}/users/${uid}/meal-plans`, mealPlan).toPromise();
+      const response = await this.http.post(`${this.apiUrl}/users/${uid}/meal-plans`, mealPlan, {
+        headers: this.getAuthHeaders()
+      }).toPromise();
       console.log('Meal plan added:', response);
     } catch (error) {
       console.error('Error adding meal plan:', error);
@@ -48,7 +61,9 @@ export class ProfileService {
 
   async removeMealPlan(uid: string, mealPlanId: string): Promise<void> {
     try {
-      const response = await this.http.delete(`${this.apiUrl}/users/${uid}/meal-plans/${mealPlanId}`).toPromise();
+      const response = await this.http.delete(`${this.apiUrl}/users/${uid}/meal-plans/${mealPlanId}`, {
+        headers: this.getAuthHeaders()
+      }).toPromise();
       console.log('Meal plan removed:', response);
     } catch (error) {
       console.error('Error removing meal plan:', error);
@@ -116,6 +131,8 @@ export class ProfileService {
     try {
       const response = await this.http.put(`${this.apiUrl}/users/${uid}/active-meal-plan`, { 
         mealPlanId: mealPlanId 
+      }, {
+        headers: this.getAuthHeaders()
       }).toPromise();
       console.log('Active meal plan set:', response);
     } catch (error) {

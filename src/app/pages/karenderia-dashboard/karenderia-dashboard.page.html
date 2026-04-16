@@ -7,12 +7,6 @@
       </div>
     </ion-title>
     <ion-buttons slot="end">
-      <ion-button routerLink="/inventory-management" fill="clear" color="light" class="modern-header-btn">
-        <ion-icon name="cube-outline" slot="icon-only"></ion-icon>
-      </ion-button>
-      <ion-button routerLink="/daily-menu-management" fill="clear" color="light" class="modern-header-btn">
-        <ion-icon name="calendar-outline" slot="icon-only"></ion-icon>
-      </ion-button>
       <ion-button fill="clear" (click)="refreshStatus()" color="light" class="modern-refresh-btn">
         <ion-icon name="refresh" slot="icon-only"></ion-icon>
       </ion-button>
@@ -83,6 +77,21 @@
               <div class="trend" [ngClass]="getTrendColor(dashboardData.salesTrend)">
                 <ion-icon [name]="getTrendIcon(dashboardData.salesTrend)"></ion-icon>
                 <span>{{ dashboardData.salesTrend }}%</span>
+              </div>
+            </div>
+          </ion-card-content>
+        </ion-card>
+
+        <ion-card class="stat-card orders">
+          <ion-card-content>
+            <div class="stat-icon">
+              <ion-icon name="restaurant" color="primary"></ion-icon>
+            </div>
+            <div class="stat-content">
+              <h2>{{ dashboardData.todaysOrders }}</h2>
+              <p>Orders Today</p>
+              <div class="sub-stat">
+                <span>{{ dashboardData.pendingOrders }} pending</span>
               </div>
             </div>
           </ion-card-content>
@@ -214,19 +223,15 @@
       </ion-fab-button>
       
       <ion-fab-list side="top">
-        <ion-fab-button color="warning" (click)="navigateToInventory()" title="Inventory Management">
-          <ion-icon name="cube"></ion-icon>
-        </ion-fab-button>
-        
-        <ion-fab-button color="secondary" (click)="navigateToDailyMenu()" title="Daily Menu">
-          <ion-icon name="calendar"></ion-icon>
-        </ion-fab-button>
-        
-        <ion-fab-button color="success" (click)="addMenuItem()" title="Add Menu Item">
+        <ion-fab-button color="success" (click)="addMenuItem()">
           <ion-icon name="restaurant"></ion-icon>
         </ion-fab-button>
         
-        <ion-fab-button color="tertiary" (click)="navigateToAnalytics()" title="Analytics">
+        <ion-fab-button color="warning" (click)="quickOrderStatusUpdate()">
+          <ion-icon name="clipboard-outline"></ion-icon>
+        </ion-fab-button>
+        
+        <ion-fab-button color="tertiary" (click)="navigateToAnalytics()">
           <ion-icon name="bar-chart"></ion-icon>
         </ion-fab-button>
       </ion-fab-list>

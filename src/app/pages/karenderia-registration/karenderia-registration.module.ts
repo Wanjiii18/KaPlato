@@ -1,7 +1,16 @@
 import { NgModule } from '@angular/core';
-import { KarenderiaRegistrationPageRoutingModule } from './karenderia-registration-routing.module';
+import { Routes, RouterModule } from '@angular/router';
+import { KarenderiaRegistrationPage } from './karenderia-registration.page';
+
+const routes: Routes = [
+  {
+    path: '',
+    component: KarenderiaRegistrationPage
+  }
+];
 
 @NgModule({
-  imports: [KarenderiaRegistrationPageRoutingModule]
+  imports: [RouterModule.forChild(routes)],
+  exports: [RouterModule],
 })
 export class KarenderiaRegistrationPageModule {}

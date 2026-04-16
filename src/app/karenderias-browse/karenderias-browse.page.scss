@@ -29,6 +29,45 @@
   --background: linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%);
 }
 
+.browse-hero {
+  padding: 16px 16px 8px;
+
+  .hero-copy {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 55%, #334155 100%);
+    color: white;
+    border-radius: 24px;
+    padding: 20px;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.16);
+
+    .hero-kicker {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.12);
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    h1 {
+      margin: 0 0 10px 0;
+      font-size: 1.45rem;
+      line-height: 1.2;
+      font-weight: 800;
+    }
+
+    p {
+      margin: 0;
+      font-size: 0.95rem;
+      line-height: 1.5;
+      color: rgba(255, 255, 255, 0.86);
+    }
+  }
+}
+
 // Loading state
 .loading-container {
   display: flex;
@@ -67,13 +106,13 @@
 // Main content container
 .browse-container {
   padding: 16px;
-  max-width: 1200px;
+  max-width: 520px;
   margin: 0 auto;
 }
 
 // Search section
 .search-section {
-  margin-bottom: 20px;
+  margin-bottom: 16px;
 }
 
 .browse-searchbar {
@@ -135,6 +174,8 @@
   justify-content: space-between;
   align-items: flex-end;
   margin-bottom: 20px;
+  gap: 12px;
+  flex-wrap: wrap;
   
   .results-info {
     h3 {
@@ -431,6 +472,22 @@
 }
 
 @media (max-width: 768px) {
+  .browse-hero {
+    padding: 12px 12px 8px;
+
+    .hero-copy {
+      padding: 18px;
+
+      h1 {
+        font-size: 1.25rem;
+      }
+
+      p {
+        font-size: 0.9rem;
+      }
+    }
+  }
+
   .browse-container {
     padding: 12px;
   }
@@ -520,6 +577,23 @@
 }
 
 @media (max-width: 480px) {
+  .browse-hero {
+    padding: 10px 10px 6px;
+
+    .hero-copy {
+      border-radius: 20px;
+      padding: 16px;
+
+      h1 {
+        font-size: 1.1rem;
+      }
+
+      p {
+        font-size: 0.85rem;
+      }
+    }
+  }
+
   .browse-container {
     padding: 8px;
   }

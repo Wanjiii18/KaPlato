@@ -52,7 +52,7 @@ export class DailyMenuService {
   constructor(private http: HttpClient) { }
 
   private getAuthHeaders(): HttpHeaders {
-    const token = sessionStorage.getItem('auth_token');
+    const token = localStorage.getItem('auth_token');
     return new HttpHeaders({
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json'

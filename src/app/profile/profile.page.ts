@@ -17,6 +17,12 @@ import { Subscription } from 'rxjs';
 export class ProfilePage implements OnInit, OnDestroy {
   userProfile: UserProfile | null = null;
   selectedSegment = 'general';
+  showAddAllergenModal = false;
+  allergenForm = {
+    allergenName: '',
+    severity: 'moderate' as 'mild' | 'moderate' | 'severe',
+    notes: ''
+  };
   
   // Allergen management
   allergens: Allergen[] = [];
@@ -67,62 +73,40 @@ export class ProfilePage implements OnInit, OnDestroy {
 
   // Allergen Management
   async addAllergen() {
-    const alert = await this.alertController.create({
-      header: 'Add Allergen',
-      inputs: [
-        {
-          name: 'allergenName',
-          type: 'text',
-          placeholder: 'Enter allergen name or select from list'
-        },
-        {
-          name: 'severity',
-          type: 'radio',
-          label: 'Mild',
-          value: 'mild',
-          checked: true
-        },
-        {
-          name: 'severity',
-          type: 'radio',
-          label: 'Moderate',
-          value: 'moderate'
-        },
-        {
-          name: 'severity',
-          type: 'radio',
-          label: 'Severe',
-          value: 'severe'
-        },
-        {
-          name: 'notes',
-          type: 'textarea',
-          placeholder: 'Additional notes (optional)'
-        }
-      ],
-      buttons: [
-        {
-          text: 'Select from List',
-          handler: () => {
-            this.showAllergenList();
-          }
-        },
-        {
-          text: 'Cancel',
-          role: 'cancel'
-        },
-        {
-          text: 'Add',
-          handler: async (data) => {
-            if (data.allergenName?.trim()) {
-              await this.saveAllergen(data.allergenName.trim(), data.severity, data.notes);
-            }
-          }
-        }
-      ]
-    });
+    this.openAddAllergenModal();
+  }
 
-    await alert.present();
+  openAddAllergenModal() {
+    this.allergenForm = {
+      allergenName: '',
+      severity: 'moderate',
+      notes: ''
+    };
+    this.showAddAllergenModal = true;
+  }
+
+  closeAddAllergenModal() {
+    this.showAddAllergenModal = false;
+  }
+
+  usePredefinedAllergen(name: string) {
+    this.allergenForm.allergenName = name;
+  }
+
+  async submitAddAllergenFromModal() {
+    const name = this.allergenForm.allergenName.trim();
+    if (!name) {
+      const toast = await this.toastController.create({
+        message: 'Please enter or select an allergen name',
+        duration: 2000,
+        color: 'warning'
+      });
+      await toast.present();
+      return;
+    }
+
+    await this.saveAllergen(name, this.allergenForm.severity, this.allergenForm.notes);
+    this.closeAddAllergenModal();
   }
 
   async showAllergenList() {

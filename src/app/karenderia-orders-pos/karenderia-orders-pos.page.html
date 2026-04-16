@@ -1,0 +1,158 @@
+<ion-content class="pos-content">
+  <app-owner-shell activePage="pos" sectionLabel="Kitchen">
+    <div class="pos-main">
+      <!-- Header -->
+      <div class="pos-header">
+        <div class="header-left">
+          <h1>Point of Sale</h1>
+          <span class="header-subtitle">Kitchen</span>
+        </div>
+      </div>
+
+      <!-- POS Content -->
+      <div class="pos-content-area">
+        <!-- Left Side - Menu -->
+        <div class="menu-section">
+          <!-- Search Bar -->
+          <div class="search-section">
+            <div class="search-input">
+              <ion-icon name="search-outline"></ion-icon>
+              <input type="text" placeholder="Search menu items..." [(ngModel)]="searchTerm">
+            </div>
+          </div>
+
+          <!-- Category Filters -->
+          <div class="category-filters">
+            <button 
+              class="category-btn" 
+              [class.active]="selectedCategory === 'all'"
+              (click)="selectCategory('all')">
+              All Items
+            </button>
+            <button 
+              class="category-btn" 
+              [class.active]="selectedCategory === 'Ulam'"
+              (click)="selectCategory('Ulam')">
+              Ulam
+            </button>
+            <button 
+              class="category-btn" 
+              [class.active]="selectedCategory === 'Sabaw'"
+              (click)="selectCategory('Sabaw')">
+              Sabaw
+            </button>
+            <button 
+              class="category-btn" 
+              [class.active]="selectedCategory === 'Rice'"
+              (click)="selectCategory('Rice')">
+              Rice
+            </button>
+            <button 
+              class="category-btn" 
+              [class.active]="selectedCategory === 'Dessert'"
+              (click)="selectCategory('Dessert')">
+              Dessert
+            </button>
+            <button 
+              class="category-btn" 
+              [class.active]="selectedCategory === 'Drinks'"
+              (click)="selectCategory('Drinks')">
+              Drinks
+            </button>
+          </div>
+
+          <!-- Menu Items Grid -->
+          <div class="menu-grid">
+            <div 
+              *ngFor="let item of getFilteredMenuItems()" 
+              class="menu-item-card"
+              (click)="addToOrder(item)">
+              <div class="item-image">
+                <img [src]="getItemImage(item)" [alt]="item.name" (error)="handleImageError($event)">
+              </div>
+              <div class="item-info">
+                <h4>{{ item.name }}</h4>
+                <p class="price">₱{{ item.price }}</p>
+                <span class="category">{{ item.category }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Side - Current Order -->
+        <div class="order-section">
+          <div class="order-header">
+            <h2>Current Order</h2>
+          </div>
+
+          <!-- Table Number -->
+          <div class="table-section">
+            <label>Table Number</label>
+            <input 
+              type="text" 
+              placeholder="Enter table number" 
+              [(ngModel)]="tableNumber"
+              class="table-input">
+          </div>
+
+          <!-- Order Items -->
+          <div class="order-items">
+            <div *ngIf="currentOrder.length === 0" class="empty-order">
+              <p>No items in order</p>
+              <span>Select items from the menu to add them</span>
+            </div>
+            
+            <div *ngFor="let item of currentOrder" class="order-item">
+              <div class="item-image-small">
+                <img [src]="getItemImage(item.menuItem)" [alt]="item.menuItem.name">
+              </div>
+              <div class="item-details">
+                <h4>{{ item.menuItem.name }}</h4>
+                <p>₱{{ item.menuItem.price }}</p>
+              </div>
+              <div class="quantity-controls">
+                <button (click)="decreaseQuantity(item)">
+                  <ion-icon name="remove"></ion-icon>
+                </button>
+                <span>{{ item.quantity }}</span>
+                <button (click)="increaseQuantity(item)">
+                  <ion-icon name="add"></ion-icon>
+                </button>
+                <button class="remove-btn" (click)="removeFromOrder(item)">
+                  <ion-icon name="trash-outline"></ion-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Order Summary -->
+          <div class="order-summary" *ngIf="currentOrder.length > 0">
+            <div class="summary-line">
+              <span>Subtotal:</span>
+              <span>₱{{ getSubtotal().toFixed(2) }}</span>
+            </div>
+            <div class="summary-line">
+              <span>VAT (12%):</span>
+              <span>₱{{ getVAT().toFixed(2) }}</span>
+            </div>
+            <div class="summary-total">
+              <span>Total:</span>
+              <span>₱{{ getTotal().toFixed(2) }}</span>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="order-actions" *ngIf="currentOrder.length > 0">
+            <button class="clear-btn" (click)="clearOrder()">Clear</button>
+            <button class="pay-btn" (click)="processPayment()" [disabled]="!tableNumber">
+              <ion-icon name="card-outline"></ion-icon>
+              Pay
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </app-owner-shell>
+</ion-content>
+
+

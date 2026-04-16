@@ -3,6 +3,19 @@
   --background: #f8f9fb;
 }
 
+.karenderia-header,
+.category-section,
+.menu-section,
+.empty-state {
+  width: min(100%, 520px);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.menu-section {
+  padding-bottom: 100px;
+}
+
 // Loading State
 .loading-container {
   display: flex;

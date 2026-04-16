@@ -1,89 +1,33 @@
 <ion-content class="settings-content">
-  <!-- Mobile Top Bar (visible only on mobile) -->
-  <div class="mobile-top-bar">
-    <div class="mobile-brand">
-      <div class="brand-icon">{{getKarenderiaBrandInitials()}}</div>
-      <div class="brand-info">
-        <h3>{{getKarenderiaDisplayName()}}</h3>
-        <span>Settings</span>
-      </div>
-    </div>
-    <div class="mobile-actions">
-      <ion-button fill="clear" size="small" routerLink="/karenderia-settings">
-        <ion-icon name="person-circle-outline" slot="icon-only"></ion-icon>
-      </ion-button>
-      <ion-button fill="clear" size="small" (click)="logout()">
-        <ion-icon name="log-out-outline" slot="icon-only"></ion-icon>
-      </ion-button>
-    </div>
-  </div>
-
-  <div class="settings-layout">
-    <!-- Left Sidebar Navigation -->
-    <div class="settings-sidebar">
-      <div class="sidebar-header">
-        <div class="brand">
-          <div class="brand-icon">{{getKarenderiaBrandInitials()}}</div>
-          <div class="brand-info">
-            <h3>{{getKarenderiaDisplayName()}}</h3>
-            <span>Kitchen</span>
-          </div>
-        </div>
-      </div>
-
-      <nav class="sidebar-nav">
-        <a class="nav-item" routerLink="/karenderia-dashboard">
-          <ion-icon name="grid-outline" class="nav-icon"></ion-icon>
-          <span class="nav-text">Dashboard</span>
-        </a>
-        <a class="nav-item" routerLink="/karenderia-menu">
-          <ion-icon name="restaurant-outline" class="nav-icon"></ion-icon>
-          <span class="nav-text">Menu Management</span>
-        </a>
-        <a class="nav-item" routerLink="/daily-menu-management">
-          <ion-icon name="calendar-outline" class="nav-icon"></ion-icon>
-          <span class="nav-text">Menu of the Day</span>
-        </a>
-        <a class="nav-item" routerLink="/inventory-management">
-          <ion-icon name="cube-outline" class="nav-icon"></ion-icon>
-          <span class="nav-text">Inventory</span>
-        </a>
-        <a class="nav-item" routerLink="/karenderia-analytics">
-          <ion-icon name="analytics-outline" class="nav-icon"></ion-icon>
-          <span class="nav-text">Analytics</span>
-        </a>
-        <a class="nav-item active" routerLink="/karenderia-settings">
-          <ion-icon name="settings-outline" class="nav-icon"></ion-icon>
-          <span class="nav-text">Profile</span>
-        </a>
-      </nav>
-
-      <div class="sidebar-footer">
-        <a class="nav-item" (click)="logout()">
-          <ion-icon name="log-out-outline"></ion-icon>
-          <span>Sign Out</span>
-        </a>
-      </div>
-    </div>
-
-    <!-- Main Content Area -->
+  <app-owner-shell activePage="profile" sectionLabel="Kitchen">
     <div class="settings-main">
       <!-- Header -->
       <div class="settings-header">
         <div class="header-content">
           <h1>Settings</h1>
-          <p>Manage your carinderia settings and preferences</p>
+          <p>Kitchen</p>
         </div>
         <div class="header-actions">
-          <button class="save-btn" (click)="saveChanges()">
+          <button class="save-btn" (click)="saveChanges()" [disabled]="isSaving">
             <ion-icon name="save-outline"></ion-icon>
-            Save Changes
+            {{ getPrimaryActionLabel() }}
           </button>
         </div>
       </div>
 
       <!-- Content Area -->
       <div class="settings-content-area">
+        <div class="application-status-banner" [ngClass]="karenderiaStatus">
+          <div class="status-copy">
+            <h2>{{ karenderiaStatus === 'rejected' ? 'Application rejected' : karenderiaStatus === 'pending' ? 'Application pending review' : 'Business profile' }}</h2>
+            <p>{{ getStatusMessage() }}</p>
+          </div>
+          <button class="save-btn status-action" (click)="saveChanges()" [disabled]="isSaving">
+            <ion-icon name="refresh-outline"></ion-icon>
+            {{ getPrimaryActionLabel() }}
+          </button>
+        </div>
+
         <!-- Settings Tabs -->
         <div class="settings-tabs">
           <div class="tabs-container">
@@ -196,113 +140,6 @@
                 placeholder="Enter complete business address..."
                 rows="3"></textarea>
             </div>
-
-            <!-- Location Coordinates -->
-            <div class="form-group">
-              <label>Business Location Coordinates</label>
-              <p class="form-description">Set your exact location so customers can find you on the map</p>
-              <div class="form-row">
-                <div class="form-group">
-                  <label for="latitude">Latitude</label>
-                  <input 
-                    type="number" 
-                    id="latitude"
-                    [(ngModel)]="businessInfo.latitude"
-                    placeholder="e.g., 14.5995"
-                    step="any"
-                    min="-90"
-                    max="90">
-                </div>
-                <div class="form-group">
-                  <label for="longitude">Longitude</label>
-                  <input 
-                    type="number" 
-                    id="longitude"
-                    [(ngModel)]="businessInfo.longitude"
-                    placeholder="e.g., 120.9842"
-                    step="any"
-                    min="-180"
-                    max="180">
-                </div>
-              </div>
-              <div class="location-helpers">
-                <button type="button" class="helper-btn" (click)="getCurrentLocation()">
-                  <ion-icon name="location-outline"></ion-icon>
-                  Use Current Location
-                </button>
-                <button type="button" class="helper-btn" (click)="openMapPicker()">
-                  <ion-icon name="map-outline"></ion-icon>
-                  Pick on Map
-                </button>
-                <button type="button" class="helper-btn" (click)="openMapPicker()">
-                  <ion-icon name="navigate-outline"></ion-icon>
-                  Interactive Map
-                </button>
-              </div>
-              
-              <!-- Interactive Map Modal (hidden by default) -->
-              <div class="map-modal" [class.active]="showMapModal">
-                <div class="map-modal-content">
-                  <div class="map-header">
-                    <h3>Set Your Business Location</h3>
-                    <button class="close-btn" (click)="closeMapModal()">
-                      <ion-icon name="close"></ion-icon>
-                    </button>
-                  </div>
-                  
-                  <div class="map-instructions">
-                    <p><ion-icon name="information-circle"></ion-icon> Tap anywhere on the map to set your business location</p>
-                  </div>
-                  
-                  <div class="map-container" #mapContainer>
-                    <div class="simple-map" (click)="onMapClick($event)">
-                      <!-- Simple clickable map area -->
-                      <div class="map-grid">
-                        <div class="grid-line"></div>
-                        <div class="grid-line"></div>
-                        <div class="grid-line"></div>
-                        <div class="grid-line"></div>
-                      </div>
-                      
-                      <!-- Business pin marker -->
-                      <div class="business-pin" 
-                           [style.left.%]="pinPosition.x" 
-                           [style.top.%]="pinPosition.y"
-                           *ngIf="pinPosition.x !== null">
-                        <ion-icon name="location"></ion-icon>
-                      </div>
-                      
-                      <div class="map-overlay">
-                        <p>📍 Tap to place your business here</p>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div class="coordinates-display" *ngIf="tempCoordinates.lat">
-                    <p><strong>Selected Location:</strong></p>
-                    <p>Latitude: {{tempCoordinates.lat | number:'1.6-6'}}</p>
-                    <p>Longitude: {{tempCoordinates.lng | number:'1.6-6'}}</p>
-                  </div>
-                  
-                  <div class="map-actions">
-                    <button class="action-btn secondary" (click)="useCurrentLocationOnMap()">
-                      <ion-icon name="locate"></ion-icon>
-                      Use My Location
-                    </button>
-                    <button class="action-btn primary" 
-                            (click)="confirmMapLocation()" 
-                            [disabled]="!tempCoordinates.lat">
-                      <ion-icon name="checkmark"></ion-icon>
-                      Confirm Location
-                    </button>
-                  </div>
-                </div>
-              </div>
-              <p class="location-note">
-                <ion-icon name="information-circle-outline"></ion-icon>
-                Your business will only appear to customers after admin approval
-              </p>
-            </div>
           </div>
         </div>
 
@@ -340,6 +177,27 @@
           <div class="settings-section">
             <h2>Notification Preferences</h2>
             
+            <div class="form-group">
+              <label>Order Notifications</label>
+              <div class="notification-settings">
+                <label class="checkbox-group">
+                  <input type="checkbox" [(ngModel)]="notificationSettings.newOrders">
+                  <span class="checkmark"></span>
+                  New order received
+                </label>
+                <label class="checkbox-group">
+                  <input type="checkbox" [(ngModel)]="notificationSettings.orderCancellations">
+                  <span class="checkmark"></span>
+                  Order cancellations
+                </label>
+                <label class="checkbox-group">
+                  <input type="checkbox" [(ngModel)]="notificationSettings.paymentReceived">
+                  <span class="checkmark"></span>
+                  Payment received
+                </label>
+              </div>
+            </div>
+
             <div class="form-group">
               <label>System Notifications</label>
               <div class="notification-settings">
@@ -444,5 +302,5 @@
         </div>
       </div>
     </div>
-  </div>
+  </app-owner-shell>
 </ion-content>

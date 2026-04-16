@@ -79,6 +79,7 @@ export interface OrderItem {
 export interface DailySales {
   date: Date;
   totalSales: number; // PHP
+  totalOrders: number;
   popularItems: {
     itemId: string;
     itemName: string;
@@ -209,7 +210,7 @@ export interface Karenderia {
   opening_time?: string;
   closing_time?: string;
   operating_days?: string[];
-  status: 'active' | 'inactive' | 'pending' | 'suspended';
+  status: 'active' | 'inactive' | 'pending' | 'rejected' | 'suspended';
   business_permit?: string;
   logo_url?: string;
   images?: string[];
@@ -221,6 +222,8 @@ export interface Karenderia {
   accepts_online_payment?: boolean;
   approved_at?: Date;
   approved_by?: string;
+  rejected_at?: Date | string | null;
+  rejection_reason?: string | null;
   createdAt: Date;
   updatedAt: Date;
 }

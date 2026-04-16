@@ -3,7 +3,7 @@
     <ion-buttons slot="start">
       <ion-back-button (click)="goBack()" text="" defaultHref="/tabs/home"></ion-back-button>
     </ion-buttons>
-    <ion-title>Browse Meals</ion-title>
+    <ion-title>Browse Food</ion-title>
     <ion-buttons slot="end">
       <ion-button fill="clear" (click)="toggleFilters()">
         <ion-icon name="filter-outline"></ion-icon>
@@ -29,7 +29,14 @@
   <!-- Loading State -->
   <div *ngIf="isLoading" class="loading-container">
     <ion-spinner name="crescent"></ion-spinner>
-    <p>Loading delicious meals...</p>
+    <p>Loading dishes you can browse...</p>
+  </div>
+
+  <div *ngIf="!isLoading" class="meal-browse-hero">
+    <div class="hero-card">
+      <h1>Browse food by taste, price, and safety.</h1>
+      <p>Search meals, filter by allergens, and tap any card for the full details.</p>
+    </div>
   </div>
 
   <!-- Filter Panel -->
@@ -51,6 +58,13 @@
 
   <!-- Results Summary -->
   <div *ngIf="!isLoading && filterStats" class="results-summary">
+    <ion-item lines="none" *ngIf="hasActiveAllergens()">
+      <ion-label>
+        Avoid dishes with: {{ activeAllergens.join(', ') }}
+      </ion-label>
+      <ion-toggle [checked]="avoidRiskyDishes" (ionChange)="toggleAvoidRiskyDishes($event.detail.checked)"></ion-toggle>
+    </ion-item>
+
     <div class="summary-stats">
       <div class="stat-item">
         <span class="stat-number">{{ filterStats.filteredMeals }}</span>

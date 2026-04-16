@@ -31,19 +31,6 @@ export interface KarenderiaResponse {
   updated_at: string;
 }
 
-export interface SupplierResponse {
-  id: number;
-  name: string;
-  email: string;
-  phone_number?: string;
-  address?: string;
-  application_status: 'pending' | 'approved' | 'rejected';
-  verified: boolean;
-  status?: string;
-  created_at: string;
-  updated_at: string;
-}
-
 @Injectable({
   providedIn: 'root'
 })
@@ -53,7 +40,7 @@ export class AdminService {
   constructor(private http: HttpClient) {}
 
   private getAuthHeaders(): { [key: string]: string } {
-    const token = sessionStorage.getItem('auth_token');
+    const token = localStorage.getItem('auth_token');
     return token ? { Authorization: `Bearer ${token}` } : {};
   }
 
@@ -125,18 +112,6 @@ export class AdminService {
 
   getKarenderiaOwners(): Observable<any> {
     return this.http.get(`${this.apiUrl}/admin/karenderia-owners`, {
-      headers: this.getAuthHeaders()
-    });
-  }
-
-  getSuppliers(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/admin/suppliers`, {
-      headers: this.getAuthHeaders()
-    });
-  }
-
-  updateSupplierApplicationStatus(userId: number, applicationStatus: 'pending' | 'approved' | 'rejected'): Observable<any> {
-    return this.http.put(`${this.apiUrl}/admin/suppliers/${userId}/application-status`, { application_status: applicationStatus }, {
       headers: this.getAuthHeaders()
     });
   }

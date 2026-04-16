@@ -2,8 +2,133 @@
   margin: 16px;
 }
 
+.tracker-note {
+  display: block;
+  margin: 0 16px 8px;
+  font-size: 0.85rem;
+}
+
 .demo-section {
   padding: 16px;
+}
+
+.favorite-searchbar,
+.dish-searchbar {
+  --background: #f8fafc;
+  --border-radius: 12px;
+  margin-bottom: 12px;
+}
+
+.favorite-nutrition-card {
+  margin-bottom: 14px;
+}
+
+.rosa-test-card {
+  margin-top: 14px;
+}
+
+.rosa-item {
+  padding: 10px 0;
+  border-bottom: 1px solid #e2e8f0;
+
+  &:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  h4 {
+    margin: 0 0 4px;
+    font-size: 1rem;
+  }
+
+  .rosa-price {
+    margin: 0 0 8px;
+    color: var(--ion-color-medium);
+    font-size: 0.9rem;
+  }
+
+  .rosa-serving {
+    margin: 8px 0 6px;
+    color: var(--ion-color-medium);
+    font-size: 0.82rem;
+  }
+}
+
+.rosa-stats {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin: 8px 0;
+}
+
+.rosa-ingredients {
+  margin: 8px 0 10px;
+
+  strong {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--ion-color-dark);
+  }
+
+  ion-chip {
+    margin: 2px 6px 2px 0;
+    height: 24px;
+  }
+}
+
+.rosa-allergens {
+  margin-top: 6px;
+
+  strong {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--ion-color-dark);
+  }
+
+  ion-chip {
+    margin: 2px 6px 2px 0;
+  }
+}
+
+.rosa-missing {
+  margin: 8px 0 0;
+  color: var(--ion-color-medium);
+}
+
+.empty-favorites {
+  text-align: center;
+  padding: 24px 12px;
+
+  ion-icon {
+    font-size: 2.4rem;
+    margin-bottom: 8px;
+  }
+
+  h4 {
+    margin: 8px 0 6px;
+  }
+
+  p {
+    margin: 0;
+    color: var(--ion-color-medium);
+  }
+}
+
+.missing-record {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+  color: var(--ion-color-medium);
+
+  ion-icon {
+    font-size: 1.3rem;
+  }
+}
+
+.status-message {
+  display: block;
+  margin: 10px 4px 0;
 }
 
 .quick-actions {

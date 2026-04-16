@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { NgForm } from '@angular/forms';
 import { AuthService } from '../services/auth.service';
 import { KarenderiaInfoService } from '../services/karenderia-info.service';
+import { UserService } from '../services/user.service';
 
 @Component({
   selector: 'app-login',
@@ -24,13 +25,28 @@ export class LoginPage implements OnInit {
   constructor(
     private authService: AuthService,
     private router: Router,
-    private karenderiaInfoService: KarenderiaInfoService
+    private karenderiaInfoService: KarenderiaInfoService,
+    private userService: UserService
   ) {}
 
-  ngOnInit() {
+  async ngOnInit() {
     // Check if user is already logged in
     if (this.authService.isAuthenticated()) {
       const currentUser = this.authService.getCurrentUser();
+      if (currentUser?.role === 'karenderia_owner') {
+        try {
+          const profile = await this.userService.loadUserProfile().toPromise();
+          const status = (profile?.applicationStatus || '').toLowerCase();
+
+          if (status === 'rejected' || status === 'pending') {
+            this.router.navigate(['/karenderia-settings']);
+            return;
+          }
+        } catch (error) {
+          console.warn('Could not verify owner status before redirect:', error);
+        }
+      }
+
       this.redirectBasedOnRole(currentUser);
     }
   }
@@ -75,9 +91,14 @@ export class LoginPage implements OnInit {
         
         // Add a small delay to ensure session storage is set
         await new Promise(resolve => setTimeout(resolve, 100));
+
+        const profile = await this.userService.loadUserProfile().toPromise();
+        const status = (profile?.applicationStatus || response?.karenderia?.status || '').toLowerCase();
         
         // Redirect based on user role
-        if (response?.user) {
+        if (response?.user?.role === 'karenderia_owner' && (status === 'pending' || status === 'rejected')) {
+          await this.router.navigate(['/karenderia-settings']);
+        } else if (response?.user) {
           this.redirectBasedOnRole(response.user);
         } else {
           this.router.navigate(['/home']);

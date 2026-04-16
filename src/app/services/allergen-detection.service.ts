@@ -30,6 +30,7 @@ export interface MealSafetyAnalysis {
 export class AllergenDetectionService {
   private userAllergens: any[] = [];
   private allergenWarnings$ = new BehaviorSubject<AllergenWarning[]>([]);
+  private readonly defaultAllergens = ['Peanuts', 'Tree Nuts', 'Shellfish', 'Fish', 'Eggs', 'Dairy', 'Soy', 'Wheat'];
   
   // Comprehensive allergen-ingredient mapping
   private allergenIngredientMap: { [key: string]: string[] } = {
@@ -115,16 +116,88 @@ export class AllergenDetectionService {
   private async loadUserAllergens() {
     // Load user's allergens from user profile
     this.userService.currentUserProfile$.subscribe(userProfile => {
-      if (userProfile && userProfile.allergens) {
+      if (userProfile && Array.isArray(userProfile.allergens) && userProfile.allergens.length > 0) {
         this.userAllergens = userProfile.allergens;
-      } else if (userProfile && userProfile.allergies) {
+      } else if (userProfile && Array.isArray(userProfile.allergies) && userProfile.allergies.length > 0) {
         // Fallback to allergies array if available
         this.userAllergens = userProfile.allergies.map(allergy => ({
-          name: allergy,
+          name: this.normalizeAllergenName(allergy),
           severity: 'moderate' // default severity
         }));
+      } else {
+        this.userAllergens = this.getStoredOrDefaultAllergens();
       }
     });
+  }
+
+  private normalizeAllergenName(name: string): string {
+    const trimmed = (name || '').trim();
+    if (!trimmed) {
+      return '';
+    }
+
+    const lower = trimmed.toLowerCase();
+    const aliasMap: { [key: string]: string } = {
+      peanut: 'Peanuts',
+      peanuts: 'Peanuts',
+      nuts: 'Tree Nuts',
+      'tree nuts': 'Tree Nuts',
+      shellfish: 'Shellfish',
+      fish: 'Fish',
+      dairy: 'Dairy',
+      milk: 'Dairy',
+      egg: 'Eggs',
+      eggs: 'Eggs',
+      soy: 'Soy',
+      soybean: 'Soy',
+      wheat: 'Wheat',
+      sesame: 'Sesame',
+      mustard: 'Mustard'
+    };
+
+    return aliasMap[lower] || trimmed;
+  }
+
+  private getStoredOrDefaultAllergens(): Array<{ name: string; severity: 'mild' | 'moderate' | 'severe' }> {
+    try {
+      const storedSettings = localStorage.getItem('allergen-settings');
+      if (storedSettings) {
+        const parsed = JSON.parse(storedSettings);
+        const selected = Array.isArray(parsed?.selected_allergens) ? parsed.selected_allergens : [];
+        const severityMap = parsed?.severity_levels || {};
+
+        if (selected.length > 0) {
+          return selected
+            .map((allergen: string) => {
+              const normalized = this.normalizeAllergenName(allergen);
+              if (!normalized) {
+                return null;
+              }
+              const severity = severityMap[allergen] || severityMap[normalized] || 'moderate';
+              return {
+                name: normalized,
+                severity: severity as 'mild' | 'moderate' | 'severe'
+              };
+            })
+            .filter(Boolean) as Array<{ name: string; severity: 'mild' | 'moderate' | 'severe' }>;
+        }
+      }
+    } catch (error) {
+      console.warn('Unable to parse allergen settings, using defaults', error);
+    }
+
+    return this.defaultAllergens.map(name => ({ name, severity: 'moderate' as const }));
+  }
+
+  getEffectiveUserAllergens(): Array<{ name: string; severity: 'mild' | 'moderate' | 'severe' }> {
+    if (Array.isArray(this.userAllergens) && this.userAllergens.length > 0) {
+      return this.userAllergens.map(allergen => ({
+        name: this.normalizeAllergenName(allergen?.name || allergen),
+        severity: (allergen?.severity || 'moderate') as 'mild' | 'moderate' | 'severe'
+      })).filter(allergen => !!allergen.name);
+    }
+
+    return this.getStoredOrDefaultAllergens();
   }
 
   /**
@@ -133,8 +206,9 @@ export class AllergenDetectionService {
   analyzeMealSafety(ingredients: string[], mealName?: string): MealSafetyAnalysis {
     const warnings: AllergenWarning[] = [];
     let riskLevel: 'low' | 'medium' | 'high' = 'low';
+    const effectiveAllergens = this.getEffectiveUserAllergens();
 
-    for (const userAllergen of this.userAllergens) {
+    for (const userAllergen of effectiveAllergens) {
       const foundIngredients = this.findAllergenInIngredients(userAllergen.name, ingredients);
       
       if (foundIngredients.length > 0) {
@@ -271,6 +345,16 @@ export class AllergenDetectionService {
     });
   }
 
+  detectAllergensFromIngredients(ingredients: string[]): string[] {
+    if (!Array.isArray(ingredients) || ingredients.length === 0) {
+      return [];
+    }
+
+    const analyses = this.analyzeIngredients(ingredients);
+    const detected = analyses.flatMap(analysis => analysis.potentialAllergens || []);
+    return [...new Set(detected.map(allergen => this.normalizeAllergenName(allergen)).filter(Boolean))];
+  }
+
   /**
    * Categorize ingredient for better analysis
    */
@@ -329,6 +413,30 @@ export class AllergenDetectionService {
   }
 
   /**
+   * Compatibility helper for existing detail pages.
+   */
+  checkMenuItemForAllergens(item: any): {
+    hasAllergens: boolean;
+    warnings: AllergenWarning[];
+    safetyLevel: 'safe' | 'caution' | 'danger';
+    conflictingAllergens: string[];
+    conflictingIngredients: string[];
+  } {
+    const ingredientList = Array.isArray(item?.ingredients)
+      ? item.ingredients.map((ingredient: any) => typeof ingredient === 'string' ? ingredient : ingredient?.name || ingredient?.ingredientName || '').filter(Boolean)
+      : [];
+    const analysis = this.analyzeMealSafety(ingredientList, item?.name);
+
+    return {
+      hasAllergens: !analysis.isSafe,
+      warnings: analysis.warnings,
+      safetyLevel: analysis.riskLevel === 'high' ? 'danger' : analysis.riskLevel === 'medium' ? 'caution' : 'safe',
+      conflictingAllergens: analysis.warnings.map(warning => warning.allergen),
+      conflictingIngredients: analysis.warnings.flatMap(warning => warning.foundIn)
+    };
+  }
+
+  /**
    * Get safe meal recommendations based on user allergens
    */
   getSafeMealRecommendations(allMeals: Array<{ name: string; ingredients: string[] }>): Array<{ name: string; ingredients: string[] }> {
@@ -342,105 +450,8 @@ export class AllergenDetectionService {
    * Update user allergens (when user modifies their profile)
    */
   updateUserAllergens(allergens: any[]) {
-    this.userAllergens = allergens;
-  }
-
-  /**
-   * Check a menu item against user's allergen profile
-   * Returns detailed warning information for display in the UI
-   */
-  checkMenuItemForAllergens(menuItem: any): {
-    hasAllergens: boolean;
-    warnings: AllergenWarning[];
-    safetyLevel: 'safe' | 'caution' | 'danger';
-    conflictingIngredients: string[];
-  } {
-    if (!this.userAllergens || this.userAllergens.length === 0) {
-      return {
-        hasAllergens: false,
-        warnings: [],
-        safetyLevel: 'safe',
-        conflictingIngredients: []
-      };
-    }
-
-    const warnings: AllergenWarning[] = [];
-    const conflictingIngredients: string[] = [];
-    let highestSeverity: 'mild' | 'moderate' | 'severe' = 'mild';
-
-    // Check menu item's direct allergens array
-    if (menuItem.allergens && menuItem.allergens.length > 0) {
-      for (const allergen of menuItem.allergens) {
-        const userAllergen = this.userAllergens.find(ua => 
-          ua.name?.toLowerCase().includes(allergen.toLowerCase()) ||
-          allergen.toLowerCase().includes(ua.name?.toLowerCase())
-        );
-
-        if (userAllergen) {
-          warnings.push({
-            allergen: allergen,
-            severity: userAllergen.severity || 'moderate',
-            foundIn: [allergen],
-            message: `Contains ${allergen} - listed as allergen`
-          });
-
-          if (userAllergen.severity === 'severe') highestSeverity = 'severe';
-          else if (userAllergen.severity === 'moderate' && highestSeverity !== 'severe') highestSeverity = 'moderate';
-        }
-      }
-    }
-
-    // Check menu item's ingredients for potential allergens
-    if (menuItem.ingredients && menuItem.ingredients.length > 0) {
-      for (const ingredient of menuItem.ingredients) {
-        const ingredientLower = ingredient.toLowerCase();
-        
-        // Check each user allergen against ingredient mapping
-        for (const userAllergen of this.userAllergens) {
-          const allergenName = userAllergen.name;
-          const mappedIngredients = this.allergenIngredientMap[allergenName] || [];
-          
-          // Check if ingredient contains any mapped allergen terms
-          const matchingTerms = mappedIngredients.filter(term => 
-            ingredientLower.includes(term.toLowerCase()) || 
-            term.toLowerCase().includes(ingredientLower)
-          );
-
-          if (matchingTerms.length > 0) {
-            conflictingIngredients.push(ingredient);
-            
-            const existingWarning = warnings.find(w => w.allergen === allergenName);
-            if (existingWarning) {
-              existingWarning.foundIn.push(ingredient);
-            } else {
-              warnings.push({
-                allergen: allergenName,
-                severity: userAllergen.severity || 'moderate',
-                foundIn: [ingredient],
-                message: `May contain ${allergenName.toLowerCase()} - found in ${ingredient}`
-              });
-            }
-
-            if (userAllergen.severity === 'severe') highestSeverity = 'severe';
-            else if (userAllergen.severity === 'moderate' && highestSeverity !== 'severe') highestSeverity = 'moderate';
-          }
-        }
-      }
-    }
-
-    // Determine safety level
-    let safetyLevel: 'safe' | 'caution' | 'danger' = 'safe';
-    if (warnings.length > 0) {
-      if (highestSeverity === 'severe') safetyLevel = 'danger';
-      else if (highestSeverity === 'moderate') safetyLevel = 'caution';
-      else safetyLevel = 'caution';
-    }
-
-    return {
-      hasAllergens: warnings.length > 0,
-      warnings,
-      safetyLevel,
-      conflictingIngredients: [...new Set(conflictingIngredients)] // Remove duplicates
-    };
+    this.userAllergens = Array.isArray(allergens) && allergens.length > 0
+      ? allergens
+      : this.getStoredOrDefaultAllergens();
   }
 }

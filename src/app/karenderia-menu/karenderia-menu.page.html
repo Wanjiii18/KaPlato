@@ -1,77 +1,10 @@
-<div class="dashboard-layout">
-  <!-- Mobile Top Bar (visible only on mobile) -->
-  <div class="mobile-top-bar">
-    <div class="mobile-brand" routerLink="/karenderia-settings">
-      <div class="brand-icon">{{getKarenderiaBrandInitials()}}</div>
-      <div class="brand-info">
-        <h3>{{getKarenderiaDisplayName()}}</h3>
-        <span>Menu Management</span>
-      </div>
-    </div>
-    <div class="mobile-actions">
-      <ion-button fill="clear" size="small" routerLink="/karenderia-settings">
-        <ion-icon name="person-circle-outline" slot="icon-only"></ion-icon>
-      </ion-button>
-      <ion-button fill="clear" size="small" (click)="logout()">
-        <ion-icon name="log-out-outline" slot="icon-only"></ion-icon>
-      </ion-button>
-    </div>
-  </div>
-
-  <!-- Sidebar Navigation -->
-  <div class="sidebar">
-    <div class="sidebar-header">
-      <div class="brand">
-        <div class="brand-icon">{{getKarenderiaBrandInitials()}}</div>
-        <div class="brand-info">
-          <h3>{{getKarenderiaDisplayName()}}</h3>
-          <span>Kitchen</span>
-        </div>
-      </div>
-    </div>
-
-    <nav class="sidebar-nav">
-      <div class="nav-item" (click)="navigateToDashboard()">
-        <ion-icon name="grid-outline"></ion-icon>
-        <span>Dashboard</span>
-      </div>
-      <div class="nav-item active">
-        <ion-icon name="restaurant-outline"></ion-icon>
-        <span>Menu Management</span>
-      </div>
-      <div class="nav-item" (click)="navigateToDailyMenu()">
-        <ion-icon name="calendar-outline"></ion-icon>
-        <span>Menu of the Day</span>
-      </div>
-      <div class="nav-item" (click)="navigateToInventory()">
-        <ion-icon name="cube-outline"></ion-icon>
-        <span>Inventory</span>
-      </div>
-      <div class="nav-item" (click)="navigateToAnalytics()">
-        <ion-icon name="analytics-outline"></ion-icon>
-        <span>Analytics</span>
-      </div>
-      <div class="nav-item desktop-only" routerLink="/karenderia-settings">
-        <ion-icon name="person-outline"></ion-icon>
-        <span>Profile</span>
-      </div>
-    </nav>
-
-    <div class="sidebar-footer">
-      <div class="nav-item" (click)="logout()">
-        <ion-icon name="log-out-outline"></ion-icon>
-        <span>Sign Out</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- Main Content -->
+<app-owner-shell activePage="menu" sectionLabel="Kitchen">
   <div class="main-content">
     <!-- Top Header -->
     <div class="top-header">
       <div class="header-left">
         <h1>Menu Management</h1>
-        <span class="header-subtitle">Manage your meals</span>
+        <span class="header-subtitle">Kitchen</span>
       </div>
       <div class="header-right">
         <ion-button fill="solid" color="primary" (click)="startAddingItem()" *ngIf="!isAddingItem" class="add-meal-btn">
@@ -212,6 +145,11 @@
                 class="modern-input">
               </ion-input>
             </ion-item>
+
+            <ion-item class="modern-item">
+              <ion-label>Available for Ordering</ion-label>
+              <ion-toggle [(ngModel)]="newMenuItem.isAvailable"></ion-toggle>
+            </ion-item>
           </div>
 
           <!-- Dish Type Selection -->
@@ -305,6 +243,15 @@
                 <h3>Total Ingredient Cost: {{ formatPhp(getTotalCost()) }}</h3>
                 <p>Suggested selling price: {{ formatPhp(getTotalCost() * 2.5) }}</p>
               </div>
+
+              <div class="allergen-preview" *ngIf="getDetectedAllergensPreview().length > 0">
+                <h4>Auto-Detected Allergens</h4>
+                <p>These warnings will be shown to customers when they browse your dish.</p>
+                <ion-chip color="warning" *ngFor="let allergen of getDetectedAllergensPreview()">
+                  <ion-icon name="warning-outline" slot="start"></ion-icon>
+                  <ion-label>{{ allergen }}</ion-label>
+                </ion-chip>
+              </div>
             </div>
           </div>
 
@@ -338,6 +285,11 @@
               <h3 class="item-name">{{ item.name }}</h3>
               <div class="category-badge">{{ item.category | titlecase }}</div>
             </div>
+
+            <ion-chip [color]="item.isAvailable ? 'success' : 'medium'" outline="true">
+              <ion-icon [name]="item.isAvailable ? 'checkmark-circle-outline' : 'pause-circle-outline'" slot="start"></ion-icon>
+              <ion-label>{{ item.isAvailable ? 'Available' : 'Not Available' }}</ion-label>
+            </ion-chip>
             
             <p class="item-description">{{ item.description }}</p>
             
@@ -373,6 +325,24 @@
                 <ion-icon name="create-outline" slot="start"></ion-icon>
                 Edit
               </ion-button>
+
+              <ion-button
+                fill="clear"
+                size="small"
+                [color]="item.isAvailable ? 'warning' : 'success'"
+                (click)="toggleAvailability(item)">
+                <ion-icon [name]="item.isAvailable ? 'pause-circle-outline' : 'play-circle-outline'" slot="start"></ion-icon>
+                {{ item.isAvailable ? 'Not Available' : 'Available' }}
+              </ion-button>
+
+              <ion-button
+                fill="clear"
+                size="small"
+                color="primary"
+                (click)="openIngredientMapping(item)">
+                <ion-icon name="git-merge-outline" slot="start"></ion-icon>
+                Ingredient Map
+              </ion-button>
               
               <ion-button 
                 fill="clear" 
@@ -382,6 +352,60 @@
                 class="delete-btn">
                 <ion-icon name="trash-outline" slot="start"></ion-icon>
               </ion-button>
+            </div>
+
+            <div class="ingredient-mapping-panel" *ngIf="mappingEditorForId === item.id">
+              <h4>Ingredient Mapping for Stock Deduction</h4>
+              <p>Define exact kitchen ingredients deducted when this menu item is sold.</p>
+
+              <div class="mapping-row" *ngFor="let ingredient of mappingDraft; let i = index">
+                <ion-item lines="none" class="mapping-item">
+                  <ion-input
+                    [(ngModel)]="ingredient.ingredientName"
+                    [ngModelOptions]="{standalone: true}"
+                    placeholder="Ingredient name">
+                  </ion-input>
+                </ion-item>
+                <ion-item lines="none" class="mapping-item qty">
+                  <ion-input
+                    type="number"
+                    [(ngModel)]="ingredient.quantity"
+                    [ngModelOptions]="{standalone: true}"
+                    placeholder="Qty">
+                  </ion-input>
+                </ion-item>
+                <ion-item lines="none" class="mapping-item unit">
+                  <ion-input
+                    [(ngModel)]="ingredient.unit"
+                    [ngModelOptions]="{standalone: true}"
+                    placeholder="Unit">
+                  </ion-input>
+                </ion-item>
+                <ion-item lines="none" class="mapping-item cost">
+                  <ion-input
+                    type="number"
+                    [(ngModel)]="ingredient.cost"
+                    [ngModelOptions]="{standalone: true}"
+                    placeholder="Cost">
+                  </ion-input>
+                </ion-item>
+                <ion-button fill="clear" color="danger" (click)="removeMappingIngredientRow(i)">
+                  <ion-icon name="trash-outline"></ion-icon>
+                </ion-button>
+              </div>
+
+              <div class="mapping-actions">
+                <ion-button size="small" fill="outline" color="primary" (click)="addMappingIngredientRow()">
+                  <ion-icon name="add-outline" slot="start"></ion-icon>
+                  Add Ingredient
+                </ion-button>
+                <ion-button size="small" fill="clear" color="medium" (click)="openIngredientMapping(item)">
+                  Cancel
+                </ion-button>
+                <ion-button size="small" fill="solid" color="success" (click)="saveIngredientMapping(item)">
+                  Save Mapping
+                </ion-button>
+              </div>
             </div>
           </div>
         </div>
@@ -401,4 +425,5 @@
       </div>
     </div>
   </div>
-</div>
+  </div>
+</app-owner-shell>

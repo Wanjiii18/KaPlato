@@ -86,65 +86,22 @@ export class KarenderiaDetailPage implements OnInit {
             this.karenderia = karenderia;
             console.log('✅ Loaded karenderia from backend:', karenderia);
           } else {
-            // Fallback to localStorage/mock data
-            this.loadKarenderiaFromLocal();
+            this.karenderia = null;
+            this.showToast('Karenderia not found').then();
           }
           loading.dismiss();
         },
         error: (error) => {
           console.error('❌ Error loading karenderia from backend:', error);
-          this.loadKarenderiaFromLocal();
+          this.karenderia = null;
+          this.showToast('Failed to load karenderia details').then();
           loading.dismiss();
         }
       });
     } catch (error) {
       console.error('❌ Error in loadKarenderiaDetails:', error);
-      this.loadKarenderiaFromLocal();
+      this.karenderia = null;
     }
-  }
-
-  loadKarenderiaFromLocal() {
-    // Fallback: try to find in localStorage or create mock data
-    this.karenderiaService.getAllKarenderias_Local().subscribe({
-      next: (karenderias) => {
-        const found = karenderias?.find(k => k.id === this.karenderiaId);
-        if (found) {
-          this.karenderia = found;
-          console.log('✅ Found karenderia in localStorage:', found);
-        } else {
-          // Create mock karenderia if not found
-          this.createMockKarenderia();
-        }
-      },
-      error: (error) => {
-        console.error('❌ Error loading from localStorage:', error);
-        this.createMockKarenderia();
-      }
-    });
-  }
-
-  createMockKarenderia() {
-    // Create a mock karenderia for testing
-    this.karenderia = {
-      id: this.karenderiaId,
-      name: "Lola Rosa's Kitchen",
-      address: "123 Main St, Cebu City",
-      rating: 4.8,
-      cuisine: ['Filipino', 'Traditional'],
-      description: "Authentic Filipino home-cooked meals made with love and traditional recipes passed down through generations.",
-      contactNumber: "+63 32 123 4567",
-      isOpen: true,
-      openingHours: {
-        monday: { open: "08:00", close: "18:00" },
-        tuesday: { open: "08:00", close: "18:00" },
-        wednesday: { open: "08:00", close: "18:00" },
-        thursday: { open: "08:00", close: "18:00" },
-        friday: { open: "08:00", close: "18:00" },
-        saturday: { open: "08:00", close: "18:00" },
-        sunday: { open: "09:00", close: "17:00" }
-      }
-    };
-    console.log('📋 Created mock karenderia data');
   }
 
   async loadMenuItems() {
@@ -445,7 +402,7 @@ export class KarenderiaDetailPage implements OnInit {
    */
   private loadUserAllergens() {
     this.userService.currentUserProfile$.subscribe(userProfile => {
-      if (userProfile && userProfile.allergens) {
+      if (userProfile && Array.isArray(userProfile.allergens) && userProfile.allergens.length > 0) {
         this.userAllergens = userProfile.allergens;
         console.log('👤 User allergens loaded:', this.userAllergens);
         
@@ -455,8 +412,10 @@ export class KarenderiaDetailPage implements OnInit {
         // Re-check menu items for allergens if they're already loaded
         this.checkMenuItemsForAllergens();
       } else {
-        console.log('👤 No user allergens found');
-        this.userAllergens = [];
+        const defaultAllergens = this.allergenService.getEffectiveUserAllergens();
+        this.userAllergens = defaultAllergens;
+        this.allergenService.updateUserAllergens(defaultAllergens);
+        this.checkMenuItemsForAllergens();
       }
     });
   }
@@ -573,5 +532,15 @@ export class KarenderiaDetailPage implements OnInit {
       case 'safe': return 'checkmark-circle';
       default: return 'help-circle';
     }
+  }
+
+  private async showToast(message: string, color: 'success' | 'warning' | 'danger' | 'medium' = 'warning') {
+    const toast = await this.toastController.create({
+      message,
+      duration: 2200,
+      color,
+      position: 'bottom'
+    });
+    await toast.present();
   }
 }

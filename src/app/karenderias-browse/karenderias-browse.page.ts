@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { KarenderiaService } from '../services/karenderia.service';
+import { MenuService } from '../services/menu.service';
+import { AllergenDetectionService } from '../services/allergen-detection.service';
 import { LoadingController, ToastController } from '@ionic/angular';
 
 @Component({
@@ -16,6 +18,9 @@ export class KarenderiasBrowsePage implements OnInit {
   searchQuery = '';
   selectedCategory = 'all';
   selectedSort = 'rating';
+  activeAllergens: string[] = [];
+  avoidRiskyRestaurants = true;
+  restaurantAllergenRiskMap: { [id: string]: boolean } = {};
   
   // User location for distance calculation
   userLocation: { latitude: number; longitude: number } | null = null;
@@ -37,14 +42,22 @@ export class KarenderiasBrowsePage implements OnInit {
   constructor(
     private router: Router,
     private karenderiaService: KarenderiaService,
+    private menuService: MenuService,
+    private allergenDetectionService: AllergenDetectionService,
     private loadingController: LoadingController,
     private toastController: ToastController
   ) { }
 
   ngOnInit() {
+    this.loadAllergenDefaults();
     this.getUserLocation().then(() => {
       this.loadKarenderias();
     });
+  }
+
+  private loadAllergenDefaults() {
+    const effective = this.allergenDetectionService.getEffectiveUserAllergens();
+    this.activeAllergens = effective.map(allergen => allergen.name);
   }
 
   async getUserLocation(): Promise<void> {
@@ -112,16 +125,15 @@ export class KarenderiasBrowsePage implements OnInit {
             console.log('✅ Loaded karenderias from backend:', this.karenderias.length);
             console.log('📋 User location:', this.userLocation);
           } else {
-            console.warn('⚠️ Backend returned empty array, loading mock data');
-            this.loadMockKarenderias();
+            console.warn('⚠️ Backend returned empty array');
+            this.karenderias = [];
           }
-          this.applyFilters();
+          this.evaluateRestaurantAllergenRisk().then(() => this.applyFilters());
         },
         error: (error) => {
           console.error('❌ Error loading karenderias from backend:', error);
-          console.log('📋 Falling back to mock data');
-          this.loadMockKarenderias();
-          this.applyFilters();
+          this.karenderias = [];
+          this.evaluateRestaurantAllergenRisk().then(() => this.applyFilters());
         },
         complete: () => {
           this.isLoading = false;
@@ -129,73 +141,37 @@ export class KarenderiasBrowsePage implements OnInit {
       });
     } catch (error) {
       console.error('❌ Error in loadKarenderias:', error);
-      this.loadMockKarenderias();
-      this.applyFilters();
+      this.karenderias = [];
+      await this.evaluateRestaurantAllergenRisk();
+      await this.applyFilters();
       this.isLoading = false;
     }
   }
 
-  loadMockKarenderias() {
-    // Fallback mock data for demonstration
-    this.karenderias = [
-      {
-        id: 'mock-1',
-        name: "Lola Maria's Kitchen",
-        address: "123 Mabini Street, Mandaue City, Cebu",
-        location: { latitude: 10.3231, longitude: 123.9319 },
-        rating: 4.8,
-        priceRange: 'Budget',
-        cuisine: ['Filipino', 'Traditional'],
-        deliveryTime: '25 min',
-        deliveryFee: 20,
-        isOpen: true,
-        imageUrl: 'assets/images/karenderia1.jpg',
-        distance: this.calculateRealDistance(10.3231, 123.9319)
-      },
-      {
-        id: 'mock-2',
-        name: "Tita Linda's Lutong Bahay",
-        address: "456 Plaridel Street, Mandaue City, Cebu",
-        location: { latitude: 10.3241, longitude: 123.9329 },
-        rating: 4.6,
-        priceRange: 'Budget',
-        cuisine: ['Filipino', 'Home-cooked'],
-        deliveryTime: '30 min',
-        deliveryFee: 25,
-        isOpen: true,
-        imageUrl: 'assets/images/karenderia2.jpg',
-        distance: this.calculateRealDistance(10.3241, 123.9329)
-      },
-      {
-        id: 'mock-3',
-        name: "Kuya Roberto's Place",
-        address: "789 Burgos Street, Mandaue City, Cebu",
-        location: { latitude: 10.3221, longitude: 123.9309 },
-        rating: 4.4,
-        priceRange: 'Budget',
-        cuisine: ['Filipino', 'Grilled'],
-        deliveryTime: '35 min',
-        deliveryFee: 30,
-        isOpen: false,
-        imageUrl: 'assets/images/karenderia3.jpg',
-        distance: this.calculateRealDistance(10.3221, 123.9309)
-      },
-      {
-        id: 'mock-4',
-        name: "Nanay Cora's Carinderia",
-        address: "321 Rizal Avenue, Mandaue City, Cebu",
-        location: { latitude: 10.3251, longitude: 123.9339 },
-        rating: 4.7,
-        priceRange: 'Budget',
-        cuisine: ['Filipino', 'Seafood'],
-        deliveryTime: '28 min',
-        deliveryFee: 22,
-        isOpen: true,
-        imageUrl: 'assets/images/karenderia4.jpg',
-        distance: this.calculateRealDistance(10.3251, 123.9339)
+  private async evaluateRestaurantAllergenRisk() {
+    this.restaurantAllergenRiskMap = {};
+
+    if (!this.activeAllergens.length || !this.karenderias.length) {
+      return;
+    }
+
+    await Promise.all(this.karenderias.map(async (karenderia) => {
+      const id = String(karenderia.id || '');
+      if (!id) {
+        return;
       }
-    ];
-    console.log('📋 Loaded mock karenderias:', this.karenderias.length);
+
+      try {
+        const safeMeals = await this.menuService.searchMenuItems('', {
+          karenderia: id,
+          allergens: this.activeAllergens
+        });
+
+        this.restaurantAllergenRiskMap[id] = safeMeals.length === 0;
+      } catch (error) {
+        this.restaurantAllergenRiskMap[id] = false;
+      }
+    }));
   }
 
   calculateRealDistance(karenderiaLat: number, karenderiaLng: number): number {
@@ -235,7 +211,12 @@ export class KarenderiasBrowsePage implements OnInit {
     this.applyFilters();
   }
 
-  applyFilters() {
+  toggleAvoidRiskyRestaurants(enabled: boolean) {
+    this.avoidRiskyRestaurants = enabled;
+    this.applyFilters();
+  }
+
+  async applyFilters() {
     let filtered = [...this.karenderias];
     console.log('🔍 Starting filters with', filtered.length, 'karenderias');
 
@@ -248,6 +229,11 @@ export class KarenderiasBrowsePage implements OnInit {
         k.cuisine.some((c: string) => c.toLowerCase().includes(query))
       );
       console.log('🔍 After search filter:', filtered.length, 'karenderias');
+    }
+
+    if (this.avoidRiskyRestaurants && this.activeAllergens.length > 0) {
+      filtered = filtered.filter(k => !this.isRestaurantAllergenRisk(k));
+      console.log('🔍 After allergen avoid filter:', filtered.length, 'karenderias');
     }
 
     // Apply category filter
@@ -289,6 +275,14 @@ export class KarenderiasBrowsePage implements OnInit {
 
     this.filteredKarenderias = filtered;
     console.log(`🔍 Final result: ${filtered.length} karenderias found`);
+  }
+
+  hasActiveAllergens(): boolean {
+    return this.activeAllergens.length > 0;
+  }
+
+  isRestaurantAllergenRisk(karenderia: any): boolean {
+    return !!this.restaurantAllergenRiskMap[String(karenderia?.id || '')];
   }
 
   async selectKarenderia(karenderia: any) {

@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject, of } from 'rxjs';
 import { map, catchError, tap } from 'rxjs/operators';
 import { SpoonacularService } from './spoonacular.service';
+import { NutritionAllergenService } from './nutrition-allergen.service';
 import { environment } from '../../environments/environment';
 
 // Enhanced interfaces for nutrition tracking
@@ -32,6 +33,7 @@ export interface MenuItemNutrition {
   dietaryTags: string[];
   servingSize: string;
   lastUpdated: Date;
+  dataSource?: 'spoonacular' | 'filipino-db' | 'ingredient-db' | 'estimated';
 }
 
 export interface FilipinoDishNutrition {
@@ -156,7 +158,8 @@ export class EnhancedNutritionService {
 
   constructor(
     private http: HttpClient,
-    private spoonacularService: SpoonacularService
+    private spoonacularService: SpoonacularService,
+    private nutritionAllergenService: NutritionAllergenService
   ) {
     this.loadNutritionCache();
   }
@@ -185,11 +188,17 @@ export class EnhancedNutritionService {
   }
 
   // Get comprehensive nutrition for a menu item
-  async getMenuItemNutrition(itemName: string, ingredients?: string[]): Promise<MenuItemNutrition | null> {
+  async getMenuItemNutrition(
+    itemName: string,
+    ingredients?: string[],
+    options?: { allowEstimatedFallback?: boolean }
+  ): Promise<MenuItemNutrition | null> {
     try {
+      const allowEstimatedFallback = options?.allowEstimatedFallback ?? true;
+
       // Check cache first
       const cached = this.getCachedNutrition(itemName);
-      if (cached) {
+      if (cached && (allowEstimatedFallback || cached.dataSource !== 'estimated')) {
         return cached;
       }
 
@@ -207,10 +216,14 @@ export class EnhancedNutritionService {
         return filipinoNutrition;
       }
 
-      // Final fallback - estimated nutrition
-      const estimatedNutrition = this.getEstimatedNutrition(itemName);
-      await this.addToNutritionCache(estimatedNutrition);
-      return estimatedNutrition;
+      // Final fallback - estimated nutrition (opt-in)
+      if (allowEstimatedFallback) {
+        const estimatedNutrition = this.getEstimatedNutrition(itemName);
+        await this.addToNutritionCache(estimatedNutrition);
+        return estimatedNutrition;
+      }
+
+      return null;
 
     } catch (error) {
       console.error('Error getting menu item nutrition:', error);
@@ -222,9 +235,8 @@ export class EnhancedNutritionService {
   private async getSpoonacularNutrition(itemName: string, ingredients?: string[]): Promise<MenuItemNutrition | null> {
     try {
       if (ingredients && ingredients.length > 0) {
-        // For items with known ingredients, analyze the recipe
-        const recipeAnalysis = await this.analyzeRecipeNutrition(ingredients);
-        return this.formatSpoonacularNutrition(itemName, recipeAnalysis);
+        // For known ingredients, use local ingredient nutrition database aggregation
+        return this.formatIngredientNutrition(itemName, ingredients);
       } else {
         // Search for similar food items
         const searchResults = await this.spoonacularService.searchRecipes(itemName, undefined, undefined, undefined, 1).toPromise();
@@ -238,6 +250,34 @@ export class EnhancedNutritionService {
       console.error('Spoonacular API error:', error);
     }
     return null;
+  }
+
+  private formatIngredientNutrition(itemName: string, ingredients: string[]): MenuItemNutrition {
+    const ingredientAnalysis = this.nutritionAllergenService.analyzeDish(ingredients);
+
+    return {
+      id: `ingredient_${Date.now()}`,
+      name: itemName,
+      nutrition: {
+        calories: Math.round(ingredientAnalysis.totalCalories || 0),
+        protein: Math.round(ingredientAnalysis.totalNutrition.protein || 0),
+        carbs: Math.round(ingredientAnalysis.totalNutrition.carbohydrates || 0),
+        fat: Math.round(ingredientAnalysis.totalNutrition.fat || 0),
+        fiber: Math.round(ingredientAnalysis.totalNutrition.fiber || 0),
+        sodium: Math.round(ingredientAnalysis.totalNutrition.sodium || 0),
+        sugar: Math.round(ingredientAnalysis.totalNutrition.sugar || 0),
+        calcium: Math.round(ingredientAnalysis.totalNutrition.calcium || 0),
+        iron: Math.round(ingredientAnalysis.totalNutrition.iron || 0),
+        vitaminC: Math.round(ingredientAnalysis.totalNutrition.vitaminC || 0),
+        vitaminA: Math.round(ingredientAnalysis.totalNutrition.vitaminA || 0)
+      },
+      allergens: [...new Set(ingredientAnalysis.allergens.map(a => a.allergen.toLowerCase()))],
+      spiceLevel: this.detectSpiceLevel(itemName),
+      dietaryTags: this.detectDietaryTags(itemName),
+      servingSize: '1 serving (ingredient analysis)',
+      lastUpdated: new Date(),
+      dataSource: 'ingredient-db'
+    };
   }
 
   // Analyze recipe nutrition using ingredients
@@ -289,7 +329,8 @@ export class EnhancedNutritionService {
       spiceLevel: this.detectSpiceLevel(itemName),
       dietaryTags: this.detectDietaryTags(itemName),
       servingSize: '1 serving',
-      lastUpdated: new Date()
+      lastUpdated: new Date(),
+      dataSource: 'spoonacular'
     };
   }
 
@@ -316,7 +357,8 @@ export class EnhancedNutritionService {
       spiceLevel: this.detectSpiceLevel(itemName),
       dietaryTags: this.extractSpoonacularDietaryTags(recipe),
       servingSize: `${recipe.servings} serving${recipe.servings !== 1 ? 's' : ''}`,
-      lastUpdated: new Date()
+      lastUpdated: new Date(),
+      dataSource: 'spoonacular'
     };
   }
 
@@ -395,7 +437,8 @@ export class EnhancedNutritionService {
         spiceLevel: dishData.spiceLevel,
         dietaryTags: dishData.dietaryTags,
         servingSize: dishData.servingSize,
-        lastUpdated: new Date()
+        lastUpdated: new Date(),
+        dataSource: 'filipino-db'
       };
     }
 
@@ -421,7 +464,8 @@ export class EnhancedNutritionService {
           spiceLevel: data.spiceLevel,
           dietaryTags: data.dietaryTags,
           servingSize: data.servingSize,
-          lastUpdated: new Date()
+          lastUpdated: new Date(),
+          dataSource: 'filipino-db'
         };
       }
     }
@@ -476,7 +520,8 @@ export class EnhancedNutritionService {
       spiceLevel,
       dietaryTags,
       servingSize: '1 serving (estimated)',
-      lastUpdated: new Date()
+      lastUpdated: new Date(),
+      dataSource: 'estimated'
     };
   }
 

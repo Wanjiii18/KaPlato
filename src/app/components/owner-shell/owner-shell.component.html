@@ -1,0 +1,73 @@
+<div class="owner-layout">
+  <div class="mobile-top-bar">
+    <div class="mobile-brand" role="button" tabindex="0" (click)="goTo('dashboard', $event)">
+      <div class="brand-icon">{{ getKarenderiaBrandInitials() }}</div>
+      <div class="brand-info">
+        <h3>{{ getKarenderiaDisplayName() }}</h3>
+        <span>{{ sectionLabel }}</span>
+      </div>
+    </div>
+    <div class="mobile-actions">
+      <ion-button fill="clear" size="small" (click)="goTo('profile', $event)">
+        <ion-icon name="person-circle-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+      <ion-button fill="clear" size="small" (click)="logout()">
+        <ion-icon name="log-out-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </div>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="brand" role="button" tabindex="0" (click)="goTo('dashboard', $event)">
+        <div class="brand-icon">{{ getKarenderiaBrandInitials() }}</div>
+        <div class="brand-info">
+          <h3>{{ getKarenderiaDisplayName() }}</h3>
+          <span>{{ sectionLabel }}</span>
+        </div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a class="nav-item" href="#" [class.active]="isActive('dashboard')" (click)="goTo('dashboard', $event)">
+        <ion-icon name="grid-outline"></ion-icon>
+        <span>Dashboard</span>
+      </a>
+      <a class="nav-item" href="#" [class.active]="isActive('menu')" (click)="goTo('menu', $event)">
+        <ion-icon name="restaurant-outline"></ion-icon>
+        <span>Menu Management</span>
+      </a>
+      <a class="nav-item" href="#" [class.active]="isActive('daily-menu')" (click)="goTo('daily-menu', $event)">
+        <ion-icon name="calendar-outline"></ion-icon>
+        <span>Menu of the Day</span>
+      </a>
+      <a class="nav-item" href="#" [class.active]="isActive('pos')" (click)="goTo('pos', $event)">
+        <ion-icon name="calculator-outline"></ion-icon>
+        <span>POS</span>
+      </a>
+      <a class="nav-item" href="#" [class.active]="isActive('inventory')" (click)="goTo('inventory', $event)">
+        <ion-icon name="cube-outline"></ion-icon>
+        <span>Kitchen Stock</span>
+      </a>
+      <a class="nav-item" href="#" [class.active]="isActive('analytics')" (click)="goTo('analytics', $event)">
+        <ion-icon name="analytics-outline"></ion-icon>
+        <span>Analytics</span>
+      </a>
+      <a class="nav-item" href="#" [class.active]="isActive('profile')" (click)="goTo('profile', $event)">
+        <ion-icon name="person-outline"></ion-icon>
+        <span>Profile</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button type="button" class="nav-item logout-btn" (click)="logout()">
+        <ion-icon name="log-out-outline"></ion-icon>
+        <span>Sign Out</span>
+      </button>
+    </div>
+  </aside>
+
+  <main class="main-panel">
+    <ng-content></ng-content>
+  </main>
+</div>
