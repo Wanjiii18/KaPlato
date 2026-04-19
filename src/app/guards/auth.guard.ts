@@ -19,7 +19,7 @@ export class AuthGuard implements CanActivate {
     const currentUser = this.authService.getCurrentUser();
     
     if (currentUser) {
-      console.log('Auth Guard: User authenticated (direct check), allowing access');
+      console.log('🛡️ Auth Guard: User authenticated (direct check), role:', currentUser.role);
       return of(true);
     }
 
@@ -32,10 +32,10 @@ export class AuthGuard implements CanActivate {
       take(1),
       tap(loggedIn => {
         if (!loggedIn) {
-          console.log('Auth Guard: User not authenticated, redirecting to login');
+          console.log('🛡️ Auth Guard: User not authenticated, redirecting to login');
           this.router.navigate(['/login']);
         } else {
-          console.log('Auth Guard: User authenticated, allowing access');
+          console.log('🛡️ Auth Guard: User authenticated, allowing access');
         }
       })
     ) as Observable<boolean>;

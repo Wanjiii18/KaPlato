@@ -17,22 +17,28 @@ export class CustomerGuard implements CanActivate {
     return this.authService.currentUser$.pipe(
       take(1),
       map((user) => {
+        console.log('🛡️ CustomerGuard: Checking user role:', user?.role);
+        
         if (user && user.role === 'customer') {
+          console.log('✅ CustomerGuard: Customer allowed');
           return true;
         } else if (user && user.role === 'karenderia_owner') {
           // Redirect karenderia owners to their dashboard
+          console.log('🔄 CustomerGuard: Redirecting karenderia owner to dashboard');
           this.router.navigate(['/karenderia-dashboard']);
           return false;
         } else if (user && user.role === 'supplier') {
-          // Redirect suppliers to inventory workspace
-          this.router.navigate(['/inventory-management']);
-          return false;
+          // Allow suppliers to view home for now (temporary solution)
+          console.log('✅ CustomerGuard: Supplier allowed to access home');
+          return true;
         } else if (user && user.role === 'admin') {
           // Redirect admins to their dashboard
+          console.log('🔄 CustomerGuard: Redirecting admin to dashboard');
           this.router.navigate(['/admin-dashboard']);
           return false;
         } else {
           // No valid user, redirect to login
+          console.log('❌ CustomerGuard: No valid user, redirecting to login');
           this.router.navigate(['/login']);
           return false;
         }

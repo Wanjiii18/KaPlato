@@ -62,6 +62,7 @@ export class LoginPage implements OnInit {
         this.router.navigate(['/karenderia-dashboard']);
         break;
       case 'supplier':
+        // Suppliers go to inventory management for stock and inventory
         this.router.navigate(['/inventory-management']);
         break;
       case 'customer':
@@ -83,24 +84,31 @@ export class LoginPage implements OnInit {
         };
         const response = await this.authService.login(credentials).toPromise();
         
+        console.log('🔑 Login successful, user role:', response?.user?.role);
+        
         // If it's a karenderia owner, load their karenderia data
         if (response?.user?.role === 'karenderia_owner') {
           console.log('🏪 Karenderia owner logged in, loading karenderia data...');
           await this.karenderiaInfoService.reloadKarenderiaData();
         }
         
-        // Add a small delay to ensure session storage is set
-        await new Promise(resolve => setTimeout(resolve, 100));
+        // Add a small delay to ensure session storage and BehaviorSubject are fully updated
+        await new Promise(resolve => setTimeout(resolve, 200));
 
         const profile = await this.userService.loadUserProfile().toPromise();
         const status = (profile?.applicationStatus || response?.karenderia?.status || '').toLowerCase();
         
+        console.log('📊 User profile loaded, status:', status, 'role:', response?.user?.role);
+        
         // Redirect based on user role
         if (response?.user?.role === 'karenderia_owner' && (status === 'pending' || status === 'rejected')) {
+          console.log('⏳ Karenderia owner status is', status, '- redirecting to settings');
           await this.router.navigate(['/karenderia-settings']);
         } else if (response?.user) {
+          console.log('✅ Redirecting user with role:', response.user.role);
           this.redirectBasedOnRole(response.user);
         } else {
+          console.log('⚠️ No user in response, redirecting to home');
           this.router.navigate(['/home']);
         }
         
@@ -112,6 +120,7 @@ export class LoginPage implements OnInit {
         } else {
           this.errorMessage = 'Login failed. Please check your credentials and try again.';
         }
+        console.error('Login error:', error);
       } finally {
         this.isLoading = false;
       }

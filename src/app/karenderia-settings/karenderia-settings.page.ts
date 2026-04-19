@@ -42,6 +42,12 @@ interface PasswordChange {
   confirmPassword: string;
 }
 
+interface LocationSettings {
+  latitude: number;
+  longitude: number;
+  address: string;
+}
+
 interface OperatingDay {
   name: string;
   isOpen: boolean;
@@ -96,6 +102,12 @@ export class KarenderiaSettingsPage implements OnInit {
     currentPassword: '',
     newPassword: '',
     confirmPassword: ''
+  };
+
+  locationSettings: LocationSettings = {
+    latitude: 10.3157,
+    longitude: 123.8854,
+    address: ''
   };
 
   operatingHours: OperatingDay[] = [
@@ -161,6 +173,13 @@ export class KarenderiaSettingsPage implements OnInit {
           firstName,
           lastName: rest.join(' ')
         };
+
+        // Load location settings
+        this.locationSettings = {
+          latitude: karenderia.latitude || 10.3157,
+          longitude: karenderia.longitude || 123.8854,
+          address: karenderia.address || ''
+        };
       }
     } catch (error) {
       console.error('Failed to load settings from backend:', error);
@@ -192,6 +211,8 @@ export class KarenderiaSettingsPage implements OnInit {
         phone: this.businessInfo.phone,
         description: this.businessInfo.description,
         address: this.businessInfo.address,
+        latitude: this.locationSettings.latitude,
+        longitude: this.locationSettings.longitude,
         operating_days: operatingDays,
         status: this.karenderiaStatus === 'rejected' ? 'pending' : undefined
       };
@@ -305,5 +326,14 @@ export class KarenderiaSettingsPage implements OnInit {
 
   getKarenderiaBrandInitials(): string {
     return this.karenderiaInfoService.getKarenderiaBrandInitials();
+  }
+
+  // Location handling method
+  onMapLocationSelected(event: any) {
+    if (event && event.lat !== undefined && event.lng !== undefined) {
+      this.locationSettings.latitude = event.lat;
+      this.locationSettings.longitude = event.lng;
+      console.log('Location updated:', event);
+    }
   }
 }
