@@ -53,6 +53,11 @@ export class InventoryManagementPage implements OnInit {
   supplierListings: SupplierListing[] = [];
   ownerOrders: SupplyOrder[] = [];
   supplierOrders: SupplyOrder[] = [];
+  supplierListingSearch = '';
+  supplierListingCategory = 'all';
+  supplierListingStockFilter = 'all';
+  supplierOrderStatusFilter = 'all';
+  supplierOrderSearch = '';
   cart: CartItem[] = [];
   marketplaceSearch = '';
   marketplaceCategory = '';
@@ -1254,15 +1259,75 @@ export class InventoryManagementPage implements OnInit {
     }, 0);
   }
 
+  getSupplierInStockCount(): number {
+    return this.supplierListings.filter((listing) => listing.available_stock > 0).length;
+  }
+
+  getSupplierLowStockCount(): number {
+    return this.supplierListings.filter((listing) => {
+      return listing.available_stock > 0 && listing.available_stock <= listing.minimum_order_quantity;
+    }).length;
+  }
+
+  get supplierListingCategories(): string[] {
+    return Array.from(
+      new Set(
+        this.supplierListings
+          .map((listing) => (listing.category || '').trim())
+          .filter((category) => !!category)
+      )
+    ).sort((a, b) => a.localeCompare(b));
+  }
+
+  get filteredSupplierListings(): SupplierListing[] {
+    const search = this.supplierListingSearch.trim().toLowerCase();
+
+    return this.supplierListings.filter((listing) => {
+      const matchesSearch = !search ||
+        listing.item_name.toLowerCase().includes(search) ||
+        (listing.description || '').toLowerCase().includes(search) ||
+        (listing.category || '').toLowerCase().includes(search);
+
+      const matchesCategory = this.supplierListingCategory === 'all' ||
+        (listing.category || '').toLowerCase() === this.supplierListingCategory.toLowerCase();
+
+      const matchesStock =
+        this.supplierListingStockFilter === 'all' ||
+        (this.supplierListingStockFilter === 'available' && listing.available_stock > 0) ||
+        (this.supplierListingStockFilter === 'low' && listing.available_stock > 0 && listing.available_stock <= listing.minimum_order_quantity) ||
+        (this.supplierListingStockFilter === 'out' && listing.available_stock <= 0);
+
+      return matchesSearch && matchesCategory && matchesStock;
+    });
+  }
+
+  get filteredSupplierOrders(): SupplyOrder[] {
+    const search = this.supplierOrderSearch.trim().toLowerCase();
+
+    return this.supplierOrders.filter((order) => {
+      const businessName = (order.karenderia?.business_name || order.karenderia?.name || '').toLowerCase();
+      const matchesSearch = !search ||
+        businessName.includes(search) ||
+        String(order.id).includes(search) ||
+        this.formatOrderItems(order).toLowerCase().includes(search);
+
+      const matchesStatus = this.supplierOrderStatusFilter === 'all' || order.status === this.supplierOrderStatusFilter;
+
+      return matchesSearch && matchesStatus;
+    });
+  }
+
   /**
    * Filter supplier orders by status (for stat item clicks)
    */
   filterSupplierOrdersByStatus(status: string) {
-    // This is mainly for interactivity; filtering could be expanded
-    // to actually show filtered results if needed
-    const filteredCount = this.supplierOrders.filter(o => o.status === status).length;
+    this.supplierOrderStatusFilter = status;
+    const filteredCount = status === 'all'
+      ? this.supplierOrders.length
+      : this.supplierOrders.filter((o) => o.status === status).length;
+
     if (filteredCount === 0) {
-      this.showToast(`No ${status} orders`, 'information');
+      this.showToast(`No ${status} orders`, 'medium');
     }
   }
 

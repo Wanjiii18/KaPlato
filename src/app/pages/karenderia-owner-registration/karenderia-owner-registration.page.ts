@@ -8,6 +8,7 @@ import {
   IonLabel, LoadingController, AlertController, ToastController
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
+import { firstValueFrom } from 'rxjs';
 import { 
   personAddOutline, restaurantOutline, locationOutline, arrowForward,
   arrowBack, informationCircleOutline, locate, search, send, 
@@ -48,6 +49,8 @@ export class KarenderiaOwnerRegistrationPage implements OnInit {
   marker: any;
   selectedLocation = { lat: 0, lng: 0 };
   selectedDays: string[] = [];
+  businessPermitFile: File | null = null;
+  permitFileError = '';
   
   weekDays = [
     { label: 'Monday', value: 'monday' },
@@ -90,12 +93,7 @@ export class KarenderiaOwnerRegistrationPage implements OnInit {
   }
 
   ionViewDidEnter() {
-    if (this.currentStep === 3) {
-      // Add a small delay to ensure the view is fully rendered
-      setTimeout(() => {
-        this.loadMap();
-      }, 300);
-    }
+    // No-op: retained lifecycle hook for future enhancements.
   }
 
   initializeForms() {
@@ -144,12 +142,16 @@ export class KarenderiaOwnerRegistrationPage implements OnInit {
   nextStep() {
     if (this.currentStep === 1 && this.accountForm.valid) {
       this.currentStep = 2;
+      return;
     } else if (this.currentStep === 2 && this.businessForm.valid) {
+      if (!this.businessPermitFile) {
+        this.permitFileError = 'Please upload your business permit (image or PDF).';
+        this.showToast(this.permitFileError, 'warning');
+        return;
+      }
+
+      this.permitFileError = '';
       this.currentStep = 3;
-      // Load map after view update
-      setTimeout(() => {
-        this.loadMap();
-      }, 500);
     }
   }
 
@@ -166,6 +168,41 @@ export class KarenderiaOwnerRegistrationPage implements OnInit {
     } else {
       this.selectedDays.push(day);
     }
+  }
+
+  onBusinessPermitSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files && input.files.length > 0 ? input.files[0] : null;
+
+    if (!file) {
+      return;
+    }
+
+    const allowedTypes = ['image/jpeg', 'image/png', 'application/pdf'];
+    const maxFileSize = 5 * 1024 * 1024;
+
+    if (!allowedTypes.includes(file.type)) {
+      this.businessPermitFile = null;
+      this.permitFileError = 'Only JPG, PNG, or PDF files are allowed.';
+      input.value = '';
+      return;
+    }
+
+    if (file.size > maxFileSize) {
+      this.businessPermitFile = null;
+      this.permitFileError = 'File size must be 5MB or less.';
+      input.value = '';
+      return;
+    }
+
+    this.businessPermitFile = file;
+    this.permitFileError = '';
+  }
+
+  removeBusinessPermit(fileInput: HTMLInputElement) {
+    this.businessPermitFile = null;
+    this.permitFileError = '';
+    fileInput.value = '';
   }
 
   loadMap() {
@@ -323,6 +360,12 @@ export class KarenderiaOwnerRegistrationPage implements OnInit {
   }
 
   async submitApplication() {
+    if (!this.businessPermitFile) {
+      this.permitFileError = 'Please upload your business permit before submitting.';
+      await this.showToast(this.permitFileError, 'warning');
+      return;
+    }
+
     this.isSubmitting = true;
     const loading = await this.loadingCtrl.create({
       message: 'Submitting your application...'
@@ -330,35 +373,47 @@ export class KarenderiaOwnerRegistrationPage implements OnInit {
     await loading.present();
 
     try {
-      // Combine all form data
       const registrationData = {
-        // Account info
         ...this.accountForm.value,
-        role: 'karenderia_owner',
-        
-        // Business info
         ...this.businessForm.value,
-        
-        // Location info (without map coordinates)
         ...this.locationForm.value,
-        
-        // Additional data
+        role: 'karenderia_owner',
         operating_days: this.selectedDays,
         status: 'pending',
-        // Note: latitude and longitude will be set by admin later
         latitude: null,
         longitude: null
       };
 
-      console.log('Registration data:', registrationData);
+      const formData = new FormData();
+      Object.entries(registrationData).forEach(([key, value]) => {
+        if (value === null || value === undefined) {
+          return;
+        }
 
-      // Submit to backend
-      await this.authService.registerKarenderiaOwner(registrationData);
+        if (typeof value === 'boolean') {
+          formData.append(key, value ? '1' : '0');
+          return;
+        }
+
+        if (Array.isArray(value)) {
+          formData.append(key, JSON.stringify(value));
+          return;
+        }
+
+        formData.append(key, String(value));
+      });
+
+      formData.append('business_permit_file', this.businessPermitFile);
+
+      await firstValueFrom(this.authService.registerKarenderiaOwner(formData));
       
       await loading.dismiss();
       this.currentStep = 4; // Success step
       
       await this.showToast('Application submitted successfully!', 'success');
+      setTimeout(() => {
+        this.router.navigate(['/login']);
+      }, 1500);
       
     } catch (error: any) {
       await loading.dismiss();

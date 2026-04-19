@@ -267,6 +267,104 @@
       }
     }
   }
+
+  .owner-verification-banner {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    border-radius: 14px;
+    padding: 1.2rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+    animation: slideInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+
+    ion-icon {
+      font-size: 1.5rem;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .banner-content {
+      flex: 1;
+
+      strong {
+        display: block;
+        font-size: 1rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+      }
+
+      p {
+        margin: 0 0 12px 0;
+        font-size: 0.9rem;
+        line-height: 1.5;
+        word-break: break-word;
+      }
+
+      .reapply-link-btn {
+        --color: inherit;
+        height: auto;
+        padding: 8px 12px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin: 0;
+        
+        ion-icon {
+          font-size: 1rem;
+          margin-right: 4px;
+        }
+      }
+    }
+
+    &.banner-pending {
+      background: linear-gradient(135deg, #fef5e7 0%, #fef9e7 100%);
+      border: 1px solid #f8d7a1;
+      color: #9a3412;
+
+      ion-icon {
+        color: #f59e0b;
+      }
+
+      strong {
+        color: #9a3412;
+      }
+
+      p {
+        color: #7c2d12;
+      }
+
+      .reapply-link-btn {
+        --color: #9a3412;
+      }
+    }
+
+    &.banner-rejected {
+      background: linear-gradient(135deg, #fee2e2 0%, #fef2f2 100%);
+      border: 1px solid #fca5a5;
+      color: #7f1d1d;
+
+      ion-icon {
+        color: #ef4444;
+      }
+
+      strong {
+        color: #b91c1c;
+      }
+
+      p {
+        color: #7f1d1d;
+      }
+
+      .reapply-link-btn {
+        --color: #b91c1c;
+        font-weight: 700;
+        
+        &:hover {
+          --background: rgba(185, 28, 28, 0.1);
+        }
+      }
+    }
+  }
   
   .auth-form-container {
     width: 100%;

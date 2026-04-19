@@ -20,6 +20,8 @@ export class LoginPage implements OnInit {
   showPassword = false;
   isLoading = false;
   errorMessage = '';
+  ownerVerificationMessage = '';
+  ownerVerificationStatus: 'pending_approval' | 'rejected' | '' = '';
   isLoginDisabled = false; // Added property to fix error
 
   constructor(
@@ -33,20 +35,6 @@ export class LoginPage implements OnInit {
     // Check if user is already logged in
     if (this.authService.isAuthenticated()) {
       const currentUser = this.authService.getCurrentUser();
-      if (currentUser?.role === 'karenderia_owner') {
-        try {
-          const profile = await this.userService.loadUserProfile().toPromise();
-          const status = (profile?.applicationStatus || '').toLowerCase();
-
-          if (status === 'rejected' || status === 'pending') {
-            this.router.navigate(['/karenderia-settings']);
-            return;
-          }
-        } catch (error) {
-          console.warn('Could not verify owner status before redirect:', error);
-        }
-      }
-
       this.redirectBasedOnRole(currentUser);
     }
   }
@@ -75,6 +63,8 @@ export class LoginPage implements OnInit {
     if (form.valid) {
       this.isLoading = true;
       this.errorMessage = '';
+      this.ownerVerificationMessage = '';
+      this.ownerVerificationStatus = '';
 
       try {
         const credentials = { 
@@ -92,19 +82,22 @@ export class LoginPage implements OnInit {
         // Add a small delay to ensure session storage is set
         await new Promise(resolve => setTimeout(resolve, 100));
 
-        const profile = await this.userService.loadUserProfile().toPromise();
-        const status = (profile?.applicationStatus || response?.karenderia?.status || '').toLowerCase();
-        
         // Redirect based on user role
-        if (response?.user?.role === 'karenderia_owner' && (status === 'pending' || status === 'rejected')) {
-          await this.router.navigate(['/karenderia-settings']);
-        } else if (response?.user) {
+        if (response?.user) {
           this.redirectBasedOnRole(response.user);
         } else {
           this.router.navigate(['/home']);
         }
         
       } catch (error: any) {
+        const blockedStatus = error?.error?.status;
+        const blockedMessage = error?.error?.message || '';
+
+        if (blockedStatus === 'pending_approval' || blockedStatus === 'rejected' || blockedMessage.toLowerCase().includes('not verified')) {
+          this.ownerVerificationMessage = blockedMessage || 'Your owner account is waiting for admin verification. Login is disabled until approval.';
+          this.ownerVerificationStatus = blockedStatus === 'rejected' ? 'rejected' : 'pending_approval';
+        }
+
         if (error?.error?.message) {
           this.errorMessage = error.error.message;
         } else if (error?.message) {
@@ -124,5 +117,10 @@ export class LoginPage implements OnInit {
 
   goToRegister() {
     this.router.navigate(['/register']);
+  }
+
+  goToReapply() {
+    const email = this.loginData.emailOrUsername;
+    this.router.navigate(['/owner-reapply'], { queryParams: { email } });
   }
 }

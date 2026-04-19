@@ -259,6 +259,37 @@
   }
 }
 
+// Form Actions (for all steps)
+.form-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 24px;
+  
+  ion-button {
+    height: 48px;
+    font-weight: 600;
+    font-size: 1rem;
+    --border-radius: 12px;
+  }
+  
+  ion-button[fill="outline"] {
+    --border-color: #e2e8f0;
+    --color: #475569;
+    border: 2px solid #e2e8f0;
+    
+    &:hover {
+      --background: #f8fafc;
+    }
+  }
+  
+  ion-button[type="submit"] {
+    --background: linear-gradient(135deg, #3b82f6, #2563eb);
+    --color: white;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  }
+}
+
 // Modern Form Actions
 .modern-form-actions {
   display: flex;
@@ -457,6 +488,74 @@
         border-color: #059669;
       }
     }
+  }
+}
+
+.permit-upload-section {
+  margin: 20px 0;
+  padding: 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  background: #f8fafc;
+
+  h3 {
+    margin: 0 0 8px;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1e293b;
+  }
+
+  .required {
+    color: #dc2626;
+  }
+
+  .permit-help-text {
+    margin: 0 0 12px;
+    color: #64748b;
+    font-size: 0.9rem;
+  }
+
+  .permit-upload-btn {
+    --background: #3b82f6;
+    --color: white;
+    --border-radius: 12px;
+    --box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+    font-weight: 600;
+    font-size: 1rem;
+    height: 48px;
+    
+    &:hover {
+      --background: #2563eb;
+    }
+    
+    &:active {
+      --background: #1d4ed8;
+    }
+  }
+
+  .permit-file-preview {
+    margin-top: 10px;
+    padding: 10px 12px;
+    background: #ecfdf5;
+    border: 1px solid #a7f3d0;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+
+    .file-name {
+      color: #065f46;
+      font-weight: 600;
+      word-break: break-all;
+    }
+  }
+
+  .permit-error {
+    margin: 8px 0 0;
+    color: #dc2626;
+    font-size: 0.85rem;
+    font-weight: 600;
   }
 }
 

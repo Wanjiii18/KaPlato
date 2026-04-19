@@ -1,0 +1,125 @@
+<ion-header [translucent]="true" class="modern-owner-header">
+  <ion-toolbar class="gradient-owner-toolbar">
+    <ion-title>
+      <div class="modern-owner-title">
+        <ion-icon name="restaurant" color="light"></ion-icon>
+        <span>Reapply as Owner</span>
+      </div>
+    </ion-title>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/" color="light" class="modern-back-btn"></ion-back-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="modern-owner-content">
+  <div class="modern-registration-container animate-fade-in">
+    
+    <!-- Success Step -->
+    <div *ngIf="successStep" class="modern-success-step">
+      <div class="success-celebration">
+        <div class="celebration-icon">
+          <ion-icon name="checkmark-circle" color="light"></ion-icon>
+        </div>
+        <h2>Reapplication Submitted!</h2>
+        <p>Your updated business permit has been received and is now pending admin review.</p>
+        
+        <div class="next-steps-card">
+          <h3>
+            <ion-icon name="information-circle-outline"></ion-icon>
+            What Happens Next
+          </h3>
+          <ul>
+            <li>
+              <strong>Under Review:</strong> Our admin team will verify your new permit within 1-2 business days.
+            </li>
+            <li>
+              <strong>Email Notification:</strong> You'll receive an email once your application is approved or if we need more information.
+            </li>
+            <li>
+              <strong>Login Access:</strong> After approval, you can log in and start managing your karenderia.
+            </li>
+          </ul>
+          <p class="thank-you">Thank you for your patience and for reapplying!</p>
+        </div>
+
+        <ion-button expand="block" class="modern-primary-btn" (click)="goToLogin()">
+          <ion-icon name="log-in" slot="start"></ion-icon>
+          Back to Login
+        </ion-button>
+      </div>
+    </div>
+
+    <!-- Reapplication Form -->
+    <div *ngIf="!successStep" class="modern-step-content animate-slide-up">
+      <div class="modern-step-card">
+        <div class="modern-step-header">
+          <h2>Reapply with Updated Permit</h2>
+          <p>Your previous application was not approved. Please upload an updated or corrected business permit to reapply.</p>
+        </div>
+
+        <form [formGroup]="reapplyForm" (ngSubmit)="submitReapplication()" class="modern-form">
+          <div class="modern-input-group">
+            <ion-item class="modern-item">
+              <ion-input 
+                formControlName="email"
+                label="Email Address *"
+                labelPlacement="stacked"
+                placeholder="your@email.com"
+                type="email"
+                class="modern-input"
+                readonly
+                [class.error]="reapplyForm.get('email')?.invalid && reapplyForm.get('email')?.touched">
+              </ion-input>
+            </ion-item>
+
+            <div class="permit-upload-section">
+              <h3>Updated Business Permit <span class="required">*</span></h3>
+              <p class="permit-help-text">Upload a clear JPG, PNG, or PDF copy of your corrected or updated business permit (max 5MB).</p>
+
+              <input #permitInput type="file" accept=".jpg,.jpeg,.png,.pdf" (change)="onBusinessPermitSelected($event)" hidden>
+
+              <ion-button type="button" fill="solid" expand="block" class="permit-upload-btn" (click)="permitInput.click()">
+                <ion-icon name="cloud-upload" slot="start"></ion-icon>
+                {{ businessPermitFile ? 'Replace Permit File' : 'Upload Updated Permit' }}
+              </ion-button>
+
+              <div class="permit-file-preview" *ngIf="businessPermitFile">
+                <span class="file-name">{{ businessPermitFile.name }}</span>
+                <ion-button type="button" fill="clear" color="danger" (click)="removeBusinessPermit(permitInput)">Remove</ion-button>
+              </div>
+
+              <p class="permit-error" *ngIf="permitFileError">{{ permitFileError }}</p>
+            </div>
+          </div>
+
+          <div class="reapplication-info">
+            <ion-icon name="help-circle-outline"></ion-icon>
+            <div>
+              <strong>Reapplication Tips:</strong>
+              <ul>
+                <li>Make sure your permit file is clear and readable</li>
+                <li>Check that all information matches your business details</li>
+                <li>Ensure the permit is not expired or invalid</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="modern-form-actions">
+            <ion-button 
+              expand="block" 
+              type="submit" 
+              class="modern-primary-btn"
+              [disabled]="!reapplyForm.valid || isSubmitting">
+              <ion-spinner name="crescent" *ngIf="isSubmitting"></ion-spinner>
+              <span *ngIf="!isSubmitting">
+                <ion-icon name="send" slot="end"></ion-icon>
+                Submit Reapplication
+              </span>
+            </ion-button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</ion-content>

@@ -34,15 +34,6 @@
         <p>Start your culinary journey with us</p>
       </div>
 
-      <div class="auth-switch" aria-label="Authentication navigation">
-        <ion-button fill="clear" class="switch-btn" routerLink="/login">
-          Sign In
-        </ion-button>
-        <ion-button fill="clear" class="switch-btn active" disabled>
-          Sign Up
-        </ion-button>
-      </div>
-
       <div class="auth-form-container">
         <form #registerForm="ngForm" (ngSubmit)="onRegister(registerForm)">
           <div class="modern-form-group">
@@ -68,11 +59,18 @@
                 <ion-icon name="storefront" class="role-icon"></ion-icon>
                 <h4>Karenderia Owner Registration</h4>
               </div>
-              <p>Owner accounts require business details and approval. Continue to the owner registration form.</p>
+              <p>Owner accounts require business details, permit upload, and admin verification before activation.</p>
+              <ion-button
+                expand="block"
+                type="button"
+                class="modern-primary-btn owner-start-btn"
+                (click)="goToKarenderiaRegistration()">
+                Start Owner Registration
+              </ion-button>
             </div>
           </div>
 
-          <div class="modern-form-group">
+          <div class="modern-form-group" *ngIf="registerData.accountType !== 'karenderia_owner'">
             <ion-item class="modern-input-item">
               <ion-label position="floating">Username</ion-label>
               <ion-input
@@ -116,7 +114,7 @@
             </ion-item>
           </div>
 
-          <div class="modern-form-group">
+          <div class="modern-form-group" *ngIf="registerData.accountType !== 'karenderia_owner'">
             <ion-item class="modern-input-item">
               <ion-label position="floating">Email</ion-label>
               <ion-input
@@ -136,7 +134,7 @@
             </div>
           </div>
 
-          <div class="modern-form-group">
+          <div class="modern-form-group" *ngIf="registerData.accountType !== 'karenderia_owner'">
             <ion-item class="modern-input-item">
               <ion-label position="floating">Password</ion-label>
               <ion-input
@@ -164,7 +162,7 @@
             </div>
           </div>
 
-          <div class="modern-form-group">
+          <div class="modern-form-group" *ngIf="registerData.accountType !== 'karenderia_owner'">
             <ion-item class="modern-input-item">
               <ion-label position="floating">Confirm Password</ion-label>
               <ion-input
@@ -197,11 +195,12 @@
           <ion-button
             expand="block"
             type="submit"
-            [disabled]="(registerData.accountType !== 'karenderia_owner' && (!registerForm.valid || registerData.password !== registerData.confirmPassword)) || isLoading"
+            *ngIf="registerData.accountType !== 'karenderia_owner'"
+            [disabled]="!registerForm.valid || registerData.password !== registerData.confirmPassword || isLoading"
             class="modern-primary-btn">
             <ion-spinner name="crescent" *ngIf="isLoading" class="btn-spinner"></ion-spinner>
             <span *ngIf="!isLoading">
-              {{ registerData.accountType === 'supplier' ? 'Submit Supplier Application' : (registerData.accountType === 'karenderia_owner' ? 'Continue to Owner Registration' : 'Create Account') }}
+              {{ registerData.accountType === 'supplier' ? 'Submit Supplier Application' : 'Create Account' }}
             </span>
           </ion-button>
         </form>
@@ -229,13 +228,6 @@
           <p class="auth-link-text">Already have an account?</p>
           <ion-button fill="clear" routerLink="/login" class="modern-link-btn">
             Sign In
-          </ion-button>
-        </div>
-
-        <div class="modern-auth-footer owner-registration-footer">
-          <p class="auth-link-text">Want to register your business?</p>
-          <ion-button fill="clear" routerLink="/karenderia-registration" class="modern-link-btn" color="secondary">
-            Karenderia Owner Registration
           </ion-button>
         </div>
       </div>

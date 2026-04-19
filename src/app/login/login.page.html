@@ -29,13 +29,20 @@
         <p>Sign in to your account</p>
       </div>
 
-      <div class="auth-switch" aria-label="Authentication navigation">
-        <ion-button fill="clear" class="switch-btn active" disabled>
-          Sign In
-        </ion-button>
-        <ion-button fill="clear" class="switch-btn" routerLink="/register">
-          Sign Up
-        </ion-button>
+      <div class="owner-verification-banner" *ngIf="ownerVerificationMessage" [ngClass]="{ 'banner-rejected': ownerVerificationStatus === 'rejected', 'banner-pending': ownerVerificationStatus === 'pending_approval' }">
+        <ion-icon [name]="ownerVerificationStatus === 'rejected' ? 'alert-circle' : 'shield-checkmark-outline'"></ion-icon>
+        <div class="banner-content">
+          <strong>{{ ownerVerificationStatus === 'rejected' ? 'Owner application rejected' : 'Owner account pending approval' }}</strong>
+          <p>{{ ownerVerificationMessage }}</p>
+          <ion-button 
+            *ngIf="ownerVerificationStatus === 'rejected'" 
+            fill="clear" 
+            class="reapply-link-btn"
+            (click)="goToReapply()">
+            <ion-icon name="open" slot="start"></ion-icon>
+            Reapply with Updated Documents
+          </ion-button>
+        </div>
       </div>
 
       <div class="auth-form-container">

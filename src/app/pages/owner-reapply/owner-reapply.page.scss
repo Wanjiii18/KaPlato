@@ -1,0 +1,395 @@
+// Reapply Owner Styles
+.modern-owner-header {
+  .gradient-owner-toolbar {
+    --background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #d946ef 100%);
+    --color: white;
+    --border-color: transparent;
+    
+    .modern-owner-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 800;
+      font-size: 1.2rem;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      
+      ion-icon {
+        font-size: 1.6rem;
+        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+      }
+    }
+    
+    .modern-back-btn {
+      --background: rgba(255, 255, 255, 0.1);
+      --border-radius: 12px;
+      backdrop-filter: blur(10px);
+    }
+  }
+}
+
+.modern-owner-content {
+  --background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+}
+
+.modern-registration-container {
+  padding: 24px 16px;
+  max-width: 800px;
+  margin: 0 auto;
+  min-height: 100vh;
+}
+
+.modern-step-content {
+  animation: slideInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  opacity: 0;
+}
+
+.modern-step-card {
+  background: white;
+  border-radius: 24px;
+  padding: 32px 24px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+}
+
+.modern-step-header {
+  margin-bottom: 32px;
+  
+  h2 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0 0 12px 0;
+  }
+  
+  p {
+    color: #64748b;
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+}
+
+.modern-form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.modern-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.modern-item {
+  --padding-start: 0;
+  --padding-end: 0;
+  --inner-padding-start: 0;
+  --inner-padding-end: 0;
+  
+  ion-input {
+    --background: #f8fafc;
+    --color: #1e293b;
+    --placeholder-color: #94a3b8;
+    --border-radius: 12px;
+    padding: 12px;
+  }
+}
+
+.permit-upload-section {
+  margin: 20px 0;
+  padding: 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  background: #f8fafc;
+
+  h3 {
+    margin: 0 0 8px;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1e293b;
+  }
+
+  .required {
+    color: #dc2626;
+  }
+
+  .permit-help-text {
+    margin: 0 0 12px;
+    color: #64748b;
+    font-size: 0.9rem;
+  }
+
+  .permit-upload-btn {
+    --background: #3b82f6;
+    --color: white;
+    --border-radius: 12px;
+    --box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+    font-weight: 600;
+    font-size: 1rem;
+    height: 48px;
+    
+    &:hover {
+      --background: #2563eb;
+    }
+    
+    &:active {
+      --background: #1d4ed8;
+    }
+  }
+
+  .permit-file-preview {
+    margin-top: 10px;
+    padding: 10px 12px;
+    background: #ecfdf5;
+    border: 1px solid #a7f3d0;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+
+    .file-name {
+      color: #065f46;
+      font-weight: 600;
+      word-break: break-all;
+    }
+  }
+
+  .permit-error {
+    margin: 8px 0 0;
+    color: #dc2626;
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+}
+
+.reapplication-info {
+  display: flex;
+  gap: 12px;
+  padding: 16px;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(99, 102, 241, 0.05));
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: 12px;
+  
+  ion-icon {
+    font-size: 1.5rem;
+    color: #3b82f6;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  
+  div {
+    strong {
+      display: block;
+      color: #1e293b;
+      margin-bottom: 8px;
+    }
+    
+    ul {
+      margin: 0;
+      padding-left: 16px;
+      list-style: disc;
+      color: #64748b;
+      font-size: 0.9rem;
+      
+      li {
+        margin-bottom: 4px;
+        line-height: 1.4;
+      }
+    }
+  }
+}
+
+.modern-form-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 24px;
+  
+  .modern-primary-btn {
+    --background: linear-gradient(135deg, #3b82f6, #2563eb);
+    --color: white;
+    --border-radius: 12px;
+    height: 48px;
+    font-weight: 700;
+    font-size: 1rem;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
+    }
+    
+    &:disabled {
+      opacity: 0.6;
+      transform: none;
+      box-shadow: none;
+    }
+    
+    ion-icon {
+      font-size: 1.2rem;
+    }
+    
+    ion-spinner {
+      width: 18px;
+      height: 18px;
+    }
+  }
+}
+
+// Success Step
+.modern-success-step {
+  text-align: center;
+  
+  .success-celebration {
+    .celebration-icon {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 32px;
+      box-shadow: 0 16px 40px rgba(59, 130, 246, 0.3);
+      animation: celebrationPulse 2s ease-in-out infinite;
+      
+      ion-icon {
+        font-size: 4rem;
+        color: white;
+      }
+    }
+    
+    h2 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: #3b82f6;
+      margin: 0 0 16px 0;
+    }
+    
+    p {
+      font-size: 1.2rem;
+      color: #64748b;
+      margin: 0 0 40px 0;
+      line-height: 1.6;
+    }
+  }
+  
+  .next-steps-card {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(99, 102, 241, 0.05));
+    border: 2px solid rgba(59, 130, 246, 0.2);
+    border-radius: 20px;
+    padding: 32px;
+    margin: 32px 0;
+    text-align: left;
+    
+    h3 {
+      color: #3b82f6;
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin: 0 0 20px 0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      
+      ion-icon {
+        font-size: 1.5rem;
+      }
+    }
+    
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      
+      li {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        margin-bottom: 16px;
+        
+        &:before {
+          content: '✓';
+          color: #3b82f6;
+          font-weight: 700;
+          font-size: 1.2rem;
+          flex-shrink: 0;
+        }
+        
+        strong {
+          color: #1e293b;
+        }
+      }
+    }
+    
+    .thank-you {
+      margin-top: 24px;
+      padding-top: 24px;
+      border-top: 1px solid rgba(59, 130, 246, 0.2);
+      color: #3b82f6;
+      font-weight: 600;
+      font-size: 1rem;
+    }
+  }
+  
+  .modern-primary-btn {
+    --background: linear-gradient(135deg, #3b82f6, #2563eb);
+    --color: white;
+    --border-radius: 12px;
+    height: 48px;
+    font-weight: 700;
+    font-size: 1rem;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    margin-top: 24px;
+    
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
+    }
+  }
+}
+
+// Animations
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes celebrationPulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 16px 40px rgba(59, 130, 246, 0.3);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 20px 50px rgba(59, 130, 246, 0.4);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.animate-slide-up {
+  animation: slideInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}

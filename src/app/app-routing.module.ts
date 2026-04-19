@@ -31,6 +31,14 @@ const routes: Routes = [
     loadChildren: () => import('./register/register.module').then( m => m.RegisterPageModule)
   },
   {
+    path: 'karenderia-owner-registration',
+    loadComponent: () => import('./pages/karenderia-owner-registration/karenderia-owner-registration.page').then(m => m.KarenderiaOwnerRegistrationPage)
+  },
+  {
+    path: 'owner-reapply',
+    loadComponent: () => import('./pages/owner-reapply/owner-reapply.page').then(m => m.OwnerReapplyPage)
+  },
+  {
     path: 'karenderia-application',
     loadChildren: () => import('./karenderia-application/karenderia-application.module').then( m => m.KarenderiaApplicationPageModule),
     canActivate: [AuthGuard, CustomerGuard]

@@ -186,6 +186,24 @@
     color: var(--ion-color-medium);
     margin: 0 0 20px 0;
   }
+
+  &.compact {
+    padding: 20px 16px 10px;
+
+    ion-icon {
+      margin-bottom: 8px;
+    }
+
+    h3 {
+      font-size: 1.02rem;
+      margin-bottom: 6px;
+    }
+
+    p {
+      margin-bottom: 10px;
+      font-size: 0.9rem;
+    }
+  }
 }
 
 .inventory-card {
@@ -440,11 +458,11 @@ ion-fab-button {
   
   .stats-row {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
     gap: 16px;
     
     @media (max-width: 576px) {
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(2, 1fr);
       gap: 8px;
     }
   }
@@ -493,6 +511,34 @@ ion-fab-button {
 
 .supplier-orders-stats {
   padding: 16px;
+}
+
+.supplier-controls-card {
+  margin: 0 16px 12px;
+
+  .supplier-controls-grid {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr 1fr;
+    gap: 10px;
+
+    &.two-col {
+      grid-template-columns: 1.6fr 1fr;
+    }
+
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+
+      &.two-col {
+        grid-template-columns: 1fr;
+      }
+    }
+  }
+
+  ion-item {
+    --background: rgba(var(--ion-color-light-rgb), 0.45);
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    border-radius: 10px;
+  }
 }
 
 // Quick Start Card Styling
@@ -575,6 +621,10 @@ ion-fab-button {
 
 .supplier-banner {
   padding: 14px 16px 6px;
+
+  &.compact {
+    padding-top: 8px;
+  }
 
   .supplier-banner-content {
     background: linear-gradient(135deg, #e0f2fe 0%, #eef2ff 100%);

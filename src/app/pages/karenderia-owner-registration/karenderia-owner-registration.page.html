@@ -41,7 +41,7 @@
           </div>
           <div class="step-info">
             <span class="step-title">Business</span>
-            <span class="step-subtitle">Restaurant Details</span>
+            <span class="step-subtitle">Details + Permit</span>
           </div>
         </div>
         
@@ -150,7 +150,7 @@
       <div class="step-header">
         <ion-icon name="restaurant-outline" class="step-icon"></ion-icon>
         <h2>Business Information</h2>
-        <p>Tell us about your karenderia</p>
+        <p>Tell us about your karenderia and upload your permit for admin verification.</p>
       </div>
 
       <form [formGroup]="businessForm" (ngSubmit)="nextStep()">
@@ -194,6 +194,25 @@
             type="email">
           </ion-input>
         </ion-item>
+
+        <div class="permit-upload-section">
+          <h3>Business Permit <span class="required">*</span></h3>
+          <p class="permit-help-text">Upload a clear JPG, PNG, or PDF copy of your business permit (max 5MB).</p>
+
+          <input #permitInput type="file" accept=".jpg,.jpeg,.png,.pdf" (change)="onBusinessPermitSelected($event)" hidden>
+
+          <ion-button type="button" fill="solid" expand="block" class="permit-upload-btn" (click)="permitInput.click()">
+            <ion-icon name="cloud-upload" slot="start"></ion-icon>
+            {{ businessPermitFile ? 'Replace Permit File' : 'Upload Permit File' }}
+          </ion-button>
+
+          <div class="permit-file-preview" *ngIf="businessPermitFile">
+            <span class="file-name">{{ businessPermitFile.name }}</span>
+            <ion-button type="button" fill="clear" color="danger" (click)="removeBusinessPermit(permitInput)">Remove</ion-button>
+          </div>
+
+          <p class="permit-error" *ngIf="permitFileError">{{ permitFileError }}</p>
+        </div>
 
         <!-- Operating Hours -->
         <div class="form-section">
@@ -255,7 +274,7 @@
       <div class="step-header">
         <ion-icon name="location-outline" class="step-icon"></ion-icon>
         <h2>Business Address</h2>
-        <p>Provide your business address. The admin will set your exact map location after approval.</p>
+        <p>Provide your business address. Admin will verify your permit and set your exact map location after approval.</p>
       </div>
 
       <form [formGroup]="locationForm" (ngSubmit)="submitApplication()">
@@ -362,7 +381,7 @@
         <div class="next-steps">
           <h3>What happens next?</h3>
           <ul>
-            <li>Admin reviews your business information and location</li>
+            <li>Admin reviews your business information, permit file, and location details</li>
             <li>You'll receive an email notification about the approval status</li>
             <li>Once approved, your karenderia will appear on the customer map</li>
             <li>You can start managing your menu and taking orders</li>
@@ -373,16 +392,9 @@
           <ion-button 
             expand="block" 
             fill="solid"
-            routerLink="/karenderia-dashboard">
-            <ion-icon name="speedometer" slot="start"></ion-icon>
-            View Dashboard
-          </ion-button>
-          <ion-button 
-            expand="block" 
-            fill="outline"
-            routerLink="/home">
-            <ion-icon name="home" slot="start"></ion-icon>
-            Back to Home
+            routerLink="/login">
+            <ion-icon name="log-in" slot="start"></ion-icon>
+            Back to Login
           </ion-button>
         </div>
       </div>

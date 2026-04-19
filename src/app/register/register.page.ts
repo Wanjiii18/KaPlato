@@ -119,6 +119,6 @@ export class RegisterPage implements OnInit {
   }
   
   goToKarenderiaRegistration() {
-    this.router.navigate(['/karenderia-registration']);
+    this.router.navigate(['/karenderia-owner-registration']);
   }
 }

@@ -129,9 +129,12 @@ export class AuthService {
     return this.http.post<AuthResponse>(`${this.apiUrl}/auth/register-karenderia-owner`, registrationData)
       .pipe(
         tap(response => {
-          localStorage.setItem('auth_token', response.access_token);
-          localStorage.setItem('user_data', JSON.stringify(response.user));
-          this.currentUserSubject.next(response.user);
+          // Owner applications can return a pending response without login tokens.
+          if (response?.access_token && response?.user) {
+            localStorage.setItem('auth_token', response.access_token);
+            localStorage.setItem('user_data', JSON.stringify(response.user));
+            this.currentUserSubject.next(response.user);
+          }
         }),
         catchError(error => {
           console.error('Karenderia owner registration error:', error);
@@ -145,6 +148,16 @@ export class AuthService {
       .pipe(
         catchError(error => {
           console.error('Supplier registration error:', error);
+          throw error;
+        })
+      );
+  }
+
+  reapplyOwner(reapplicationData: FormData): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/auth/reapply-owner`, reapplicationData)
+      .pipe(
+        catchError(error => {
+          console.error('Owner reapplication error:', error);
           throw error;
         })
       );
