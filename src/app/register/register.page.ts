@@ -17,7 +17,18 @@ export class RegisterPage implements OnInit {
     password: '',
     confirmPassword: '',
     phoneNumber: '',
-    address: ''
+    address: '',
+    // Karenderia owner fields
+    businessName: '',
+    description: '',
+    city: '',
+    province: '',
+    businessEmail: '',
+    openingTime: '09:00',
+    closingTime: '21:00',
+    businessPermit: null as File | null,
+    latitude: 10.3157,
+    longitude: 123.8854
   };
 
   showPassword = false;
@@ -25,6 +36,9 @@ export class RegisterPage implements OnInit {
   isLoading = false;
   errorMessage = '';
   successMessage = '';
+  permitFileControl: any = null; // Track file input for form validation
+  
+
 
   constructor(
     private authService: AuthService,
@@ -40,8 +54,13 @@ export class RegisterPage implements OnInit {
 
   async onRegister(form: NgForm) {
     if (this.registerData.accountType === 'karenderia_owner') {
-      this.goToKarenderiaRegistration();
-      return;
+      // Validate karenderia owner specific fields
+      if (!this.registerData.businessName || !this.registerData.description || 
+          !this.registerData.city || !this.registerData.province || 
+          !this.registerData.businessPermit) {
+        this.errorMessage = 'Please fill in all required business fields, including the business permit.';
+        return;
+      }
     }
 
     if (form.valid && this.registerData.password === this.registerData.confirmPassword) {
@@ -50,14 +69,37 @@ export class RegisterPage implements OnInit {
       this.successMessage = '';
 
       try {
-        if (this.registerData.accountType === 'supplier') {
+        if (this.registerData.accountType === 'karenderia_owner') {
+          const formData = new FormData();
+          formData.append('name', this.registerData.username);
+          formData.append('email', this.registerData.email);
+          formData.append('password', this.registerData.password);
+          formData.append('password_confirmation', this.registerData.confirmPassword);
+          formData.append('business_name', this.registerData.businessName);
+          formData.append('description', this.registerData.description);
+          formData.append('address', this.registerData.address);
+          formData.append('city', this.registerData.city);
+          formData.append('province', this.registerData.province);
+          formData.append('phone', this.registerData.phoneNumber || '');
+          formData.append('business_email', this.registerData.businessEmail || '');
+          formData.append('opening_time', this.registerData.openingTime);
+          formData.append('closing_time', this.registerData.closingTime);
+          formData.append('latitude', this.registerData.latitude.toString());
+          formData.append('longitude', this.registerData.longitude.toString());
+          if (this.registerData.businessPermit) {
+            formData.append('business_permit', this.registerData.businessPermit);
+          }
+
+          await this.authService.registerKarenderiaOwner(formData).toPromise();
+          this.successMessage = 'Karenderia registration submitted! Your application is pending admin approval. Please wait for approval before logging in.';
+        } else if (this.registerData.accountType === 'supplier') {
           const supplierData = {
-            name: this.registerData.username,
+            username: this.registerData.username,
             email: this.registerData.email,
             password: this.registerData.password,
-            password_confirmation: this.registerData.confirmPassword,
-            phone_number: this.registerData.phoneNumber || undefined,
-            address: this.registerData.address || undefined,
+            confirmPassword: this.registerData.confirmPassword,
+            phoneNumber: this.registerData.phoneNumber || '',
+            address: this.registerData.address || ''
           };
 
           await this.authService.registerSupplier(supplierData).toPromise();
@@ -83,7 +125,17 @@ export class RegisterPage implements OnInit {
           password: '',
           confirmPassword: '',
           phoneNumber: '',
-          address: ''
+          address: '',
+          businessName: '',
+          description: '',
+          city: '',
+          province: '',
+          businessEmail: '',
+          openingTime: '09:00',
+          closingTime: '21:00',
+          businessPermit: null,
+          latitude: 10.3157,
+          longitude: 123.8854
         };
         form.resetForm();
         
@@ -117,8 +169,26 @@ export class RegisterPage implements OnInit {
   goToLogin() {
     this.router.navigate(['/login']);
   }
-  
-  goToKarenderiaRegistration() {
-    this.router.navigate(['/karenderia-owner-registration']);
+  onBusinessPermitSelected(event: any) {
+    const file = event.target.files[0];
+    if (file) {
+      // Validate file type (PDF, JPG, PNG, etc.)
+      const validTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
+      if (!validTypes.includes(file.type)) {
+        this.errorMessage = 'Please upload a valid file format (PDF or image).';
+        return;
+      }
+
+      // Validate file size (max 5MB)
+      const maxSize = 5 * 1024 * 1024;
+      if (file.size > maxSize) {
+        this.errorMessage = 'File size must not exceed 5MB.';
+        return;
+      }
+
+      this.registerData.businessPermit = file;
+      this.errorMessage = '';
+      console.log('Business permit selected:', file.name);
+    }
   }
 }

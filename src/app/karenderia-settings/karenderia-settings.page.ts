@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { KarenderiaInfoService } from '../services/karenderia-info.service';
 import { KarenderiaService } from '../services/karenderia.service';
-import { LoadingController, ToastController } from '@ionic/angular';
+import { LoadingController, ToastController, AlertController } from '@ionic/angular';
 import { AuthService } from '../services/auth.service';
 
 interface BusinessInfo {
@@ -40,6 +40,12 @@ interface PasswordChange {
   currentPassword: string;
   newPassword: string;
   confirmPassword: string;
+}
+
+interface LocationSettings {
+  latitude: number;
+  longitude: number;
+  address: string;
 }
 
 interface OperatingDay {
@@ -98,6 +104,12 @@ export class KarenderiaSettingsPage implements OnInit {
     confirmPassword: ''
   };
 
+  locationSettings: LocationSettings = {
+    latitude: 10.3157,
+    longitude: 123.8854,
+    address: ''
+  };
+
   operatingHours: OperatingDay[] = [
     { name: 'Monday', isOpen: true, openTime: '08:00', closeTime: '20:00' },
     { name: 'Tuesday', isOpen: true, openTime: '08:00', closeTime: '20:00' },
@@ -108,13 +120,16 @@ export class KarenderiaSettingsPage implements OnInit {
     { name: 'Sunday', isOpen: false, openTime: '09:00', closeTime: '18:00' }
   ];
 
+  isChangeLocationMode = false; // Flag to track if user wants to change location
+
   constructor(
     private router: Router,
     private karenderiaInfoService: KarenderiaInfoService,
     private karenderiaService: KarenderiaService,
     private authService: AuthService,
     private loadingController: LoadingController,
-    private toastController: ToastController
+    private toastController: ToastController,
+    private alertController: AlertController
   ) { }
 
   async ngOnInit() {
@@ -161,6 +176,13 @@ export class KarenderiaSettingsPage implements OnInit {
           firstName,
           lastName: rest.join(' ')
         };
+
+        // Load location settings
+        this.locationSettings = {
+          latitude: karenderia.latitude || 10.3157,
+          longitude: karenderia.longitude || 123.8854,
+          address: karenderia.address || ''
+        };
       }
     } catch (error) {
       console.error('Failed to load settings from backend:', error);
@@ -192,6 +214,8 @@ export class KarenderiaSettingsPage implements OnInit {
         phone: this.businessInfo.phone,
         description: this.businessInfo.description,
         address: this.businessInfo.address,
+        latitude: this.locationSettings.latitude,
+        longitude: this.locationSettings.longitude,
         operating_days: operatingDays,
         status: this.karenderiaStatus === 'rejected' ? 'pending' : undefined
       };
@@ -305,5 +329,82 @@ export class KarenderiaSettingsPage implements OnInit {
 
   getKarenderiaBrandInitials(): string {
     return this.karenderiaInfoService.getKarenderiaBrandInitials();
+  }
+
+  // Location handling method
+  async onMapLocationSelected(event: any) {
+    if (event && event.lat !== undefined && event.lng !== undefined) {
+      // If location is already set and user is NOT in change mode, just allow map exploration
+      if (this.isLocationSet() && !this.isChangeLocationMode) {
+        console.log('Location already set. Double-click is disabled. Use "Change Location" button to modify.');
+        return; // Do nothing - allow map exploration
+      }
+
+      // If location is not set OR user is in change mode, show confirmation
+      await this.showLocationConfirmation(event);
+      this.isChangeLocationMode = false; // Reset the flag after attempting change
+    }
+  }
+
+  private async showLocationConfirmation(event: any) {
+    const alert = await this.alertController.create({
+      header: 'Set Location',
+      message: 'Do you want to set your location here?',
+      buttons: [
+        {
+          text: 'No',
+          role: 'cancel',
+          handler: () => {
+            console.log('Location selection cancelled');
+            this.isChangeLocationMode = false;
+          }
+        },
+        {
+          text: 'Yes',
+          handler: () => {
+            this.locationSettings.latitude = event.lat;
+            this.locationSettings.longitude = event.lng;
+            console.log('Location updated:', event);
+            this.showToast('Location set successfully!', 'success');
+            this.isChangeLocationMode = false;
+          }
+        }
+      ]
+    });
+
+    await alert.present();
+  }
+
+  // Initiate location change from button click
+  async initiateLocationChange() {
+    const alert = await this.alertController.create({
+      header: 'Change Location',
+      message: 'Please double-click on the map to set your new location.',
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+          handler: () => {
+            this.isChangeLocationMode = false;
+            console.log('Location change cancelled');
+          }
+        },
+        {
+          text: 'Ready to Change',
+          handler: () => {
+            this.isChangeLocationMode = true;
+            this.showToast('Now double-click on the map to set the new location', 'info');
+          }
+        }
+      ]
+    });
+
+    await alert.present();
+  }
+
+  // Check if location has been set
+  isLocationSet(): boolean {
+    return this.locationSettings.latitude !== 0 && this.locationSettings.longitude !== 0 &&
+           this.locationSettings.latitude !== 10.3157 && this.locationSettings.longitude !== 123.8854;
   }
 }

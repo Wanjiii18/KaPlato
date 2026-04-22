@@ -216,7 +216,27 @@ export class AuthService {
   }
 
   getCurrentUser(): User | null {
-    return this.currentUserSubject.value;
+    // First try to get from the BehaviorSubject (should be in memory)
+    const userFromSubject = this.currentUserSubject.value;
+    
+    if (userFromSubject) {
+      return userFromSubject;
+    }
+    
+    // Fallback: try to get from localStorage (in case BehaviorSubject is out of sync)
+    const userData = localStorage.getItem('user_data');
+    if (userData) {
+      try {
+        const user = JSON.parse(userData);
+        // Update the BehaviorSubject to keep them in sync
+        this.currentUserSubject.next(user);
+        return user;
+      } catch (error) {
+        console.error('Error parsing stored user data:', error);
+      }
+    }
+    
+    return null;
   }
 
   getAuthToken(): string | null {

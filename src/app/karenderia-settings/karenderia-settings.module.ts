@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { RouterModule, Routes } from '@angular/router';
 import { OwnerShellComponent } from '../components/owner-shell/owner-shell.component';
-
+import { ComponentsModule } from '../components/components.module';
 import { KarenderiaSettingsPage } from './karenderia-settings.page';
 
 const routes: Routes = [
@@ -20,6 +20,7 @@ const routes: Routes = [
     FormsModule,
     IonicModule,
     OwnerShellComponent,
+    ComponentsModule,
     RouterModule.forChild(routes)
   ],
   declarations: [KarenderiaSettingsPage]

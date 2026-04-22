@@ -36,21 +36,19 @@
 
       <div class="auth-form-container">
         <form #registerForm="ngForm" (ngSubmit)="onRegister(registerForm)">
-          <div class="modern-form-group">
-            <ion-item class="modern-input-item">
-              <ion-label>Account Type</ion-label>
-              <ion-segment name="accountType" [(ngModel)]="registerData.accountType">
-                <ion-segment-button value="customer">
-                  <ion-label>Customer</ion-label>
-                </ion-segment-button>
-                <ion-segment-button value="supplier">
-                  <ion-label>Supplier</ion-label>
-                </ion-segment-button>
-                <ion-segment-button value="karenderia_owner">
-                  <ion-label>Owner</ion-label>
-                </ion-segment-button>
-              </ion-segment>
-            </ion-item>
+          <div class="modern-form-group account-type-group">
+            <label class="account-type-label">Account Type</label>
+            <ion-segment name="accountType" [(ngModel)]="registerData.accountType" class="account-type-segment">
+              <ion-segment-button value="customer" class="segment-button-customer">
+                <ion-label>Customer</ion-label>
+              </ion-segment-button>
+              <ion-segment-button value="supplier" class="segment-button-supplier">
+                <ion-label>Supplier</ion-label>
+              </ion-segment-button>
+              <ion-segment-button value="karenderia_owner" class="segment-button-owner">
+                <ion-label>Owner</ion-label>
+              </ion-segment-button>
+            </ion-segment>
           </div>
 
           <div class="modern-role-description" *ngIf="registerData.accountType === 'karenderia_owner'">
@@ -59,14 +57,152 @@
                 <ion-icon name="storefront" class="role-icon"></ion-icon>
                 <h4>Karenderia Owner Registration</h4>
               </div>
-              <p>Owner accounts require business details, permit upload, and admin verification before activation.</p>
-              <ion-button
-                expand="block"
-                type="button"
-                class="modern-primary-btn owner-start-btn"
-                (click)="goToKarenderiaRegistration()">
-                Start Owner Registration
-              </ion-button>
+              <p>Fill in your business details below. Your application will be reviewed by admin for approval.</p>
+            </div>
+          </div>
+
+          <!-- Karenderia Owner Specific Fields -->
+          <div *ngIf="registerData.accountType === 'karenderia_owner'">
+            <div class="modern-form-group">
+              <ion-item class="modern-input-item">
+                <ion-label position="floating">Business Name</ion-label>
+                <ion-input
+                  type="text"
+                  name="businessName"
+                  [(ngModel)]="registerData.businessName"
+                  required>
+                </ion-input>
+                <ion-icon name="storefront" slot="start" class="input-icon"></ion-icon>
+              </ion-item>
+            </div>
+
+            <div class="modern-form-group">
+              <ion-item class="modern-input-item">
+                <ion-label position="floating">Business Description</ion-label>
+                <ion-textarea
+                  name="description"
+                  [(ngModel)]="registerData.description"
+                  required
+                  minlength="10">
+                </ion-textarea>
+                <ion-icon name="document" slot="start" class="input-icon"></ion-icon>
+              </ion-item>
+            </div>
+
+            <div class="modern-form-group">
+              <ion-item class="modern-input-item">
+                <ion-label position="floating">Address</ion-label>
+                <ion-input
+                  type="text"
+                  name="address"
+                  [(ngModel)]="registerData.address">
+                </ion-input>
+                <ion-icon name="location" slot="start" class="input-icon"></ion-icon>
+              </ion-item>
+            </div>
+
+            <div class="modern-form-group">
+              <ion-item class="modern-input-item">
+                <ion-label position="floating">City</ion-label>
+                <ion-input
+                  type="text"
+                  name="city"
+                  [(ngModel)]="registerData.city"
+                  required>
+                </ion-input>
+                <ion-icon name="location" slot="start" class="input-icon"></ion-icon>
+              </ion-item>
+            </div>
+
+            <div class="modern-form-group">
+              <ion-item class="modern-input-item">
+                <ion-label position="floating">Province</ion-label>
+                <ion-input
+                  type="text"
+                  name="province"
+                  [(ngModel)]="registerData.province"
+                  required>
+                </ion-input>
+                <ion-icon name="location" slot="start" class="input-icon"></ion-icon>
+              </ion-item>
+            </div>
+
+            <div class="modern-form-group">
+              <ion-item class="modern-input-item">
+                <ion-label position="floating">Phone Number (Optional)</ion-label>
+                <ion-input
+                  type="text"
+                  name="phoneNumber"
+                  [(ngModel)]="registerData.phoneNumber">
+                </ion-input>
+                <ion-icon name="call" slot="start" class="input-icon"></ion-icon>
+              </ion-item>
+            </div>
+
+            <div class="modern-form-group">
+              <ion-item class="modern-input-item">
+                <ion-label position="floating">Business Email (Optional)</ion-label>
+                <ion-input
+                  type="email"
+                  name="businessEmail"
+                  [(ngModel)]="registerData.businessEmail">
+                </ion-input>
+                <ion-icon name="mail" slot="start" class="input-icon"></ion-icon>
+              </ion-item>
+            </div>
+
+            <div class="modern-form-group">
+              <ion-item class="modern-input-item">
+                <ion-label position="floating">Opening Time</ion-label>
+                <ion-input
+                  type="time"
+                  name="openingTime"
+                  [(ngModel)]="registerData.openingTime">
+                </ion-input>
+                <ion-icon name="time" slot="start" class="input-icon"></ion-icon>
+              </ion-item>
+            </div>
+
+            <div class="modern-form-group">
+              <ion-item class="modern-input-item">
+                <ion-label position="floating">Closing Time</ion-label>
+                <ion-input
+                  type="time"
+                  name="closingTime"
+                  [(ngModel)]="registerData.closingTime">
+                </ion-input>
+                <ion-icon name="time" slot="start" class="input-icon"></ion-icon>
+              </ion-item>
+            </div>
+
+            <div class="modern-form-group">
+              <label class="form-label">Business Permit (PDF or Image) <span style="color: red;">*</span></label>
+              <div class="file-upload-wrapper">
+                <input 
+                  type="file" 
+                  #permitFile
+                  name="businessPermit"
+                  [(ngModel)]="permitFileControl"
+                  accept=".pdf,.jpg,.jpeg,.png"
+                  (change)="onBusinessPermitSelected($event)"
+                  required
+                  style="display: none">
+                <ion-button 
+                  fill="outline" 
+                  expand="block" 
+                  (click)="permitFile.click()"
+                  class="file-upload-btn">
+                  <ion-icon name="cloud-upload" slot="start"></ion-icon>
+                  {{ registerData.businessPermit ? registerData.businessPermit.name : 'Choose Business Permit' }}
+                </ion-button>
+              </div>
+              <p class="file-help-text" *ngIf="registerData.businessPermit">
+                ✓ File selected: {{ registerData.businessPermit.name }}
+              </p>
+              <div class="modern-error-message" *ngIf="!registerData.businessPermit && registerForm.submitted">
+                <ion-icon name="alert-circle" class="error-icon"></ion-icon>
+                <span>Business Permit is required</span>
+              </div>
             </div>
           </div>
 
@@ -195,12 +331,11 @@
           <ion-button
             expand="block"
             type="submit"
-            *ngIf="registerData.accountType !== 'karenderia_owner'"
-            [disabled]="!registerForm.valid || registerData.password !== registerData.confirmPassword || isLoading"
+            [disabled]="(registerData.accountType === 'karenderia_owner' ? (!registerForm.valid || !registerData.businessPermit || registerData.password !== registerData.confirmPassword) : (!registerForm.valid || registerData.password !== registerData.confirmPassword)) || isLoading"
             class="modern-primary-btn">
             <ion-spinner name="crescent" *ngIf="isLoading" class="btn-spinner"></ion-spinner>
             <span *ngIf="!isLoading">
-              {{ registerData.accountType === 'supplier' ? 'Submit Supplier Application' : 'Create Account' }}
+              {{ registerData.accountType === 'supplier' ? 'Submit Supplier Application' : (registerData.accountType === 'karenderia_owner' ? 'Submit Owner Registration' : 'Create Account') }}
             </span>
           </ion-button>
         </form>

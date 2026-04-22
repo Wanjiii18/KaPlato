@@ -21,6 +21,7 @@ export class KarenderiasBrowsePage implements OnInit {
   activeAllergens: string[] = [];
   avoidRiskyRestaurants = true;
   restaurantAllergenRiskMap: { [id: string]: boolean } = {};
+  allergenFilterMode: 'show-all' | 'avoid-allergens' = 'avoid-allergens';
   
   // User location for distance calculation
   userLocation: { latitude: number; longitude: number } | null = null;
@@ -56,8 +57,45 @@ export class KarenderiasBrowsePage implements OnInit {
   }
 
   private loadAllergenDefaults() {
-    const effective = this.allergenDetectionService.getEffectiveUserAllergens();
-    this.activeAllergens = effective.map(allergen => allergen.name);
+    // Load user's ACTUAL selected allergies from their profile
+    try {
+      const storedSettings = localStorage.getItem('allergen-settings');
+      if (storedSettings) {
+        const parsed = JSON.parse(storedSettings);
+        const selected = Array.isArray(parsed?.selected_allergens) ? parsed.selected_allergens : [];
+        if (selected.length > 0) {
+          this.activeAllergens = selected;
+          this.allergenDetectionService.updateUserAllergens(
+            selected.map((name: string) => ({
+              name,
+              severity: parsed.severity_levels?.[name] || 'moderate'
+            }))
+          );
+          return;
+        }
+      }
+    } catch (error) {
+      console.warn('Error loading stored allergen settings:', error);
+    }
+
+    // If no stored settings, try to load from user profile
+    try {
+      const userProfile = localStorage.getItem('user-profile');
+      if (userProfile) {
+        const profile = JSON.parse(userProfile);
+        if (profile.allergens && Array.isArray(profile.allergens) && profile.allergens.length > 0) {
+          this.activeAllergens = profile.allergens.map((a: any) => a.name || a);
+          this.allergenDetectionService.updateUserAllergens(profile.allergens);
+          return;
+        }
+      }
+    } catch (error) {
+      console.warn('Error loading user profile allergens:', error);
+    }
+
+    // No allergies selected - empty array
+    this.activeAllergens = [];
+    this.allergenDetectionService.updateUserAllergens([]);
   }
 
   async getUserLocation(): Promise<void> {
@@ -212,7 +250,17 @@ export class KarenderiasBrowsePage implements OnInit {
   }
 
   toggleAvoidRiskyRestaurants(enabled: boolean) {
+    this.allergenFilterMode = enabled ? 'avoid-allergens' : 'show-all';
     this.avoidRiskyRestaurants = enabled;
+    this.applyFilters();
+  }
+
+  /**
+   * Set allergen filter mode explicitly
+   */
+  setAllergenFilterMode(mode: 'show-all' | 'avoid-allergens') {
+    this.allergenFilterMode = mode;
+    this.avoidRiskyRestaurants = mode === 'avoid-allergens';
     this.applyFilters();
   }
 
@@ -231,7 +279,7 @@ export class KarenderiasBrowsePage implements OnInit {
       console.log('🔍 After search filter:', filtered.length, 'karenderias');
     }
 
-    if (this.avoidRiskyRestaurants && this.activeAllergens.length > 0) {
+    if (this.allergenFilterMode === 'avoid-allergens' && this.activeAllergens.length > 0) {
       filtered = filtered.filter(k => !this.isRestaurantAllergenRisk(k));
       console.log('🔍 After allergen avoid filter:', filtered.length, 'karenderias');
     }

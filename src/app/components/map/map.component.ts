@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
+import { Component, AfterViewInit, Input, Output, EventEmitter, OnDestroy, OnChanges, SimpleChanges } from '@angular/core';
 import * as L from 'leaflet';
 import 'leaflet-routing-machine';
 import { KarenderiaService, Karenderia, SimpleKarenderia } from '../../services/karenderia.service';
@@ -11,16 +11,22 @@ import { Geolocation } from '@capacitor/geolocation';
   styleUrls: ['./map.component.scss'],
   standalone: false,
 })
-export class MapComponent implements AfterViewInit, OnDestroy {
+export class MapComponent implements AfterViewInit, OnDestroy, OnChanges {
   @Input() lat = 10.3157; // Default to Cebu City coordinates
   @Input() lng = 123.8854;
   @Input() zoom = 13;
   @Input() isLocationPickerMode = false; // New input for location picker mode
   @Input() searchRadiusMeters = 1000; // Search radius in meters for visual indication
+  @Input() showStoreLocationMarker = false; // Show permanent store location marker
+  @Input() storeMarkerLat = 0; // Store location latitude
+  @Input() storeMarkerLng = 0; // Store location longitude
+  @Input() showSearchControls = true; // Show search controls in the map
+  @Input() karenderiasList: SimpleKarenderia[] = []; // Receive karenderias from parent
   @Output() mapDoubleClick = new EventEmitter<{lat: number, lng: number}>();
 
   private map!: L.Map;
   private currentLocationMarker?: L.Marker;
+  private storeLocationMarker?: L.Marker; // Marker for karenderia/store location
   private karenderiaMarkers: L.Marker[] = [];
   private searchRadius: L.Circle | undefined;
   private routeLayer?: L.LayerGroup;
@@ -48,6 +54,9 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       this.initMap();
       this.clearRoute(); // Clear any existing routes
       
+      // Update store location marker if needed
+      this.updateStoreLocationMarker();
+      
       // Only get location and search karenderias if NOT in location picker mode
       if (!this.isLocationPickerMode) {
         this.getCurrentLocation();
@@ -72,6 +81,30 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   ngOnDestroy() {
     if (this.map) {
       this.map.remove();
+    }
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    // Update store location marker when inputs change
+    if (changes['showStoreLocationMarker'] || changes['storeMarkerLat'] || changes['storeMarkerLng']) {
+      if (this.map) {
+        this.updateStoreLocationMarker();
+      }
+    }
+    
+    // Update search radius circle when searchRadiusMeters changes
+    if (changes['searchRadiusMeters'] && this.map) {
+      console.log('⏩ searchRadiusMeters changed from', changes['searchRadiusMeters'].previousValue, 'to', changes['searchRadiusMeters'].currentValue);
+      this.searchRange = changes['searchRadiusMeters'].currentValue;
+      this.updateSearchRadius();
+    }
+    
+    // Update karenderia markers when karenderiasList changes
+    if (changes['karenderiasList'] && this.map && !this.isLocationPickerMode) {
+      console.log('📍 Karenderia list updated:', changes['karenderiasList'].currentValue.length);
+      this.karenderias = changes['karenderiasList'].currentValue;
+      this.clearKarenderiaMarkers();
+      this.addKarenderiaMarkers();
     }
   }
 
@@ -218,16 +251,68 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     }).addTo(this.map);
   }
 
+  private updateStoreLocationMarker(): void {
+    if (!this.showStoreLocationMarker || !this.map) {
+      // Remove marker if it should not be shown
+      if (this.storeLocationMarker) {
+        this.map.removeLayer(this.storeLocationMarker);
+        this.storeLocationMarker = undefined;
+      }
+      return;
+    }
+
+    // Remove existing marker if any
+    if (this.storeLocationMarker) {
+      this.map.removeLayer(this.storeLocationMarker);
+    }
+
+    // Create custom icon for store location (red location pin with white center)
+    const storeLocationIcon = L.divIcon({
+      html: `<div style="
+        background-color: #dc3545; 
+        width: 32px; 
+        height: 32px; 
+        border-radius: 50% 50% 50% 0; 
+        transform: rotate(-45deg); 
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        border: 3px solid white;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+      ">
+        <div style="
+          transform: rotate(45deg); 
+          color: white; 
+          font-size: 16px;
+          font-weight: bold;
+        ">📍</div>
+      </div>`,
+      iconSize: [32, 32],
+      iconAnchor: [16, 32]
+    });
+
+    this.storeLocationMarker = L.marker([this.storeMarkerLat, this.storeMarkerLng], {
+      icon: storeLocationIcon,
+      title: 'Karenderia Location'
+    }).addTo(this.map);
+
+    console.log('📍 Store location marker added at:', this.storeMarkerLat, this.storeMarkerLng);
+  }
+
   private updateSearchRadius(): void {
     // Don't show search radius in location picker mode
     if (this.isLocationPickerMode) {
+      console.log('📍 Skipping search radius - in location picker mode');
       return;
     }
+    
+    console.log('🔵 Updating search radius circle. SearchRange:', this.searchRange, 'meters');
     
     if (this.currentLocation) {
       // Remove existing radius circle
       if (this.searchRadius) {
         this.map.removeLayer(this.searchRadius);
+        console.log('🔵 Removed old search radius circle');
       }
 
       // Add new radius circle
@@ -237,6 +322,9 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         fillOpacity: 0.1,
         radius: this.searchRange,
       }).addTo(this.map);
+      console.log('✅ Added new search radius circle with radius:', this.searchRange, 'meters');
+    } else {
+      console.log('⚠️ Current location not available for search radius');
     }
   }
 
@@ -332,9 +420,13 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       return;
     }
     
-    this.karenderias.forEach(karenderia => {
+    console.log('🍽️ Adding', this.karenderias.length, 'karenderia markers to map');
+    
+    this.karenderias.forEach((karenderia, index) => {
+      console.log(`🍽️ Marker ${index + 1}: ${karenderia.name} at (${karenderia.location.latitude}, ${karenderia.location.longitude})`);
+      
       const icon = L.divIcon({
-        html: '<div style="background: #28a745; color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid white; font-size: 16px;">🍽️</div>',
+        html: '<div style="background: #28a745; color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid white; font-size: 16px; cursor: pointer;">🍽️</div>',
         iconSize: [30, 30],
         className: 'karenderia-marker'
       });
@@ -344,10 +436,15 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         .bindPopup(this.createPopupContent(karenderia), {
           maxWidth: 300,
           className: 'karenderia-popup'
+        })
+        .on('click', () => {
+          console.log('🍽️ Marker clicked:', karenderia.name);
         });
 
       this.karenderiaMarkers.push(marker);
     });
+    
+    console.log('✅ Total markers added:', this.karenderiaMarkers.length);
   }
 
   // Create popup content for karenderia markers

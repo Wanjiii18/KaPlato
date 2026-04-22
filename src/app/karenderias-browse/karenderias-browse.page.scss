@@ -202,7 +202,141 @@
   }
 }
 
-// Karenderias grid
+// Results Header with Allergies Layout
+.results-header-with-allergies {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 20px;
+  
+  .results-count {
+    h3 {
+      margin: 0;
+      color: #1e293b;
+      font-size: 1.4rem;
+      font-weight: 700;
+    }
+    
+    p {
+      margin: 4px 0 0 0;
+      color: #64748b;
+      font-size: 0.9rem;
+    }
+  }
+  
+  .results-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    
+    .rating-filter {
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+      border-left: 4px solid #667eea;
+      border-radius: 8px;
+      padding: 12px 12px;
+      
+      .filter-label-text {
+        font-size: 0.85rem;
+        color: #667eea;
+        font-weight: 600;
+        margin-bottom: 8px;
+      }
+      
+      .filter-select {
+        --background: white;
+        --color: #667eea;
+        --border-radius: 6px;
+        border: 1px solid #ddd8f3;
+        font-size: 0.85rem;
+        width: 100%;
+      }
+    }
+    
+    .allergen-filter {
+      background: linear-gradient(135deg, rgba(255, 193, 7, 0.1) 0%, rgba(255, 152, 0, 0.1) 100%);
+      border-left: 4px solid var(--ion-color-warning);
+      border-radius: 8px;
+      padding: 12px 12px;
+      
+      .filter-label-text {
+        font-size: 0.85rem;
+        color: #ff9800;
+        font-weight: 600;
+        margin-bottom: 8px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      
+      .filter-select {
+        --background: white;
+        --color: #ff9800;
+        --border-radius: 6px;
+        border: 1px solid #ffd54f;
+        font-size: 0.85rem;
+        width: 100%;
+      }
+    }
+  }
+}
+
+.results-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 20px;
+  gap: 12px;
+  flex-wrap: wrap;
+  
+  .results-info {
+    h3 {
+      margin: 0;
+      color: #1e293b;
+      font-size: 1.4rem;
+      font-weight: 700;
+    }
+    
+    p {
+      margin: 4px 0 0 0;
+      color: #64748b;
+      font-size: 0.9rem;
+    }
+  }
+  
+  .sort-select {
+    --background: white;
+    --color: #64748b;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 0.9rem;
+  }
+}
+
+// Allergen Filter Section
+ion-item {
+  &:has(.allergen-label) {
+    --background: linear-gradient(135deg, rgba(255, 193, 7, 0.1) 0%, rgba(255, 152, 0, 0.1) 100%);
+    --border-bottom: 1px solid rgba(255, 152, 0, 0.2);
+    --padding-start: 16px;
+    --padding-end: 16px;
+    margin-bottom: 16px;
+    border-left: 4px solid var(--ion-color-warning);
+    
+    .allergen-label {
+      font-size: 0.95rem;
+      color: #ff9800;
+      font-weight: 500;
+      white-space: normal !important;
+      overflow: visible !important;
+      text-overflow: unset !important;
+    }
+    
+    .allergen-select {
+      --padding-end: 8px;
+    }
+  }
+}
 .karenderias-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));

@@ -315,6 +315,47 @@ export class CustomerMapPage implements OnInit, OnDestroy {
     await alert.present();
   }
 
+  // Search for karenderias near current location
+  async searchNearbyKarenderias() {
+    const loading = await this.loadingController.create({
+      message: 'Searching for nearby karenderias...',
+      duration: 5000
+    });
+    await loading.present();
+
+    try {
+      await this.loadKarenderias();
+      console.log(`✅ Found ${this.karenderias.length} karenderias within ${this.formatSearchRadius()}`);
+      await this.showToast(`Found ${this.karenderias.length} karenderias within ${this.formatSearchRadius()}`, 'success');
+    } catch (error) {
+      console.error('❌ Error searching karenderias:', error);
+      await this.showToast('Error searching karenderias. Please try again.', 'danger');
+    } finally {
+      loading.dismiss();
+    }
+  }
+
+  // Center map on user's current location
+  async centerOnUserLocation() {
+    const loading = await this.loadingController.create({
+      message: 'Getting your location...',
+      duration: 3000
+    });
+    await loading.present();
+
+    try {
+      await this.getCurrentLocation();
+      console.log('✅ Location updated:', this.currentLat, this.currentLng);
+      await this.loadKarenderias();
+      await this.showToast('Location updated and searching nearby karenderias...', 'success');
+    } catch (error) {
+      console.error('❌ Error getting location:', error);
+      await this.showToast('Unable to get your location. Please enable location services.', 'warning');
+    } finally {
+      loading.dismiss();
+    }
+  }
+
   ngOnDestroy() {
     // Cleanup timeout to prevent memory leaks
     if (this.rangeChangeTimeout) {

@@ -83,6 +83,27 @@
         <ion-label slot="end">5km</ion-label>
       </ion-range>
     </div>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons-container">
+      <ion-button 
+        expand="block"
+        (click)="searchNearbyKarenderias()"
+        color="primary"
+        class="search-button">
+        <ion-icon name="search-outline" slot="start"></ion-icon>
+        Search Nearby
+      </ion-button>
+      
+      <ion-button 
+        expand="block"
+        (click)="centerOnUserLocation()"
+        color="secondary"
+        class="location-button">
+        <ion-icon name="locate" slot="start"></ion-icon>
+        Get My Location
+      </ion-button>
+    </div>
   </div>
 
   <!-- Map Container -->
@@ -92,7 +113,9 @@
       [lng]="currentLng" 
       [zoom]="mapZoom"
       [isLocationPickerMode]="false"
-      [searchRadiusMeters]="searchRadius">
+      [searchRadiusMeters]="searchRadius"
+      [showSearchControls]="false"
+      [karenderiasList]="karenderias">
     </app-map>
   </div>
 

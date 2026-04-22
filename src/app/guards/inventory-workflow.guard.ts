@@ -24,6 +24,7 @@ export class InventoryWorkflowGuard implements CanActivate {
     }
 
     if (user.role === 'supplier') {
+      // Allow suppliers to access inventory management for their stock
       return of(true);
     }
 

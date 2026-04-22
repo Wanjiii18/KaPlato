@@ -139,6 +139,13 @@ export class KarenderiaRegistrationPage implements OnInit, AfterViewInit {
 
   async loadGoogleMaps() {
     try {
+      // Check if Google Maps API is loaded
+      if (typeof google === 'undefined' || !google.maps) {
+        console.warn('Google Maps API not loaded. Map will be unavailable. Please add a valid Google Maps API key to index.html');
+        this.showToast('Map unavailable. You can enter coordinates manually.', 'warning');
+        return;
+      }
+
       // Initialize map
       this.map = new google.maps.Map(this.mapContainer.nativeElement, {
         center: this.selectedLocation,
@@ -176,7 +183,7 @@ export class KarenderiaRegistrationPage implements OnInit, AfterViewInit {
 
     } catch (error) {
       console.error('Error loading Google Maps:', error);
-      this.showToast('Error loading map. Please refresh the page.', 'danger');
+      this.showToast('Map unavailable. You can enter coordinates manually.', 'warning');
     }
   }
 

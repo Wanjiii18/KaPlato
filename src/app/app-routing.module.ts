@@ -45,8 +45,7 @@ const routes: Routes = [
   },
   {
     path: 'karenderia-registration',
-    loadChildren: () => import('./pages/karenderia-registration/karenderia-registration.module').then( m => m.KarenderiaRegistrationPageModule),
-    canActivate: [AuthGuard]
+    loadChildren: () => import('./pages/karenderia-registration/karenderia-registration.module').then( m => m.KarenderiaRegistrationPageModule)
   },
   {
     path: 'profile',

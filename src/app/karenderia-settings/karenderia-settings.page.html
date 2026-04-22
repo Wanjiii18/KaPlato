@@ -55,6 +55,12 @@
               (click)="selectTab('account')">
               Account
             </button>
+            <button 
+              class="tab-btn" 
+              [class.active]="selectedTab === 'location'"
+              (click)="selectTab('location')">
+              Location
+            </button>
           </div>
         </div>
 
@@ -297,6 +303,94 @@
                   Change Password
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Location Tab -->
+        <div *ngIf="selectedTab === 'location'" class="tab-content">
+          <div class="settings-section">
+            <h2>Karenderia Location</h2>
+            <p class="section-description" *ngIf="!isLocationSet()">Double-click on the map to set your karenderia location. Your coordinates will be automatically filled.</p>
+            <p class="section-description" *ngIf="isLocationSet() && !isChangeLocationMode">You can explore the map freely. Use the "Change Location" button below to modify your location.</p>
+            <p class="section-description" *ngIf="isLocationSet() && isChangeLocationMode" style="color: #007bff;">Ready to change. Double-click on the map to set the new location.</p>
+            
+            <!-- Map Component -->
+            <div class="location-map-container">
+              <app-map 
+                [lat]="locationSettings.latitude"
+                [lng]="locationSettings.longitude"
+                [zoom]="14"
+                [isLocationPickerMode]="true"
+                [showStoreLocationMarker]="isLocationSet() && !isChangeLocationMode"
+                [storeMarkerLat]="locationSettings.latitude"
+                [storeMarkerLng]="locationSettings.longitude"
+                (mapDoubleClick)="onMapLocationSelected($event)">
+              </app-map>
+            </div>
+
+            <!-- Change Location Button - Only show if location is already set -->
+            <div *ngIf="isLocationSet()" class="change-location-section">
+              <p *ngIf="!isChangeLocationMode" class="location-status" style="color: #28a745; margin-bottom: 15px;">
+                <ion-icon name="checkmark-circle" style="margin-right: 8px;"></ion-icon>
+                Location is set. You can explore the map freely.
+              </p>
+              <p *ngIf="isChangeLocationMode" class="location-status" style="color: #007bff; margin-bottom: 15px;">
+                <ion-icon name="reload-outline" style="margin-right: 8px;"></ion-icon>
+                Ready to change location. Double-click on the map to set the new location.
+              </p>
+              <button 
+                type="button"
+                class="secondary-btn"
+                (click)="initiateLocationChange()"
+                [disabled]="isChangeLocationMode"
+                style="width: 100%;">
+                <ion-icon name="create-outline" slot="start"></ion-icon>
+                {{ isChangeLocationMode ? 'Changing Location...' : 'Change Location' }}
+              </button>
+            </div>
+
+            <!-- Location Coordinates -->
+            <div class="form-group">
+              <label>Location Coordinates <span style="color: #666; font-size: 0.85em;">(Read-only - Set by map)</span></label>
+              <div class="coordinates-display">
+                <div class="coordinate-item">
+                  <label>Latitude</label>
+                  <input 
+                    type="number" 
+                    [(ngModel)]="locationSettings.latitude"
+                    step="0.0001"
+                    placeholder="Latitude"
+                    class="coordinate-input"
+                    readonly>
+                </div>
+                <div class="coordinate-item">
+                  <label>Longitude</label>
+                  <input 
+                    type="number" 
+                    [(ngModel)]="locationSettings.longitude"
+                    step="0.0001"
+                    placeholder="Longitude"
+                    class="coordinate-input"
+                    readonly>
+                </div>
+              </div>
+            </div>
+
+            <!-- Address -->
+            <div class="form-group">
+              <label for="locationAddress">Address</label>
+              <textarea 
+                id="locationAddress"
+                [(ngModel)]="locationSettings.address"
+                placeholder="Enter the full address of your karenderia"
+                rows="3">
+              </textarea>
+            </div>
+
+            <div class="info-box">
+              <ion-icon name="information-circle"></ion-icon>
+              <p>Your location is used to help customers find your karenderia on the map and calculate delivery distances.</p>
             </div>
           </div>
         </div>
