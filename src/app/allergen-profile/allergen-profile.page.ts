@@ -35,6 +35,7 @@ export class AllergenProfilePage implements OnInit {
   ];
 
   selectedAllergens: Set<string> = new Set();
+  customAllergens: Map<string, string> = new Map(); // Store custom allergens with severity
   customAllergen = '';
   isLoading = false;
 
@@ -118,9 +119,16 @@ export class AllergenProfilePage implements OnInit {
         {
           text: 'Add',
           handler: async (data) => {
-            this.selectedAllergens.add(this.customAllergen.trim());
+            const allergenName = this.customAllergen.trim();
+            const severity = data?.severity || 'moderate';
+            
+            // Add to selected allergens
+            this.selectedAllergens.add(allergenName);
+            // Store severity for this custom allergen
+            this.customAllergens.set(allergenName, severity);
+            
             this.customAllergen = '';
-            await this.showToast('Custom allergen added', 'success');
+            await this.showToast(`✅ Custom allergen "${allergenName}" added as ${severity}`, 'success');
           }
         }
       ]
@@ -142,6 +150,7 @@ export class AllergenProfilePage implements OnInit {
           text: 'Remove',
           handler: () => {
             this.selectedAllergens.delete(allergenName);
+            this.customAllergens.delete(allergenName); // Also remove from custom map
             this.showToast('Allergen removed', 'success');
           }
         }
@@ -167,12 +176,13 @@ export class AllergenProfilePage implements OnInit {
       const allergenObjects: Allergen[] = Array.from(this.selectedAllergens).map(name => {
         const commonAllergen = this.commonAllergens.find(a => a.name === name);
         const existingAllergen = this.userAllergens.find(a => a.name === name);
+        const customSeverity = this.customAllergens.get(name);
         
         return {
           id: existingAllergen?.id || Date.now().toString(),
           name,
-          category: 'Food',
-          severity: existingAllergen?.severity || commonAllergen?.severity || 'moderate',
+          category: customSeverity ? 'Custom' : 'Food',
+          severity: customSeverity || existingAllergen?.severity || commonAllergen?.severity || 'moderate',
           addedAt: existingAllergen?.addedAt || new Date()
         } as Allergen;
       });
@@ -205,6 +215,26 @@ export class AllergenProfilePage implements OnInit {
     } finally {
       await loading.dismiss();
     }
+  }
+
+  getSeverityForAllergen(allergenName: string): string {
+    // Check custom allergens first
+    const customSeverity = this.customAllergens.get(allergenName);
+    if (customSeverity) {
+      return customSeverity;
+    }
+    
+    // Check common allergens
+    const commonAllergen = this.commonAllergens.find(a => a.name === allergenName);
+    if (commonAllergen) {
+      return commonAllergen.severity;
+    }
+    
+    return 'moderate';
+  }
+
+  getCustomAllergensList(): string[] {
+    return Array.from(this.customAllergens.keys());
   }
 
   async testMealDetection() {
@@ -273,6 +303,14 @@ export class AllergenProfilePage implements OnInit {
       case 'moderate': return 'alert-circle-outline';
       case 'mild': return 'information-circle-outline';
       default: return 'help-outline';
+    }
+  }
+
+  updateAllergenSeverity(allergen: any, severity: string) {
+    allergen.severity = severity;
+    // Also update in customAllergens map if it's a custom allergen
+    if (this.customAllergens.has(allergen.name)) {
+      this.customAllergens.set(allergen.name, severity);
     }
   }
 

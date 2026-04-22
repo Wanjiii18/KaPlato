@@ -53,6 +53,31 @@
     </div>
   </div>
 
+  <!-- Allergen Filter Panel -->
+  <div *ngIf="!isLoading && hasActiveAllergens()" class="allergen-filter-section">
+    <ion-item lines="none">
+      <ion-label class="allergen-label">
+        <strong>Allergies: {{ activeAllergens.join(', ') }}</strong>
+      </ion-label>
+      <ion-select 
+        interface="popover" 
+        [value]="allergenFilterMode"
+        (ionChange)="setAllergenFilterMode($event.detail.value)"
+        class="allergen-select">
+        <ion-select-option value="avoid-allergens">
+          ❌ Hide items with my allergies
+        </ion-select-option>
+        <ion-select-option value="show-all">
+          ✅ Show all items
+        </ion-select-option>
+      </ion-select>
+    </ion-item>
+    <div *ngIf="allergenFilterMode === 'avoid-allergens' && getAllergenFilteredCount() > 0" class="filter-info">
+      <ion-icon name="information-circle-outline" color="warning"></ion-icon>
+      <small>{{ getAllergenFilteredCount() }} item(s) hidden due to allergens</small>
+    </div>
+  </div>
+
   <!-- Category Filter -->
   <div *ngIf="!isLoading" class="category-section">
     <div class="category-header">

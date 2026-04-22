@@ -56,10 +56,44 @@
                   [color]="getSeverityColor(allergen.severity)" 
                   class="severity-badge">
                   <ion-icon [name]="getSeverityIcon(allergen.severity)"></ion-icon>
-                  {{ allergen.severity }}
+                  {{ allergen.severity | uppercase }}
                 </ion-badge>
               </div>
               <p class="allergen-description">{{ allergen.description }}</p>
+              
+              <!-- Severity Selector (only show if selected) -->
+              <div class="severity-selector" *ngIf="isAllergenSelected(allergen.name)">
+                <label class="severity-label">Reaction Severity:</label>
+                <div class="severity-buttons">
+                  <ion-button 
+                    fill="outline" 
+                    size="small"
+                    color="primary"
+                    [color]="allergen.severity === 'mild' ? 'success' : 'medium'"
+                    (click)="updateAllergenSeverity(allergen, 'mild')">
+                    <ion-icon name="leaf" slot="start"></ion-icon>
+                    Mild
+                  </ion-button>
+                  <ion-button 
+                    fill="outline" 
+                    size="small"
+                    color="warning"
+                    [color]="allergen.severity === 'moderate' ? 'warning' : 'medium'"
+                    (click)="updateAllergenSeverity(allergen, 'moderate')">
+                    <ion-icon name="alert-circle" slot="start"></ion-icon>
+                    Moderate
+                  </ion-button>
+                  <ion-button 
+                    fill="outline" 
+                    size="small"
+                    color="danger"
+                    [color]="allergen.severity === 'severe' ? 'danger' : 'medium'"
+                    (click)="updateAllergenSeverity(allergen, 'severe')">
+                    <ion-icon name="warning" slot="start"></ion-icon>
+                    Severe
+                  </ion-button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -115,10 +149,15 @@
         <div class="selected-allergens">
           <ion-chip 
             *ngFor="let allergen of selectedAllergens" 
-            color="danger" 
+            [color]="customAllergens.has(allergen) ? 'warning' : 'danger'" 
             class="selected-allergen-chip">
-            <ion-icon name="warning"></ion-icon>
-            <ion-label>{{ allergen }}</ion-label>
+            <ion-icon [name]="customAllergens.has(allergen) ? 'add-circle' : 'warning'"></ion-icon>
+            <ion-label>
+              {{ allergen }}
+              <span class="severity-tag" *ngIf="customAllergens.has(allergen)">
+                ({{ getSeverityForAllergen(allergen) }})
+              </span>
+            </ion-label>
             <ion-icon 
               name="close-circle" 
               (click)="removeAllergen(allergen)"

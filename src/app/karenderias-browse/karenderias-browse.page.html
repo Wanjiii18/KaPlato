@@ -60,30 +60,51 @@
       </div>
     </div>
 
-    <!-- Sort and Results Header -->
-    <div class="results-header">
-      <div class="results-info">
+    <!-- Results Header with Allergies -->
+    <div class="results-header-with-allergies">
+      <!-- Count on Top -->
+      <div class="results-count">
         <h3>{{ filteredKarenderias.length }} Karenderias Found</h3>
         <p>Restaurants near your location</p>
       </div>
-      <ion-select 
-        [(ngModel)]="selectedSort" 
-        (ionChange)="onSortChange()"
-        interface="popover"
-        placeholder="Sort by"
-        class="sort-select">
-        <ion-select-option *ngFor="let option of sortOptions" [value]="option.id">
-          {{ option.name }}
-        </ion-select-option>
-      </ion-select>
-    </div>
+      
+      <!-- Rating Left, Allergies Right -->
+      <div class="results-controls">
+        <div class="rating-filter">
+          <div class="filter-label-text">
+            <strong>Sort by Rating</strong>
+          </div>
+          <ion-select 
+            [(ngModel)]="selectedSort" 
+            (ionChange)="onSortChange()"
+            interface="popover"
+            placeholder="Rating"
+            class="filter-select">
+            <ion-select-option *ngFor="let option of sortOptions" [value]="option.id">
+              {{ option.name }}
+            </ion-select-option>
+          </ion-select>
+        </div>
 
-    <ion-item lines="none" *ngIf="hasActiveAllergens()">
-      <ion-label>
-        Avoid restaurants with no safe dishes for: {{ activeAllergens.join(', ') }}
-      </ion-label>
-      <ion-toggle [checked]="avoidRiskyRestaurants" (ionChange)="toggleAvoidRiskyRestaurants($event.detail.checked)"></ion-toggle>
-    </ion-item>
+        <div class="allergen-filter" *ngIf="hasActiveAllergens()">
+          <div class="filter-label-text">
+            <strong>{{ activeAllergens.join(', ') }}</strong>
+          </div>
+          <ion-select 
+            interface="popover" 
+            [value]="allergenFilterMode"
+            (ionChange)="setAllergenFilterMode($event.detail.value)"
+            class="filter-select">
+            <ion-select-option value="avoid-allergens">
+              ❌ Hide unsafe
+            </ion-select-option>
+            <ion-select-option value="show-all">
+              ✅ Show all
+            </ion-select-option>
+          </ion-select>
+        </div>
+      </div>
+    </div>
 
     <!-- Karenderias Grid -->
     <div class="karenderias-grid" *ngIf="filteredKarenderias.length > 0">

@@ -28,6 +28,11 @@ export class KarenderiaDetailPage implements OnInit {
   // Allergen tracking properties
   userAllergens: any[] = [];
   menuItemAllergenInfo: { [itemId: string]: any } = {};
+  
+  // Allergen filtering options
+  activeAllergens: string[] = [];
+  avoidAllergenItems = true;
+  allergenFilterMode: 'show-all' | 'avoid-allergens' = 'avoid-allergens';
 
   constructor(
     private route: ActivatedRoute,
@@ -194,12 +199,26 @@ export class KarenderiaDetailPage implements OnInit {
   }
 
   filterMenuItems() {
+    let filtered = this.menuItems;
+    
+    // Apply category filter
     if (this.selectedCategory === 'all') {
-      this.filteredMenuItems = [...this.menuItems];
+      filtered = [...this.menuItems];
     } else {
-      this.filteredMenuItems = this.menuItems.filter(item => item.category === this.selectedCategory);
+      filtered = this.menuItems.filter(item => item.category === this.selectedCategory);
     }
-    console.log(`🔍 Filtered menu items for category "${this.selectedCategory}":`, this.filteredMenuItems.length);
+    
+    // Apply allergen filter if enabled
+    if (this.allergenFilterMode === 'avoid-allergens' && this.activeAllergens.length > 0) {
+      filtered = filtered.filter(item => {
+        const allergenInfo = this.menuItemAllergenInfo[item.id];
+        // Show only items that are safe (no allergens detected)
+        return !allergenInfo || !allergenInfo.hasAllergens;
+      });
+    }
+    
+    this.filteredMenuItems = filtered;
+    console.log(`🔍 Filtered menu items for category "${this.selectedCategory}" and allergen mode "${this.allergenFilterMode}":`, this.filteredMenuItems.length);
   }
 
   async viewMealDetails(menuItem: any) {
@@ -406,16 +425,22 @@ export class KarenderiaDetailPage implements OnInit {
         this.userAllergens = userProfile.allergens;
         console.log('👤 User allergens loaded:', this.userAllergens);
         
+        // Set active allergens for filtering
+        this.activeAllergens = this.userAllergens.map(a => a.name || a);
+        
         // Update the allergen service with user's allergens
         this.allergenService.updateUserAllergens(this.userAllergens);
         
         // Re-check menu items for allergens if they're already loaded
         this.checkMenuItemsForAllergens();
+        this.filterMenuItems();
       } else {
-        const defaultAllergens = this.allergenService.getEffectiveUserAllergens();
-        this.userAllergens = defaultAllergens;
-        this.allergenService.updateUserAllergens(defaultAllergens);
+        // No allergies selected - load empty array instead of defaults
+        this.userAllergens = [];
+        this.activeAllergens = [];
+        this.allergenService.updateUserAllergens([]);
         this.checkMenuItemsForAllergens();
+        this.filterMenuItems();
       }
     });
   }
@@ -532,6 +557,49 @@ export class KarenderiaDetailPage implements OnInit {
       case 'safe': return 'checkmark-circle';
       default: return 'help-circle';
     }
+  }
+
+  /**
+   * Toggle allergen filter mode between 'show-all' and 'avoid-allergens'
+   */
+  toggleAllergenFilter() {
+    if (this.allergenFilterMode === 'show-all') {
+      this.allergenFilterMode = 'avoid-allergens';
+      this.avoidAllergenItems = true;
+    } else {
+      this.allergenFilterMode = 'show-all';
+      this.avoidAllergenItems = false;
+    }
+    this.filterMenuItems();
+  }
+
+  /**
+   * Set allergen filter mode explicitly
+   */
+  setAllergenFilterMode(mode: 'show-all' | 'avoid-allergens') {
+    this.allergenFilterMode = mode;
+    this.avoidAllergenItems = mode === 'avoid-allergens';
+    this.filterMenuItems();
+  }
+
+  /**
+   * Check if user has active allergens
+   */
+  hasActiveAllergens(): boolean {
+    return this.activeAllergens && this.activeAllergens.length > 0;
+  }
+
+  /**
+   * Get count of items filtered out due to allergens
+   */
+  getAllergenFilteredCount(): number {
+    if (this.allergenFilterMode !== 'avoid-allergens' || !this.hasActiveAllergens()) {
+      return 0;
+    }
+    return this.menuItems.filter(item => {
+      const allergenInfo = this.menuItemAllergenInfo[item.id];
+      return allergenInfo && allergenInfo.hasAllergens;
+    }).length;
   }
 
   private async showToast(message: string, color: 'success' | 'warning' | 'danger' | 'medium' = 'warning') {
