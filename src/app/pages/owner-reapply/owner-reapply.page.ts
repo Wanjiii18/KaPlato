@@ -30,6 +30,7 @@ export class OwnerReapplyPage implements OnInit {
   isSubmitting = false;
   successStep = false;
   businessName = '';
+  reapplyRole: 'owner' | 'supplier' = 'owner';
 
   constructor(
     private formBuilder: FormBuilder,
@@ -48,6 +49,10 @@ export class OwnerReapplyPage implements OnInit {
     
     // Get email from query params or route state
     const email = this.activatedRoute.snapshot.queryParamMap.get('email');
+    const role = this.activatedRoute.snapshot.queryParamMap.get('role');
+    if (role === 'supplier') {
+      this.reapplyRole = 'supplier';
+    }
     if (email) {
       this.reapplyForm.patchValue({ email });
     }
@@ -116,18 +121,20 @@ export class OwnerReapplyPage implements OnInit {
     try {
       const formData = new FormData();
       formData.append('email', this.reapplyForm.get('email')?.value);
-      formData.append('business_permit_file', this.businessPermitFile);
+      if (this.businessPermitFile) {
+        formData.append('business_permit_file', this.businessPermitFile);
+      }
 
-      const response = await this.authService.reapplyOwner(formData).toPromise();
+      let response: any;
+      if (this.reapplyRole === 'supplier') {
+        response = await this.authService.reapplySupplier(formData).toPromise();
+      } else {
+        response = await this.authService.reapplyOwner(formData).toPromise();
+      }
 
       if (response && response.success) {
         this.successStep = true;
         this.showToast('Reapplication submitted successfully!', 'success');
-        
-        // Auto-redirect to login after 3 seconds
-        setTimeout(() => {
-          this.router.navigate(['/login']);
-        }, 3000);
       }
     } catch (error: any) {
       console.error('Reapplication failed:', error);

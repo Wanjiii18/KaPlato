@@ -32,7 +32,9 @@
       <div class="owner-verification-banner" *ngIf="ownerVerificationMessage" [ngClass]="{ 'banner-rejected': ownerVerificationStatus === 'rejected', 'banner-pending': ownerVerificationStatus === 'pending_approval' }">
         <ion-icon [name]="ownerVerificationStatus === 'rejected' ? 'alert-circle' : 'shield-checkmark-outline'"></ion-icon>
         <div class="banner-content">
-          <strong>{{ ownerVerificationStatus === 'rejected' ? 'Owner application rejected' : 'Owner account pending approval' }}</strong>
+          <strong>
+            {{ ownerVerificationStatus === 'rejected' ? (verificationRole === 'supplier' ? 'Supplier application rejected' : 'Owner application rejected') : (verificationRole === 'supplier' ? 'Supplier account pending approval' : 'Owner account pending approval') }}
+          </strong>
           <p>{{ ownerVerificationMessage }}</p>
           <ion-button 
             *ngIf="ownerVerificationStatus === 'rejected'" 

@@ -22,6 +22,7 @@ export class LoginPage implements OnInit {
   errorMessage = '';
   ownerVerificationMessage = '';
   ownerVerificationStatus: 'pending_approval' | 'rejected' | '' = '';
+  verificationRole: 'owner' | 'supplier' | '' = '';
   isLoginDisabled = false; // Added property to fix error
 
   constructor(
@@ -107,8 +108,16 @@ export class LoginPage implements OnInit {
         const blockedMessage = error?.error?.message || '';
 
         if (blockedStatus === 'pending_approval' || blockedStatus === 'rejected' || blockedMessage.toLowerCase().includes('not verified')) {
-          this.ownerVerificationMessage = blockedMessage || 'Your owner account is waiting for admin verification. Login is disabled until approval.';
+          this.ownerVerificationMessage = blockedMessage || 'Your account is waiting for admin verification. Login is disabled until approval.';
           this.ownerVerificationStatus = blockedStatus === 'rejected' ? 'rejected' : 'pending_approval';
+          // Try to detect role from message (supplier/owner)
+          if (blockedMessage.toLowerCase().includes('supplier')) {
+            this.verificationRole = 'supplier';
+          } else if (blockedMessage.toLowerCase().includes('owner') || blockedMessage.toLowerCase().includes('karenderia')) {
+            this.verificationRole = 'owner';
+          } else {
+            this.verificationRole = '';
+          }
         }
 
         if (error?.error?.message) {
@@ -135,6 +144,7 @@ export class LoginPage implements OnInit {
 
   goToReapply() {
     const email = this.loginData.emailOrUsername;
-    this.router.navigate(['/owner-reapply'], { queryParams: { email } });
+    const role = this.verificationRole || 'owner';
+    this.router.navigate(['/owner-reapply'], { queryParams: { email, role } });
   }
 }

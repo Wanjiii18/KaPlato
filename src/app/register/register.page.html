@@ -239,6 +239,30 @@
           </div>
 
           <div class="modern-form-group" *ngIf="registerData.accountType === 'supplier'">
+            <label class="form-label">Business Permit (PDF or Image) <span style="color: red;">*</span></label>
+            <div class="file-upload-wrapper">
+              <input
+                type="file"
+                #supplierPermitFile
+                name="businessPermit"
+                accept=".pdf,.jpg,.jpeg,.png"
+                (change)="onBusinessPermitSelected($event)"
+                style="display: none">
+              <ion-button
+                fill="outline"
+                expand="block"
+                (click)="supplierPermitFile.click()"
+                class="file-upload-btn">
+                <ion-icon name="cloud-upload" slot="start"></ion-icon>
+                {{ registerData.businessPermit ? registerData.businessPermit.name : 'Choose Business Permit' }}
+              </ion-button>
+            </div>
+            <p class="file-help-text" *ngIf="registerData.businessPermit">
+              ✓ File selected: {{ registerData.businessPermit.name }}
+            </p>
+          </div>
+
+          <div class="modern-form-group" *ngIf="registerData.accountType === 'supplier'">
             <ion-item class="modern-input-item">
               <ion-label position="floating">Business Address (Optional)</ion-label>
               <ion-input

@@ -163,6 +163,16 @@ export class AuthService {
       );
   }
 
+  reapplySupplier(reapplicationData: FormData): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/auth/reapply-supplier`, reapplicationData)
+      .pipe(
+        catchError(error => {
+          console.error('Supplier reapplication error:', error);
+          throw error;
+        })
+      );
+  }
+
   logout(): void {
     const token = localStorage.getItem('auth_token');
 

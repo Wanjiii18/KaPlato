@@ -1,9 +1,10 @@
 <ion-header [translucent]="true" class="modern-owner-header">
   <ion-toolbar class="gradient-owner-toolbar">
     <ion-title>
-      <div class="modern-owner-title">
+        <div class="modern-owner-title">
         <ion-icon name="restaurant" color="light"></ion-icon>
-        <span>Reapply as Owner</span>
+        <span *ngIf="reapplyRole === 'owner'">Reapply as Owner</span>
+        <span *ngIf="reapplyRole === 'supplier'">Reapply as Supplier</span>
       </div>
     </ion-title>
     <ion-buttons slot="start">
@@ -37,8 +38,8 @@
               <strong>Email Notification:</strong> You'll receive an email once your application is approved or if we need more information.
             </li>
             <li>
-              <strong>Login Access:</strong> After approval, you can log in and start managing your karenderia.
-            </li>
+                  <strong>Login Access:</strong> After approval, you can log in and access your account.
+                </li>
           </ul>
           <p class="thank-you">Thank you for your patience and for reapplying!</p>
         </div>

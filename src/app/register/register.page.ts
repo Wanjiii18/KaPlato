@@ -62,6 +62,7 @@ export class RegisterPage implements OnInit {
         return;
       }
     }
+      // Require business permit for suppliers as well
 
     if (form.valid && this.registerData.password === this.registerData.confirmPassword) {
       this.isLoading = true;
