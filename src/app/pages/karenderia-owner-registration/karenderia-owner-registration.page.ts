@@ -110,7 +110,7 @@ export class KarenderiaOwnerRegistrationPage implements OnInit {
     // Step 2: Business Form
     this.businessForm = this.formBuilder.group({
       business_name: ['', [Validators.required, Validators.minLength(2)]],
-      description: ['', [Validators.required, Validators.minLength(10)]],
+      description: ['', [Validators.required]],
       phone: [''],
       business_email: ['', [Validators.email]],
       opening_time: ['09:00'],
@@ -119,7 +119,7 @@ export class KarenderiaOwnerRegistrationPage implements OnInit {
 
     // Step 3: Location Form (simplified - no map required)
     this.locationForm = this.formBuilder.group({
-      address: ['', [Validators.required, Validators.minLength(10)]],
+      address: ['', [Validators.required]],
       city: ['', [Validators.required, Validators.minLength(2)]],
       province: ['', [Validators.required, Validators.minLength(2)]],
       delivery_fee: [25, [Validators.min(0)]],

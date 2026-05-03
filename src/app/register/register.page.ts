@@ -55,10 +55,12 @@ export class RegisterPage implements OnInit {
   async onRegister(form: NgForm) {
     if (this.registerData.accountType === 'karenderia_owner') {
       // Validate karenderia owner specific fields
-      if (!this.registerData.businessName || !this.registerData.description || 
-          !this.registerData.city || !this.registerData.province || 
+      if (!this.registerData.username || !this.registerData.email ||
+          !this.registerData.password || !this.registerData.confirmPassword ||
+          !this.registerData.businessName || !this.registerData.description ||
+          !this.registerData.address || !this.registerData.city || !this.registerData.province ||
           !this.registerData.businessPermit) {
-        this.errorMessage = 'Please fill in all required business fields, including the business permit.';
+        this.errorMessage = 'Please fill in all required owner fields, including account credentials and business permit.';
         return;
       }
     }
@@ -94,14 +96,17 @@ export class RegisterPage implements OnInit {
           await this.authService.registerKarenderiaOwner(formData).toPromise();
           this.successMessage = 'Karenderia registration submitted! Your application is pending admin approval. Please wait for approval before logging in.';
         } else if (this.registerData.accountType === 'supplier') {
-          const supplierData = {
-            username: this.registerData.username,
-            email: this.registerData.email,
-            password: this.registerData.password,
-            confirmPassword: this.registerData.confirmPassword,
-            phoneNumber: this.registerData.phoneNumber || '',
-            address: this.registerData.address || ''
-          };
+          const supplierData = new FormData();
+          supplierData.append('username', this.registerData.username);
+          supplierData.append('email', this.registerData.email);
+          supplierData.append('password', this.registerData.password);
+          supplierData.append('confirmPassword', this.registerData.confirmPassword);
+          supplierData.append('phoneNumber', this.registerData.phoneNumber || '');
+          supplierData.append('address', this.registerData.address || '');
+
+          if (this.registerData.businessPermit) {
+            supplierData.append('business_permit_file', this.registerData.businessPermit);
+          }
 
           await this.authService.registerSupplier(supplierData).toPromise();
           this.successMessage = 'Supplier registration submitted. Please wait for admin approval before logging in.';
