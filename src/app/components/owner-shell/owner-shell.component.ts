@@ -1,10 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { AlertController, IonicModule, ToastController } from '@ionic/angular';
 import { AuthService } from '../../services/auth.service';
 import { KarenderiaInfoService } from '../../services/karenderia-info.service';
 import { UserService, UserProfile } from '../../services/user.service';
+import { MessageService } from '../../services/message.service';
+import { Subscription } from 'rxjs';
 
 export type OwnerNavKey =
   | 'dashboard'
@@ -13,6 +15,7 @@ export type OwnerNavKey =
   | 'pos'
   | 'inventory'
   | 'analytics'
+  | 'messages'
   | 'profile';
 
 @Component({
@@ -22,10 +25,12 @@ export type OwnerNavKey =
   standalone: true,
   imports: [CommonModule, RouterModule, IonicModule],
 })
-export class OwnerShellComponent {
+export class OwnerShellComponent implements OnDestroy {
   @Input() activePage: OwnerNavKey = 'dashboard';
   @Input() sectionLabel = 'Owner Panel';
   ownerStatus: 'approved' | 'pending' | 'rejected' | 'unknown' = 'unknown';
+  unreadMessageCount = 0;
+  private unreadSubscription?: Subscription;
 
   constructor(
     private router: Router,
@@ -33,11 +38,28 @@ export class OwnerShellComponent {
     private alertController: AlertController,
     private toastController: ToastController,
     private karenderiaInfoService: KarenderiaInfoService,
-    private userService: UserService
+    private userService: UserService,
+    private messageService: MessageService
   ) {}
 
   async ngOnInit(): Promise<void> {
     await this.refreshOwnerStatus();
+    this.subscribeToUnreadMessages();
+  }
+
+  ngOnDestroy(): void {
+    if (this.unreadSubscription) {
+      this.unreadSubscription.unsubscribe();
+    }
+  }
+
+  private subscribeToUnreadMessages(): void {
+    this.unreadSubscription = this.messageService.unreadCount$.subscribe(count => {
+      this.unreadMessageCount = count;
+    });
+    
+    // Initial load
+    this.messageService.refreshUnreadCount().subscribe();
   }
 
   isActive(page: OwnerNavKey): boolean {
@@ -68,6 +90,7 @@ export class OwnerShellComponent {
         pos: '/karenderia-orders-pos',
         inventory: '/inventory-management',
         analytics: '/karenderia-analytics',
+        messages: '/owner-messages',
       };
 
       await this.router.navigate([routeMap[page as Exclude<OwnerNavKey, 'profile'>]]);

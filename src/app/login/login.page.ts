@@ -52,21 +52,24 @@ export class LoginPage implements OnInit {
   }
 
   private redirectBasedOnRole(user: any) {
-    console.log('Redirecting user with role:', user?.role);
+    console.log('✅ Login: Redirecting user with role:', user?.role);
     
     switch (user?.role) {
       case 'admin':
+        console.log('➡️ Going to admin dashboard');
         this.router.navigate(['/admin-dashboard']);
         break;
       case 'karenderia_owner':
+        console.log('➡️ Going to karenderia dashboard');
         this.router.navigate(['/karenderia-dashboard']);
         break;
       case 'supplier':
-        // Suppliers go to inventory management for stock and inventory
-        this.router.navigate(['/inventory-management']);
+        console.log('➡️ Going to supplier home');
+        this.router.navigate(['/supplier-home']);
         break;
       case 'customer':
       default:
+        console.log('➡️ Going to home');
         this.router.navigate(['/home']);
         break;
     }

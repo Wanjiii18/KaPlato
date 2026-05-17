@@ -355,6 +355,10 @@ export class KarenderiaOwnerRegistrationPage implements OnInit {
       // Submit to backend
       await this.authService.registerKarenderiaOwner(registrationData);
       
+      // Clear any auth data - user must login after approval
+      localStorage.removeItem('auth_token');
+      localStorage.removeItem('user_data');
+      
       await loading.dismiss();
       this.currentStep = 4; // Success step
       

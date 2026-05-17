@@ -1,0 +1,140 @@
+<app-owner-shell activePage="messages" sectionLabel="Messages">
+  <div class="messages-container">
+    <!-- Conversations List View -->
+    <div *ngIf="!selectedConversation" class="conversations-list">
+      <div class="conversations-header">
+        <h1>Messages</h1>
+        <div class="header-actions">
+          <button (click)="refreshConversations()" class="refresh-btn">
+            <ion-icon name="refresh-outline"></ion-icon>
+          </button>
+          <span *ngIf="unreadCount > 0" class="unread-badge">{{ unreadCount }}</span>
+        </div>
+      </div>
+
+      <!-- Search -->
+      <div class="search-box">
+        <ion-icon name="search-outline"></ion-icon>
+        <input 
+          type="text" 
+          placeholder="Search conversations..." 
+          [(ngModel)]="searchTerm"
+          class="search-input"
+        >
+      </div>
+
+      <!-- Loading State -->
+      <div *ngIf="isLoadingConversations" class="loading-state">
+        <ion-spinner name="crescent" color="primary"></ion-spinner>
+        <p>Loading conversations...</p>
+      </div>
+
+      <!-- Conversations -->
+      <div *ngIf="!isLoadingConversations" class="conversations">
+        <div 
+          *ngFor="let conversation of getFilteredConversations()" 
+          class="conversation-item"
+          (click)="selectConversation(conversation)"
+        >
+          <div class="conversation-avatar">
+            {{ getOtherUserName(conversation).charAt(0).toUpperCase() }}
+          </div>
+          <div class="conversation-content">
+            <div class="conversation-header-row">
+              <h3 class="conversation-user">{{ getOtherUserName(conversation) }}</h3>
+              <span class="conversation-time">{{ formatTime(conversation.created_at) }}</span>
+            </div>
+            <p class="conversation-request">{{ conversation.ingredientRequest?.title }}</p>
+            <p class="conversation-preview">{{ getConversationPreview(conversation) }}</p>
+          </div>
+          <ion-icon name="chevron-forward-outline" class="chevron"></ion-icon>
+        </div>
+
+        <!-- Empty State -->
+        <div *ngIf="getFilteredConversations().length === 0" class="empty-state">
+          <ion-icon name="chatbubble-outline"></ion-icon>
+          <p>No conversations yet</p>
+          <small>Messages with suppliers will appear here</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Conversation Messages View -->
+    <div *ngIf="selectedConversation" class="conversation-view">
+      <!-- Header -->
+      <div class="conversation-header">
+        <button class="back-btn" (click)="backToConversations()">
+          <ion-icon name="arrow-back-outline"></ion-icon>
+        </button>
+        <div class="header-info">
+          <h2>{{ getOtherUserName(selectedConversation) }}</h2>
+          <p class="request-title">{{ selectedConversation.ingredientRequest?.title }}</p>
+        </div>
+        <button class="call-btn" (click)="requestCall()" title="Request a call">
+          <ion-icon name="call-outline"></ion-icon>
+        </button>
+      </div>
+
+      <!-- Messages -->
+      <ion-content #messageContent class="messages-content">
+        <div *ngIf="isLoadingMessages" class="loading-messages">
+          <ion-spinner name="crescent" color="primary"></ion-spinner>
+        </div>
+
+        <div *ngIf="!isLoadingMessages" class="messages-list">
+          <div 
+            *ngFor="let message of conversationMessages" 
+            class="message"
+            [class.from-current]="isMessageFromCurrentUser(message)"
+            [class.from-other]="!isMessageFromCurrentUser(message)"
+          >
+            <div class="message-bubble">
+              <p>{{ message.message }}</p>
+              <span class="message-time">{{ formatTime(message.created_at) }}</span>
+            </div>
+            <ion-icon 
+              *ngIf="isMessageFromCurrentUser(message) && message.is_read" 
+              name="checkmark-done-outline" 
+              class="read-receipt"
+            ></ion-icon>
+          </div>
+
+          <!-- Call Request -->
+          <div 
+            *ngFor="let message of conversationMessages" 
+            [class.call-message]="message.type === 'call_request'"
+          >
+            <div *ngIf="message.type === 'call_request'" class="call-request-message">
+              <ion-icon name="phone-portrait-outline"></ion-icon>
+              <div class="call-info">
+                <p class="call-title">{{ isMessageFromCurrentUser(message) ? 'You' : getOtherUserName(selectedConversation) }} requested a call</p>
+                <p class="call-number" *ngIf="message.call_phone_number">{{ message.call_phone_number }}</p>
+                <small>{{ formatTime(message.created_at) }}</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </ion-content>
+
+      <!-- Message Input -->
+      <div class="message-input-area">
+        <input 
+          type="text" 
+          placeholder="Type a message..." 
+          [(ngModel)]="newMessage"
+          (keyup.enter)="sendMessage()"
+          [disabled]="isSendingMessage"
+          class="message-input"
+        >
+        <button 
+          (click)="sendMessage()" 
+          [disabled]="!newMessage.trim() || isSendingMessage"
+          class="send-btn"
+        >
+          <ion-icon *ngIf="!isSendingMessage" name="send-outline"></ion-icon>
+          <ion-spinner *ngIf="isSendingMessage" name="dots"></ion-spinner>
+        </button>
+      </div>
+    </div>
+  </div>
+</app-owner-shell>

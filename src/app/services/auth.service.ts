@@ -81,17 +81,21 @@ export class AuthService {
   }
 
   private checkStoredAuth(): void {
+    // Check if user was previously logged in and restore session on app startup
     const token = localStorage.getItem('auth_token');
     const userData = localStorage.getItem('user_data');
-    
+
     if (token && userData) {
       try {
         const user = JSON.parse(userData);
         this.currentUserSubject.next(user);
+        console.log('Session restored for user:', user.email);
       } catch (error) {
-        console.error('Error parsing stored user data:', error);
+        console.error('Error restoring stored user data:', error);
         this.logout();
       }
+    } else {
+      console.log('No stored session found - user needs to login');
     }
   }
 
@@ -114,9 +118,15 @@ export class AuthService {
     return this.http.post<AuthResponse>(`${this.apiUrl}/auth/register`, userData)
       .pipe(
         tap(response => {
-          localStorage.setItem('auth_token', response.access_token);
-          localStorage.setItem('user_data', JSON.stringify(response.user));
-          this.currentUserSubject.next(response.user);
+          // For regular registration (customers/suppliers), store the token and auto-login
+          if (response.access_token && response.user.role !== 'karenderia_owner') {
+            localStorage.setItem('auth_token', response.access_token);
+            localStorage.setItem('user_data', JSON.stringify(response.user));
+            this.currentUserSubject.next(response.user);
+          } else {
+            // For pending registrations, clear auth and require explicit login
+            this.logout();
+          }
         }),
         catchError(error => {
           console.error('Registration error:', error);
@@ -125,13 +135,14 @@ export class AuthService {
       );
   }
 
-  registerKarenderiaOwner(registrationData: any): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/auth/register-karenderia-owner`, registrationData)
+  registerKarenderiaOwner(registrationData: any): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/auth/register-karenderia-owner`, registrationData)
       .pipe(
         tap(response => {
-          localStorage.setItem('auth_token', response.access_token);
-          localStorage.setItem('user_data', JSON.stringify(response.user));
-          this.currentUserSubject.next(response.user);
+          // DO NOT auto-login pending Karenderia Owner registrations
+          // Users must wait for admin approval and then login explicitly
+          // Clear any existing auth tokens to prevent auto-login
+          this.logout();
         }),
         catchError(error => {
           console.error('Karenderia owner registration error:', error);

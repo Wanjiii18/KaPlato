@@ -25,63 +25,61 @@ export class RoleRedirectComponent implements OnInit {
   }
 
   private handleRedirect() {
-    // Only redirect if we're actually on the role-redirect route
-    if (this.router.url !== '/role-redirect') {
-      console.log('RoleRedirect: Not on role-redirect route, skipping redirect');
-      return;
-    }
-
     // Check authentication immediately using synchronous methods
     const token = this.authService.getAuthToken();
     const currentUser = this.authService.getCurrentUser();
 
-    console.log('RoleRedirect: Token exists:', !!token);
-    console.log('RoleRedirect: Current user:', currentUser);
+    console.log('🔄 RoleRedirect: Token exists:', !!token);
+    console.log('🔄 RoleRedirect: Current user:', currentUser?.email, 'Role:', currentUser?.role);
 
     if (!token) {
       // No token, redirect to login immediately
-      console.log('RoleRedirect: No token, redirecting to login');
-      this.router.navigate(['/login']);
+      console.log('🔄 RoleRedirect: No token, redirecting to login');
+      this.router.navigate(['/login'], { replaceUrl: true });
       return;
     }
 
     if (currentUser) {
       // User data is available, redirect based on role
-      console.log('RoleRedirect: User data available, redirecting based on role:', currentUser.role);
+      console.log('🔄 RoleRedirect: Redirecting based on role:', currentUser.role);
       this.redirectBasedOnRole(currentUser);
       return;
     }
 
-    // Token exists but user data not loaded yet, give it a very short time
-    console.log('RoleRedirect: Token exists but user not loaded, waiting briefly...');
+    // Token exists but user data not loaded yet, give it a short time
+    console.log('🔄 RoleRedirect: Token exists but user not loaded, waiting...');
     setTimeout(() => {
       const user = this.authService.getCurrentUser();
       if (user) {
-        console.log('RoleRedirect: User loaded after brief wait:', user.role);
+        console.log('🔄 RoleRedirect: User loaded, redirecting with role:', user.role);
         this.redirectBasedOnRole(user);
       } else {
-        console.log('RoleRedirect: User still not loaded, redirecting to login');
-        this.router.navigate(['/login']);
+        console.log('🔄 RoleRedirect: User still not loaded, redirecting to login');
+        this.router.navigate(['/login'], { replaceUrl: true });
       }
-    }, 100); // Very short 100ms wait
+    }, 100);
   }
 
   private redirectBasedOnRole(user: any) {
-    console.log('RoleRedirect: Redirecting user with role:', user?.role);
+    console.log('🔄 RoleRedirect: Redirecting user with role:', user?.role);
     
     switch (user?.role) {
       case 'admin':
-        this.router.navigate(['/admin-dashboard']);
+        console.log('➡️ Admin detected, going to admin dashboard');
+        this.router.navigate(['/admin-dashboard'], { replaceUrl: true });
         break;
       case 'karenderia_owner':
-        this.router.navigate(['/karenderia-dashboard']);
+        console.log('➡️ Karenderia owner detected, going to karenderia dashboard');
+        this.router.navigate(['/karenderia-dashboard'], { replaceUrl: true });
         break;
       case 'supplier':
-        this.router.navigate(['/inventory-management']);
+        console.log('➡️ Supplier detected, going to supplier home');
+        this.router.navigate(['/supplier-home'], { replaceUrl: true });
         break;
       case 'customer':
       default:
-        this.router.navigate(['/home']);
+        console.log('➡️ Customer detected, going to home');
+        this.router.navigate(['/home'], { replaceUrl: true });
         break;
     }
   }

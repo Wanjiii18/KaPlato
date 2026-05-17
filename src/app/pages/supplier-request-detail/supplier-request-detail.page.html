@@ -1,0 +1,212 @@
+<ion-header translucent="true">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-title>Request Details</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="request-detail-page">
+  <div *ngIf="isLoadingRequest" class="loading-container">
+    <ion-spinner></ion-spinner>
+    <p>Loading request...</p>
+  </div>
+
+  <div *ngIf="!isLoadingRequest && ingredientRequest" class="request-container">
+    <!-- Request Details Section -->
+    <ion-card class="request-card">
+      <ion-card-header>
+        <div class="card-header-title">
+          <h2>{{ ingredientRequest.title }}</h2>
+          <ion-badge 
+            [color]="ingredientRequest.status === 'accepted' ? 'success' : 
+                     ingredientRequest.status === 'open' ? 'warning' : 'danger'">
+            {{ ingredientRequest.status | uppercase }}
+          </ion-badge>
+        </div>
+      </ion-card-header>
+
+      <ion-card-content>
+        <!-- Description -->
+        <div *ngIf="ingredientRequest.description" class="section">
+          <h6>Description</h6>
+          <p>{{ ingredientRequest.description }}</p>
+        </div>
+
+        <!-- Details Grid -->
+        <div class="details-grid">
+          <div class="detail-item">
+            <small>Ingredient Type</small>
+            <strong>{{ ingredientRequest.ingredient_type }}</strong>
+          </div>
+          <div class="detail-item">
+            <small>Quantity Needed</small>
+            <strong>{{ ingredientRequest.needed_quantity }} {{ ingredientRequest.unit }}</strong>
+          </div>
+          <div class="detail-item">
+            <small>Budget</small>
+            <strong>₱{{ ingredientRequest.budget | number:'1.2-2' }}</strong>
+          </div>
+          <div class="detail-item">
+            <small>Needed By</small>
+            <strong>{{ ingredientRequest.needed_by_date | date:'MMM d, y' }}</strong>
+          </div>
+        </div>
+
+        <!-- Karenderia Info -->
+        <div class="karenderia-info">
+          <small>Requested by</small>
+          <strong>{{ ingredientRequest.karenderia.business_name }}</strong>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- My Quote Section -->
+    <ion-card *ngIf="myQuote" class="quote-card">
+      <ion-card-header>
+        <h5>My Quote</h5>
+      </ion-card-header>
+
+      <ion-card-content>
+        <div class="quote-details">
+          <div class="detail-item">
+            <small>Price Per Unit</small>
+            <strong>₱{{ myQuote.price_per_unit | number:'1.2-2' }}/{{ myQuote.unit }}</strong>
+          </div>
+          <div class="detail-item">
+            <small>Available Quantity</small>
+            <strong>{{ myQuote.available_quantity }} {{ myQuote.unit }}</strong>
+          </div>
+          <div class="detail-item">
+            <small>Total Price</small>
+            <strong class="price-highlight">₱{{ myQuote.total_price | number:'1.2-2' }}</strong>
+          </div>
+          <div class="detail-item">
+            <small>Delivery Date</small>
+            <strong>{{ myQuote.delivery_date | date:'MMM d, y' }}</strong>
+          </div>
+          <div class="detail-item">
+            <small>Delivery Method</small>
+            <strong>{{ myQuote.delivery_method | uppercase }}</strong>
+          </div>
+        </div>
+
+        <div *ngIf="myQuote.notes" class="notes-section">
+          <small>Notes</small>
+          <p>{{ myQuote.notes }}</p>
+        </div>
+
+        <!-- Quote Status Badge -->
+        <div class="quote-status">
+          <ion-badge 
+            [color]="myQuote.status === 'accepted' ? 'success' : 
+                     myQuote.status === 'pending' ? 'warning' : 'danger'">
+            Quote {{ myQuote.status | uppercase }}
+          </ion-badge>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- No Quote Message -->
+    <ion-card *ngIf="!myQuote" class="info-card">
+      <ion-card-content>
+        <ion-icon name="information-circle" class="info-icon"></ion-icon>
+        <p>You haven't submitted a quote for this request yet</p>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+      <div *ngIf="myQuote && myQuote.status === 'pending'" class="button-group">
+        <ion-button 
+          expand="block" 
+          color="success"
+          (click)="acceptQuoteResponse()">
+          <ion-icon name="checkmark-outline" slot="start"></ion-icon>
+          Accept Order
+        </ion-button>
+        <ion-button 
+          expand="block" 
+          color="danger"
+          fill="outline"
+          (click)="cancelQuote()">
+          <ion-icon name="close-outline" slot="start"></ion-icon>
+          Cancel Quote
+        </ion-button>
+      </div>
+
+      <ion-button 
+        *ngIf="myQuote && (myQuote.status === 'accepted' || isBothPartiesAccepted)"
+        expand="block" 
+        color="primary"
+        [disabled]="!isBothPartiesAccepted"
+        (click)="markAsDelivered()">
+        <ion-icon name="checkmark-done-outline" slot="start"></ion-icon>
+        Mark as Delivered
+        <ion-note *ngIf="!isBothPartiesAccepted" slot="end">Waiting for acceptance</ion-note>
+      </ion-button>
+    </div>
+
+    <!-- Messaging Section -->
+    <ion-card class="messaging-card">
+      <ion-card-header>
+        <h5>Conversation with {{ ownerName }}</h5>
+      </ion-card-header>
+
+      <ion-card-content class="message-area">
+        <div *ngIf="isLoadingMessages" class="loading">
+          <ion-spinner></ion-spinner>
+        </div>
+
+        <div *ngIf="!isLoadingMessages && conversationMessages.length === 0" class="empty-messages">
+          <ion-icon name="chatbubble-outline"></ion-icon>
+          <p>No messages yet. Start the conversation!</p>
+        </div>
+
+        <div #messageContent class="messages-list" *ngIf="!isLoadingMessages && conversationMessages.length > 0">
+          <div 
+            *ngFor="let msg of conversationMessages"
+            class="message-bubble"
+            [class.from-current]="isMessageFromCurrentUser(msg)"
+            [class.from-other]="!isMessageFromCurrentUser(msg)">
+            
+            <div class="message-content">
+              <p>{{ msg.message }}</p>
+              <small class="message-time">{{ formatTime(msg.created_at) }}</small>
+            </div>
+
+            <ion-icon 
+              *ngIf="isMessageFromCurrentUser(msg) && msg.is_read"
+              name="checkmark-done-outline" 
+              class="read-receipt"></ion-icon>
+          </div>
+        </div>
+      </ion-card-content>
+
+      <div class="message-input-area">
+        <ion-item>
+          <ion-input
+            [(ngModel)]="newMessage"
+            placeholder="Type a message..."
+            (keyup.enter)="sendMessage()"
+            [disabled]="isSendingMessage">
+          </ion-input>
+          <ion-button 
+            slot="end"
+            fill="clear"
+            (click)="sendMessage()"
+            [disabled]="!newMessage.trim() || isSendingMessage">
+            <ion-icon name="send-outline"></ion-icon>
+          </ion-button>
+        </ion-item>
+      </div>
+    </ion-card>
+  </div>
+
+  <div *ngIf="!isLoadingRequest && !ingredientRequest" class="error-container">
+    <ion-icon name="alert-circle-outline"></ion-icon>
+    <p>Failed to load request</p>
+    <ion-button (click)="goBack()">Go Back</ion-button>
+  </div>
+</ion-content>

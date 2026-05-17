@@ -1,0 +1,408 @@
+.request-detail-page {
+  --background: #f8fafc;
+}
+
+.loading-container,
+.error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  padding: 20px;
+  text-align: center;
+
+  p {
+    margin-top: 16px;
+    color: #6b7280;
+    font-size: 14px;
+  }
+
+  ion-icon {
+    font-size: 48px;
+    color: #d1d5db;
+    margin-bottom: 16px;
+  }
+}
+
+.request-container {
+  padding: 12px;
+}
+
+// Cards
+ion-card {
+  margin: 12px 0;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.request-card,
+.quote-card,
+.messaging-card {
+  --background: white;
+}
+
+ion-card-header {
+  padding-top: 16px;
+  padding-bottom: 12px;
+}
+
+.card-header-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  h2 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #1f2937;
+    flex: 1;
+  }
+
+  ion-badge {
+    font-size: 11px;
+    padding: 4px 8px;
+    font-weight: 600;
+  }
+}
+
+// Details Grid
+.details-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+
+  small {
+    color: #6b7280;
+    font-size: 12px;
+    font-weight: 500;
+    margin-bottom: 4px;
+  }
+
+  strong {
+    color: #1f2937;
+    font-size: 14px;
+    font-weight: 600;
+  }
+}
+
+.section {
+  margin-bottom: 16px;
+
+  h6 {
+    margin: 0 0 8px 0;
+    color: #374151;
+    font-weight: 600;
+    font-size: 13px;
+  }
+
+  p {
+    margin: 0;
+    color: #6b7280;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+}
+
+.karenderia-info {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e5e7eb;
+  display: flex;
+  flex-direction: column;
+
+  small {
+    color: #6b7280;
+    font-size: 12px;
+    font-weight: 500;
+    margin-bottom: 4px;
+  }
+
+  strong {
+    color: #1f2937;
+    font-size: 14px;
+  }
+}
+
+// Quote Card
+.quote-details {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.price-highlight {
+  color: #10b981;
+  font-size: 16px;
+}
+
+.notes-section {
+  margin: 16px 0;
+  padding: 12px;
+  background: #f3f4f6;
+  border-radius: 8px;
+
+  small {
+    color: #6b7280;
+    font-size: 12px;
+    font-weight: 500;
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  p {
+    margin: 0;
+    color: #374151;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+}
+
+.quote-status {
+  margin-top: 16px;
+  display: flex;
+  justify-content: center;
+
+  ion-badge {
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+}
+
+// Info Card
+.info-card {
+  --background: #fef3c7;
+  border: 1px solid #fcd34d;
+
+  ion-card-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 24px 16px;
+  }
+
+  .info-icon {
+    font-size: 36px;
+    color: #d97706;
+    margin-bottom: 12px;
+  }
+
+  p {
+    margin: 0;
+    color: #92400e;
+    font-size: 14px;
+    font-weight: 500;
+  }
+}
+
+// Action Buttons
+.action-buttons {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.button-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+ion-button {
+  --border-radius: 8px;
+  height: 44px;
+  font-weight: 600;
+
+  &[disabled] {
+    opacity: 0.5;
+  }
+}
+
+// Messaging
+.messaging-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 400px;
+  margin-bottom: 120px;
+}
+
+ion-card-header {
+  h5 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #1f2937;
+  }
+}
+
+.message-area {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 250px;
+  max-height: 300px;
+  padding: 12px 8px;
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+}
+
+.empty-messages {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  color: #9ca3af;
+  text-align: center;
+
+  ion-icon {
+    font-size: 36px;
+    margin-bottom: 12px;
+    opacity: 0.5;
+  }
+
+  p {
+    margin: 0;
+    font-size: 14px;
+  }
+}
+
+.messages-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.message-bubble {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  margin-bottom: 8px;
+  animation: slideIn 0.3s ease;
+
+  &.from-current {
+    justify-content: flex-end;
+
+    .message-content {
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      color: white;
+      border-radius: 12px 12px 2px 12px;
+    }
+
+    .message-time {
+      color: rgba(255, 255, 255, 0.7);
+    }
+  }
+
+  &.from-other {
+    justify-content: flex-start;
+
+    .message-content {
+      background: #e5e7eb;
+      color: #1f2937;
+      border-radius: 12px 12px 12px 2px;
+    }
+
+    .message-time {
+      color: #6b7280;
+    }
+  }
+}
+
+.message-content {
+  max-width: 70%;
+  padding: 10px 12px;
+  word-break: break-word;
+
+  p {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.4;
+  }
+}
+
+.message-time {
+  font-size: 11px;
+  margin-top: 4px;
+  display: block;
+}
+
+.read-receipt {
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Message Input
+.message-input-area {
+  padding: 12px 8px 8px;
+  background: white;
+  border-top: 1px solid #e5e7eb;
+
+  ion-item {
+    --background: #f3f4f6;
+    border-radius: 20px;
+    --padding-start: 12px;
+    --padding-end: 4px;
+
+    ion-input {
+      font-size: 14px;
+
+      &::placeholder {
+        color: #9ca3af;
+      }
+    }
+
+    ion-button {
+      height: 32px;
+      width: 32px;
+      --border-radius: 50%;
+    }
+  }
+}
+
+// Responsive
+@media (max-width: 640px) {
+  .details-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .quote-details {
+    grid-template-columns: 1fr;
+  }
+
+  .message-bubble {
+    &.from-current .message-content,
+    &.from-other .message-content {
+      max-width: 85%;
+    }
+  }
+}

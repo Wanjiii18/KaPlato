@@ -139,6 +139,18 @@ export class RegisterPage implements OnInit {
         };
         form.resetForm();
         
+        // Auto-navigate to login after 2 seconds for karenderia owners and suppliers
+        if (this.registerData.accountType === 'karenderia_owner' || this.registerData.accountType === 'supplier') {
+          setTimeout(() => {
+            this.router.navigate(['/login']);
+          }, 2000);
+        } else if (this.registerData.accountType === 'customer') {
+          // For customers, navigate to home (already logged in) after 1 second
+          setTimeout(() => {
+            this.router.navigate(['/home']);
+          }, 1000);
+        }
+        
       } catch (error: any) {
         console.error('Registration error:', error);
         // Display server error messages

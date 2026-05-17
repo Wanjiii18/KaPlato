@@ -14,9 +14,14 @@ const routes: Routes = [
     canActivate: [AuthGuard, CustomerGuard]
   },
   {
+    path: 'supplier-dashboard',
+    loadComponent: () => import('./pages/inventory-management/inventory-management.page').then(m => m.InventoryManagementPage),
+    canActivate: [AuthGuard]
+  },
+  {
     path: '',
-    redirectTo: '/home',
-    pathMatch: 'full'
+    loadComponent: () => import('./components/role-redirect.component').then(m => m.RoleRedirectComponent),
+    canActivate: [AuthGuard]
   },
   {
     path: 'role-redirect',
@@ -154,9 +159,29 @@ const routes: Routes = [
     canActivate: [AuthGuard, KarenderiaGuard]
   },
   {
+    path: 'owner-messages',
+    loadChildren: () => import('./pages/owner-messages/owner-messages.module').then( m => m.OwnerMessagesModule),
+    canActivate: [AuthGuard, KarenderiaGuard]
+  },
+  {
+    path: 'supplier-dashboard',
+    loadComponent: () => import('./pages/supplier-dashboard/supplier-dashboard.page').then(m => m.SupplierDashboardPage),
+    canActivate: [AuthGuard]
+  },
+  {
     path: 'inventory-management',
     loadComponent: () => import('./pages/inventory-management/inventory-management.page').then(m => m.InventoryManagementPage),
     canActivate: [AuthGuard, InventoryWorkflowGuard]
+  },
+  {
+    path: 'supplier-home',
+    loadComponent: () => import('./pages/supplier-home/supplier-home.page').then(m => m.SupplierHomePage),
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'supplier-request-detail/:id',
+    loadComponent: () => import('./pages/supplier-request-detail/supplier-request-detail.page').then(m => m.SupplierRequestDetailPage),
+    canActivate: [AuthGuard]
   }
 
 ];
