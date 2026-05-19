@@ -1,0 +1,52 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)="dismissModal()">
+        <ion-icon name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Conversation - Order #{{ orderId }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="clearConversation()" title="Clear conversation">
+        <ion-icon name="trash-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="false" class="messaging-content">
+  <div class="messages-container" #messageContainer>
+    <div *ngIf="messages.length === 0" class="no-messages">
+      <ion-icon name="chatbubbles-outline" size="large"></ion-icon>
+      <p>No messages yet. Start the conversation!</p>
+    </div>
+
+    <div *ngFor="let message of messages" 
+         [class.message-item]="true"
+         [class.sent]="isSentByCurrentUser(message)"
+         [class.received]="!isSentByCurrentUser(message)">
+      <div class="message-bubble">
+        <div class="message-sender" *ngIf="!isSentByCurrentUser(message)">
+          {{ message.senderName || message.senderRole | titlecase }}
+        </div>
+        <div class="message-text">{{ message.content }}</div>
+        <div class="message-time">{{ message.timestamp | date:'short' }}</div>
+      </div>
+    </div>
+  </div>
+</ion-content>
+
+<ion-footer>
+  <div class="message-input-container">
+    <ion-item lines="none">
+      <ion-input
+        [(ngModel)]="newMessage"
+        placeholder="Type a message..."
+        (keyup.enter)="sendMessage()">
+      </ion-input>
+      <ion-button slot="end" fill="clear" (click)="sendMessage()" [disabled]="!newMessage || !newMessage.trim()">
+        <ion-icon name="send" size="large"></ion-icon>
+      </ion-button>
+    </ion-item>
+  </div>
+</ion-footer>

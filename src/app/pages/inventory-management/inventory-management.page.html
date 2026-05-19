@@ -401,6 +401,13 @@
         <div class="card-actions">
           <ion-button
             fill="outline"
+            color="secondary"
+            (click)="messageSupplier(order)">
+            <ion-icon name="chatbubbles-outline" slot="start"></ion-icon>
+            Message
+          </ion-button>
+          <ion-button
+            fill="outline"
             color="danger"
             [disabled]="order.status === 'cancelled' || order.status === 'delivered'"
             (click)="cancelOwnerOrder(order)">
@@ -594,6 +601,13 @@
             (click)="updateSupplierOrderStatus(order, 'delivered')">
             <ion-icon name="cube-outline" slot="start"></ion-icon>
             Mark Delivered
+          </ion-button>
+          <ion-button
+            fill="outline"
+            color="secondary"
+            (click)="messageOrderOwner(order)">
+            <ion-icon name="chatbubbles-outline" slot="start"></ion-icon>
+            Message
           </ion-button>
           <ion-button
             fill="outline"

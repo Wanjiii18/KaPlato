@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { IonicModule, AlertController, LoadingController, ToastController } from '@ionic/angular';
+import { IonicModule, AlertController, LoadingController, ToastController, ModalController } from '@ionic/angular';
 import {
   InventoryService,
   InventoryItem,
@@ -13,6 +13,8 @@ import {
   SukiSupplier,
 } from '../../services/inventory.service';
 import { AuthService } from '../../services/auth.service';
+import { SupplyOrderMessagingService } from '../../services/supply-order-messaging.service';
+import { SupplyOrderMessagingPage } from '../supply-order-messaging/supply-order-messaging.page';
 import { OwnerShellComponent } from '../../components/owner-shell/owner-shell.component';
 
 interface CartItem {
@@ -87,7 +89,9 @@ export class InventoryManagementPage implements OnInit {
     private authService: AuthService,
     private alertController: AlertController,
     private loadingController: LoadingController,
-    private toastController: ToastController
+    private toastController: ToastController,
+    private modalController: ModalController,
+    private messagingService: SupplyOrderMessagingService
   ) { }
 
   getBackRoute(): string {
@@ -562,6 +566,72 @@ export class InventoryManagementPage implements OnInit {
     } finally {
       loading.dismiss();
     }
+  }
+
+  async messageOrderOwner(order: SupplyOrder) {
+    // Ensure conversation exists for this order
+    const conversation = this.messagingService.getConversationSync(order.id);
+    if (!conversation) {
+      // Initialize conversation if it doesn't exist
+      const initMessage: any = {
+        orderId: order.id,
+        supplierId: order.supplier_id,
+        karenderiaId: order.karenderia_id,
+        senderId: 0,
+        senderRole: 'supplier',
+        content: 'Conversation started',
+        timestamp: new Date(),
+        isRead: true
+      };
+    }
+
+    const modal = await this.modalController.create({
+      component: SupplyOrderMessagingPage,
+      componentProps: {
+        orderId: order.id,
+        supplierId: order.supplier_id,
+        karenderiaId: order.karenderia_id,
+        otherPartyName: order.karenderia?.business_name || order.karenderia?.name || 'Karenderia Owner'
+      },
+      cssClass: 'messaging-modal',
+      breakpoints: [0, 0.5, 1],
+      initialBreakpoint: 1
+    });
+
+    return await modal.present();
+  }
+
+  async messageSupplier(order: SupplyOrder) {
+    // Ensure conversation exists for this order
+    const conversation = this.messagingService.getConversationSync(order.id);
+    if (!conversation) {
+      // Initialize conversation if it doesn't exist
+      const initMessage: any = {
+        orderId: order.id,
+        supplierId: order.supplier_id,
+        karenderiaId: order.karenderia_id,
+        senderId: 0,
+        senderRole: 'karenderia_owner',
+        content: 'Conversation started',
+        timestamp: new Date(),
+        isRead: true
+      };
+    }
+
+    const modal = await this.modalController.create({
+      component: SupplyOrderMessagingPage,
+      componentProps: {
+        orderId: order.id,
+        supplierId: order.supplier_id,
+        karenderiaId: order.karenderia_id,
+        otherPartyName: order.supplier?.name || 'Supplier'
+      },
+      cssClass: 'messaging-modal',
+      breakpoints: [0, 0.5, 1],
+      initialBreakpoint: 1
+    });
+
+    return await modal.present();
   }
 
   async addSupplierListing() {

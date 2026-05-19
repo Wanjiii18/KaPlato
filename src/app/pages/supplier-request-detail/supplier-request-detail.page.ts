@@ -208,31 +208,10 @@ export class SupplierRequestDetailPage implements OnInit {
     });
   }
 
-  acceptQuoteResponse() {
-    if (!this.myQuote?.id) return;
 
-    const token = localStorage.getItem('auth_token');
-    const headers = new HttpHeaders({
-      'Authorization': token ? `Bearer ${token}` : '',
-      'Content-Type': 'application/json'
-    });
 
-    this.http.patch<any>(
-      `${environment.apiUrl}/supplier-quotes/${this.myQuote.id}/accept-response`,
-      {},
-      { headers }
-    ).subscribe({
-      next: () => {
-        this.showToast('You have accepted the order!');
-        this.checkAcceptanceStatus();
-        this.loadRequestDetail();
-      },
-      error: (error) => {
-        console.error('Error accepting:', error);
-        this.showToast('Failed to accept order');
-      }
-    });
-  }
+  // Note: acceptQuoteResponse() method removed. Owner is responsible for accepting quotes, not the supplier.
+  // Supplier submits quote (pending) -> Waits for owner -> Owner accepts (accepted) -> Supplier delivers
 
   cancelQuote() {
     this.alertController.create({

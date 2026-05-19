@@ -118,13 +118,14 @@
 
     <!-- Action Buttons -->
     <div class="action-buttons">
+      <!-- When quote is PENDING: Supplier waits for owner to accept -->
       <div *ngIf="myQuote && myQuote.status === 'pending'" class="button-group">
         <ion-button 
           expand="block" 
-          color="success"
-          (click)="acceptQuoteResponse()">
-          <ion-icon name="checkmark-outline" slot="start"></ion-icon>
-          Accept Order
+          color="warning"
+          disabled>
+          <ion-icon name="time-outline" slot="start"></ion-icon>
+          Waiting for Owner Response
         </ion-button>
         <ion-button 
           expand="block" 
@@ -132,19 +133,18 @@
           fill="outline"
           (click)="cancelQuote()">
           <ion-icon name="close-outline" slot="start"></ion-icon>
-          Cancel Quote
+          Withdraw Quote
         </ion-button>
       </div>
 
+      <!-- When quote is ACCEPTED: Supplier can mark as delivered -->
       <ion-button 
-        *ngIf="myQuote && (myQuote.status === 'accepted' || isBothPartiesAccepted)"
+        *ngIf="myQuote && myQuote.status === 'accepted' && isBothPartiesAccepted"
         expand="block" 
-        color="primary"
-        [disabled]="!isBothPartiesAccepted"
+        color="success"
         (click)="markAsDelivered()">
         <ion-icon name="checkmark-done-outline" slot="start"></ion-icon>
         Mark as Delivered
-        <ion-note *ngIf="!isBothPartiesAccepted" slot="end">Waiting for acceptance</ion-note>
       </ion-button>
     </div>
 
