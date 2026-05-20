@@ -408,6 +408,14 @@
           </ion-button>
           <ion-button
             fill="outline"
+            color="success"
+            [disabled]="order.status !== 'delivering'"
+            (click)="markOwnerOrderAsDelivered(order)">
+            <ion-icon name="checkmark-done-outline" slot="start"></ion-icon>
+            Confirm Delivery
+          </ion-button>
+          <ion-button
+            fill="outline"
             color="danger"
             [disabled]="order.status === 'cancelled' || order.status === 'delivered'"
             (click)="cancelOwnerOrder(order)">
@@ -596,8 +604,16 @@
           </ion-button>
           <ion-button
             fill="outline"
-            color="success"
+            color="warning"
             [disabled]="order.status !== 'confirmed'"
+            (click)="updateSupplierOrderStatus(order, 'delivering')">
+            <ion-icon name="car-outline" slot="start"></ion-icon>
+            Mark Delivering
+          </ion-button>
+          <ion-button
+            fill="outline"
+            color="success"
+            [disabled]="order.status !== 'delivering'"
             (click)="updateSupplierOrderStatus(order, 'delivered')">
             <ion-icon name="cube-outline" slot="start"></ion-icon>
             Mark Delivered

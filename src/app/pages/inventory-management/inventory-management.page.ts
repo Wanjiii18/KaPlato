@@ -385,6 +385,7 @@ export class InventoryManagementPage implements OnInit {
     switch (status) {
       case 'pending': return 'warning';
       case 'confirmed': return 'primary';
+      case 'delivering': return 'warning';
       case 'delivered': return 'success';
       case 'cancelled': return 'danger';
       default: return 'medium';
@@ -550,7 +551,45 @@ export class InventoryManagementPage implements OnInit {
     }
   }
 
-  async updateSupplierOrderStatus(order: SupplyOrder, status: 'confirmed' | 'delivered' | 'cancelled') {
+  async markOwnerOrderAsDelivered(order: SupplyOrder) {
+    if (order.status !== 'delivering') {
+      this.showToast('Order must be in delivering status', 'warning');
+      return;
+    }
+
+    const alert = await this.alertController.create({
+      header: 'Confirm Delivery',
+      message: 'Have you received this order? The supplier will be notified.',
+      buttons: [
+        { text: 'Cancel', role: 'cancel' },
+        {
+          text: 'Confirm Delivery',
+          handler: async () => {
+            const loading = await this.loadingController.create({
+              message: 'Confirming delivery...'
+            });
+            await loading.present();
+
+            try {
+              await this.inventoryService.updateSupplyOrderStatus(order.id, 'delivered').toPromise();
+              this.showToast('Delivery confirmed! Supplier notified.', 'success');
+              this.loadOwnerOrders();
+              this.loadMarketplaceListings();
+            } catch (error: any) {
+              console.error('Error confirming delivery:', error);
+              this.showToast(error?.error?.error || 'Failed to confirm delivery', 'danger');
+            } finally {
+              loading.dismiss();
+            }
+          }
+        }
+      ]
+    });
+
+    await alert.present();
+  }
+
+  async updateSupplierOrderStatus(order: SupplyOrder, status: 'confirmed' | 'delivering' | 'delivered' | 'cancelled') {
     const loading = await this.loadingController.create({
       message: 'Updating order status...'
     });

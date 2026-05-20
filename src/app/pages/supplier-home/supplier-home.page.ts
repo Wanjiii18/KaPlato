@@ -778,6 +778,12 @@ export class SupplierHomePage implements OnInit {
   }
 
   ngOnInit() {
+    // Check if user is authenticated
+    if (!this.authService.isAuthenticated()) {
+      console.log('User not authenticated, redirecting to login');
+      this.router.navigate(['/login']);
+      return;
+    }
     this.loadDashboardData();
   }
 
