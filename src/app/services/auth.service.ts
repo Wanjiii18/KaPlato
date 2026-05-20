@@ -154,6 +154,12 @@ export class AuthService {
   registerSupplier(registrationData: any): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/auth/register-supplier`, registrationData)
       .pipe(
+        tap(response => {
+          // DO NOT auto-login pending Supplier registrations
+          // Users must wait for admin approval and then login explicitly
+          // Clear any existing auth tokens to prevent auto-login
+          this.logout();
+        }),
         catchError(error => {
           console.error('Supplier registration error:', error);
           throw error;

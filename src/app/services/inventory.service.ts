@@ -103,7 +103,7 @@ export interface SupplyOrder {
   id: number;
   karenderia_id: number;
   supplier_id: number;
-  status: 'pending' | 'confirmed' | 'delivered' | 'cancelled';
+  status: 'pending' | 'confirmed' | 'delivering' | 'delivered' | 'cancelled';
   total_amount: number;
   notes?: string;
   delivery_date?: string;
@@ -262,7 +262,7 @@ export class InventoryService {
   /**
    * Update supply order status
    */
-  updateSupplyOrderStatus(orderId: number, status: 'pending' | 'confirmed' | 'delivered' | 'cancelled'): Observable<any> {
+  updateSupplyOrderStatus(orderId: number, status: 'pending' | 'confirmed' | 'delivering' | 'delivered' | 'cancelled'): Observable<any> {
     return this.http.patch(`${this.supplyBaseUrl}/orders/${orderId}/status`, { status }, { headers: this.getAuthHeaders() });
   }
 
